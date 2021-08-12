@@ -38,6 +38,18 @@ def scale_notes(tonic, bits):
     return ''.join(itertools.compress(chromatic(tonic), map(int, bits)))
 
 
+@functools.lru_cache(1024)
+def chord_kind(chord):
+    it = itertools.cycle(config.chromatic_notes)
+    it = itertools.dropwhile(lambda x: x != chord[0], it)
+    it = enumerate(it)
+    # it = itertools.compress(it, (0))
+    it = filter(lambda kv: kv[1] in chord, it)
+    it = itertools.islice(it, 3)
+    it = list(it)
+    intervals = tuple(k for k, v in it[1:])
+    return {(3, 7): 'min', (4, 7): 'maj', (3, 6): 'dim'}[intervals]
+
 
 class Scale:
     def __init__(self, root, name):
@@ -94,7 +106,7 @@ class Scale:
     def _chords_text(self):
         x = 'chords:\n'
         for i, chord in enumerate(self.chords, start=1):
-            x += f'{i} {chord}\n'
+            x += f'{i} {chord} {chord_kind(chord)}\n'
         return x
 
 
@@ -102,7 +114,7 @@ class Scale:
         x = 'shared chords:\n'
         for i, chord in enumerate(self.chords, start=1):
             shared_info = chord in self.shared_chords and f'shared, was {self.parent.chords.index(chord) + 1}' or ''
-            x += f"{i} {chord} {shared_info}\n"
+            x += f"{i} {chord} {chord_kind(chord)} {shared_info}\n"
             # x += '\n'.join(self.shared_chords)
         return x
         # sc =
