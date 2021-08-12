@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from scale import name_2_bits
+from scale import name_2_bits, Scale
 import config
 
 app = FastAPI()
 
 roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
-
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
@@ -25,8 +24,7 @@ async def root():
 async def root_scales(root: str):
     scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
     return f'''
-    <a href='/'>home</a><br>
-    root: {roots}
+    <a href='/'>home</a> | root: {roots}
     <h1>{root} scales</h1>
     <ol>
     {scales}
@@ -40,10 +38,14 @@ async def root_name_scale(root: str, name: str):
     if root not in config.chromatic_notes:
         return RedirectResponse('/scale_not_found')
 
+    s = Scale(root, name)
+    img_base64 = s.to_piano_image(base64=True)
+
     return f'''
-    <a href='/'>home</a>
+    <a href='/'>home</a> | root: {roots}
     <h1>{root} {name}</h1>
-    <code>bits: {name_2_bits[name]}</code>
+    <code>bits: {name_2_bits[name]}</code><br>
+    <img src='{img_base64}'/>
     '''
 
 

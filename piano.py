@@ -1,6 +1,8 @@
-import itertools
 from PIL import Image, ImageDraw, ImageFont
 import config
+import io
+import base64
+import sys
 
 font = ImageFont.truetype('res/SFNSMono.ttf', 40)
 piano_template = Image.open("res/piano_template-grey.png").convert("RGBA")
@@ -36,7 +38,7 @@ note_xy = {
     (config.chromatic_notes[11], 1): (white_x0 + white_dx * 13, white_y),
 }
 
-def scale_to_piano(scale):
+def scale_to_piano(scale, as_base64=False):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
 
@@ -65,4 +67,9 @@ def scale_to_piano(scale):
     # for octave, note in itertools.product((0, 1), config.chromatic_notes):
     #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
+    out.thumbnail((sys.maxsize, 200), Image.ANTIALIAS)
+    if as_base64:
+        b = io.BytesIO()
+        out.save(b, format='PNG')
+        return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
     return out
