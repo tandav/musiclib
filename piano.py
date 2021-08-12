@@ -7,7 +7,7 @@ piano_template = Image.open("res/piano_template-grey.png").convert("RGBA")
 
 
 white_x0, white_dx, white_y = 24, 73, 351
-black_x0, black_dx, black_y = 61, 73, 255
+black_x0, black_dx, black_y = 61, 73, 225
 
 note_xy = {
     (config.chromatic_notes[ 0], 0): (white_x0 + white_dx *  0, white_y),
