@@ -1,5 +1,7 @@
 from collections import deque, defaultdict
 import itertools
+import functools
+import textwrap
 import config
 from piano import scale_to_piano
 
@@ -44,16 +46,30 @@ class Scale:
         self.name = name
         self.notes = scale_notes(root, self.bits)
         self.as_C = ''
+        self.add_chords()
 
         for bits, name in bits_2_name.items():
             if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
                 self.as_C = name
+
 
     @classmethod
     def from_bits(cls, root, bits):
         return cls(root, bits_2_name[bits])
 
 
+    def add_chords(self):
+        notes_deque = deque(self.notes)
+        self.chords = list()
+
+        while True:
+            chord = notes_deque[0] + notes_deque[2] + notes_deque[4]
+            if chord in self.chords:
+                return
+            self.chords.append(chord)
+            notes_deque.rotate(-1)
+
+    #@functools.cache
     def neighbors(self, scales):
         neighs = defaultdict(list)
         for s in scales.values():
@@ -63,6 +79,8 @@ class Scale:
             marked_scale = Scale(s.root, s.name)
             marked_scale.new_notes = set(s.notes) - set(self.notes)
             marked_scale.del_notes = set(self.notes) - set(s.notes)
+            marked_scale.shared_chords = set(self.chords) & set(s.chords)
+            marked_scale.parent = self
             neighs[len(shared)].append(marked_scale)
         return neighs
 
@@ -73,11 +91,33 @@ class Scale:
             red_notes=getattr(self, 'del_notes', frozenset()),
         )
 
+    def _chords_text(self):
+        x = 'chords:\n'
+        for i, chord in enumerate(self.chords, start=1):
+            x += f'{i} {chord}\n'
+        return x
+
+
+    def _shared_chords_text(self):
+        x = 'shared chords:\n'
+        for i, chord in enumerate(self.chords, start=1):
+            shared_info = chord in self.shared_chords and f'shared, was {self.parent.chords.index(chord) + 1}' or ''
+            x += f"{i} {chord} {shared_info}\n"
+            # x += '\n'.join(self.shared_chords)
+        return x
+        # sc =
+        # return textwrap.dedent(f'''\
+        # shared chords:
+        # {sc}
+        # '''.strip())
+
     def to_html(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
+        title = hasattr(self, 'shared_chords') and f"title='{self._shared_chords_text()}'" or f"title='{self._chords_text()}'"
+
         return f'''
-        <div class='scale {self.name}'>
+        <div class='scale {self.name}' {title}>
         <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
