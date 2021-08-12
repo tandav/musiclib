@@ -42,7 +42,7 @@ def scale_to_piano(scale, as_base64=False):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
 
-    def add_square(xy, text):
+    def add_square(xy, note, number):
         x, y = xy
         r = 50
         padding_x = 12
@@ -52,22 +52,26 @@ def scale_to_piano(scale, as_base64=False):
         red_y = y - red_bigger
         red_r = r + red_bigger * 2
 
+        number_dy = 50
+
         # d.rectangle((x - padding_x, y - padding_y, x - padding_x + r , y - padding_y + r), fill=(0,0,0,0), outline=(0,0,0), width=4)
         # d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r , red_y - padding_y + red_r), fill=(255,255,255,255), outline=(255,0,0), width=5)
         d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 255, 255, 255))
-        d.text((x, y), text, font=font, fill=(0, 0, 0, 255))
+        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(255, 255, 255, 100))
+        d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
+        d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
     i = 0
     for (note, octave), xy in note_xy.items():
         if note == scale[i]:
-            add_square(xy, note)
+            add_square(xy, note, i + 1)
             i += 1
             if i == len(scale):
                 break
     # for octave, note in itertools.product((0, 1), config.chromatic_notes):
     #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
-    out.thumbnail((sys.maxsize, 200), Image.ANTIALIAS)
+    out.thumbnail((sys.maxsize, 170), Image.ANTIALIAS)
     if as_base64:
         b = io.BytesIO()
         out.save(b, format='PNG')
