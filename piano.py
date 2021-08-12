@@ -74,15 +74,19 @@ def scale_to_piano(scale, as_base64=False, green_notes=frozenset(), red_notes=fr
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
     i = 0
+    scale_finished = False
     for (note, octave), xy in note_xy.items():
-        if note in red_notes and i > 0:
-            red_square(xy)
+        if i > 0:
+            if note in red_notes:
+                red_square(xy)
+            if note == scale[0]:
+                break
 
-        if note == scale[i]:
+        if not scale_finished and note == scale[i]:
             add_square(xy, note, i + 1, color = note in green_notes and (0, 255, 0))
             i += 1
             if i == len(scale):
-                break
+                scale_finished = True
 
 
     # for octave, note in itertools.product((0, 1), config.chromatic_notes):
