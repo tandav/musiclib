@@ -62,11 +62,16 @@ class Scale:
             shared = ''.join(sorted(set(self.notes) & set(s.notes), key=config.chromatic_notes.find))
             marked_scale = Scale(s.root, s.name)
             marked_scale.new_notes = set(s.notes) - set(self.notes)
+            marked_scale.del_notes = set(self.notes) - set(s.notes)
             neighs[len(shared)].append(marked_scale)
         return neighs
 
     def to_piano_image(self, base64=False):
-        return scale_to_piano(self.notes, as_base64=base64, green_notes=getattr(self, 'new_notes', frozenset()))
+        return scale_to_piano(
+            self.notes, as_base64=base64,
+            green_notes=getattr(self, 'new_notes', frozenset()),
+            red_notes=getattr(self, 'del_notes', frozenset()),
+        )
 
     def to_html(self):
         # <code>bits: {self.bits}</code><br>

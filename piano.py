@@ -6,6 +6,7 @@ import sys
 
 # font = ImageFont.truetype('res/fonts/SFMono-Bold.otf', 40)
 font = ImageFont.truetype('res/fonts/SFMono-Semibold.otf', 40)
+
 piano_template = Image.open("res/piano_template-grey2.png").convert("RGBA")
 
 
@@ -39,20 +40,30 @@ note_xy = {
     (config.chromatic_notes[11], 1): (white_x0 + white_dx * 13, white_y),
 }
 
-def scale_to_piano(scale, as_base64=False, green_notes=frozenset()):
+def scale_to_piano(scale, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
-    def add_square(xy, note, number, color=False):
+
+    r = 50
+    padding_x = 12
+    padding_y = 1
+    red_bigger = -2
+
+    number_dy = 50
+
+
+    def red_square(xy):
         x, y = xy
-        r = 50
-        padding_x = 12
-        padding_y = 1
-        red_bigger = -2
         red_x = x - red_bigger
         red_y = y - red_bigger
         red_r = r + red_bigger * 2
+        d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 0, 0))
 
-        number_dy = 50
+    def add_square(xy, note, number, color=False):
+        x, y = xy
+        red_x = x - red_bigger
+        red_y = y - red_bigger
+        red_r = r + red_bigger * 2
 
         if color:
             d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color)
@@ -64,11 +75,16 @@ def scale_to_piano(scale, as_base64=False, green_notes=frozenset()):
 
     i = 0
     for (note, octave), xy in note_xy.items():
+        if note in red_notes and i > 0:
+            red_square(xy)
+
         if note == scale[i]:
             add_square(xy, note, i + 1, color = note in green_notes and (0, 255, 0))
             i += 1
             if i == len(scale):
                 break
+
+
     # for octave, note in itertools.product((0, 1), config.chromatic_notes):
     #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
