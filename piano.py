@@ -72,6 +72,8 @@ def scale_to_piano(scale, as_base64=False):
     #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
     out.thumbnail((sys.maxsize, 120), Image.ANTIALIAS)
+    out = out.crop((0, 22, out.size[0], 99))
+
     if as_base64:
         b = io.BytesIO()
         out.save(b, format='PNG')

@@ -57,11 +57,11 @@ class Scale:
         return scale_to_piano(self.notes, as_base64=base64)
 
     def to_html(self):
+        # <code>bits: {self.bits}</code><br>
+        as_C = self.as_C and f'as_C: {self.as_C}' or ''
         return f'''
         <div class='scale'>
-        <h3>{self.root} {self.name}</h3>
-        <code>bits: {self.bits}</code><br>
-        <code>as_C: {self.as_C}</code><br>
+        <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''
