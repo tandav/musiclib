@@ -50,11 +50,23 @@ class Scale:
                 self.as_C = name
 
     @classmethod
-    def from_bits(cls, tonic, bits):
-        return cls(tonic, bits_2_name[bits])
+    def from_bits(cls, root, bits):
+        return cls(root, bits_2_name[bits])
+
+
+    def neighbors(self, scales):
+        neighs = defaultdict(list)
+        for s in scales.values():
+            if s == self:
+                continue
+            shared = ''.join(sorted(set(self.notes) & set(s.notes), key=config.chromatic_notes.find))
+            marked_scale = Scale(s.root, s.name)
+            marked_scale.new_notes = set(s.notes) - set(self.notes)
+            neighs[len(shared)].append(marked_scale)
+        return neighs
 
     def to_piano_image(self, base64=False):
-        return scale_to_piano(self.notes, as_base64=base64)
+        return scale_to_piano(self.notes, as_base64=base64, green_notes=getattr(self, 'new_notes', frozenset()))
 
     def to_html(self):
         # <code>bits: {self.bits}</code><br>
@@ -77,17 +89,14 @@ class Scale:
 #         as_C  {self.as_C}
 #         ''')
 
-
-
-
 all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, name_2_bits)}
 
-def neighbors(scale):
-    neighs = defaultdict(list)
-    for s in all_scales.values():
-        if s == scale:
-            continue
-        shared = ''.join(sorted(set(scale.notes) & set(s.notes), key=config.chromatic_notes.find))
-        neighs[len(shared)].append(s)
-    return neighs
+# def neighbors(scale):
+#     neighs = defaultdict(list)
+#     for s in all_scales.values():
+#         if s == scale:
+#             continue
+#         shared = ''.join(sorted(set(scale.notes) & set(s.notes), key=config.chromatic_notes.find))
+#         neighs[len(shared)].append(s)
+#     return neighs
 
