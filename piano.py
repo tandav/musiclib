@@ -4,7 +4,7 @@ import io
 import base64
 import sys
 
-font = ImageFont.truetype('res/SFNSMono.ttf', 40)
+font = ImageFont.truetype('res/fonts/SFMono-Bold.otf', 40)
 piano_template = Image.open("res/piano_template-grey.png").convert("RGBA")
 
 
@@ -71,7 +71,7 @@ def scale_to_piano(scale, as_base64=False):
     # for octave, note in itertools.product((0, 1), config.chromatic_notes):
     #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
-    out.thumbnail((sys.maxsize, 170), Image.ANTIALIAS)
+    out.thumbnail((sys.maxsize, 120), Image.ANTIALIAS)
     if as_base64:
         b = io.BytesIO()
         out.save(b, format='PNG')

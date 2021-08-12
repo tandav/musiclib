@@ -1,11 +1,19 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from scale import name_2_bits, Scale
+from scale import name_2_bits, all_scales, neighbors
 import config
+
+chromatic_notes_set = set(config.chromatic_notes)
+
 
 app = FastAPI()
 
+css = f'''
+<style>
+{open('main.css').read()}
+</style>
+'''
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
@@ -30,27 +38,41 @@ async def root_scales(root: str):
     <ol>
     {scales}
     </ol>
+    {css}
     '''
 
 
 @app.get("/scale/{root}/{name}", response_class=HTMLResponse)
 async def root_name_scale(root: str, name: str):
 
-    if root not in config.chromatic_notes:
+    if root not in chromatic_notes_set:
         return RedirectResponse('/scale_not_found')
 
     roots = ' '.join(f"<a href='/scale/{note}/{name}'>{note}</a>" for note in config.chromatic_notes)
     scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in name_2_bits)
 
-    s = Scale(root, name)
-    img_base64 = s.to_piano_image(base64=True)
+    s = all_scales[root, name]
+
+    neighs = neighbors(s)
+    neighs_html = ''
+
+    for n_intersect in sorted(neighs.keys(), reverse=True):
+        print(n_intersect)
+        if n_intersect < config.neighsbors_min_intersect:
+            break
+        neighs_html += f'''
+        <h3>{n_intersect} note intersection scales</h3>
+        <div class="neighbors">
+        {'<br>'.join(n.to_html() for n in neighs[n_intersect])}
+        </div>
+        '''
 
     return f'''
     <a href='/'>home</a> | root: {roots} | scale: {scales}
-    <h1>{root} {name}</h1>
-    <code>bits: {s.bits}</code><br>
-    <code>as_C: {s.as_C}</code><br>
-    <img src='{img_base64}'/>
+    {s.to_html()}
+    <hr>
+    {neighs_html}
+    {css}
     '''
 
 

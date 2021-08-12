@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, defaultdict
 import itertools
 import config
 from piano import scale_to_piano
@@ -56,6 +56,18 @@ class Scale:
     def to_piano_image(self, base64=False):
         return scale_to_piano(self.notes, as_base64=base64)
 
+    def to_html(self):
+        return f'''
+        <div class='scale'>
+        <h3>{self.root} {self.name}</h3>
+        <code>bits: {self.bits}</code><br>
+        <code>as_C: {self.as_C}</code><br>
+        <img src='{self.to_piano_image(base64=True)}'/>
+        </div>
+        '''
+
+    def __eq__(self, other):
+        return self.root == other.root and self.name == other.name
 
     def __repr__(self):
         return f"Scale(tonic={self.root!r}, name={self.name!r:<12}, notes={self.notes!r} as_C={self.as_C:<12})"
@@ -64,3 +76,18 @@ class Scale:
 #         notes {self.notes}
 #         as_C  {self.as_C}
 #         ''')
+
+
+
+
+all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, name_2_bits)}
+
+def neighbors(scale):
+    neighs = defaultdict(list)
+    for s in all_scales.values():
+        if s == scale:
+            continue
+        shared = ''.join(sorted(set(scale.notes) & set(s.notes), key=config.chromatic_notes.find))
+        neighs[len(shared)].append(s)
+    return neighs
+
