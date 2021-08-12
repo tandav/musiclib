@@ -6,7 +6,6 @@ import config
 
 app = FastAPI()
 
-roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
@@ -23,6 +22,8 @@ async def root():
 @app.get("/scale/{root}", response_class=HTMLResponse)
 async def root_scales(root: str):
     scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
+    roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
+
     return f'''
     <a href='/'>home</a> | root: {roots}
     <h1>{root} scales</h1>
@@ -38,11 +39,14 @@ async def root_name_scale(root: str, name: str):
     if root not in config.chromatic_notes:
         return RedirectResponse('/scale_not_found')
 
+    roots = ' '.join(f"<a href='/scale/{note}/{name}'>{note}</a>" for note in config.chromatic_notes)
+    scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in name_2_bits)
+
     s = Scale(root, name)
     img_base64 = s.to_piano_image(base64=True)
 
     return f'''
-    <a href='/'>home</a> | root: {roots}
+    <a href='/'>home</a> | root: {roots} | scale: {scales}
     <h1>{root} {name}</h1>
     <code>bits: {name_2_bits[name]}</code><br>
     <img src='{img_base64}'/>
