@@ -48,7 +48,8 @@ async def root_name_scale(root: str, name: str):
     return f'''
     <a href='/'>home</a> | root: {roots} | scale: {scales}
     <h1>{root} {name}</h1>
-    <code>bits: {name_2_bits[name]}</code><br>
+    <code>bits: {s.bits}</code><br>
+    <code>as_C: {s.as_C}</code><br>
     <img src='{img_base64}'/>
     '''
 
