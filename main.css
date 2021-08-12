@@ -27,10 +27,6 @@ body {
     align-items: center;
 }
 
-img {
-    margin-top: 0px;
-}
-
 .major { background-color: white;}
 .dorian { background-color: #54E346; }
 .phrygian { background-color: #00FFCC; }
