@@ -60,7 +60,7 @@ class Scale:
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
         return f'''
-        <div class='scale'>
+        <div class='scale {self.name}'>
         <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
