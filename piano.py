@@ -57,7 +57,7 @@ def scale_to_piano(scale, as_base64=False):
         # d.rectangle((x - padding_x, y - padding_y, x - padding_x + r , y - padding_y + r), fill=(0,0,0,0), outline=(0,0,0), width=4)
         # d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r , red_y - padding_y + red_r), fill=(255,255,255,255), outline=(255,0,0), width=5)
         d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 255, 255, 255))
-        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(255, 255, 255, 100))
+        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(215, 215, 215))
         d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
