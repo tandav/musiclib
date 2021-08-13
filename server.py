@@ -36,7 +36,7 @@ async def root_scales(root: str):
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <a href='/'>home</a> | root: {roots}
+    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots}
     <h1>{root} scales</h1>
     <ol>
     {scales}
@@ -71,7 +71,7 @@ async def root_name_scale(root: str, name: str):
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <a href='/'>home</a> | root: {roots} | scale: {scales}
+    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | scale: {scales}
     {s!r}
     <hr>
     {neighs_html}
@@ -99,7 +99,7 @@ async def compare_scales(left_root: str, left_name: str, right_root: str, right_
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
     
-    <a href='/'>home</a>
+    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a>
     <h1>compare scales</h1>
     <div class='compare_scales'>{left!r}{right!r}</div>
     <h1>chords</h1>
