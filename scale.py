@@ -3,6 +3,7 @@ import itertools
 import functools
 import textwrap
 import config
+import util
 from piano import scale_to_piano
 
 
@@ -52,21 +53,24 @@ def chord_kind(chord):
 
 
 class Scale:
-    def __init__(self, root, name):
+    def __init__(self, root: str, name: str):
         self.root = root
         self.bits = name_2_bits[name]
         self.name = name
         self.notes = scale_notes(root, self.bits)
-        self.as_C = ''
         self.add_chords()
+        self.add_as_C()
 
+
+    def add_as_C(self):
+        self.as_C = ''
         for bits, name in bits_2_name.items():
             if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
                 self.as_C = name
 
 
     @classmethod
-    def from_bits(cls, root, bits):
+    def from_bits(cls, root: str, bits: str):
         return cls(root, bits_2_name[bits])
 
 
@@ -81,20 +85,6 @@ class Scale:
             self.chords.append(chord)
             notes_deque.rotate(-1)
 
-    #@functools.cache
-    def neighbors(self, scales):
-        neighs = defaultdict(list)
-        for s in scales.values():
-            if s == self:
-                continue
-            shared = ''.join(sorted(set(self.notes) & set(s.notes), key=config.chromatic_notes.find))
-            marked_scale = Scale(s.root, s.name)
-            marked_scale.new_notes = set(s.notes) - set(self.notes)
-            marked_scale.del_notes = set(self.notes) - set(s.notes)
-            marked_scale.shared_chords = set(self.chords) & set(s.chords)
-            marked_scale.parent = self
-            neighs[len(shared)].append(marked_scale)
-        return neighs
 
     def to_piano_image(self, base64=False):
         return scale_to_piano(
@@ -110,33 +100,24 @@ class Scale:
         return x
 
 
-    def _shared_chords_text(self):
-        x = 'shared chords:\n'
-        for i, chord in enumerate(self.chords, start=1):
-            shared_info = chord in self.shared_chords and f'shared, was {self.parent.chords.index(chord) + 1}' or ''
-            x += f"{i} {chord} {chord_kind(chord)} {shared_info}\n"
-            # x += '\n'.join(self.shared_chords)
-        return x
-        # sc =
-        # return textwrap.dedent(f'''\
-        # shared chords:
-        # {sc}
-        # '''.strip())
-
+    # @functools.cached_property
     def to_html(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
-        title = hasattr(self, 'shared_chords') and f"title='{self._shared_chords_text()}'" or f"title='{self._chords_text()}'"
-
         return f'''
-        <div class='scale {self.name}' {title}>
+        <div class='scale {self.name}' title='{self._chords_text()}'>
         <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''
 
-    def __eq__(self, other):
-        return self.root == other.root and self.name == other.name
+    @property
+    def key(self):
+        return self.root, self.name
+
+    def __eq__(self, other): return self.key == other.key
+    def __hash__(self): return hash(self.key)
+
 
     def __repr__(self):
         return f"Scale(tonic={self.root!r}, name={self.name!r:<12}, notes={self.notes!r} as_C={self.as_C:<12})"
@@ -146,14 +127,49 @@ class Scale:
 #         as_C  {self.as_C}
 #         ''')
 
+
+class ComparedScale(Scale):
+    '''
+    this is compared scale
+    local terminology: left sclae is compared to right
+    left is kinda parent, right is kinda child
+    '''
+    def __init__(self, root, name, left: Scale):
+        super().__init__(root, name)
+        self.shared_notes = util.sort_notes(frozenset(left.notes) & frozenset(self.notes))
+        self.new_notes = frozenset(self.notes) - frozenset(left.notes)
+        self.del_notes = frozenset(left.notes) - frozenset(self.notes)
+        self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
+        self.left = left
+
+
+    def _shared_chords_text(self):
+        x = 'shared chords:\n'
+        for i, chord in enumerate(self.chords, start=1):
+            shared_info = chord in self.shared_chords and f'shared, was {self.left.chords.index(chord) + 1}' or ''
+            x += f"{i} {chord} {chord_kind(chord)} {shared_info}\n"
+        return x
+
+    def to_html(self):
+        # <code>bits: {self.bits}</code><br>
+        as_C = self.as_C and f'as_C: {self.as_C}' or ''
+
+        return f'''
+        <div class='scale {self.name}' title='{self._shared_chords_text()}'>
+        <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
+        <img src='{self.to_piano_image(base64=True)}'/>
+        </div>
+        '''
+
 all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, name_2_bits)}
 
-# def neighbors(scale):
-#     neighs = defaultdict(list)
-#     for s in all_scales.values():
-#         if s == scale:
-#             continue
-#         shared = ''.join(sorted(set(scale.notes) & set(s.notes), key=config.chromatic_notes.find))
-#         neighs[len(shared)].append(s)
-#     return neighs
+@functools.lru_cache(maxsize=1024)
+def neighbors(left):
+    neighs = defaultdict(list)
+    for s in all_scales.values():
+        if s == left:
+            continue
+        right = ComparedScale(s.root, s.name, left)
+        neighs[len(right.shared_notes)].append(right)
+    return neighs
 

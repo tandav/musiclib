@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from scale import name_2_bits, all_scales
+from scale import name_2_bits, all_scales, neighbors
 import config
 
 chromatic_notes_set = set(config.chromatic_notes)
@@ -52,7 +52,7 @@ async def root_name_scale(root: str, name: str):
     scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in name_2_bits)
 
     s = all_scales[root, name]
-    neighs = s.neighbors(all_scales)
+    neighs = neighbors(s)
     neighs_html = ''
 
     for n_intersect in sorted(neighs.keys(), reverse=True):
