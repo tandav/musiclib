@@ -40,61 +40,85 @@ note_xy = {
     (config.chromatic_notes[11], 1): (white_x0 + white_dx * 13, white_y),
 }
 
+
+r = 50
+padding_x = 12
+padding_y = 1
+red_bigger = -2
+number_dy = 50
+
+
+def red_square(d, xy):
+    x, y = xy
+    red_x = x - red_bigger
+    red_y = y - red_bigger
+    red_r = r + red_bigger * 2
+    d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 0, 0))
+
+def add_square(d, xy, note, number=None, color=(255, 255, 255)):
+    x, y = xy
+    red_x = x - red_bigger
+    red_y = y - red_bigger
+    red_r = r + red_bigger * 2
+
+    d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color)
+    d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
+
+    if number:
+        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(215, 215, 215))
+        d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
+
+
 def scale_to_piano(scale, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
-
-    r = 50
-    padding_x = 12
-    padding_y = 1
-    red_bigger = -2
-
-    number_dy = 50
-
-
-    def red_square(xy):
-        x, y = xy
-        red_x = x - red_bigger
-        red_y = y - red_bigger
-        red_r = r + red_bigger * 2
-        d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 0, 0))
-
-    def add_square(xy, note, number, color=False):
-        x, y = xy
-        red_x = x - red_bigger
-        red_y = y - red_bigger
-        red_r = r + red_bigger * 2
-
-        if color:
-            d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color)
-        else:
-            d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 255, 255, 255))
-        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(215, 215, 215))
-        d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
-        d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
     i = 0
     scale_finished = False
     for (note, octave), xy in note_xy.items():
         if i > 0:
             if note in red_notes:
-                red_square(xy)
+                red_square(d, xy)
             if note == scale[0]:
                 break
 
         if not scale_finished and note == scale[i]:
-            add_square(xy, note, i + 1, color = note in green_notes and (0, 255, 0))
+            if note in green_notes:
+                add_square(d, xy, note, i + 1, color=(0, 255, 0))
+            else:
+                add_square(d, xy, note, i + 1)
             i += 1
             if i == len(scale):
                 scale_finished = True
 
 
-    # for octave, note in itertools.product((0, 1), config.chromatic_notes):
-    #     add_square(note_xy[(note, octave)], note)
     out = Image.alpha_composite(piano_template, layer)
     out.thumbnail((sys.maxsize, 120), Image.ANTIALIAS)
     out = out.crop((0, 22, out.size[0], 98))
 
+    if as_base64:
+        b = io.BytesIO()
+        out.save(b, format='PNG')
+        return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
+    return out
+
+
+def chord_to_piano(chord, as_base64=False):
+    layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
+    d = ImageDraw.Draw(layer)
+
+    i = 0
+    for (note, octave), xy in note_xy.items():
+        if note == chord[i]:
+            add_square(d, xy, note)
+            i += 1
+            if i == len(chord):
+                break
+
+
+    out = Image.alpha_composite(piano_template, layer)
+    out.thumbnail((sys.maxsize, 120), Image.ANTIALIAS)
+    out = out.crop((0, 22, out.size[0], 98))
     if as_base64:
         b = io.BytesIO()
         out.save(b, format='PNG')

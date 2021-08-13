@@ -84,7 +84,7 @@ class Scale:
     def _chords_text(self):
         x = 'chords:\n'
         for i, chord in enumerate(self.chords, start=1):
-            x += f'{i} {chord} {chord.kind}\n'
+            x += f'{i} {chord} {chord.name}\n'
         return x
 
 
@@ -93,7 +93,7 @@ class Scale:
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
         return f'''
-        <div class='scale {self.name}' title='{self._chords_text()}'>
+        <div class='card {self.name}' title='{self._chords_text()}'>
         <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
@@ -127,7 +127,7 @@ class ComparedScale(Scale):
         x = 'shared chords:\n'
         for i, chord in enumerate(self.chords, start=1):
             shared_info = chord in self.shared_chords and f'shared, was {self.left.chords.index(chord) + 1}' or ''
-            x += f"{i} {chord} {chord.kind} {shared_info}\n"
+            x += f"{i} {chord} {chord.name} {shared_info}\n"
         return x
 
     def __repr__(self):
@@ -135,7 +135,7 @@ class ComparedScale(Scale):
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
 
         return f'''
-        <div class='scale {self.name}' title='{self._shared_chords_text()}'>
+        <div class='card {self.name}' title='{self._shared_chords_text()}'>
         <span class='scale_header'><h3><a href='/scale/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>

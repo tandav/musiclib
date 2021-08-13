@@ -69,7 +69,7 @@ async def root_name_scale(root: str, name: str):
 
     return f'''
     <a href='/'>home</a> | root: {roots} | scale: {scales}
-    {s}
+    {s!r}
     <hr>
     {neighs_html}
     {css}
@@ -79,11 +79,19 @@ async def root_name_scale(root: str, name: str):
 async def compare_scales(left_root: str, left_name: str, right_root: str, right_name: str):
     left = all_scales[left_root, left_name]
     right = ComparedScale(left, all_scales[right_root, right_name])
-
+    # chords =
     return f'''
     <a href='/'>home</a>
-    <h1>Compare scales</h1>
-    {left}
-    {right}
+    <h1>compare scales</h1>
+    <div class='compare_scales'>
+    <div class='left'>
+    {left!r} 
+    {''.join(repr(chord) for chord in left.chords)}
+    </div>
+    <div class='right'>
+    {right!r}
+    {''.join(repr(chord) for chord in right.chords)}
+    </div>
+    </div>
     {css}
     '''

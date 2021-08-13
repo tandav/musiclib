@@ -3,7 +3,7 @@ body {
     font-family: Arial;
 }
 
-.scale {
+.card {
     /*margin: auto;*/
     padding: 10px;
     margin: 5px;
@@ -12,7 +12,6 @@ body {
     height: 110px;
     box-shadow: 2px 2px;
     border-radius: 3px;
-    background: white;
 }
 
 .neighbors {
@@ -34,3 +33,7 @@ body {
 .mixolydian { background-color: #FFF47D; }
 .minor { background-color: #D83A56; }
 .locrian { background-color: #B980F0; }
+
+.compare_scales {
+    display: flex;
+}
