@@ -134,8 +134,8 @@ class ComparedScale(Scale):
     local terminology: left sclae is compared to right
     left is kinda parent, right is kinda child
     '''
-    def __init__(self, root, name, left: Scale):
-        super().__init__(root, name)
+    def __init__(self, left: Scale, right: Scale):
+        super().__init__(right.root, right.name)
         self.shared_notes = util.sort_notes(frozenset(left.notes) & frozenset(self.notes))
         self.new_notes = frozenset(self.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(self.notes)
@@ -156,7 +156,7 @@ class ComparedScale(Scale):
 
         return f'''
         <div class='scale {self.name}' title='{self._shared_chords_text()}'>
-        <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
+        <span class='scale_header'><h3><a href='/scale/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''
@@ -166,10 +166,10 @@ all_scales = {(root, name): Scale(root, name) for root, name in itertools.produc
 @functools.lru_cache(maxsize=1024)
 def neighbors(left):
     neighs = defaultdict(list)
-    for s in all_scales.values():
-        if s == left:
+    for right in all_scales.values():
+        if left == right:
             continue
-        right = ComparedScale(s.root, s.name, left)
+        right = ComparedScale(left, right)
         neighs[len(right.shared_notes)].append(right)
     return neighs
 
