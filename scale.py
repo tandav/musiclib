@@ -101,7 +101,7 @@ class Scale:
 
 
     # @functools.cached_property
-    def to_html(self):
+    def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
         return f'''
@@ -119,8 +119,8 @@ class Scale:
     def __hash__(self): return hash(self.key)
 
 
-    def __repr__(self):
-        return f"Scale(tonic={self.root!r}, name={self.name!r:<12}, notes={self.notes!r} as_C={self.as_C:<12})"
+    # def __repr__(self):
+    #     return f"Scale(tonic={self.root!r}, name={self.name!r:<12}, notes={self.notes!r} as_C={self.as_C:<12})"
 #         return textwrap.dedent(f'''\
 #         {self.root}     {self.name:<12}
 #         notes {self.notes}
@@ -150,7 +150,7 @@ class ComparedScale(Scale):
             x += f"{i} {chord} {chord_kind(chord)} {shared_info}\n"
         return x
 
-    def to_html(self):
+    def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
 

@@ -29,8 +29,8 @@ async def root():
 
 @app.get("/scale/{root}", response_class=HTMLResponse)
 async def root_scales(root: str):
-    scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
     roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
+    scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
 
     return f'''
     <a href='/'>home</a> | root: {roots}
@@ -62,14 +62,14 @@ async def root_name_scale(root: str, name: str):
         neighs_html += f'''
         <h3>{n_intersect} note intersection scales</h3>
         <div class="neighbors">
-        {''.join(n.to_html() for n in neighs[n_intersect])}
+        {''.join(repr(n) for n in neighs[n_intersect])}
         </div>
         <hr>
         '''
 
     return f'''
     <a href='/'>home</a> | root: {roots} | scale: {scales}
-    {s.to_html()}
+    {s}
     <hr>
     {neighs_html}
     {css}
