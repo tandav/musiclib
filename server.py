@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from scale import name_2_bits, all_scales, neighbors
+from scale import name_2_bits, all_scales, neighbors, ComparedScale
 import config
 
 chromatic_notes_set = set(config.chromatic_notes)
@@ -72,5 +72,18 @@ async def root_name_scale(root: str, name: str):
     {s}
     <hr>
     {neighs_html}
+    {css}
+    '''
+
+@app.get("/scale/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
+async def compare_scales(left_root: str, left_name: str, right_root: str, right_name: str):
+    left = all_scales[left_root, left_name]
+    right = ComparedScale(left, all_scales[right_root, right_name])
+
+    return f'''
+    <a href='/'>home</a>
+    <h1>Compare scales</h1>
+    {left}
+    {right}
     {css}
     '''
