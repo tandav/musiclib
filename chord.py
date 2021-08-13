@@ -36,8 +36,8 @@ class Chord:
 
         return f'''
         <li class='card {self.name}' >
-        <span class='card_header' {label} ><h3>{self.root} {self.name}</h3></span>
-        <img src='{self.to_piano_image(base64=True)}'/>
+        <span class='card_header' ><h3>{self.root} {self.name}</h3></span>
+        <img src='{self.to_piano_image(base64=True)}' {label}/>
         </li>
         '''
 
