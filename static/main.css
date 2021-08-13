@@ -34,6 +34,7 @@ body {
 .mixolydian { background-color: #FFF47D; }
 .minor { background-color: #D83A56; }
 .locrian { background-color: #B980F0; }
+.diminished { background-color: #B980F0; }
 
 .compare_scales {
     display: flex;
