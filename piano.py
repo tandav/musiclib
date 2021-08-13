@@ -4,10 +4,9 @@ import io
 import base64
 import sys
 
-# font = ImageFont.truetype('res/fonts/SFMono-Bold.otf', 40)
-font = ImageFont.truetype('res/fonts/SFMono-Semibold.otf', 40)
-
-piano_template = Image.open("res/piano_template-grey2.png").convert("RGBA")
+# font = ImageFont.truetype('static/fonts/SFMono-Bold.otf', 40)
+font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
+piano_template = Image.open("static/piano_template-grey2.png").convert("RGBA")
 
 
 white_x0, white_dx, white_y = 24, 73, 351

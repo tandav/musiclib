@@ -14,16 +14,17 @@ body {
     border-radius: 3px;
 }
 
-.neighbors {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.scale_header {
+.card_header {
     margin-top: -25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+
+.neighbors {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .major { background-color: white;}

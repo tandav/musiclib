@@ -34,7 +34,7 @@ class Chord:
     # def _repr_html_(self):
         return f'''
         <div class='card {self.name}'>
-        <span class='scale_header'><h3>{self.root} {self.name}</h3></span>
+        <span class='card_header'><h3>{self.root} {self.name}</h3></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''

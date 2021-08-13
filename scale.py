@@ -94,7 +94,7 @@ class Scale:
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
         return f'''
         <div class='card {self.name}' title='{self._chords_text()}'>
-        <span class='scale_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
+        <span class='card_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''
@@ -136,7 +136,7 @@ class ComparedScale(Scale):
 
         return f'''
         <div class='card {self.name}' title='{self._shared_chords_text()}'>
-        <span class='scale_header'><h3><a href='/scale/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
+        <span class='card_header'><h3><a href='/scale/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
         </div>
         '''

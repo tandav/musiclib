@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from scale import name_2_bits, all_scales, neighbors, ComparedScale
 import config
@@ -8,10 +9,11 @@ chromatic_notes_set = set(config.chromatic_notes)
 
 
 app = FastAPI()
+app.mount("/static/", StaticFiles(directory="static"), name="static")
 
 css = f'''
 <style>
-{open('main.css').read()}
+{open('static/main.css').read()}
 </style>
 '''
 
@@ -33,12 +35,12 @@ async def root_scales(root: str):
     scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
 
     return f'''
+    <link rel="stylesheet" href="/static/main.css">
     <a href='/'>home</a> | root: {roots}
     <h1>{root} scales</h1>
     <ol>
     {scales}
     </ol>
-    {css}
     '''
 
 
@@ -68,11 +70,11 @@ async def root_name_scale(root: str, name: str):
         '''
 
     return f'''
+    <link rel="stylesheet" href="/static/main.css">
     <a href='/'>home</a> | root: {roots} | scale: {scales}
     {s!r}
     <hr>
     {neighs_html}
-    {css}
     '''
 
 @app.get("/scale/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
@@ -81,17 +83,14 @@ async def compare_scales(left_root: str, left_name: str, right_root: str, right_
     right = ComparedScale(left, all_scales[right_root, right_name])
     # chords =
     return f'''
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/leader-line.min.js"></script>
     <a href='/'>home</a>
     <h1>compare scales</h1>
+    <div class='compare_scales'>{left!r}{right!r}</div>
+    <h1>chords</h1>
     <div class='compare_scales'>
-    <div class='left'>
-    {left!r} 
-    {''.join(repr(chord) for chord in left.chords)}
+    <ol class='left'>{''.join(f'<li>{chord!r}</li>' for chord in left.chords)}</ol>
+    <ol class='right'>{''.join(f'<li>{chord!r}</li>' for chord in right.chords)}</ol>
     </div>
-    <div class='right'>
-    {right!r}
-    {''.join(repr(chord) for chord in right.chords)}
-    </div>
-    </div>
-    {css}
     '''
