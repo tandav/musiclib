@@ -38,3 +38,6 @@ body {
 .compare_scales {
     display: flex;
 }
+
+.left  { margin: 0px 50px 0px 0px; }
+.right { margin: 0px 0px 0px 50px; }
