@@ -30,13 +30,15 @@ class Chord:
     def to_piano_image(self, base64=False):
         return chord_to_piano(self, as_base64=base64)
 
-    def __repr__(self):
     # def _repr_html_(self):
+    def __repr__(self):
+        label = hasattr(self, 'label') and f"id={self.label!r}"or ''
+
         return f'''
-        <div class='card {self.name}'>
-        <span class='card_header'><h3>{self.root} {self.name}</h3></span>
+        <li class='card {self.name}' >
+        <span class='card_header' {label} ><h3>{self.root} {self.name}</h3></span>
         <img src='{self.to_piano_image(base64=True)}'/>
-        </div>
+        </li>
         '''
 
 
