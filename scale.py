@@ -170,3 +170,7 @@ def neighbors(left: Scale):
         neighs[len(right.shared_notes)].append(right)
     return neighs
 
+# heat cache
+for scale in itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()):
+    _ = neighbors(scale)
+
