@@ -86,7 +86,7 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
     <div class='initial'>{initial}</div>
     <hr>
     {neighs_html}
-    {'' if load_all else f"<a href='/{kind}/{root}/{name}/all'>load all scales</a>"}
+    {'' if min_shared == 0 else f"<a href='/{kind}/{root}/{name}/all'>load all scales</a>"}
     '''
 
 @app.get("/{kind}/{root}/{name}/all", response_class=HTMLResponse)
