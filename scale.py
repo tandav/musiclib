@@ -152,6 +152,12 @@ class ComparedScale(Scale):
             <img src='{self.to_piano_image(base64=True)}'/>
             </div>
             '''
+    @property
+    def key(self):
+        return self.root, self.name, self.left
+
+    def __eq__(self, other): return self.key == other.key
+    def __hash__(self): return hash(self.key)
 
 
 all_scales = {
@@ -171,8 +177,8 @@ def neighbors(left: Scale):
     return neighs
 
 # heat cache
-for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(base64=True)
-    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(base64=True)
-
+# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
+#     _ = scale.to_piano_image(base64=True)
+#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+#         _ = neighbor.to_piano_image(base64=True)
+#
