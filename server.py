@@ -99,9 +99,33 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
         if chord in right.shared_chords:
             chord.label = f'right_{chord.str_chord}'
 
-    js = '\n'
+    js = '''
+    const arrows = []
+    '''
+
     for chord in right.shared_chords:
-        js += f"new LeaderLine(document.getElementById('left_{chord.str_chord}'), document.getElementById('right_{chord.str_chord}')).setOptions({{startSocket: 'bottom', endSocket: 'top'}});\n"
+        #js += f"new LeaderLine(document.getElementById('left_{chord.str_chord}'), document.getElementById('right_{chord.str_chord}')).setOptions({{startSocket: 'bottom', endSocket: 'top'}});\n"
+        js += f'''
+        arrows.push(new LeaderLine(document.getElementById('left_{chord.str_chord}'), document.getElementById('right_{chord.str_chord}')))
+        '''
+
+    js += '''
+    const updateArrows = () => {
+        if (window.innerWidth <= 1080) {
+            var startSocket = 'right'
+            var endSocket = 'left'
+        } else {
+            var startSocket = 'bottom'
+            var endSocket = 'top'
+        }
+
+        for (const arrow of arrows) {
+            arrow.setOptions({startSocket: startSocket, endSocket: endSocket})
+        }
+    }
+    updateArrows()
+    window.onresize = updateArrows
+    '''
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
@@ -109,9 +133,11 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     
     <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a>
     <h1>compare scales</h1>
-    <div class='compare_scales'>{left!r}{right!r}</div>
-    <h1>chords</h1>
     <div class='compare_scales'>
+    <div class='left'>{left!r}</div>
+    <div class='right'>{right!r}</div></div>
+    <h1>chords</h1>
+    <div class='compare_chords'>
     <ol class='chords_row left'>{''.join(f'{chord!r}' for chord in left.chords)}</ol>
     <ol class='chords_row right'>{''.join(f'{chord!r}' for chord in right.chords)}</ol>
     <script>
