@@ -27,8 +27,11 @@ class Scale:
         self.bits = config.name_2_bits[name]
         self.name = name
         self.notes = scale_notes(root, self.bits)
-        self.add_chords()
+        self.kind = config.kinds.get(name)
+        if self.kind == 'diatonic':
+            self.add_chords()
         self.add_as_C()
+        self.is_selected = False
 
 
     def add_as_C(self):
@@ -36,7 +39,6 @@ class Scale:
         for bits, name in config.bits_2_name.items():
             if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
                 self.as_C = name
-
 
     @classmethod
     def from_bits(cls, root: str, bits: str):
@@ -59,9 +61,8 @@ class Scale:
     def notes_scale_colors(self):
         return [
             util.hex_to_rgb(config.scale_colors[scale])
-            for scale in util.iter_diatonic(start=self.name, take_n=7)
+            for scale in util.iter_scales(self.kind, start=self.name)
         ]
-
 
 
     def to_piano_image(self, base64=False):
@@ -77,15 +78,25 @@ class Scale:
             x += f'{i} {chord} {chord.name}\n'
         return x
 
+    def selected_repr(self):
+        self.is_selected = True
+        r = repr(self)
+        self.is_selected = False
+        return r
 
     # @functools.cached_property
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
+        chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
+        is_selected = 'selected_scale' if self.is_selected else ''
+
         return f'''
-        <div class='card {self.name}' title='{self._chords_text()}'>
-        <span class='card_header'><h3><a href='/scale/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
+        <div class='card {self.name} {is_selected}' {chords_hover}>
+        <a href='/{self.kind}/{self.root}/{self.name}'>
+        <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
         <img src='{self.to_piano_image(base64=True)}'/>
+        </a>
         </div>
         '''
 
@@ -109,7 +120,8 @@ class ComparedScale(Scale):
         self.shared_notes = util.sort_notes(frozenset(left.notes) & frozenset(self.notes))
         self.new_notes = frozenset(self.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(self.notes)
-        self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
+        if self.kind == 'diatonic':
+            self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
         self.left = left
 
 
@@ -123,20 +135,35 @@ class ComparedScale(Scale):
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
+        chords_hover = f"title='{self._shared_chords_text()}'" if self.kind == 'diatonic' else ''
+        if self.kind == 'diatonic':
+            return f'''
+            <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
+            <div class='card {self.name}' {chords_hover}>
+            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
+            <img src='{self.to_piano_image(base64=True)}'/>
+            </a>
+            </div>
+            '''
+        else:
+            return f'''
+            <div class='card {self.name}' {chords_hover}>
+            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
+            <img src='{self.to_piano_image(base64=True)}'/>
+            </div>
+            '''
 
-        return f'''
-        <div class='card {self.name}' title='{self._shared_chords_text()}'>
-        <span class='card_header'><h3><a href='/scale/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>{self.root} {self.name}</a></h3><span>{as_C}</span></span>
-        <img src='{self.to_piano_image(base64=True)}'/>
-        </div>
-        '''
 
-all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.name_2_bits)}
+all_scales = {
+    'diatonic'  : {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)},
+    'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
+}
+
 
 @functools.lru_cache(maxsize=1024)
-def neighbors(left):
+def neighbors(left: Scale):
     neighs = defaultdict(list)
-    for right in all_scales.values():
+    for right in all_scales[left.kind].values():
         if left == right:
             continue
         right = ComparedScale(left, right)

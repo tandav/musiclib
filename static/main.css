@@ -14,6 +14,11 @@ body {
     border-radius: 3px;
 }
 
+/*.card:hover {
+  cursor: pointer;
+  outline: 5px solid red;
+}*/
+
 .card_header {
     margin-top: -25px;
     display: flex;
@@ -21,19 +26,34 @@ body {
     align-items: center;
 }
 
+.as_c {
+    font-size: 8pt;
+}
+
+.selected_scale { outline: 5px solid red; }
+
+.initial {
+    display: flex;
+    flex-wrap: wrap;
+}
 
 .neighbors {
     display: flex;
     flex-wrap: wrap;
 }
 
-.major { background-color: white;}
+.major { background-color: #FFFFFF;}
 .dorian { background-color: #54E346; }
 .phrygian { background-color: #00FFCC; }
 .lydian { background-color: #0F52BA; }
 .mixolydian { background-color: #FFF47D; }
 .minor { background-color: #D83A56; }
 .locrian { background-color: #B980F0; }
+.p_major { background-color: #FFFFFF;}
+.p_dorian { background-color: #54E346; }
+.p_phrygian { background-color: #00FFCC; }
+.p_mixolydian { background-color: #FFF47D; }
+.p_minor { background-color: #D83A56; }
 .diminished { background-color: #B980F0; }
 
 .compare_scales {

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from scale import all_scales, neighbors, ComparedScale
 import config
+import util
 
 chromatic_notes_set = set(config.chromatic_notes)
 
@@ -25,41 +26,42 @@ def scale_not_found():
     '''
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
-    return RedirectResponse('/scale/C')
+async def root(): return RedirectResponse('/diatonic/C/major')
+
+@app.get("/favicon.ico", response_class=HTMLResponse)
+async def root(): return FileResponse('static/favicon.ico')
+
+@app.get("/{kind}", response_class=HTMLResponse)
+async def root(kind: str): return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
+
+@app.get("/{kind}/{root}", response_class=HTMLResponse)
+async def root(kind: str, root: str): return RedirectResponse(f'/{kind}/{root}/{getattr(config, kind)[0]}')
 
 
-@app.get("/scale/{root}", response_class=HTMLResponse)
-async def root_scales(root: str):
-    roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
-    scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in config.name_2_bits)
-
-    return f'''
-    <link rel="stylesheet" href="/static/main.css">
-    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots}
-    <h1>{root} scales</h1>
-    <ol>
-    {scales}
-    </ol>
-    '''
-
-
-@app.get("/scale/{root}/{name}", response_class=HTMLResponse)
-async def root_name_scale(root: str, name: str):
+@app.get("/{kind}/{root}/{name}", response_class=HTMLResponse)
+async def root_name_scale(kind: str, root: str, name: str):
 
     if root not in chromatic_notes_set:
         return RedirectResponse('/scale_not_found')
 
-    roots = ' '.join(f"<a href='/scale/{note}/{name}'>{note}</a>" for note in config.chromatic_notes)
-    scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in config.name_2_bits)
+    roots = ' '.join(f"<a href='/{kind}/{note}/{name}'>{note}</a>" for note in config.chromatic_notes)
 
-    s = all_scales[root, name]
-    neighs = neighbors(s)
+    initial = []
+    for _name in util.iter_scales(kind):
+        scale = all_scales[kind][root, _name]
+        if _name == name:
+            initial.append(scale.selected_repr())
+            selected_scale = scale
+        else:
+            initial.append(repr(scale))
+    initial = '\n'.join(initial)
+
+    neighs = neighbors(selected_scale)
     neighs_html = ''
 
     for n_intersect in sorted(neighs.keys(), reverse=True):
         print(n_intersect)
-        if n_intersect < config.neighsbors_min_intersect:
+        if n_intersect < config.neighsbors_min_intersect[kind]:
             break
         neighs_html += f'''
         <h3>{n_intersect} note intersection scales</h3>
@@ -69,18 +71,22 @@ async def root_name_scale(root: str, name: str):
         <hr>
         '''
 
+    kind_links = f"<a href='/diatonic/{root}/major'>diatonic</a>"
+    kind_links += f" <a href='/pentatonic/{root}/p_major'>pentatonic</a>"
+
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | scale: {scales}
-    {s!r}
+    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}
+    <hr>
+    <div class='initial'>{initial}</div>
     <hr>
     {neighs_html}
     '''
 
-@app.get("/scale/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
-async def compare_scales(left_root: str, left_name: str, right_root: str, right_name: str):
-    left = all_scales[left_root, left_name]
-    right = ComparedScale(left, all_scales[right_root, right_name])
+@app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
+async def compare_scales(kind: str, left_root: str, left_name: str, right_root: str, right_name: str):
+    left = all_scales[kind][left_root, left_name]
+    right = ComparedScale(left, all_scales[kind][right_root, right_name])
 
 
     for i, chord in enumerate(left.chords, start=1):

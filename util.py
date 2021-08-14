@@ -13,10 +13,10 @@ def hex_to_rgb(color):
     return tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def iter_diatonic(start=None, take_n=None):
-    it = itertools.cycle(config.name_2_bits)
+def iter_scales(kind, start=None):
+    scales = getattr(config, kind)
+    it = itertools.cycle(scales)
     if start:
         it = itertools.dropwhile(lambda x: x != start, it)
-    if take_n:
-        it = itertools.islice(it, take_n)
-    return it
+    it = itertools.islice(it, len(scales))
+    return list(it)
