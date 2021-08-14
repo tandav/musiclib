@@ -13,6 +13,10 @@ body {
     box-shadow: 2px 2px;
     border-radius: 3px;
 }
+.card a {
+    color: black;
+    text-decoration: none;
+}
 
 .card_header {
     margin-top: -25px;
