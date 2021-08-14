@@ -21,7 +21,7 @@ css = f'''
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
     return f'''
-    <a href='/'>home</a>
+    <header><a href='/'>home</a></header>
     <h1>404: scale not found</h1>
     '''
 
@@ -76,7 +76,7 @@ async def root_name_scale(kind: str, root: str, name: str):
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}
+    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <hr>
     <h3>select scale</h3>
     <div class='initial'>{initial}</div>
@@ -136,7 +136,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
     
-    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}
+    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <h1>compare scales</h1>
     <div class='compare_scales'>
     <div class='left'>{left!r}</div>

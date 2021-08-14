@@ -73,6 +73,7 @@ ol {
     }
     .left {margin-right: 75px;}
     .right {margin-left: 75px;}
+    header { font-size: 22pt; }
 }
 
 /* desktop */
