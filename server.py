@@ -65,7 +65,6 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
         min_shared = config.neighsbors_min_shared[kind]
 
     for n_intersect in sorted(neighs.keys(), reverse=True):
-        print(n_intersect)
         if n_intersect < min_shared:
             break
         neighs_html += f'''
