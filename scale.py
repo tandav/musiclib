@@ -123,6 +123,7 @@ class ComparedScale(Scale):
         if self.kind == 'diatonic':
             self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
         self.left = left
+        self.right = right # clean
 
 
     def _shared_chords_text(self):
@@ -154,7 +155,7 @@ class ComparedScale(Scale):
             '''
     @property
     def key(self):
-        return self.root, self.name, self.left
+        return self.left, self.right
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
@@ -177,8 +178,8 @@ def neighbors(left: Scale):
     return neighs
 
 # heat cache
-for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(base64=True)
-    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(base64=True)
+# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
+#     _ = scale.to_piano_image(base64=True)
+#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+#         _ = neighbor.to_piano_image(base64=True)
 
