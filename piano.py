@@ -80,7 +80,7 @@ def add_square(d, xy, note, number=None, color=(255, 255, 255)):
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
 
-@functools.lru_cache(maxsize=1024)
+@functools.lru_cache(maxsize=2048)
 def scale_to_piano(scale_notes, notes_scale_colors, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
@@ -118,7 +118,7 @@ def scale_to_piano(scale_notes, notes_scale_colors, as_base64=False, green_notes
     return out
 
 
-@functools.lru_cache(maxsize=1024)
+@functools.lru_cache(maxsize=2048)
 def chord_to_piano(chord, as_base64=False):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
