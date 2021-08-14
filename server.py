@@ -64,7 +64,7 @@ async def root_name_scale(kind: str, root: str, name: str):
         if n_intersect < config.neighsbors_min_intersect[kind]:
             break
         neighs_html += f'''
-        <h3>{n_intersect} shared notes scales{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords (click to see)' if kind == 'diatonic' else ''}</h3>
+        <h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords (click to see)' if kind == 'diatonic' else ''}</h3>
         <div class="neighbors">
         {''.join(repr(n) for n in neighs[n_intersect])}
         </div>
