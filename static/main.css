@@ -14,11 +14,6 @@ body {
     border-radius: 3px;
 }
 
-/*.card:hover {
-  cursor: pointer;
-  outline: 5px solid red;
-}*/
-
 .card_header {
     margin-top: -25px;
     display: flex;

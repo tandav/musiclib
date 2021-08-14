@@ -40,9 +40,9 @@ class Scale:
             if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
                 self.as_C = name
 
-    @classmethod
-    def from_bits(cls, root: str, bits: str):
-        return cls(root, config.bits_2_name[bits])
+    # @classmethod
+    # def from_bits(cls, root: str, bits: str):
+    #     return cls(root, config.bits_2_name[bits])
 
 
     def add_chords(self):
