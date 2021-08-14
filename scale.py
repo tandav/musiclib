@@ -8,16 +8,6 @@ from piano import scale_to_piano
 from chord import Chord
 
 
-name_2_bits = {
-    'major'     : '101011010101',
-    'dorian'    : '101101010110',
-    'phrygian'  : '110101011010',
-    'lydian'    : '101010110101',
-    'mixolydian': '101011010110',
-    'minor'     : '101101011010',
-    'locrian'   : '110101101010',
-}
-
 bits_2_name = {
     '101011010101': 'major',
     '101101010110': 'dorian',
@@ -27,6 +17,7 @@ bits_2_name = {
     '101101011010': 'minor',
     '110101101010': 'locrian',
 }
+name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 def chromatic(tonic):
     notes = deque(config.chromatic_notes)
