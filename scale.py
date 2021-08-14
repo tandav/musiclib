@@ -59,10 +59,10 @@ class Scale:
 
     @property
     def notes_scale_colors(self):
-        return [
+        return tuple(
             util.hex_to_rgb(config.scale_colors[scale])
             for scale in util.iter_scales(self.kind, start=self.name)
-        ]
+        )
 
 
     def to_piano_image(self, base64=False):
