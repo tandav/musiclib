@@ -1,6 +1,6 @@
 # chromatic_notes = 'SrRgGMmPdDnN'
 chromatic_notes = 'CdDeEFfGaAbB'
-neighsbors_min_intersect = {'diatonic': 0, 'pentatonic': 0}
+neighsbors_min_shared = {'diatonic': 5, 'pentatonic':3}
 
 
 bits_2_name = {

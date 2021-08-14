@@ -39,7 +39,7 @@ async def root(kind: str, root: str): return RedirectResponse(f'/{kind}/{root}/{
 
 
 @app.get("/{kind}/{root}/{name}", response_class=HTMLResponse)
-async def root_name_scale(kind: str, root: str, name: str):
+async def root_name_scale(kind: str, root: str, name: str, load_all=False):
 
     if root not in chromatic_notes_set:
         return RedirectResponse('/scale_not_found')
@@ -59,9 +59,14 @@ async def root_name_scale(kind: str, root: str, name: str):
     neighs = neighbors(selected_scale)
     neighs_html = ''
 
+    if load_all:
+        min_shared = 0
+    else:
+        min_shared = config.neighsbors_min_shared[kind]
+
     for n_intersect in sorted(neighs.keys(), reverse=True):
         print(n_intersect)
-        if n_intersect < config.neighsbors_min_intersect[kind]:
+        if n_intersect < min_shared:
             break
         neighs_html += f'''
         <h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords (click to see)' if kind == 'diatonic' else ''}</h3>
@@ -82,7 +87,13 @@ async def root_name_scale(kind: str, root: str, name: str):
     <div class='initial'>{initial}</div>
     <hr>
     {neighs_html}
+    {'' if load_all else f"<a href='/{kind}/{root}/{name}/all'>load all scales</a>"}
     '''
+
+@app.get("/{kind}/{root}/{name}/all", response_class=HTMLResponse)
+async def root_name_scale_load_all(kind: str, root: str, name: str):
+    return await root_name_scale(kind, root, name, load_all=True)
+
 
 @app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
 async def compare_scales(kind: str, left_root: str, left_name: str, right_root: str, right_name: str):
