@@ -92,7 +92,8 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     
     left = all_scales[kind][left_root, left_name]
     right = ComparedScale(left, all_scales[kind][right_root, right_name])
-
+    n_shared_notes  = len(right.shared_notes)
+    n_shared_chords = len(right.shared_chords)
 
     for i, chord in enumerate(left.chords, start=1):
         chord.number = i
@@ -138,6 +139,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     
     <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <h1>compare scales</h1>
+    <p>{n_shared_notes} shared notes, {n_shared_chords} shared chords</p>
     <div class='compare_scales'>
     <div class='left'>{left!r}</div>
     <div class='right'>{right!r}</div></div>
