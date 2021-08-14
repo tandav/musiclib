@@ -1,7 +1,7 @@
 from collections import deque, defaultdict
 import itertools
 import functools
-import textwrap
+import tqdm
 import config
 import util
 from piano import scale_to_piano
@@ -171,7 +171,7 @@ def neighbors(left: Scale):
     return neighs
 
 # heat cache
-for scale in itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()):
+for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
     _ = scale.to_piano_image(base64=True)
     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
         _ = neighbor.to_piano_image(base64=True)
