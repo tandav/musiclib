@@ -78,6 +78,7 @@ async def root_name_scale(kind: str, root: str, name: str):
     <link rel="stylesheet" href="/static/main.css">
     <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}
     <hr>
+    <h3>select scale</h3>
     <div class='initial'>{initial}</div>
     <hr>
     {neighs_html}
