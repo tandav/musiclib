@@ -20,3 +20,6 @@ def iter_scales(kind, start=None):
         it = itertools.dropwhile(lambda x: x != start, it)
     it = itertools.islice(it, len(scales))
     return list(it)
+
+
+n_intersect_notes_to_n_shared_chords = {7: 7, 6: 4, 5: 2, 4: 0, 3: 0, 2: 0}
