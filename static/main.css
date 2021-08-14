@@ -38,7 +38,18 @@ body {
 
 .compare_scales {
     display: flex;
+    flex-direction: column;
 }
 
-.left  { margin: 0px 50px 0px 0px; }
+.chords_row {
+    display: flex;
+    margin: 75px 0px 75px 0px;
+}
+
+/*.left  { margin: 0px 50px 0px 0px; }
 .right { margin: 0px 0px 0px 50px; }
+*/
+
+ol {
+    list-style-type: none;
+}

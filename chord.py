@@ -33,11 +33,12 @@ class Chord:
     # def _repr_html_(self):
     def __repr__(self):
         label = hasattr(self, 'label') and f"id={self.label!r}"or ''
+        number = hasattr(self, 'number') and self.number or ''
 
         return f'''
-        <li class='card {self.name}' >
-        <span class='card_header' ><h3>{self.root} {self.name}</h3></span>
-        <img src='{self.to_piano_image(base64=True)}' {label}/>
+        <li class='card {self.name}' {label}>
+        <span class='card_header' ><h3>{number} {self.root} {self.name}</h3></span>
+        <img src='{self.to_piano_image(base64=True)}' />
         </li>
         '''
 

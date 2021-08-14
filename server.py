@@ -84,16 +84,18 @@ async def compare_scales(left_root: str, left_name: str, right_root: str, right_
 
 
     for i, chord in enumerate(left.chords, start=1):
+        chord.number = i
         if chord in right.shared_chords:
             chord.label = f'left_{chord.str_chord}'
 
     for i, chord in enumerate(right.chords, start=1):
+        chord.number = i
         if chord in right.shared_chords:
             chord.label = f'right_{chord.str_chord}'
 
     js = '\n'
     for chord in right.shared_chords:
-        js += f"new LeaderLine(document.getElementById('left_{chord.str_chord}'), document.getElementById('right_{chord.str_chord}'))\n"
+        js += f"new LeaderLine(document.getElementById('left_{chord.str_chord}'), document.getElementById('right_{chord.str_chord}')).setOptions({{startSocket: 'bottom', endSocket: 'top'}});\n"
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
@@ -104,8 +106,8 @@ async def compare_scales(left_root: str, left_name: str, right_root: str, right_
     <div class='compare_scales'>{left!r}{right!r}</div>
     <h1>chords</h1>
     <div class='compare_scales'>
-    <ol class='left'>{''.join(f'{chord!r}' for chord in left.chords)}</ol>
-    <ol class='right'>{''.join(f'{chord!r}' for chord in right.chords)}</ol>
+    <ol class='chords_row left'>{''.join(f'{chord!r}' for chord in left.chords)}</ol>
+    <ol class='chords_row right'>{''.join(f'{chord!r}' for chord in right.chords)}</ol>
     <script>
     {js}
     </script>
