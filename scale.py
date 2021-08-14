@@ -172,5 +172,7 @@ def neighbors(left: Scale):
 
 # heat cache
 for scale in itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()):
-    _ = neighbors(scale)
+    _ = scale.to_piano_image(base64=True)
+    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+        _ = neighbor.to_piano_image(base64=True)
 
