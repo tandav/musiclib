@@ -85,6 +85,10 @@ async def root_name_scale(kind: str, root: str, name: str):
 
 @app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
 async def compare_scales(kind: str, left_root: str, left_name: str, right_root: str, right_name: str):
+    roots = ' '.join(f"<a href='/{kind}/{note}/{left_name}'>{note}</a>" for note in config.chromatic_notes)
+    kind_links = f"<a href='/diatonic/{left_root}/major'>diatonic</a>"
+    kind_links += f" <a href='/pentatonic/{left_root}/p_major'>pentatonic</a>"
+    
     left = all_scales[kind][left_root, left_name]
     right = ComparedScale(left, all_scales[kind][right_root, right_name])
 
@@ -131,7 +135,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
     
-    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a>
+    <a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}
     <h1>compare scales</h1>
     <div class='compare_scales'>
     <div class='left'>{left!r}</div>
