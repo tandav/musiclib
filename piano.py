@@ -3,6 +3,7 @@ import config
 import io
 import base64
 import sys
+import util
 
 # font = ImageFont.truetype('static/fonts/SFMono-Bold.otf', 40)
 font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
@@ -54,6 +55,16 @@ def red_square(d, xy):
     red_r = r + red_bigger * 2
     d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=(255, 0, 0))
 
+def color_rect(d, xy, color):
+    x, y = xy
+    red_x = x - red_bigger
+    red_y = y - red_bigger + r
+    red_r = r + red_bigger * 2
+    x0, y0 = red_x - padding_x, red_y - padding_y
+    x1, y1 = red_x - padding_x + red_r, red_y - padding_y + red_r/3
+    d.rectangle((x0, y0, x1, y1), fill=color)
+
+
 def add_square(d, xy, note, number=None, color=(255, 255, 255)):
     x, y = xy
     red_x = x - red_bigger
@@ -68,7 +79,7 @@ def add_square(d, xy, note, number=None, color=(255, 255, 255)):
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
 
-def scale_to_piano(scale, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
+def scale_to_piano(scale_notes, notes_scale_colors, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
 
@@ -78,16 +89,19 @@ def scale_to_piano(scale, as_base64=False, green_notes=frozenset(), red_notes=fr
         if i > 0:
             if note in red_notes:
                 red_square(d, xy)
-            if note == scale[0]:
+            if note == scale_notes[0]:
                 break
 
-        if not scale_finished and note == scale[i]:
+        if not scale_finished and note == scale_notes[i]:
             if note in green_notes:
                 add_square(d, xy, note, i + 1, color=(0, 255, 0))
             else:
                 add_square(d, xy, note, i + 1)
+
+            color_rect(d, xy, notes_scale_colors[i])
+
             i += 1
-            if i == len(scale):
+            if i == len(scale_notes):
                 scale_finished = True
 
 

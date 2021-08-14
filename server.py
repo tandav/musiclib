@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from scale import name_2_bits, all_scales, neighbors, ComparedScale
+from scale import all_scales, neighbors, ComparedScale
 import config
 
 chromatic_notes_set = set(config.chromatic_notes)
@@ -32,7 +32,7 @@ async def root():
 @app.get("/scale/{root}", response_class=HTMLResponse)
 async def root_scales(root: str):
     roots = ' '.join(f"<a href='/scale/{note}'>{note}</a>" for note in config.chromatic_notes)
-    scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in name_2_bits)
+    scales = '\n'.join(f"<li><a href='/scale/{root}/{name}'>{root} {name}</a></li>" for name in config.name_2_bits)
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
@@ -51,7 +51,7 @@ async def root_name_scale(root: str, name: str):
         return RedirectResponse('/scale_not_found')
 
     roots = ' '.join(f"<a href='/scale/{note}/{name}'>{note}</a>" for note in config.chromatic_notes)
-    scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in name_2_bits)
+    scales = ' '.join(f"<a href='/scale/{root}/{name}'>{name}</a>" for name in config.name_2_bits)
 
     s = all_scales[root, name]
     neighs = neighbors(s)

@@ -8,16 +8,6 @@ from piano import scale_to_piano
 from chord import Chord
 
 
-bits_2_name = {
-    '101011010101': 'major',
-    '101101010110': 'dorian',
-    '110101011010': 'phrygian',
-    '101010110101': 'lydian',
-    '101011010110': 'mixolydian',
-    '101101011010': 'minor',
-    '110101101010': 'locrian',
-}
-name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 def chromatic(tonic):
     notes = deque(config.chromatic_notes)
@@ -34,7 +24,7 @@ def scale_notes(tonic, bits):
 class Scale:
     def __init__(self, root: str, name: str):
         self.root = root
-        self.bits = name_2_bits[name]
+        self.bits = config.name_2_bits[name]
         self.name = name
         self.notes = scale_notes(root, self.bits)
         self.add_chords()
@@ -43,14 +33,14 @@ class Scale:
 
     def add_as_C(self):
         self.as_C = ''
-        for bits, name in bits_2_name.items():
+        for bits, name in config.bits_2_name.items():
             if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
                 self.as_C = name
 
 
     @classmethod
     def from_bits(cls, root: str, bits: str):
-        return cls(root, bits_2_name[bits])
+        return cls(root, config.bits_2_name[bits])
 
 
     def add_chords(self):
@@ -65,9 +55,18 @@ class Scale:
             notes_deque.rotate(-1)
 
 
+    @property
+    def notes_scale_colors(self):
+        return [
+            util.hex_to_rgb(config.scale_colors[scale])
+            for scale in util.iter_diatonic(start=self.name, take_n=7)
+        ]
+
+
+
     def to_piano_image(self, base64=False):
         return scale_to_piano(
-            self.notes, as_base64=base64,
+            self.notes, self.notes_scale_colors, as_base64=base64,
             green_notes=getattr(self, 'new_notes', frozenset()),
             red_notes=getattr(self, 'del_notes', frozenset()),
         )
@@ -132,7 +131,7 @@ class ComparedScale(Scale):
         </div>
         '''
 
-all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, name_2_bits)}
+all_scales = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.name_2_bits)}
 
 @functools.lru_cache(maxsize=1024)
 def neighbors(left):
