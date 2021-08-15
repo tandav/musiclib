@@ -64,13 +64,8 @@ class Scale:
             for scale in util.iter_scales(self.kind, start=self.name)
         )
 
-
-    def to_piano_image(self, base64=False):
-        return scale_to_piano(
-            self.notes, self.notes_scale_colors, as_base64=base64,
-            green_notes=getattr(self, 'new_notes', frozenset()),
-            red_notes=getattr(self, 'del_notes', frozenset()),
-        )
+    def to_piano_image(self, as_base64=False):
+        return scale_to_piano(self, as_base64=as_base64)
 
     def _chords_text(self):
         x = 'chords:\n'
@@ -95,7 +90,7 @@ class Scale:
         <div class='card {self.name} {is_selected}' {chords_hover}>
         <a href='/{self.kind}/{self.root}/{self.name}'>
         <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
-        <img src='{self.to_piano_image(base64=True)}'/>
+        <img src='{self.to_piano_image(as_base64=True)}'/>
         </a>
         </div>
         '''
@@ -125,6 +120,8 @@ class ComparedScale(Scale):
         self.left = left
         self.right = right # clean
 
+    def to_piano_image(self, as_base64=False):
+        return scale_to_piano(self, as_base64=as_base64)
 
     def _shared_chords_text(self):
         x = 'shared chords:\n'
@@ -142,7 +139,7 @@ class ComparedScale(Scale):
             <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
             <div class='card {self.name}' {chords_hover}>
             <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
-            <img src='{self.to_piano_image(base64=True)}'/>
+            <img src='{self.to_piano_image(as_base64=True)}'/>
             </a>
             </div>
             '''
@@ -150,7 +147,7 @@ class ComparedScale(Scale):
             return f'''
             <div class='card {self.name}' {chords_hover}>
             <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
-            <img src='{self.to_piano_image(base64=True)}'/>
+            <img src='{self.to_piano_image(as_base64=True)}'/>
             </div>
             '''
     @property
@@ -177,9 +174,9 @@ def neighbors(left: Scale):
         neighs[len(right.shared_notes)].append(right)
     return neighs
 
-# heat cache
+# warm up cache
 for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(base64=True)
+    _ = scale.to_piano_image(as_base64=True)
     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(base64=True)
+        _ = neighbor.to_piano_image(as_base64=True)
 

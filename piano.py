@@ -66,7 +66,7 @@ def color_rect(d, xy, color):
     d.rectangle((x0, y0, x1, y1), fill=color)
 
 
-def add_square(d, xy, note, number=None, color=(255, 255, 255)):
+def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(215, 215, 215)):
     x, y = xy
     red_x = x - red_bigger
     red_y = y - red_bigger
@@ -76,12 +76,28 @@ def add_square(d, xy, note, number=None, color=(255, 255, 255)):
     d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
 
     if number:
-        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=(215, 215, 215))
+        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color)
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
 
+# def small_dot(d, xy):
+#     x, y = xy
+#     red_x = x - red_bigger
+#     red_y = y - red_bigger
+#     red_r = r + red_bigger * 2
+#     x0, y0 = red_x - padding_x, red_y - padding_y - number_dy * 1.5
+#     x1, y1 = red_x - padding_x + red_r, red_y - padding_y - number_dy * 2 + red_r/3
+#     d.rectangle((x0, y0, x1, y1), fill=(255, 255, 255))
+
+
 @functools.lru_cache(maxsize=2048)
-def scale_to_piano(scale_notes, notes_scale_colors, as_base64=False, green_notes=frozenset(), red_notes=frozenset()):
+def scale_to_piano(scale, as_base64=False):
+    notes_scale_colors = scale.notes_scale_colors
+    green_notes = getattr(scale, 'new_notes', frozenset())
+    red_notes = getattr(scale, 'del_notes', frozenset())
+    shared_chords = getattr(scale, 'shared_chords', frozenset())
+    shared_chords_roots = frozenset(chord[0] for chord in shared_chords)
+
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
 
@@ -91,19 +107,20 @@ def scale_to_piano(scale_notes, notes_scale_colors, as_base64=False, green_notes
         if i > 0:
             if note in red_notes:
                 red_square(d, xy)
-            if note == scale_notes[0]:
+            if note == scale.notes[0]:
                 break
 
-        if not scale_finished and note == scale_notes[i]:
+        if not scale_finished and note == scale.notes[i]:
+            number_color = (255, 255, 255) if scale.chords[i] in shared_chords else (215, 215, 215)
+
             if note in green_notes:
-                add_square(d, xy, note, i + 1, color=(0, 255, 0))
+                add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color)
             else:
-                add_square(d, xy, note, i + 1)
+                add_square(d, xy, note, number=i+1, number_color=number_color)
 
             color_rect(d, xy, notes_scale_colors[i])
-
             i += 1
-            if i == len(scale_notes):
+            if i == len(scale.notes):
                 scale_finished = True
 
 
