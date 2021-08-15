@@ -66,7 +66,7 @@ def color_rect(d, xy, color):
     d.rectangle((x0, y0, x1, y1), fill=color)
 
 
-def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(215, 215, 215)):
+def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(215, 215, 215), outline_color=None):
     x, y = xy
     red_x = x - red_bigger
     red_y = y - red_bigger
@@ -76,7 +76,8 @@ def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(21
     d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
 
     if number:
-        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color)
+        kw = dict(outline=outline_color, width=5) if outline_color else {}
+        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color, **kw)
         d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
 
 
@@ -112,29 +113,23 @@ def scale_to_piano(
                 break
 
         if not scale_finished and note == notes[i]:
-            if chords and chords[i] in shared_chords:
-                # bright if shared
+            if chords:
                 number_color = {
                     'minor': util.hex_to_rgb(config.scale_colors['minor']),
                     'major': util.hex_to_rgb(config.scale_colors['major']),
                     'diminished': util.hex_to_rgb(config.scale_colors['locrian']),
                 }[chords[i].name]
+                if chords[i] in shared_chords: # add red outline
+                    outline_color = (0, 255, 0)
+                else:
+                    outline_color = None
             else:
-                # pale if not shared
-                alfa = 0.2
-                rgb_background = 255, 255, 255
-                # rgb_background = 0, 0, 0
-                number_color = {
-                    'minor'     : util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['minor']) + (alfa,)),
-                    'major'     : util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['major']) + (alfa,)),
-                    'diminished': util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['locrian']) + (alfa,)),
-                }[chords[i].name]
-                # number_color = (215, 215, 215)
+                number_color = 255, 255, 255
 
             if note in green_notes:
-                add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color)
+                add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color, outline_color=outline_color)
             else:
-                add_square(d, xy, note, number=i+1, number_color=number_color)
+                add_square(d, xy, note, number=i+1, number_color=number_color, outline_color=outline_color)
 
             color_rect(d, xy, notes_scale_colors[i])
             i += 1
