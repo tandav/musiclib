@@ -92,7 +92,7 @@ def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(21
 
 @functools.lru_cache(maxsize=2048)
 def scale_to_piano(scale, as_base64=False):
-    print('cold run')
+    print('cold run', scale.kind, scale.root, scale.name, scale.notes)
     notes_scale_colors = scale.notes_scale_colors
     green_notes = getattr(scale, 'new_notes', frozenset())
     red_notes = getattr(scale, 'del_notes', frozenset())
