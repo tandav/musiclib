@@ -13,6 +13,7 @@ def hex_to_rgb(color):
     return tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
 
 def rgba_to_rgb(rgb_background, rgba_color):
+    '''https://stackoverflow.com/a/21576659/4204843'''
 
     alpha = rgba_color[3]
 

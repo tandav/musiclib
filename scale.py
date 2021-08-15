@@ -100,7 +100,7 @@ class Scale:
         return f'''
         <div class='card {self.name} {is_selected}' {chords_hover}>
         <a href='/{self.kind}/{self.root}/{self.name}'>
-        <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
+        <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
         <img src='{self.to_piano_image(as_base64=True)}'/>
         </a>
         </div>
@@ -160,7 +160,7 @@ class ComparedScale(Scale):
             return f'''
             <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
             <div class='card {self.name}' {chords_hover}>
-            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
+            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
             <img src='{self.to_piano_image(as_base64=True)}'/>
             </a>
             </div>
@@ -168,7 +168,7 @@ class ComparedScale(Scale):
         else:
             return f'''
             <div class='card {self.name}' {chords_hover}>
-            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c'>{as_C}</span></span>
+            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
             <img src='{self.to_piano_image(as_base64=True)}'/>
             </div>
             '''

@@ -27,6 +27,7 @@ body {
 
 .as_c {
     font-size: 8pt;
+    padding: 2px;
 }
 
 .selected_scale { outline: 5px solid red; }
