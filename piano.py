@@ -113,6 +113,8 @@ def scale_to_piano(
                 break
 
         if not scale_finished and note == notes[i]:
+            outline_color = None
+
             if chords:
                 number_color = {
                     'minor': util.hex_to_rgb(config.scale_colors['minor']),
@@ -121,8 +123,6 @@ def scale_to_piano(
                 }[chords[i].name]
                 if chords[i] in shared_chords: # add red outline
                     outline_color = (0, 255, 0)
-                else:
-                    outline_color = None
             else:
                 number_color = 255, 255, 255
 
