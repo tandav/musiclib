@@ -65,6 +65,19 @@ class Scale:
     def to_piano_image(self, as_base64=False):
         return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
 
+    def to_piano_image(self, as_base64=False):
+        if self.kind == 'diatonic':
+            return scale_to_piano(
+                self.notes, self.chords, self.notes_scale_colors,
+                as_base64=as_base64,
+            )
+        else:
+            return scale_to_piano(
+                self.notes, None, self.notes_scale_colors,
+                as_base64=as_base64,
+            )
+
+
     def _chords_text(self):
         x = 'chords:\n'
         for i, chord in enumerate(self.chords, start=1):
@@ -119,11 +132,18 @@ class ComparedScale(Scale):
         self.right = right # clean
 
     def to_piano_image(self, as_base64=False):
-        return scale_to_piano(
-            self.notes, self.chords, self.notes_scale_colors,
-            green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=self.shared_chords,
-            as_base64=as_base64,
-        )
+        if self.kind == 'diatonic':
+            return scale_to_piano(
+                self.notes, self.chords, self.notes_scale_colors,
+                green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=self.shared_chords,
+                as_base64=as_base64,
+            )
+        else:
+            return scale_to_piano(
+                self.notes, None, self.notes_scale_colors,
+                green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=None,
+                as_base64=as_base64,
+            )
 
     def _shared_chords_text(self):
         x = 'shared chords:\n'

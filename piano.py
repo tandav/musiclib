@@ -112,7 +112,7 @@ def scale_to_piano(
                 break
 
         if not scale_finished and note == notes[i]:
-            if chords[i] in shared_chords:
+            if chords and chords[i] in shared_chords:
                 number_color = (255, 255, 255)
             else:
                 number_color = (215, 215, 215)
