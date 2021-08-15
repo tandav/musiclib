@@ -111,7 +111,10 @@ def scale_to_piano(scale, as_base64=False):
                 break
 
         if not scale_finished and note == scale.notes[i]:
-            number_color = (255, 255, 255) if scale.chords[i] in shared_chords else (215, 215, 215)
+            if scale.kind == 'diatonic' and scale.chords[i] in shared_chords:
+                number_color = (255, 255, 255)
+            else:
+                number_color = (215, 215, 215)
 
             if note in green_notes:
                 add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color)
