@@ -12,6 +12,16 @@ def sort_notes(notes: Iterable):
 def hex_to_rgb(color):
     return tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
 
+def rgba_to_rgb(rgb_background, rgba_color):
+
+    alpha = rgba_color[3]
+
+    return (
+        int((1 - alpha) * rgb_background[0] + alpha * rgba_color[0]),
+        int((1 - alpha) * rgb_background[1] + alpha * rgba_color[1]),
+        int((1 - alpha) * rgb_background[2] + alpha * rgba_color[2]),
+    )
+
 
 def iter_scales(kind, start=None):
     scales = getattr(config, kind)

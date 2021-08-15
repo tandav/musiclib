@@ -113,9 +113,23 @@ def scale_to_piano(
 
         if not scale_finished and note == notes[i]:
             if chords and chords[i] in shared_chords:
-                number_color = (255, 255, 255)
+                # bright if shared
+                number_color = {
+                    'minor': util.hex_to_rgb(config.scale_colors['minor']),
+                    'major': util.hex_to_rgb(config.scale_colors['major']),
+                    'diminished': util.hex_to_rgb(config.scale_colors['locrian']),
+                }[chords[i].name]
             else:
-                number_color = (215, 215, 215)
+                # pale if not shared
+                alfa = 0.2
+                rgb_background = 255, 255, 255
+                # rgb_background = 0, 0, 0
+                number_color = {
+                    'minor'     : util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['minor']) + (alfa,)),
+                    'major'     : util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['major']) + (alfa,)),
+                    'diminished': util.rgba_to_rgb(rgb_background, util.hex_to_rgb(config.scale_colors['locrian']) + (alfa,)),
+                }[chords[i].name]
+                # number_color = (215, 215, 215)
 
             if note in green_notes:
                 add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color)
