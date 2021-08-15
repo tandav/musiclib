@@ -31,6 +31,10 @@ class Scale:
         if self.kind == 'diatonic':
             self.add_chords()
         self.add_as_C()
+        self.notes_scale_colors = tuple(
+            util.hex_to_rgb(config.scale_colors[scale])
+            for scale in util.iter_scales(self.kind, start=self.name)
+        )
         self.is_selected = False
 
 
@@ -52,20 +56,14 @@ class Scale:
         while True:
             chord = Chord(notes_deque[0] + notes_deque[2] + notes_deque[4])
             if chord in self.chords:
-                return
+                break
             self.chords.append(chord)
             notes_deque.rotate(-1)
+        self.chords = tuple(self.chords)
 
-
-    @property
-    def notes_scale_colors(self):
-        return tuple(
-            util.hex_to_rgb(config.scale_colors[scale])
-            for scale in util.iter_scales(self.kind, start=self.name)
-        )
 
     def to_piano_image(self, as_base64=False):
-        return scale_to_piano(self, as_base64=as_base64)
+        return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
 
     def _chords_text(self):
         x = 'chords:\n'
@@ -121,7 +119,11 @@ class ComparedScale(Scale):
         self.right = right # clean
 
     def to_piano_image(self, as_base64=False):
-        return scale_to_piano(self, as_base64=as_base64)
+        return scale_to_piano(
+            self.notes, self.chords, self.notes_scale_colors,
+            green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=self.shared_chords,
+            as_base64=as_base64,
+        )
 
     def _shared_chords_text(self):
         x = 'shared chords:\n'

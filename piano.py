@@ -91,13 +91,13 @@ def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(21
 
 
 @functools.lru_cache(maxsize=2048)
-def scale_to_piano(scale, as_base64=False):
-    print('cold run', scale.kind, scale.root, scale.name, scale.notes)
-    notes_scale_colors = scale.notes_scale_colors
-    green_notes = getattr(scale, 'new_notes', frozenset())
-    red_notes = getattr(scale, 'del_notes', frozenset())
-    shared_chords = getattr(scale, 'shared_chords', frozenset())
-    shared_chords_roots = frozenset(chord[0] for chord in shared_chords)
+def scale_to_piano(
+        notes, chords,
+        notes_scale_colors,
+        green_notes=frozenset(), red_notes=frozenset(), shared_chords=frozenset(),
+        as_base64=False,
+):
+    print('cold run', notes)
 
     layer = Image.new("RGBA", piano_template.size, (255, 255, 255, 0))
     d = ImageDraw.Draw(layer)
@@ -108,11 +108,11 @@ def scale_to_piano(scale, as_base64=False):
         if i > 0:
             if note in red_notes:
                 red_square(d, xy)
-            if note == scale.notes[0]:
+            if note == notes[0]:
                 break
 
-        if not scale_finished and note == scale.notes[i]:
-            if scale.kind == 'diatonic' and scale.chords[i] in shared_chords:
+        if not scale_finished and note == notes[i]:
+            if chords[i] in shared_chords:
                 number_color = (255, 255, 255)
             else:
                 number_color = (215, 215, 215)
@@ -124,7 +124,7 @@ def scale_to_piano(scale, as_base64=False):
 
             color_rect(d, xy, notes_scale_colors[i])
             i += 1
-            if i == len(scale.notes):
+            if i == len(notes):
                 scale_finished = True
 
 
