@@ -196,9 +196,9 @@ def neighbors(left: Scale):
         neighs[len(right.shared_notes)].append(right)
     return neighs
 
-# warm up cache
-for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(as_base64=True)
-    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(as_base64=True)
-
+# # warm up cache
+# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
+#     _ = scale.to_piano_image(as_base64=True)
+#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+#         _ = neighbor.to_piano_image(as_base64=True)
+#
