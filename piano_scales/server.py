@@ -12,11 +12,6 @@ chromatic_notes_set = set(config.chromatic_notes)
 app = FastAPI()
 app.mount("/static/", StaticFiles(directory="static"), name="static")
 
-css = f'''
-<style>
-{open('static/main.css').read()}
-</style>
-'''
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
