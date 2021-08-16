@@ -66,19 +66,38 @@ def color_rect(d, xy, color):
     d.rectangle((x0, y0, x1, y1), fill=color)
 
 
-def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(215, 215, 215), outline_color=None):
+
+def add_square(d, xy, text=None, color=(255, 255, 255), text_color=(0, 0, 0), outline_color=None):
     x, y = xy
     red_x = x - red_bigger
     red_y = y - red_bigger
     red_r = r + red_bigger * 2
+    kw = dict(outline=outline_color, width=5) if outline_color else {}
+    d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color, **kw)
+    if text:
+        d.text((x, y), text, font=font, fill=text_color)
 
-    d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color)
-    d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
 
-    if number:
-        kw = dict(outline=outline_color, width=5) if outline_color else {}
-        d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color, **kw)
-        d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
+# def add_square(d, xy, note, color=(255, 255, 255), number=None, number_color=(215, 215, 215), outline_color=None):
+#     x, y = xy
+#     red_x = x - red_bigger
+#     red_y = y - red_bigger
+#     red_r = r + red_bigger * 2
+#
+#     d.rectangle((red_x - padding_x, red_y - padding_y, red_x - padding_x + red_r, red_y - padding_y + red_r), fill=color)
+#     d.text((x, y), note, font=font, fill=(0, 0, 0, 255))
+#
+#     # if number:
+#     #     kw = dict(outline=outline_color, width=5) if outline_color else {}
+#     #     d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color, **kw)
+#     #     d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0, 255))
+#
+#     if number:
+#         d.rectangle((red_x - padding_x, red_y - padding_y - number_dy, red_x - padding_x + red_r, red_y - padding_y - number_dy + red_r), fill=number_color)
+#         if outline_color:
+#             d.text((x, y - number_dy), str(number), font=font, fill=(0, 255, 0))
+#         else:
+#             d.text((x, y - number_dy), str(number), font=font, fill=(0, 0, 0))
 
 
 # def small_dot(d, xy):
@@ -108,7 +127,8 @@ def scale_to_piano(
     for (note, octave), xy in note_xy.items():
         if i > 0:
             if note in red_notes:
-                red_square(d, xy)
+                color_rect(d, xy, color=(255, 0, 0))
+                #red_square(d, xy)
             if note == notes[0]:
                 break
 
@@ -126,12 +146,17 @@ def scale_to_piano(
             else:
                 number_color = 255, 255, 255
 
-            if note in green_notes:
-                add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color, outline_color=outline_color)
-            else:
-                add_square(d, xy, note, number=i+1, number_color=number_color, outline_color=outline_color)
+            add_square(d, xy, note, color=notes_scale_colors[i])
+            add_square(d, (xy[0], xy[1] - number_dy), str(i + 1), color=number_color, outline_color=outline_color)
 
-            color_rect(d, xy, notes_scale_colors[i])
+            if note in green_notes:
+                color_rect(d, xy, color=(0, 255, 0))
+                # add_square(d, xy, note, number=i+1, color=(0, 255, 0), number_color=number_color, outline_color=outline_color)
+            # else:
+                # add_square(d, xy, note, number=i+1, number_color=number_color, outline_color=outline_color)
+                # add_square(d, xy, text=note, color=notes_scale_colors[i])
+
+            # color_rect(d, xy, notes_scale_colors[i])
             i += 1
             if i == len(notes):
                 scale_finished = True
@@ -156,7 +181,7 @@ def chord_to_piano(chord, as_base64=False):
     i = 0
     for (note, octave), xy in note_xy.items():
         if note == chord[i]:
-            add_square(d, xy, note)
+            add_square(d, xy, text=note)
             i += 1
             if i == len(chord):
                 break
