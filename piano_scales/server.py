@@ -179,4 +179,35 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
 #     await Chord(chord).play(bass=-2)
 #     return await compare_scales(kind, left_root, left_name, right_root, right_name)
 
+@app.get("/{kind}/{root}/{name}/all_chords", response_class=HTMLResponse)
+async def all_chords(kind: str, root: str, name: str):
 
+    if root not in chromatic_notes_set:
+        return RedirectResponse('/scale_not_found')
+
+    roots = ' '.join(f"<a href='/{kind}/{note}/{name}/all_chords'>{note}</a>" for note in config.chromatic_notes)
+    kind_links = f"<a href='/diatonic/{root}/major'>diatonic</a>"
+    kind_links += f" <a href='/pentatonic/{root}/p_major'>pentatonic</a>"
+
+
+    scale = all_scales[kind][root, name]
+    n = scale
+    payload = f"<div class='chord_buttons_row'><span class='scale_name'>{n.root} {n.name}</span>" + ''.join(f"<span class='chord_button {chord.name}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n" for i, chord in enumerate(n.chords, start=1)) + '</div>\n'
+    neighs = neighbors(scale)
+    for n_intersect in sorted(neighs.keys(), reverse=True):
+        payload += f"<h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords' if kind == 'diatonic' else ''}</h3>\n"
+        for n in neighs[n_intersect]:
+            payload += f"<div class='chord_buttons_row'><span class='scale_name'>{n.root} {n.name}</span>"
+            for i, chord in enumerate(n.chords, start=1):
+                is_shared = 'is_shared' if chord in n.shared_chords else ''
+                payload += f"<span class='chord_button {chord.name} {is_shared}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n"
+            payload += '</div>\n'
+
+    return f'''
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/play_chord.js"></script>
+    
+    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
+    <hr><br>
+    {payload}
+    '''

@@ -25,6 +25,21 @@ body {
     align-items: center;
 }
 
+.scale_name {
+    display: inline-block;
+    width: 100px;
+    background-color: white;
+}
+
+.chord_button {
+    border: 1px solid rgba(0,0,0,0.5);
+    padding: 0px 10px 0px 10px;
+}
+
+.chord_buttons_row {
+    margin: 10px 0px 10px 0px;
+}
+
 .as_c {
     font-size: 8pt;
     padding: 2px;
@@ -94,4 +109,9 @@ ol {
     }
     .chords_row.left {margin-bottom: 75px;}
     .chords_row.right {margin-top: 75px;}
+}
+
+
+.is_shared {
+    border: 2px solid rgb(0,255,0);   
 }
