@@ -1,13 +1,32 @@
 import functools
 import itertools
-import config
-from piano import chord_to_piano
+import asyncio
+from . import config
+from .piano import chord_to_piano
+from .note import Note
+from .player import play
 
 class Chord:
-    def __init__(self, str_chord: str):
+    def __init__(self, str_chord: str, root_octave=5):
         self.str_chord = str_chord
         self.root = str_chord[0]
         self.add_name()
+        self.root_octave = root_octave
+        self.notes = tuple(Note(note, root_octave) for note in self.str_chord)
+
+
+    async def play(self, seconds=1, bass=None):
+        tasks = [note.play(seconds) for note in self.notes]
+        if bass:
+            tasks.append(Note(self.notes[0].name, octave=self.root_octave + bass).play(seconds))
+        await asyncio.gather(*tasks)
+
+        # for note in self.notes:
+        #     note.play(seconds)
+        # play([note.to_midi() for note in self.notes], seconds)
+
+    def inversions(self):
+        raise NotImplementedError
 
     def add_name(self):
         it = itertools.cycle(config.chromatic_notes)
@@ -23,20 +42,31 @@ class Chord:
     def __hash__(self): return hash(self.str_chord)
     def __getitem__(self, item): return self.str_chord[item]
     def __len__(self): return len(self.str_chord)
-
-    def __str__(self):
-        return self.str_chord
+    def __str__(self): return self.str_chord
 
     def to_piano_image(self, base64=False):
         return chord_to_piano(self, as_base64=base64)
 
     # def _repr_html_(self):
+    # def __repr__(self):
+    #     label = hasattr(self, 'label') and f"id={self.label!r}"or ''
+    #     number = hasattr(self, 'number') and self.number or ''
+    #
+    #     return f'''
+    #     <li class='card {self.name}' {label}>
+    #     <a href='play_chord_{self.str_chord}'>
+    #     <span class='card_header' ><h3>{number} {self.root} {self.name}</h3></span>
+    #     <img src='{self.to_piano_image(base64=True)}' />
+    #     </a>
+    #     </li>
+    #     '''
+
     def __repr__(self):
         label = hasattr(self, 'label') and f"id={self.label!r}"or ''
         number = hasattr(self, 'number') and self.number or ''
 
         return f'''
-        <li class='card {self.name}' {label}>
+        <li class='card {self.name}' {label} onclick=play_chord('{self.str_chord}')>
         <span class='card_header' ><h3>{number} {self.root} {self.name}</h3></span>
         <img src='{self.to_piano_image(base64=True)}' />
         </li>

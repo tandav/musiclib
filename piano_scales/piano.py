@@ -2,13 +2,14 @@ import functools
 import io
 import base64
 import sys
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-import util
-import config
+from . import util
+from . import config
 
-# font = ImageFont.truetype('static/fonts/SFMono-Bold.otf', 40)
-font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
-piano_template = Image.open("static/piano_template-grey2.png").convert("RGBA")
+static_folder = Path(__file__).parent / 'static'
+font = ImageFont.truetype(str(static_folder / 'fonts/SFMono-Semibold.otf'), 40)
+piano_template = Image.open(str(static_folder / "piano_template-grey2.png")).convert("RGBA")
 
 
 white_x0, white_dx, white_y = 24, 73, 351

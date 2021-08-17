@@ -2,10 +2,10 @@ from collections import deque, defaultdict
 import itertools
 import functools
 import tqdm
-import config
-import util
-from piano import scale_to_piano
-from chord import Chord
+from . import config
+from . import util
+from .piano import scale_to_piano
+from .chord import Chord
 
 
 
@@ -158,7 +158,7 @@ class ComparedScale(Scale):
         chords_hover = f"title='{self._shared_chords_text()}'" if self.kind == 'diatonic' else ''
         if self.kind == 'diatonic':
             return f'''
-            <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
+            <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}/'>
             <div class='card {self.name}' {chords_hover}>
             <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
             <img src='{self.to_piano_image(as_base64=True)}'/>
@@ -197,8 +197,8 @@ def neighbors(left: Scale):
     return neighs
 
 # warm up cache
-for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(as_base64=True)
-    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(as_base64=True)
-
+# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
+#     _ = scale.to_piano_image(as_base64=True)
+#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+#         _ = neighbor.to_piano_image(as_base64=True)
+#

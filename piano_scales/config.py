@@ -43,3 +43,7 @@ scale_colors = dict(
     p_mixolydian = 'FFF47D',
     p_minor      = 'D83A56',
 )
+
+import mido
+device = 'IAC Driver Bus 1'
+port = mido.open_output(device)

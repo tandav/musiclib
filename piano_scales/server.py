@@ -1,16 +1,23 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
-from scale import all_scales, neighbors, ComparedScale
-import config
-import util
+from .scale import all_scales, neighbors, ComparedScale
+from .chord import Chord
+from . import config
+from . import util
+
+import warnings
+warnings.filterwarnings(action='ignore')
+
 
 chromatic_notes_set = set(config.chromatic_notes)
 
+static_folder = Path(__file__).parent / 'static'
 
 app = FastAPI()
-app.mount("/static/", StaticFiles(directory="static"), name="static")
+app.mount("/static/", StaticFiles(directory=static_folder), name="static")
 
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
@@ -20,11 +27,18 @@ def scale_not_found():
     <h1>404: scale not found</h1>
     '''
 
+@app.get("/play_chord/{chord}")
+async def play_chord(chord: str):
+    print('PLAYIN CHORD', chord)
+    await Chord(chord).play(bass=-2)
+    return {'status': 'play_chord success'}
+
+
 @app.get("/", response_class=HTMLResponse)
 async def root(): return RedirectResponse('/diatonic/C/major')
 
 @app.get("/favicon.ico", response_class=HTMLResponse)
-async def root(): return FileResponse('static/favicon.ico')
+async def root(): return FileResponse(static_folder / 'favicon.ico')
 
 @app.get("/{kind}", response_class=HTMLResponse)
 async def root(kind: str): return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
@@ -89,7 +103,7 @@ async def root_name_scale_load_all(kind: str, root: str, name: str):
     return await root_name_scale(kind, root, name, load_all=True)
 
 
-@app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
+@app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}/", response_class=HTMLResponse)
 async def compare_scales(kind: str, left_root: str, left_name: str, right_root: str, right_name: str):
     roots = ' '.join(f"<a href='/{kind}/{note}/{left_name}'>{note}</a>" for note in config.chromatic_notes)
     kind_links = f"<a href='/diatonic/{left_root}/major'>diatonic</a>"
@@ -141,6 +155,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
+    <script src="/static/play_chord.js"></script>
     
     <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <h1>compare scales</h1>
@@ -157,3 +172,11 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     </script>
     </div>
     '''
+
+# @app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}/play_chord_{chord}", response_class=HTMLResponse)
+# async def play_chord(kind: str, left_root: str, left_name: str, right_root: str, right_name: str, chord: str):
+#     print('PLAYIN CHORD', chord)
+#     await Chord(chord).play(bass=-2)
+#     return await compare_scales(kind, left_root, left_name, right_root, right_name)
+
+
