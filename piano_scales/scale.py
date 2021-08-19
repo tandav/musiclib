@@ -6,19 +6,33 @@ from . import config
 from . import util
 from .piano import scale_to_piano
 from .chord import Chord
+from .note import Note
 
 
+def iter_notes_with_octaves(start_note=config.chromatic_notes[0], start_octave=5):
+    octave = start_octave
 
-def chromatic(tonic):
+    chromatic_notes = itertools.cycle(config.chromatic_notes)
+    chromatic_notes = itertools.islice(chromatic_notes, 12)
+    chromatic_notes = tuple(Note(note, octave) for note in chromatic_notes)
+
+    while True:
+        yield from zip(chromatic_notes, itertools.repeat(octave))
+        octave += 1
+
+
+def chromatic(root):
+    notes = deque(Note() config.chromatic_notes)
     notes = deque(config.chromatic_notes)
-    while notes[0] != tonic:
+    while notes[0] != root:
         notes.rotate(1)
     return notes
 
 
-def scale_notes(tonic, bits):
+def scale_notes(root, bits):
     # return itertools.compress(chromatic(tonic), bits | Map(int)) | Pipe(''.join)
-    return ''.join(itertools.compress(chromatic(tonic), map(int, bits)))
+    # return ''.join(itertools.compress(chromatic(tonic), map(int, bits)))
+    return tuple(itertools.compress(chromatic(root), map(int, bits)))
 
 
 class Scale:
@@ -62,8 +76,8 @@ class Scale:
         self.chords = tuple(self.chords)
 
 
-    def to_piano_image(self, as_base64=False):
-        return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
+    # def to_piano_image(self, as_base64=False):
+    #     return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
 
     def to_piano_image(self, as_base64=False):
         if self.kind == 'diatonic':

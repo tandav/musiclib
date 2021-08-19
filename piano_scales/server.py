@@ -192,12 +192,12 @@ async def all_chords(kind: str, root: str, name: str):
 
     scale = all_scales[kind][root, name]
     n = scale
-    payload = f"<div class='chord_buttons_row'><span class='scale_name'>{n.root} {n.name}</span>" + ''.join(f"<span class='chord_button {chord.name}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n" for i, chord in enumerate(n.chords, start=1)) + '</div>\n'
+    payload = f"<div class='chord_buttons_row'><span class='scale_name {n.name}'>{n.root} {n.name}</span>" + ''.join(f"<span class='chord_button {chord.name}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n" for i, chord in enumerate(n.chords, start=1)) + '</div>\n'
     neighs = neighbors(scale)
     for n_intersect in sorted(neighs.keys(), reverse=True):
         payload += f"<h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords' if kind == 'diatonic' else ''}</h3>\n"
         for n in neighs[n_intersect]:
-            payload += f"<div class='chord_buttons_row'><span class='scale_name'>{n.root} {n.name}</span>"
+            payload += f"<div class='chord_buttons_row'><span class='scale_name {n.name}'>{n.root} {n.name}</span>"
             for i, chord in enumerate(n.chords, start=1):
                 is_shared = 'is_shared' if chord in n.shared_chords else ''
                 payload += f"<span class='chord_button {chord.name} {is_shared}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n"

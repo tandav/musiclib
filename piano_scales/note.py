@@ -13,6 +13,7 @@ class Note:
         self.octave = octave
         self.i = config.chromatic_notes.index(name)
         self.midi_code = self.octave * 12 + self.i
+        self.key = self.name, self.octave
 
     async def play(self, seconds=1):
         warnings.warn(f'note_on {self} {seconds=}')
@@ -23,4 +24,7 @@ class Note:
 
 
     def __repr__(self):
-        return f"Note(name={self.name}, octave={self.octave}, i={self.i}, modo_code={self.midi_code})"
+        return f"Note(name={self.name}, octave={self.octave}, i={self.i}, midi_code={self.midi_code})"
+
+    def __eq__(self, other): return self.key == other.key
+    def __hash__(self): return hash(self.key)

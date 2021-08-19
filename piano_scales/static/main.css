@@ -28,7 +28,7 @@ body {
 .scale_name {
     display: inline-block;
     width: 100px;
-    background-color: white;
+    /*background-color: white;*/
 }
 
 .chord_button {

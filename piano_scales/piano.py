@@ -6,6 +6,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from . import util
 from . import config
+from .note import Note
 
 static_folder = Path(__file__).parent / 'static'
 font = ImageFont.truetype(str(static_folder / 'fonts/SFMono-Semibold.otf'), 40)
@@ -15,31 +16,58 @@ piano_template = Image.open(str(static_folder / "piano_template-grey2.png")).con
 white_x0, white_dx, white_y = 24, 73, 351
 black_x0, black_dx, black_y = 61, 73, 225
 
+# note_xy = {
+#     (config.chromatic_notes[ 0], 0): (white_x0 + white_dx *  0, white_y),
+#     (config.chromatic_notes[ 1], 0): (black_x0 + black_dx *  0, black_y),
+#     (config.chromatic_notes[ 2], 0): (white_x0 + white_dx *  1, white_y),
+#     (config.chromatic_notes[ 3], 0): (black_x0 + black_dx *  1, black_y),
+#     (config.chromatic_notes[ 4], 0): (white_x0 + white_dx *  2, white_y),
+#     (config.chromatic_notes[ 5], 0): (white_x0 + white_dx *  3, white_y),
+#     (config.chromatic_notes[ 6], 0): (black_x0 + black_dx *  3, black_y),
+#     (config.chromatic_notes[ 7], 0): (white_x0 + white_dx *  4, white_y),
+#     (config.chromatic_notes[ 8], 0): (black_x0 + black_dx *  4, black_y),
+#     (config.chromatic_notes[ 9], 0): (white_x0 + white_dx *  5, white_y),
+#     (config.chromatic_notes[10], 0): (black_x0 + black_dx *  5, black_y),
+#     (config.chromatic_notes[11], 0): (white_x0 + white_dx *  6, white_y),
+#     (config.chromatic_notes[ 0], 1): (white_x0 + white_dx *  7, white_y),
+#     (config.chromatic_notes[ 1], 1): (black_x0 + black_dx *  7, black_y),
+#     (config.chromatic_notes[ 2], 1): (white_x0 + white_dx *  8, white_y),
+#     (config.chromatic_notes[ 3], 1): (black_x0 + black_dx *  8, black_y),
+#     (config.chromatic_notes[ 4], 1): (white_x0 + white_dx *  9, white_y),
+#     (config.chromatic_notes[ 5], 1): (white_x0 + white_dx * 10, white_y),
+#     (config.chromatic_notes[ 6], 1): (black_x0 + black_dx * 10, black_y),
+#     (config.chromatic_notes[ 7], 1): (white_x0 + white_dx * 11, white_y),
+#     (config.chromatic_notes[ 8], 1): (black_x0 + black_dx * 11, black_y),
+#     (config.chromatic_notes[ 9], 1): (white_x0 + white_dx * 12, white_y),
+#     (config.chromatic_notes[10], 1): (black_x0 + black_dx * 12, black_y),
+#     (config.chromatic_notes[11], 1): (white_x0 + white_dx * 13, white_y),
+# }
+
 note_xy = {
-    (config.chromatic_notes[ 0], 0): (white_x0 + white_dx *  0, white_y),
-    (config.chromatic_notes[ 1], 0): (black_x0 + black_dx *  0, black_y),
-    (config.chromatic_notes[ 2], 0): (white_x0 + white_dx *  1, white_y),
-    (config.chromatic_notes[ 3], 0): (black_x0 + black_dx *  1, black_y),
-    (config.chromatic_notes[ 4], 0): (white_x0 + white_dx *  2, white_y),
-    (config.chromatic_notes[ 5], 0): (white_x0 + white_dx *  3, white_y),
-    (config.chromatic_notes[ 6], 0): (black_x0 + black_dx *  3, black_y),
-    (config.chromatic_notes[ 7], 0): (white_x0 + white_dx *  4, white_y),
-    (config.chromatic_notes[ 8], 0): (black_x0 + black_dx *  4, black_y),
-    (config.chromatic_notes[ 9], 0): (white_x0 + white_dx *  5, white_y),
-    (config.chromatic_notes[10], 0): (black_x0 + black_dx *  5, black_y),
-    (config.chromatic_notes[11], 0): (white_x0 + white_dx *  6, white_y),
-    (config.chromatic_notes[ 0], 1): (white_x0 + white_dx *  7, white_y),
-    (config.chromatic_notes[ 1], 1): (black_x0 + black_dx *  7, black_y),
-    (config.chromatic_notes[ 2], 1): (white_x0 + white_dx *  8, white_y),
-    (config.chromatic_notes[ 3], 1): (black_x0 + black_dx *  8, black_y),
-    (config.chromatic_notes[ 4], 1): (white_x0 + white_dx *  9, white_y),
-    (config.chromatic_notes[ 5], 1): (white_x0 + white_dx * 10, white_y),
-    (config.chromatic_notes[ 6], 1): (black_x0 + black_dx * 10, black_y),
-    (config.chromatic_notes[ 7], 1): (white_x0 + white_dx * 11, white_y),
-    (config.chromatic_notes[ 8], 1): (black_x0 + black_dx * 11, black_y),
-    (config.chromatic_notes[ 9], 1): (white_x0 + white_dx * 12, white_y),
-    (config.chromatic_notes[10], 1): (black_x0 + black_dx * 12, black_y),
-    (config.chromatic_notes[11], 1): (white_x0 + white_dx * 13, white_y),
+    Note(config.chromatic_notes[ 0], 5): (white_x0 + white_dx *  0, white_y),
+    Note(config.chromatic_notes[ 1], 5): (black_x0 + black_dx *  0, black_y),
+    Note(config.chromatic_notes[ 2], 5): (white_x0 + white_dx *  1, white_y),
+    Note(config.chromatic_notes[ 3], 5): (black_x0 + black_dx *  1, black_y),
+    Note(config.chromatic_notes[ 4], 5): (white_x0 + white_dx *  2, white_y),
+    Note(config.chromatic_notes[ 5], 5): (white_x0 + white_dx *  3, white_y),
+    Note(config.chromatic_notes[ 6], 5): (black_x0 + black_dx *  3, black_y),
+    Note(config.chromatic_notes[ 7], 5): (white_x0 + white_dx *  4, white_y),
+    Note(config.chromatic_notes[ 8], 5): (black_x0 + black_dx *  4, black_y),
+    Note(config.chromatic_notes[ 9], 5): (white_x0 + white_dx *  5, white_y),
+    Note(config.chromatic_notes[10], 5): (black_x0 + black_dx *  5, black_y),
+    Note(config.chromatic_notes[11], 5): (white_x0 + white_dx *  6, white_y),
+    Note(config.chromatic_notes[ 0], 6): (white_x0 + white_dx *  7, white_y),
+    Note(config.chromatic_notes[ 1], 6): (black_x0 + black_dx *  7, black_y),
+    Note(config.chromatic_notes[ 2], 6): (white_x0 + white_dx *  8, white_y),
+    Note(config.chromatic_notes[ 3], 6): (black_x0 + black_dx *  8, black_y),
+    Note(config.chromatic_notes[ 4], 6): (white_x0 + white_dx *  9, white_y),
+    Note(config.chromatic_notes[ 5], 6): (white_x0 + white_dx * 10, white_y),
+    Note(config.chromatic_notes[ 6], 6): (black_x0 + black_dx * 10, black_y),
+    Note(config.chromatic_notes[ 7], 6): (white_x0 + white_dx * 11, white_y),
+    Note(config.chromatic_notes[ 8], 6): (black_x0 + black_dx * 11, black_y),
+    Note(config.chromatic_notes[ 9], 6): (white_x0 + white_dx * 12, white_y),
+    Note(config.chromatic_notes[10], 6): (black_x0 + black_dx * 12, black_y),
+    Note(config.chromatic_notes[11], 6): (white_x0 + white_dx * 13, white_y),
 }
 
 
@@ -125,7 +153,7 @@ def scale_to_piano(
 
     i = 0
     scale_finished = False
-    for (note, octave), xy in note_xy.items():
+    for note, xy in note_xy.items():
         if i > 0:
             if note in red_notes:
                 color_rect(d, xy, color=(255, 0, 0))
@@ -147,7 +175,7 @@ def scale_to_piano(
             else:
                 number_color = 255, 255, 255
 
-            add_square(d, xy, note, color=notes_scale_colors[i])
+            add_square(d, xy, note.name, color=notes_scale_colors[i])
             add_square(d, (xy[0], xy[1] - number_dy), str(i + 1), color=number_color, outline_color=outline_color)
 
             if note in green_notes:
@@ -180,7 +208,7 @@ def chord_to_piano(chord, as_base64=False):
     d = ImageDraw.Draw(layer)
 
     i = 0
-    for (note, octave), xy in note_xy.items():
+    for note, xy in note_xy.items():
         if note == chord[i]:
             add_square(d, xy, text=note)
             i += 1
