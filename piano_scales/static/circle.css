@@ -6,29 +6,38 @@
 }
 
 .circle {
-    /*border-radius: 50%;*/
-    font-size: 50pt;
-    width: var(--item_size);
-    height: var(--item_size);
-    background-color: red;
-    display: block;
-    position: absolute;
-    overflow: hidden;
-    top: 50%;
-    left: 50%;
-    margin: var(--item_margin);
-    /*margin: -50px;*/
+  /*border-radius: 50%;*/
+  font-size: 50pt;
+  width: var(--item_size);
+  height: var(--item_size);
+  background-color: red;
+  display: block;
+  position: absolute;
+  overflow: hidden;
+  top: 50%;
+  left: 50%;
+  margin: var(--item_margin);
+  /*margin: -50px;*/
 }
 
-._1  { transform: rotate(30deg ) translate(var(--radius)); }
-._2  { transform: rotate(60deg ) translate(var(--radius)); }
-._3  { transform: rotate(90deg ) translate(var(--radius)); }
-._4  { transform: rotate(120deg) translate(var(--radius)); }
-._5  { transform: rotate(150deg) translate(var(--radius)); }
-._6  { transform: rotate(180deg) translate(var(--radius)); }
-._7  { transform: rotate(210deg) translate(var(--radius)); }
-._8  { transform: rotate(240deg) translate(var(--radius)); }
-._9  { transform: rotate(270deg) translate(var(--radius)); }
-._10 { transform: rotate(300deg) translate(var(--radius)); }
-._11 { transform: rotate(330deg) translate(var(--radius)); }
-._12 { transform: rotate(360deg) translate(var(--radius)); }
+.kinda_circle {
+  display: block;
+  position: absolute;
+  overflow: hidden;
+  top: 50%;
+  left: 50%;
+}
+
+._1  { transform: rotate(30deg ) translate(var(--radius)) rotate(-30deg ); }
+._2  { transform: rotate(60deg ) translate(var(--radius)) rotate(-60deg ); }
+._3  { transform: rotate(90deg ) translate(var(--radius)) rotate(-90deg ); }
+._4  { transform: rotate(120deg) translate(var(--radius)) rotate(-120deg); }
+._5  { transform: rotate(150deg) translate(var(--radius)) rotate(-150deg); }
+._6  { transform: rotate(180deg) translate(var(--radius)) rotate(-180deg); }
+._7  { transform: rotate(210deg) translate(var(--radius)) rotate(-210deg); }
+._8  { transform: rotate(240deg) translate(var(--radius)) rotate(-240deg); }
+._9  { transform: rotate(270deg) translate(var(--radius)) rotate(-270deg); }
+._10 { transform: rotate(300deg) translate(var(--radius)) rotate(-300deg); }
+._11 { transform: rotate(330deg) translate(var(--radius)) rotate(-330deg); }
+._12 { transform: rotate(360deg) translate(var(--radius)) rotate(-360deg); }
+

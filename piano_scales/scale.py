@@ -36,7 +36,7 @@ class Scale:
             util.hex_to_rgb(config.scale_colors[scale])
             for scale in util.iter_scales(self.kind, start=self.name)
         )
-        self.html_classes = ('card', self.name,)
+        self.html_classes = ('card', self.name)
 
 
     def add_as_C(self):

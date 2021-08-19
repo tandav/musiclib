@@ -30,12 +30,13 @@ async def root(): return FileResponse('static/favicon.ico')
 async def circle():
 
     html = '''\
-    <link rel="stylesheet" type="text/css" href="static/circle.css">
+    <link rel="stylesheet" href="static/circle.css">
+    <link rel="stylesheet" href="/static/main.css">
     '''
 
     for i, scale in enumerate(majors, start=1):
-        html += f"<div class='circle _{i}'>{i}</div>"
-
+        # html += f"<div class='circle _{i}'>{i}</div>"
+        html += scale.with_html_classes(('kinda_circle', f'_{i}'))
     return html
 
 @app.get("/{kind}", response_class=HTMLResponse)
