@@ -6,6 +6,7 @@ import config
 import util
 from piano import scale_to_piano
 from chord import Chord
+from collections.abc import Iterable
 
 
 
@@ -35,7 +36,7 @@ class Scale:
             util.hex_to_rgb(config.scale_colors[scale])
             for scale in util.iter_scales(self.kind, start=self.name)
         )
-        self.is_selected = False
+        self.html_classes = ('card', self.name,)
 
 
     def add_as_C(self):
@@ -84,21 +85,23 @@ class Scale:
             x += f'{i} {chord} {chord.name}\n'
         return x
 
-    def selected_repr(self):
-        self.is_selected = True
+    def with_html_classes(self, classes: tuple):
+        prev = self.html_classes
+        self.html_classes = prev + classes
         r = repr(self)
-        self.is_selected = False
+        self.html_classes = prev
         return r
+
+    # def __format__(self, format_spec): raise No
 
     # @functools.cached_property
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
         chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
-        is_selected = 'selected_scale' if self.is_selected else ''
 
         return f'''
-        <div class='card {self.name} {is_selected}' {chords_hover}>
+        <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='/{self.kind}/{self.root}/{self.name}'>
         <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
         <img src='{self.to_piano_image(as_base64=True)}'/>
@@ -185,6 +188,8 @@ all_scales = {
     'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
 }
 
+majors = [s for s in all_scales['diatonic'].values() if s.name == 'major']
+
 
 @functools.lru_cache(maxsize=1024)
 def neighbors(left: Scale):
@@ -197,8 +202,8 @@ def neighbors(left: Scale):
     return neighs
 
 # warm up cache
-for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-    _ = scale.to_piano_image(as_base64=True)
-    for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-        _ = neighbor.to_piano_image(as_base64=True)
+# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
+#     _ = scale.to_piano_image(as_base64=True)
+#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
+#         _ = neighbor.to_piano_image(as_base64=True)
 

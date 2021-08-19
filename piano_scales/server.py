@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from scale import all_scales, neighbors, ComparedScale
+from scale import all_scales, neighbors, ComparedScale, majors
 import config
 import util
 
@@ -28,6 +28,8 @@ async def root(): return FileResponse('static/favicon.ico')
 
 @app.get("/circle", response_class=HTMLResponse)
 async def circle():
+    for scale in majors:
+        print(scale.bits)
     return f'''
     <link rel="stylesheet" type="text/css" href="static/circle.css">
 
@@ -68,7 +70,7 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
     for _name in util.iter_scales(kind):
         scale = all_scales[kind][root, _name]
         if _name == name:
-            initial.append(scale.selected_repr())
+            initial.append(scale.with_html_classes(('selected_scale',)))
             selected_scale = scale
         else:
             initial.append(repr(scale))
