@@ -28,28 +28,15 @@ async def root(): return FileResponse('static/favicon.ico')
 
 @app.get("/circle", response_class=HTMLResponse)
 async def circle():
-    for scale in majors:
-        print(scale.bits)
-    return f'''
+
+    html = '''\
     <link rel="stylesheet" type="text/css" href="static/circle.css">
-
-    <div class="circle-big">
-        <div class="circle _0"></div>
-        <div class="circle _1"></div>
-        <div class="circle _2"></div>
-        <div class="circle _3"></div>
-        <div class="circle _4"></div>
-        <div class="circle _5"></div>
-        <div class="circle _6"></div>
-        <div class="circle _7"></div>
-        <div class="circle _8"></div>
-        <div class="circle _9"></div>
-        <div class="circle _10"></div>
-        <div class="circle _11"></div>
-        <div class="circle _12"></div>
-    </div>
-
     '''
+
+    for i, scale in enumerate(majors, start=1):
+        html += f"<div class='circle _{i}'>{i}</div>"
+
+    return html
 
 @app.get("/{kind}", response_class=HTMLResponse)
 async def root(kind: str): return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
