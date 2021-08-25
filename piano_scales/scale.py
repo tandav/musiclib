@@ -32,19 +32,12 @@ class Scale:
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
-        self.add_as_C()
         self.note_colors = {
             note: util.hex_to_rgb(config.scale_colors[scale])
             for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name))
         }
         self.html_classes = ('card', self.name)
 
-
-    def add_as_C(self):
-        self.as_C = ''
-        for bits, name in config.bits_2_name.items():
-            if set(self.notes) == set(scale_notes(config.chromatic_notes[0], bits)):
-                self.as_C = name
 
     # @classmethod
     # def from_bits(cls, root: str, bits: str):
@@ -99,13 +92,12 @@ class Scale:
     # @functools.cached_property
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
-        as_C = self.as_C and f'as_C: {self.as_C}' or ''
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='/{self.kind}/{self.root}/{self.name}'>
-        <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
+        <span class='card_header'><h3>{self.root} {self.name}</h3></span>
         {self.to_piano_image()}
         </a>
         </div>
@@ -160,13 +152,12 @@ class ComparedScale(Scale):
 
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
-        as_C = self.as_C and f'as_C: {self.as_C}' or ''
         chords_hover = f"title='{self._shared_chords_text()}'" if self.kind == 'diatonic' else ''
         if self.kind == 'diatonic':
             return f'''
             <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
             <div class='card {self.name}' {chords_hover}>
-            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
+            <span class='card_header'><h3>{self.root} {self.name}</h3></span>
             <img src='{self.to_piano_image(as_base64=True)}'/>
             </a>
             </div>
@@ -174,7 +165,7 @@ class ComparedScale(Scale):
         else:
             return f'''
             <div class='card {self.name}' {chords_hover}>
-            <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
+            <span class='card_header'><h3>{self.root} {self.name}</h3></span>
             <img src='{self.to_piano_image(as_base64=True)}'/>
             </div>
             '''
@@ -193,8 +184,8 @@ all_scales = {
 
 # majors = [s for s in all_scales['diatonic'].values() if s.name == 'major']
 
-# hard coded from umap picture, TODO: make it algorythmically
-majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF') # circle of fifths clockwise
+# circle of fifths clockwise
+majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF')
 
 
 
