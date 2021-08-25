@@ -1,7 +1,7 @@
 import functools
 import itertools
-import config
-from piano import chord_to_piano
+from . import config
+from .piano import Piano
 
 class Chord:
     def __init__(self, str_chord: str):
@@ -28,7 +28,8 @@ class Chord:
         return self.str_chord
 
     def to_piano_image(self, base64=False):
-        return chord_to_piano(self, as_base64=base64)
+        return Piano()
+        # return chord_to_piano(self, as_base64=base64)
 
     # def _repr_html_(self):
     def __repr__(self):

@@ -2,10 +2,9 @@ from collections import deque, defaultdict
 import itertools
 import functools
 import tqdm
-import config
-import util
-from piano import scale_to_piano
-from chord import Chord
+from . import config, util
+from .piano import Piano
+from .chord import Chord
 from collections.abc import Iterable
 
 
@@ -25,17 +24,19 @@ def scale_notes(tonic, bits):
 class Scale:
     def __init__(self, root: str, name: str):
         self.root = root
-        self.bits = config.name_2_bits[name]
+        self.bits_from_root = config.name_2_bits[name]
         self.name = name
-        self.notes = scale_notes(root, self.bits)
+        self.notes = scale_notes(root, self.bits_from_root)
+        self.bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
+        self.bits_int = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
         self.add_as_C()
-        self.notes_scale_colors = tuple(
-            util.hex_to_rgb(config.scale_colors[scale])
-            for scale in util.iter_scales(self.kind, start=self.name)
-        )
+        self.note_colors = {
+            note: util.hex_to_rgb(config.scale_colors[scale])
+            for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name))
+        }
         self.html_classes = ('card', self.name)
 
 
@@ -63,20 +64,21 @@ class Scale:
         self.chords = tuple(self.chords)
 
 
-    def to_piano_image(self, as_base64=False):
-        return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
+    # def to_piano_image(self, as_base64=False):
+    #     return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
 
-    def to_piano_image(self, as_base64=False):
-        if self.kind == 'diatonic':
-            return scale_to_piano(
-                self.notes, self.chords, self.notes_scale_colors,
-                as_base64=as_base64,
-            )
-        else:
-            return scale_to_piano(
-                self.notes, None, self.notes_scale_colors,
-                as_base64=as_base64,
-            )
+    def to_piano_image(self):
+        return Piano(scale=self)._repr_html_()
+    #     if self.kind == 'diatonic':
+    #         return scale_to_piano(
+    #             self.notes, self.chords, self.notes_scale_colors,
+    #             as_base64=as_base64,
+    #         )
+    #     else:
+    #         return scale_to_piano(
+    #             self.notes, None, self.notes_scale_colors,
+    #             as_base64=as_base64,
+    #         )
 
 
     def _chords_text(self):
@@ -98,13 +100,13 @@ class Scale:
     def __repr__(self):
         # <code>bits: {self.bits}</code><br>
         as_C = self.as_C and f'as_C: {self.as_C}' or ''
-        chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
-
+        # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
+        chords_hover = ''
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='/{self.kind}/{self.root}/{self.name}'>
         <span class='card_header'><h3>{self.root} {self.name}</h3><span class='as_c {self.as_C}'>{as_C}</span></span>
-        <img src='{self.to_piano_image(as_base64=True)}'/>
+        {self.to_piano_image()}
         </a>
         </div>
         '''
@@ -135,18 +137,19 @@ class ComparedScale(Scale):
         self.right = right # clean
 
     def to_piano_image(self, as_base64=False):
-        if self.kind == 'diatonic':
-            return scale_to_piano(
-                self.notes, self.chords, self.notes_scale_colors,
-                green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=self.shared_chords,
-                as_base64=as_base64,
-            )
-        else:
-            return scale_to_piano(
-                self.notes, None, self.notes_scale_colors,
-                green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=None,
-                as_base64=as_base64,
-            )
+        return Piano(scale=self)
+        # if self.kind == 'diatonic':
+        #     return scale_to_piano(
+        #         self.notes, self.chords, self.notes_scale_colors,
+        #         green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=self.shared_chords,
+        #         as_base64=as_base64,
+        #     )
+        # else:
+        #     return scale_to_piano(
+        #         self.notes, None, self.notes_scale_colors,
+        #         green_notes=self.new_notes, red_notes=self.del_notes, shared_chords=None,
+        #         as_base64=as_base64,
+        #     )
 
     def _shared_chords_text(self):
         x = 'shared chords:\n'
@@ -188,7 +191,11 @@ all_scales = {
     'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
 }
 
-majors = [s for s in all_scales['diatonic'].values() if s.name == 'major']
+# majors = [s for s in all_scales['diatonic'].values() if s.name == 'major']
+
+# hard coded from umap picture, TODO: make it algorythmically
+majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF') # circle of fifths clockwise
+
 
 
 @functools.lru_cache(maxsize=1024)

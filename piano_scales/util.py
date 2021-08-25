@@ -1,7 +1,7 @@
 import functools
 import itertools
 from collections.abc import Iterable
-import config
+from . import config
 
 
 @functools.lru_cache(1024)

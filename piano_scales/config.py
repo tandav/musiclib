@@ -43,3 +43,6 @@ scale_colors = dict(
     p_mixolydian = 'FFF47D',
     p_minor      = 'D83A56',
 )
+
+# piano_img_size = 14 * 60, 280
+piano_img_size = 14 * 18, 85

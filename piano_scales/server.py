@@ -1,16 +1,19 @@
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from scale import all_scales, neighbors, ComparedScale, majors
-import config
-import util
+from .scale import all_scales, neighbors, ComparedScale, majors
+from . import config
+from . import util
 
 chromatic_notes_set = set(config.chromatic_notes)
 
 
+static_folder = Path(__file__).parent / 'static'
+
 app = FastAPI()
-app.mount("/static/", StaticFiles(directory="static"), name="static")
+app.mount("/static/", StaticFiles(directory=static_folder), name="static")
 
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
@@ -24,7 +27,7 @@ def scale_not_found():
 async def root(): return RedirectResponse('/diatonic/C/major')
 
 @app.get("/favicon.ico", response_class=HTMLResponse)
-async def root(): return FileResponse('static/favicon.ico')
+async def favicon(): return FileResponse(static_folder / 'favicon.ico')
 
 @app.get("/circle", response_class=HTMLResponse)
 async def circle():
@@ -40,10 +43,12 @@ async def circle():
     return html
 
 @app.get("/{kind}", response_class=HTMLResponse)
-async def root(kind: str): return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
+async def kind(kind: str):
+    print('lol')
+    return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
 
 @app.get("/{kind}/{root}", response_class=HTMLResponse)
-async def root(kind: str, root: str): return RedirectResponse(f'/{kind}/{root}/{getattr(config, kind)[0]}')
+async def kind_root(kind: str, root: str): return RedirectResponse(f'/{kind}/{root}/{getattr(config, kind)[0]}')
 
 
 @app.get("/{kind}/{root}/{name}", response_class=HTMLResponse)
