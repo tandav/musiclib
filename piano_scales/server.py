@@ -33,6 +33,11 @@ async def play_chord(chord: str):
     await Chord(*(Note(n) for n in chord)).play(bass=-2)
     return {'status': 'play_chord success'}
 
+@app.get("/play_note/{note}/{octave}")
+async def play_note(note: str, octave: int):
+    print('PLAYIN NOTE', note, octave)
+    await Note(note, octave).play()
+    return {'status': 'play_note success'}
 
 @app.get("/", response_class=HTMLResponse)
 async def root(): return RedirectResponse('/diatonic/C/major')
@@ -46,6 +51,7 @@ async def circle():
     html = '''\
     <link rel="stylesheet" href="static/circle.css">
     <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/play.js"></script>
     '''
 
     for i, scale in enumerate(majors, start=1):

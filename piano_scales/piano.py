@@ -13,8 +13,8 @@ class Piano:
 
         white_notes = tuple(Note(config.chromatic_notes[i]) for i in (0, 2, 4, 5, 7, 9, 11))
         black_notes = tuple(Note(config.chromatic_notes[i]) for i in (1, 3, 6, 8, 10))
-        wo = tuple(itertools.product((0, 1), white_notes))  # white with octave: (octave, note)
-        bo = tuple(itertools.product((0, 1), black_notes))  # black with octave: (octave, note)
+        wo = tuple(itertools.product((5, 6), white_notes))  # white with octave: (octave, note)
+        bo = tuple(itertools.product((5, 6), black_notes))  # black with octave: (octave, note)
         WHITE_COLOR = (170,) * 3
         BLACK_COLOR = (80,) * 3
 
@@ -28,8 +28,7 @@ class Piano:
             if scale is not None and note in scale.notes:
                 color = scale.note_colors[note]
 
-            self.rects.append(
-                f"<rect x='{x}', y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}'/>")
+            self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{octave}')"/>""")
 
         it = (x for i, x in enumerate(range(0 + ww, self.size[0], ww)) if i not in {2, 6, 9, 13})
         for (octave, note), x in zip(bo, it):
@@ -37,11 +36,9 @@ class Piano:
 
             if scale is not None and note in scale.notes:
                 color = scale.note_colors[note]
-            self.rects.append(
-                f"<rect x='{x - bw // 2}', y='0' width='{bw}' height='{int(self.size[1] * 0.6)}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}'/>")
+            self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{int(self.size[1] * 0.6)}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{octave}')"/>""")
 
-        self.rects.append(
-            f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_COLOR}'/>")
+        self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_COLOR}'/>")
 
     def __repr__(self):
         return 'Piano'
