@@ -169,7 +169,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
-    <script src="/static/play_chord.js"></script>
+    <script src="/static/play.js"></script>
     
     <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <h1>compare scales</h1>
@@ -219,7 +219,7 @@ async def all_chords(kind: str, root: str, name: str):
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <script src="/static/play_chord.js"></script>
+    <script src="/static/play.js"></script>
     
     <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <hr><br>
