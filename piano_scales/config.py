@@ -46,3 +46,6 @@ scale_colors = dict(
 
 # piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
+import mido
+device = 'IAC Driver Bus 1'
+port = mido.open_output(device)

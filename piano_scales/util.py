@@ -3,10 +3,9 @@ import itertools
 from collections.abc import Iterable
 from . import config
 
-
-@functools.lru_cache(1024)
-def sort_notes(notes: Iterable):
-    return ''.join(sorted(notes, key=config.chromatic_notes.find))
+# @functools.lru_cache(1024)
+# def sort_notes(notes: Iterable):
+#     return ''.join(sorted(notes, key=config.chromatic_notes.find))
 
 
 def hex_to_rgb(color):
@@ -34,3 +33,4 @@ def iter_scales(kind, start=None):
 
 
 n_intersect_notes_to_n_shared_chords = {7: 7, 6: 4, 5: 2, 4: 0, 3: 0, 2: 0}
+

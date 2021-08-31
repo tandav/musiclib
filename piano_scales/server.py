@@ -4,11 +4,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .scale import all_scales, neighbors, ComparedScale, majors
-from . import config
-from . import util
+from .chord import Chord
+from . import config, util
+
+import warnings
+warnings.filterwarnings(action='ignore')
+
 
 chromatic_notes_set = set(config.chromatic_notes)
-
 
 static_folder = Path(__file__).parent / 'static'
 
@@ -22,6 +25,13 @@ def scale_not_found():
     <header><a href='/'>home</a></header>
     <h1>404: scale not found</h1>
     '''
+
+@app.get("/play_chord/{chord}")
+async def play_chord(chord: str):
+    print('PLAYIN CHORD', chord)
+    await Chord(chord).play(bass=-2)
+    return {'status': 'play_chord success'}
+
 
 @app.get("/", response_class=HTMLResponse)
 async def root(): return RedirectResponse('/diatonic/C/major')
@@ -44,7 +54,6 @@ async def circle():
 
 @app.get("/{kind}", response_class=HTMLResponse)
 async def kind(kind: str):
-    print('lol')
     return RedirectResponse(f'/{kind}/C/{getattr(config, kind)[0]}')
 
 @app.get("/{kind}/{root}", response_class=HTMLResponse)
@@ -66,7 +75,7 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
             initial.append(scale.with_html_classes(('selected_scale',)))
             selected_scale = scale
         else:
-            initial.append(repr(scale))
+            initial.append(scale._repr_html_())
     initial = '\n'.join(initial)
 
     neighs = neighbors(selected_scale)
@@ -83,7 +92,7 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
         neighs_html += f'''
         <h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords (click to see)' if kind == 'diatonic' else ''}</h3>
         <div class="neighbors">
-        {''.join(repr(n) for n in neighs[n_intersect])}
+        {''.join(n._repr_html_() for n in neighs[n_intersect])}
         </div>
         <hr>
         '''
@@ -107,7 +116,7 @@ async def root_name_scale_load_all(kind: str, root: str, name: str):
     return await root_name_scale(kind, root, name, load_all=True)
 
 
-@app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}", response_class=HTMLResponse)
+@app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}/", response_class=HTMLResponse)
 async def compare_scales(kind: str, left_root: str, left_name: str, right_root: str, right_name: str):
     roots = ' '.join(f"<a href='/{kind}/{note}/{left_name}'>{note}</a>" for note in config.chromatic_notes)
     kind_links = f"<a href='/diatonic/{left_root}/major'>diatonic</a>"
@@ -159,6 +168,7 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/leader-line.min.js"></script>
+    <script src="/static/play_chord.js"></script>
     
     <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
     <h1>compare scales</h1>
@@ -174,4 +184,43 @@ async def compare_scales(kind: str, left_root: str, left_name: str, right_root: 
     {js}
     </script>
     </div>
+    '''
+
+# @app.get("/{kind}/{left_root}/{left_name}/compare_to/{right_root}/{right_name}/play_chord_{chord}", response_class=HTMLResponse)
+# async def play_chord(kind: str, left_root: str, left_name: str, right_root: str, right_name: str, chord: str):
+#     print('PLAYIN CHORD', chord)
+#     await Chord(chord).play(bass=-2)
+#     return await compare_scales(kind, left_root, left_name, right_root, right_name)
+
+@app.get("/{kind}/{root}/{name}/all_chords", response_class=HTMLResponse)
+async def all_chords(kind: str, root: str, name: str):
+
+    if root not in chromatic_notes_set:
+        return RedirectResponse('/scale_not_found')
+
+    roots = ' '.join(f"<a href='/{kind}/{note}/{name}/all_chords'>{note}</a>" for note in config.chromatic_notes)
+    kind_links = f"<a href='/diatonic/{root}/major'>diatonic</a>"
+    kind_links += f" <a href='/pentatonic/{root}/p_major'>pentatonic</a>"
+
+
+    scale = all_scales[kind][root, name]
+    n = scale
+    payload = f"<div class='chord_buttons_row'><span class='scale_name {n.name}'>{n.root} {n.name}</span>" + ''.join(f"<span class='chord_button {chord.name}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n" for i, chord in enumerate(n.chords, start=1)) + '</div>\n'
+    neighs = neighbors(scale)
+    for n_intersect in sorted(neighs.keys(), reverse=True):
+        payload += f"<h3>{n_intersect} shared notes{f', {util.n_intersect_notes_to_n_shared_chords[n_intersect]} shared chords' if kind == 'diatonic' else ''}</h3>\n"
+        for n in neighs[n_intersect]:
+            payload += f"<div class='chord_buttons_row'><span class='scale_name {n.name}'>{n.root} {n.name}</span>"
+            for i, chord in enumerate(n.chords, start=1):
+                is_shared = 'is_shared' if chord in n.shared_chords else ''
+                payload += f"<span class='chord_button {chord.name} {is_shared}' onclick=play_chord('{chord.str_chord}')>{i}</span>\n"
+            payload += '</div>\n'
+
+    return f'''
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/play_chord.js"></script>
+    
+    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
+    <hr><br>
+    {payload}
     '''

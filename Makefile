@@ -1,5 +1,3 @@
-.PHONY: frontend
-
 clean:
 	docker rmi piano_scales
 
@@ -10,6 +8,3 @@ run:
 
 dev:
 	uvicorn piano_scales.server:app --host 0.0.0.0 --port 8001 --reload
-
-frontend:
-	docker run -it --rm -v frontend:/home --workdir='/home' node bash

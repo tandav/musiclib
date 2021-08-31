@@ -6,19 +6,29 @@ from . import config, util
 from .piano import Piano
 from .chord import Chord
 from collections.abc import Iterable
+from . import config
+from . import util
+from .chord import Chord
+from .note import Note
 
 
+def iter_notes_with_octaves(start_note=config.chromatic_notes[0], start_octave=5):
+    octave = start_octave
 
-def chromatic(tonic):
-    notes = deque(config.chromatic_notes)
-    while notes[0] != tonic:
+    chromatic_notes = itertools.cycle(config.chromatic_notes)
+    chromatic_notes = itertools.islice(chromatic_notes, 12)
+    chromatic_notes = tuple(Note(note, octave) for note in chromatic_notes)
+
+    while True:
+        yield from zip(chromatic_notes, itertools.repeat(octave))
+        octave += 1
+
+
+def chromatic(root: str):
+    notes = deque(Note(note) for note in config.chromatic_notes)
+    while notes[0].name != root:
         notes.rotate(1)
     return notes
-
-
-def scale_notes(tonic, bits):
-    # return itertools.compress(chromatic(tonic), bits | Map(int)) | Pipe(''.join)
-    return ''.join(itertools.compress(chromatic(tonic), map(int, bits)))
 
 
 class Scale:
@@ -26,9 +36,9 @@ class Scale:
         self.root = root
         self.bits_from_root = config.name_2_bits[name]
         self.name = name
-        self.notes = scale_notes(root, self.bits_from_root)
-        self.bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
-        self.bits_int = int(self.bits, base=2)
+        self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits_from_root)))
+        #self.bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
+        #self.bits_int = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
@@ -46,15 +56,12 @@ class Scale:
 
     def add_chords(self):
         notes_deque = deque(self.notes)
-        self.chords = list()
-
-        while True:
-            chord = Chord(notes_deque[0] + notes_deque[2] + notes_deque[4])
-            if chord in self.chords:
-                break
-            self.chords.append(chord)
+        chords = []
+        for _ in range(len(notes_deque)):
+            chord = Chord(notes_deque[0], notes_deque[2], notes_deque[4])
+            chords.append(chord)
             notes_deque.rotate(-1)
-        self.chords = tuple(self.chords)
+        self.chords = tuple(chords)
 
 
     # def to_piano_image(self, as_base64=False):
@@ -83,14 +90,14 @@ class Scale:
     def with_html_classes(self, classes: tuple):
         prev = self.html_classes
         self.html_classes = prev + classes
-        r = repr(self)
+        r = self._repr_html_()
         self.html_classes = prev
         return r
 
     # def __format__(self, format_spec): raise No
 
     # @functools.cached_property
-    def __repr__(self):
+    def _repr_html_(self):
         # <code>bits: {self.bits}</code><br>
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
@@ -120,7 +127,7 @@ class ComparedScale(Scale):
     '''
     def __init__(self, left: Scale, right: Scale):
         super().__init__(right.root, right.name)
-        self.shared_notes = util.sort_notes(frozenset(left.notes) & frozenset(self.notes))
+        self.shared_notes = frozenset(left.notes) & frozenset(self.notes)
         self.new_notes = frozenset(self.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(self.notes)
         if self.kind == 'diatonic':
@@ -129,7 +136,7 @@ class ComparedScale(Scale):
         self.right = right # clean
 
     def to_piano_image(self, as_base64=False):
-        return Piano(scale=self)
+        return Piano(scale=self)._repr_html_()
         # if self.kind == 'diatonic':
         #     return scale_to_piano(
         #         self.notes, self.chords, self.notes_scale_colors,
@@ -150,15 +157,15 @@ class ComparedScale(Scale):
             x += f"{i} {chord} {chord.name} {shared_info}\n"
         return x
 
-    def __repr__(self):
+    def _repr_html_(self):
         # <code>bits: {self.bits}</code><br>
         chords_hover = f"title='{self._shared_chords_text()}'" if self.kind == 'diatonic' else ''
         if self.kind == 'diatonic':
             return f'''
-            <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}'>
+            <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}/'>
             <div class='card {self.name}' {chords_hover}>
             <span class='card_header'><h3>{self.root} {self.name}</h3></span>
-            <img src='{self.to_piano_image(as_base64=True)}'/>
+            {self.to_piano_image()}
             </a>
             </div>
             '''
@@ -166,7 +173,7 @@ class ComparedScale(Scale):
             return f'''
             <div class='card {self.name}' {chords_hover}>
             <span class='card_header'><h3>{self.root} {self.name}</h3></span>
-            <img src='{self.to_piano_image(as_base64=True)}'/>
+            {self.to_piano_image()}
             </div>
             '''
     @property
@@ -204,4 +211,3 @@ def neighbors(left: Scale):
 #     _ = scale.to_piano_image(as_base64=True)
 #     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
 #         _ = neighbor.to_piano_image(as_base64=True)
-
