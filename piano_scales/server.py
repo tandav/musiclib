@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .scale import all_scales, neighbors, ComparedScale, majors
 from .chord import Chord
+from .note import Note
 from . import config, util
 
 import warnings
@@ -29,7 +30,7 @@ def scale_not_found():
 @app.get("/play_chord/{chord}")
 async def play_chord(chord: str):
     print('PLAYIN CHORD', chord)
-    await Chord(chord).play(bass=-2)
+    await Chord(*(Note(n) for n in chord)).play(bass=-2)
     return {'status': 'play_chord success'}
 
 

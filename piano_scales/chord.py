@@ -18,7 +18,7 @@ class Chord:
 
         self.key = self.notes, self.root
 
-        # self.str_chord = str_chord
+        self.str_chord = ''.join(note.name for note in self.notes)
         # self.root = str_chord[0]
         self.add_name()
         # self.root_octave = root_octave
