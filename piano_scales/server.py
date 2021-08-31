@@ -103,7 +103,7 @@ async def root_name_scale(kind: str, root: str, name: str, load_all=False):
 
     return f'''
     <link rel="stylesheet" href="/static/main.css">
-    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links}</header>
+    <header><a href='/'>home</a> <a href='https://github.com/tandav/piano_scales'>github</a> | root: {roots} | {kind_links} | <a href='/circle'>circle</a></header>
     <hr>
     <h3>select scale</h3>
     <div class='initial'>{initial}</div>
