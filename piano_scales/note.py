@@ -2,9 +2,11 @@ import asyncio
 import mido
 from . import config
 import warnings
+from typing import Optional
+
 
 class Note:
-    def __init__(self, name: str, octave:int=5):
+    def __init__(self, name: str, octave: Optional[int] = None):
         '''
         :param name: one of CdDeEFfGaAbB
         :param octave: in midi format (C5-midi == C3-ableton)
@@ -12,7 +14,8 @@ class Note:
         self.name = name
         self.octave = octave
         self.i = config.chromatic_notes.index(name)
-        self.midi_code = self.octave * 12 + self.i
+        if self.octave is not None:
+            self.midi_code = self.octave * 12 + self.i
         self.key = self.name, self.octave
 
     async def play(self, seconds=1):
