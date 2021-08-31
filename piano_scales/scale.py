@@ -68,7 +68,7 @@ class Scale:
     #     return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
 
     def to_piano_image(self):
-        return Piano(scale=self)._repr_html_()
+        return Piano(scale=self)._repr_svg_()
     #     if self.kind == 'diatonic':
     #         return scale_to_piano(
     #             self.notes, self.chords, self.notes_scale_colors,
@@ -136,7 +136,7 @@ class ComparedScale(Scale):
         self.right = right # clean
 
     def to_piano_image(self, as_base64=False):
-        return Piano(scale=self)._repr_html_()
+        return Piano(scale=self)._repr_svg_()
         # if self.kind == 'diatonic':
         #     return scale_to_piano(
         #         self.notes, self.chords, self.notes_scale_colors,

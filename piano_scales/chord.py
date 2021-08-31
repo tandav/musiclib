@@ -74,7 +74,7 @@ class Chord:
     def __str__(self): return ''.join(note.name for note in self.notes)
 
     def to_piano_image(self, base64=False):
-        return Piano()
+        return Piano(chord=self)._repr_svg_()
         # return chord_to_piano(self, as_base64=base64)
 
     # def _repr_html_(self):
