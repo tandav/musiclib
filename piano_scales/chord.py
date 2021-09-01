@@ -72,7 +72,7 @@ class Chord:
         await SpecificChord(
             notes = frozenset(SpecificNote(note) for note in self.notes),
             root = self.root,
-        ).play()
+        ).play(seconds)
     #     notes_to_play = self.specific_notes
     #
     #     if bass:
