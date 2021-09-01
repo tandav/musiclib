@@ -1,7 +1,7 @@
 import functools
 import itertools
 from . import config, util
-from .note import Note
+from .note import Note, SpecificNote
 
 
 class Piano:
@@ -11,8 +11,8 @@ class Piano:
         ww = self.size[0] // 14  # white key width
         bw = int(ww * 0.6)  # black key width
         do = config.default_octave
-        white_notes = tuple(Note(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
-        black_notes = tuple(Note(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
+        white_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
+        black_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
 
         WHITE_COLOR = (170,) * 3
         BLACK_COLOR = (80,) * 3

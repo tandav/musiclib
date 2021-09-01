@@ -1,8 +1,5 @@
-import functools
 import itertools
-from collections.abc import Iterable
 from . import config
-from .note import Note
 
 # @functools.lru_cache(1024)
 # def sort_notes(notes: Iterable):
@@ -36,12 +33,3 @@ def iter_scales(kind, start=None):
 n_intersect_notes_to_n_shared_chords = {7: 7, 6: 4, 5: 2, 4: 0, 3: 0, 2: 0}
 
 
-def iter_notes_with_octaves(start_note=config.chromatic_notes[0], start_octave=config.default_octave):
-    names = itertools.cycle(config.chromatic_notes)
-    octaves = itertools.chain.from_iterable(
-        itertools.repeat(octave, 12)
-        for octave in itertools.count(start=start_octave)
-    )
-    notes = (Note(name, octave) for name, octave in zip(names, octaves))
-    notes = itertools.dropwhile(lambda note: note.name != start_note, notes)
-    yield from notes

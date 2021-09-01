@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .scale import all_scales, neighbors, ComparedScale, majors
 from .chord import Chord
-from .note import Note
+from .note import Note, SpecificNote
 from . import config, util
 
 import warnings
@@ -36,7 +36,7 @@ async def play_chord(chord: str):
 @app.get("/play_note/{note}/{octave}")
 async def play_note(note: str, octave: int):
     print('PLAYIN NOTE', note, octave)
-    await Note(note, octave).play()
+    await SpecificNote(note, octave).play()
     return {'status': 'play_note success'}
 
 @app.get("/", response_class=HTMLResponse)

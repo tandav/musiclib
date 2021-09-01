@@ -1,34 +1,62 @@
-from collections import deque, defaultdict
 import itertools
 import functools
 import tqdm
+from collections.abc import Iterable
+from collections import deque, defaultdict
+from typing import Optional
 from . import config, util
 from .piano import Piano
 from .chord import Chord
-from collections.abc import Iterable
-from . import config
-from . import util
-from .chord import Chord
-from .note import Note
+from .note import Note, SpecificNote
 
 
-def chromatic(root: str):
-    notes = deque(Note(note) for note in config.chromatic_notes)
-    while notes[0].name != root:
-        notes.rotate(1)
-    return notes
+bits_2_name = {
+    '101011010101': 'major',
+    '101101010110': 'dorian',
+    '110101011010': 'phrygian',
+    '101010110101': 'lydian',
+    '101011010110': 'mixolydian',
+    '101101011010': 'minor',
+    '110101101010': 'locrian',
+
+    '101010010100': 'p_major',
+    '101001010010': 'p_dorian',
+    '100101001010': 'p_phrygian',
+    '101001010100': 'p_mixolydian',
+    '100101010010': 'p_minor',
+}
+
+name_2_bits = {v: k for k, v in bits_2_name.items()}
+
+def iter_chromatic(
+    start_note: str = config.chromatic_notes[0],
+    start_octave: Optional[int] = None,
+):
+    names = itertools.cycle(config.chromatic_notes)
+    if start_octave is None:
+        notes = (Note(name) for name in names)
+    else:
+        octaves = itertools.chain.from_iterable(
+            itertools.repeat(octave, 12)
+            for octave in itertools.count(start=start_octave)
+        )
+        notes = (SpecificNote(name, octave) for name, octave in zip(names, octaves))
+
+    notes = itertools.dropwhile(lambda note: note.name != start_note, notes)
+    yield from notes
 
 
 class Scale:
     def __init__(self, root: str, name: str):
         self.root = root
-        self.bits_from_root = config.name_2_bits[name]
+        self.bits = name_2_bits[name]
         self.name = name
-        self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits_from_root)))
-        self.specific_notes = tuple(itertools.compress(util.iter_notes_with_octaves(start_note=root, start_octave=config.default_octave), map(int, self.bits_from_root)))
+        self.notes = tuple(itertools.compress(iter_chromatic(start_note=root), map(int, self.bits)))
+
+        # self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits)))
         #print(self.notes)
-        #self.bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
-        #self.bits_int = int(self.bits, base=2)
+        #self.chromatic_bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
+        #self.chromatic_bits = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
@@ -39,36 +67,18 @@ class Scale:
         self.html_classes = ('card', self.name)
 
 
-    # @classmethod
-    # def from_bits(cls, root: str, bits: str):
-    #     return cls(root, config.bits_2_name[bits])
-
-
     def add_chords(self):
-        notes_deque = deque(self.specific_notes)
+        notes_deque = deque(self.notes)
         chords = []
         for _ in range(len(notes_deque)):
-            chord = Chord(notes_deque[0], notes_deque[2], notes_deque[4])
+            chord = Chord(frozenset({notes_deque[0], notes_deque[2], notes_deque[4]}))
             chords.append(chord)
             notes_deque.rotate(-1)
         self.chords = tuple(chords)
 
 
-    # def to_piano_image(self, as_base64=False):
-    #     return scale_to_piano(self.notes, self.chords, self.notes_scale_colors, as_base64=as_base64)
-
     def to_piano_image(self):
         return Piano(scale=self)._repr_svg_()
-    #     if self.kind == 'diatonic':
-    #         return scale_to_piano(
-    #             self.notes, self.chords, self.notes_scale_colors,
-    #             as_base64=as_base64,
-    #         )
-    #     else:
-    #         return scale_to_piano(
-    #             self.notes, None, self.notes_scale_colors,
-    #             as_base64=as_base64,
-    #         )
 
 
     def _chords_text(self):
@@ -105,6 +115,9 @@ class Scale:
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
+# class SpecificScale(Scale):
+#     def __init__(self):
+#         self.specific_notes = tuple(itertools.compress(util.iter_notes_with_octaves(start_note=root, start_octave=config.default_octave), map(int, self.bits_from_root)))
 
 
 class ComparedScale(Scale):
