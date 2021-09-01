@@ -12,18 +12,6 @@ from .chord import Chord
 from .note import Note
 
 
-def iter_notes_with_octaves(start_note=config.chromatic_notes[0], start_octave=5):
-    octave = start_octave
-
-    chromatic_notes = itertools.cycle(config.chromatic_notes)
-    chromatic_notes = itertools.islice(chromatic_notes, 12)
-    chromatic_notes = tuple(Note(note, octave) for note in chromatic_notes)
-
-    while True:
-        yield from zip(chromatic_notes, itertools.repeat(octave))
-        octave += 1
-
-
 def chromatic(root: str):
     notes = deque(Note(note) for note in config.chromatic_notes)
     while notes[0].name != root:
@@ -37,6 +25,8 @@ class Scale:
         self.bits_from_root = config.name_2_bits[name]
         self.name = name
         self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits_from_root)))
+        self.specific_notes = tuple(itertools.compress(util.iter_notes_with_octaves(start_note=root, start_octave=config.default_octave), map(int, self.bits_from_root)))
+        #print(self.notes)
         #self.bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
         #self.bits_int = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
@@ -55,7 +45,7 @@ class Scale:
 
 
     def add_chords(self):
-        notes_deque = deque(self.notes)
+        notes_deque = deque(self.specific_notes)
         chords = []
         for _ in range(len(notes_deque)):
             chord = Chord(notes_deque[0], notes_deque[2], notes_deque[4])

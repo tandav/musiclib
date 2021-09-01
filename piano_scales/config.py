@@ -44,6 +44,8 @@ scale_colors = dict(
     p_minor      = 'D83A56',
 )
 
+default_octave = 5
+
 # piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
 import mido

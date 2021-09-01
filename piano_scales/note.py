@@ -27,7 +27,13 @@ class Note:
 
 
     def __repr__(self):
-        return f"Note(name={self.name}, octave={self.octave}, i={self.i}, midi_code={self.midi_code})"
+        return f"Note(name={self.name}, octave={self.octave})"
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
+
+    def __sub__(self, other):
+        '''distance between notes'''
+        if self.octave is None or other.octave is None:
+            raise NotImplementedError('distance not implemented for abstract notes, specify octaves for both notes')
+        return (self.octave * 12 + self.i) - (other.octave * 12 + other.i)
