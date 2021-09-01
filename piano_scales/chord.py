@@ -26,8 +26,7 @@ class Chord:
 
         self.notes = notes
         self.root = root
-
-        # self.key = self.notes, self.root
+        self.key = self.notes, self.root
         # self.str_chord = ''.join(note.name for note in self.notes)
         # self.intervals = tuple(n - self.specific_notes[0] for n in self.specific_notes[1:])
         # self.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
