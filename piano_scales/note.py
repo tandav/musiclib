@@ -10,41 +10,42 @@ class Note:
     kinda music theoretic  pitch-class
     """
     def __init__(self, name: str):
+        """:param name: one of CdDeEFfGaAbB"""
         self.name = name
+        self.i = config.chromatic_notes.index(name)
 
     def __repr__(self): return f"Note(name={self.name})"
     def __eq__(self, other): return self.name == other.name
     def __hash__(self): return hash(self.name)
 
 
-class SpecificNote(Note):
-    def __init__(self, name: str, octave: int):
+class SpecificNote:
+    def __init__(self, abstract: Note, octave: int = config.default_octave):
         """
-        :param name: one of CdDeEFfGaAbB
         :param octave: in midi format (C5-midi == C3-ableton)
         """
-        super().__init__(name)
+        self.abstract = abstract
         self.octave = octave
-        self.i = config.chromatic_notes.index(name)
-        self.key = self.name, self.octave
+        self.absolute_i = octave * 12 + abstract.i # this is also midi_code
+        self.key = self.abstract, self.octave
 
-    def abstract(self):
-        return
+
 
     async def play(self, seconds=1):
-        midi_code = self.octave * 12 + self.i
         warnings.warn(f'note_on {self} {seconds=}')
-        config.port.send(mido.Message('note_on', note=midi_code, channel=0))
+        config.port.send(mido.Message('note_on', note=self.absolute_i, channel=0))
         await asyncio.sleep(seconds)
         warnings.warn(f'note_off {self}')
-        config.port.send(mido.Message('note_off', note=midi_code, channel=0))
+        config.port.send(mido.Message('note_off', note=self.absolute_i, channel=0))
 
-    def __repr__(self): return f"Note(name={self.name}, octave={self.octave})"
+    def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
     def __sub__(self, other):
         """distance between notes"""
-        return (self.octave * 12 + self.i) - (other.octave * 12 + other.i)
+        return self.absolute_i - self.absolute_i
 
-
+    def __add__(self, other: int):
+        """C + 7 = G"""
+        raise NotImplementedError

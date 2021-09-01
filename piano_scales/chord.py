@@ -7,6 +7,8 @@ from collections.abc import Sequence
 from typing import Optional
 from . import config, util
 from .note import Note, SpecificNote
+from numbers import Number
+
 
 class Chord:
     def __init__(
@@ -15,17 +17,15 @@ class Chord:
         root: Optional[Note] = None,
     ):
         """
-        a chord is an unordered set of notes
-        root note is optional, some chord can has no root
-        chord w/o root has no intervals
+        chord is an unordered set of notes
+        root:
+            root note of a chord (to distinguish between inversions_
+            root note is optional, some chord can has no root
+            chord w/o root has no intervals
         """
 
-    # def __init__(self, root: Note, *intervals: int):
-        '''
-        root: root note of a chord (to distinguish between inversions_
-        '''
         self.notes = notes
-        if root is not None: self.root = root
+        self.root = root
 
         # self.key = self.notes, self.root
         # self.str_chord = ''.join(note.name for note in self.notes)
@@ -65,8 +65,18 @@ class Chord:
         # return chord_to_piano(self, as_base64=base64)
 
     def __repr__(self):
-        _ = ' '.join(f'{note.name}' for note in self.notes)
-        return f"Chord({_})"
+        _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
+        return f"Chord({_} / {self.root.name if self.root is not None else self.root})"
+
+    async def play(self, seconds=1, bass=None):
+        await SpecificChord()
+    #     notes_to_play = self.specific_notes
+    #
+    #     if bass:
+    #         notes_to_play = itertools.chain(notes_to_play, [Note(self.root.name, octave=self.root.octave + bass)])
+    #
+    #     tasks = tuple(note.play(seconds) for note in notes_to_play)
+    #     await asyncio.gather(*tasks)
 
     # def _repr_html_(self):
     #     label = hasattr(self, 'label') and f"id={self.label!r}"or ''
@@ -93,26 +103,26 @@ class Chord:
     #     '''
 
 
-class SpecificChord(Chord):
-    def __init__(self, *notes: SpecificNote):
-        super().__init__()
-        pass
-    def add_specific_notes(self):
-        specific_notes = []
-        for note in self.notes:
-            if note.octave is not None:
-                specific_notes.append(note)
-            else:
-                specific_notes.append(Note(note.name, octave=config.default_octave))
-        self.specific_notes = tuple(specific_notes)
+class SpecificChord:
+    def __init__(
+        self,
+        notes: frozenset[SpecificNote],
+        root: Optional[SpecificNote] = None,
+    ):
+        self.notes = notes
+        self.root = root
 
-    async def play(self, seconds=1, bass=None):
-        notes_to_play = self.specific_notes
+    # def add_specific_notes(self):
+    #     specific_notes = []
+    #     for note in self.notes:
+    #         if note.octave is not None:
+    #             specific_notes.append(note)
+    #         else:
+    #             specific_notes.append(Note(note.name, octave=config.default_octave))
+    #     self.specific_notes = tuple(specific_notes)
 
-        if bass:
-            notes_to_play = itertools.chain(notes_to_play, [Note(self.root.name, octave=self.root.octave + bass)])
-
-        tasks = tuple(note.play(seconds) for note in notes_to_play)
+    async def play(self, seconds: Number = 1):
+        tasks = (note.play(seconds) for note in self.notes)
         await asyncio.gather(*tasks)
 
 class LabeledChord(Chord):

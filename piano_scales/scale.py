@@ -71,7 +71,7 @@ class Scale:
         notes_deque = deque(self.notes)
         chords = []
         for _ in range(len(notes_deque)):
-            chord = Chord(frozenset({notes_deque[0], notes_deque[2], notes_deque[4]}))
+            chord = Chord(frozenset({notes_deque[0], notes_deque[2], notes_deque[4]}), root=notes_deque[0])
             chords.append(chord)
             notes_deque.rotate(-1)
         self.chords = tuple(chords)
