@@ -19,14 +19,15 @@ class Note:
     def __hash__(self): return hash(self.name)
 
 
-class SpecificNote:
+class SpecificNote(Note):
     def __init__(self, abstract: Note, octave: int = config.default_octave):
         """
         :param octave: in midi format (C5-midi == C3-ableton)
         """
         self.abstract = abstract
+        super().__init__(abstract.name)
         self.octave = octave
-        self.absolute_i = octave * 12 + abstract.i # this is also midi_code
+        self.absolute_i = octave * 12 + self.i # this is also midi_code
         self.key = self.abstract, self.octave
 
 
