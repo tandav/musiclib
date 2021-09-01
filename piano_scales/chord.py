@@ -68,8 +68,11 @@ class Chord:
         _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
         return f"Chord({_} / {self.root.name if self.root is not None else self.root})"
 
-    async def play(self, seconds=1, bass=None):
-        await SpecificChord()
+    async def play(self, seconds=1):
+        await SpecificChord(
+            notes = frozenset(SpecificNote(note) for note in self.notes),
+            root = self.root,
+        ).play()
     #     notes_to_play = self.specific_notes
     #
     #     if bass:
