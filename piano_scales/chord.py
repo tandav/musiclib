@@ -42,7 +42,8 @@ class Chord:
             }[self.intervals]
             # compute intervals (from root)
             # minimal distance between Abstract Notes (or maybe you can only go up - root should be lowest note in this case)
-
+        else:
+            self.str_chord = ''.join(note.name for note in self.notes)
         # self.str_chord = ''.join(note.name for note in self.notes)
         # self.intervals = tuple(n - self.specific_notes[0] for n in self.specific_notes[1:])
         # self.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
@@ -73,15 +74,19 @@ class Chord:
     def __getitem__(self, item): return self.notes[item]
     def __len__(self): return len(self.notes)
     def __contains__(self, item): return item in self.notes
-    def __str__(self): return ''.join(note.name for note in self.notes)
+    #def __str__(self): return ''.join(note.name for note in self.notes)
 
     def to_piano_image(self, base64=False):
         return Piano(chord=self)._repr_svg_()
         # return chord_to_piano(self, as_base64=base64)
 
     def __repr__(self):
-        _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
-        return f"Chord({_} / {self.root.name if self.root is not None else self.root})"
+        # _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
+        #return f"Chord({self.str_chord} / {self.root.name if self.root is not None else self.root})"
+        _ = self.str_chord
+        if self.root is not None:
+            _ += f'/{self.root.name}'
+        return _
 
     async def play(self, seconds=1):
         await SpecificChord(

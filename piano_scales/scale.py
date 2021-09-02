@@ -31,6 +31,7 @@ name_2_bits = {v: k for k, v in bits_2_name.items()}
 def iter_chromatic(
     start_note: str = config.chromatic_notes[0],
     start_octave: Optional[int] = None,
+    take_n: Optional[int] = None,
 ):
     names = itertools.cycle(config.chromatic_notes)
     if start_octave is None:
@@ -43,18 +44,22 @@ def iter_chromatic(
         notes = (SpecificNote(name, octave) for name, octave in zip(names, octaves))
 
     notes = itertools.dropwhile(lambda note: note.name != start_note, notes)
+    if take_n:
+        notes = itertools.islice(notes, take_n)
     yield from notes
 
 
 class Scale:
     def __init__(self, root: str, name: str):
         self.root = root
-        self.bits = name_2_bits[name]
         self.name = name
+        self.key = root, name
+        self.bits = name_2_bits[name]
         self.notes = tuple(itertools.compress(iter_chromatic(start_note=root), map(int, self.bits)))
 
         # self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits)))
         #print(self.notes)
+        self.chromatic_mask = ''.join(note.name if note in self.notes else '_' for note in iter_chromatic(take_n=12))
         #self.chromatic_bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
         #self.chromatic_bits = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
@@ -65,7 +70,6 @@ class Scale:
             for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name))
         }
         self.html_classes = ('card', self.name)
-        self.key = root, name
 
     def add_chords(self):
         notes_deque = deque(self.notes)
@@ -165,8 +169,8 @@ majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF')
 def neighbors(left: Scale):
     neighs = defaultdict(list)
     for right in all_scales[left.kind].values():
-        if left == right:
-            continue
+        # if left == right:
+        #     continue
         right = ComparedScale(left, right)
         neighs[len(right.shared_notes)].append(right)
     return neighs
