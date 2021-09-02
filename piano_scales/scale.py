@@ -110,7 +110,7 @@ class Scale:
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
-
+    def __repr__(self): return f'Scale({self.root} {self.name})'
 
 class ComparedScale(Scale):
     '''
@@ -150,7 +150,7 @@ class ComparedScale(Scale):
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
-
+    def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 all_scales = {
     'diatonic'  : {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)},
