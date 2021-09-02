@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .scale import all_scales, neighbors, ComparedScale, majors
-from .chord import Chord
+from .chord import Chord, SpecificChord
 from .note import Note, SpecificNote
 from . import config, util
 
@@ -30,7 +30,8 @@ def scale_not_found():
 @app.get("/play_chord/{chord}")
 async def play_chord(chord: str):
     print('PLAYIN CHORD', chord)
-    await Chord(*(Note(n) for n in chord)).play(bass=-2)
+    notes = tuple(SpecificNote(Note(n), octave=5) for n in chord)
+    await SpecificChord(frozenset(notes), root=notes[0]).play(bass=-1)
     return {'status': 'play_chord success'}
 
 @app.get("/play_note/{note}/{octave}")
@@ -72,7 +73,7 @@ async def circle_selected(selected_major: str):
 
     for i, scale in enumerate(majors, start=1):
         if scale == selected:
-            html += scale.with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
+            html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
         else:
             html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}'))
     return html

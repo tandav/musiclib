@@ -29,7 +29,12 @@ class Chord:
         self.key = self.notes, self.root
 
         if root is not None:
-            self.intervals = frozenset(note - root for note in self.notes if note != root)
+
+            _notes = [root] + [note for note in notes if note != root]
+            self.str_chord = ''.join(note.name for note in _notes)
+
+            # self.intervals = frozenset(note - root for note in self.notes if note != root)
+            self.intervals = frozenset(note - root for note in _notes[1:])
             self.name = {
                 frozenset({4, 7}): 'major',
                 frozenset({3, 7}): 'minor',
@@ -134,6 +139,9 @@ class SpecificChord:
     #             specific_notes.append(Note(note.name, octave=config.default_octave))
     #     self.specific_notes = tuple(specific_notes)
 
-    async def play(self, seconds: Number = 1):
-        tasks = (note.play(seconds) for note in self.notes)
+    async def play(self, seconds: Number = 1, bass: Optional[int] = None):
+        tasks = [note.play(seconds) for note in self.notes]
+        if bass:
+            assert self.root is not None
+            tasks.append(SpecificNote(self.root.abstract, octave=self.root.octave + bass).play(seconds))
         await asyncio.gather(*tasks)

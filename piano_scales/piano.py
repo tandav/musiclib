@@ -54,9 +54,9 @@ class Piano:
             if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{SMALL_RECT_HEIGHT}' style='fill:rgb{BLUE_COLOR};'/>""")
 
             if (fill_border_color := notes_squares.get(note.abstract)):
-                fill, border, text_color = fill_border_color
+                fill, border, text_color, str_chord = fill_border_color
                 self.rects.append(f"""
-                    <g>
+                    <g onclick=play_chord('{str_chord}')>
                         <rect x='{(x + x + ww) // 2 - SMALL_SQUARE_SIZE // 2}' y='{self.size[1] - SMALL_SQUARE_SIZE - 5}' width='{SMALL_SQUARE_SIZE}' height='{SMALL_SQUARE_SIZE}' style='fill:rgb{fill};stroke-width:1;stroke:rgb{border}'/>
                         <text x='{(x + x + ww) // 2 - SMALL_SQUARE_SIZE // 2}' y='{self.size[1] - SMALL_SQUARE_SIZE - 5 + SMALL_SQUARE_SIZE}' font-family="Menlo" font-size='15' style='fill:rgb{text_color}'>{note.name}</text>
                     </g>
@@ -77,9 +77,9 @@ class Piano:
             if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{SMALL_RECT_HEIGHT}' style='fill:rgb{BLUE_COLOR};'/>""")
 
             if (fill_border_color := notes_squares.get(note.abstract)):
-                fill, border, text_color = fill_border_color
+                fill, border, text_color, str_chord = fill_border_color
                 self.rects.append(f"""
-                    <g>
+                    <g onclick=play_chord('{str_chord}')>
                         <rect x='{x - SMALL_SQUARE_SIZE // 2}' y='20' width='{SMALL_SQUARE_SIZE}' height='{SMALL_SQUARE_SIZE}' style='fill:rgb{fill};stroke-width:1;stroke:rgb{border}'/>
                         <text x='{x - SMALL_SQUARE_SIZE // 2}' y='{20 + SMALL_SQUARE_SIZE}' font-family="Menlo" font-size='15' style='fill:rgb{text_color}'>{note.name}</text>
                     </g>
