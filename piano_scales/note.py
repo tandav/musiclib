@@ -23,6 +23,18 @@ class Note:
     def __eq__(self, other): return self.name == other.name
     def __hash__(self): return hash(self.name)
 
+    def __sub__(self, other):
+        """
+        kinda constraint (may be it will be changed later):
+            if you computing distance between abstract notes - then self considered above other
+            G - C == 7 # C0 G0
+            C - G == 5 # G0 C1
+        """
+        if other.i <= self.i:
+            return self.i - other.i
+        return 12 + self.i - other.i
+
+
 
 class SpecificNote(Note):
     def __init__(self, abstract: Note, octave: int = config.default_octave):

@@ -27,6 +27,17 @@ class Chord:
         self.notes = notes
         self.root = root
         self.key = self.notes, self.root
+
+        if root is not None:
+            self.intervals = frozenset(note - root for note in self.notes if note != root)
+            self.name = {
+                frozenset({4, 7}): 'major',
+                frozenset({3, 7}): 'minor',
+                frozenset({3, 6}): 'diminished',
+            }[self.intervals]
+            # compute intervals (from root)
+            # minimal distance between Abstract Notes (or maybe you can only go up - root should be lowest note in this case)
+
         # self.str_chord = ''.join(note.name for note in self.notes)
         # self.intervals = tuple(n - self.specific_notes[0] for n in self.specific_notes[1:])
         # self.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)

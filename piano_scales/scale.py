@@ -134,7 +134,21 @@ class ComparedScale(Scale):
         self.key = left, right
 
     def to_piano_image(self, as_base64=False):
-        return Piano(scale=self, red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,)._repr_svg_()
+
+
+        return Piano(
+            scale=self,
+            red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
+            notes_fill_border={
+                chord.root: (
+                    config.chord_colors[chord.name],
+                    config.GREEN_COLOR if chord in self.shared_chords else config.BLACK_COLOR
+                )
+                for chord in self.chords
+            },
+        )._repr_svg_()
+
+
 
     # def _shared_chords_text(self):
     #     x = 'shared chords:\n'

@@ -1,3 +1,5 @@
+from . import util
+
 # chromatic_notes = 'SrRgGMmPdDnN'
 chromatic_notes = 'CdDeEFfGaAbB'
 # neighsbors_min_shared = {'diatonic': 5, 'pentatonic':3}
@@ -24,6 +26,18 @@ scale_colors = dict(
     p_mixolydian = 'FFF47D',
     p_minor      = 'D83A56',
 )
+
+WHITE_COLOR = (170,) * 3
+BLACK_COLOR = (80,) * 3
+RED_COLOR = 255, 0, 0
+GREEN_COLOR = 0, 255, 0
+BLUE_COLOR = 0, 0, 255
+
+chord_colors = {
+    'minor': util.hex_to_rgb(scale_colors['minor']),
+    'major': util.hex_to_rgb(scale_colors['major']),
+    'diminished': util.hex_to_rgb(scale_colors['locrian']),
+}
 
 default_octave = 5
 
