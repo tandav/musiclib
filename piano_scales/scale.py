@@ -103,17 +103,13 @@ class Scale:
         chords_hover = ''
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
-        <a href=''><span class='card_header'><h3>{self.root} {self.name}</h3></span></a>
+        <a href='/circle/{self.root}'><span class='card_header'><h3>{self.root} {self.name}</h3></span></a>
         {self.to_piano_image()}
         </div>
         '''
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
-
-# class SpecificScale(Scale):
-#     def __init__(self):
-#         self.specific_notes = tuple(itertools.compress(util.iter_notes_with_octaves(start_note=root, start_octave=config.default_octave), map(int, self.bits_from_root)))
 
 
 class ComparedScale(Scale):
@@ -151,40 +147,6 @@ class ComparedScale(Scale):
 
 
 
-    # def _shared_chords_text(self):
-    #     x = 'shared chords:\n'
-    #     for i, chord in enumerate(self.chords, start=1):
-    #         shared_info = chord in self.shared_chords and f'shared, was {self.left.chords.index(chord) + 1}' or ''
-    #         x += f"{i} {chord} {chord.name} {shared_info}\n"
-    #     return x
-
-    def _repr_html_(self):
-        return f'''
-        <div class='card {self.name}'>
-        <span class='card_header'><h3>{self.root} {self.name}</h3></span>
-        {self.to_piano_image()}
-        </div>
-        '''
-
-
-    #     # <code>bits: {self.bits}</code><br>
-    #     chords_hover = f"title='{self._shared_chords_text()}'" if self.kind == 'diatonic' else ''
-    #     if self.kind == 'diatonic':
-    #         return f'''
-    #         <a href='/{self.kind}/{self.left.root}/{self.left.name}/compare_to/{self.root}/{self.name}/'>
-    #         <div class='card {self.name}' {chords_hover}>
-    #         <span class='card_header'><h3>{self.root} {self.name}</h3></span>
-    #         {self.to_piano_image()}
-    #         </a>
-    #         </div>
-    #         '''
-    #     else:
-    #         return f'''
-    #         <div class='card {self.name}' {chords_hover}>
-    #         <span class='card_header'><h3>{self.root} {self.name}</h3></span>
-    #         {self.to_piano_image()}
-    #         </div>
-    #         '''
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
@@ -194,11 +156,8 @@ all_scales = {
     'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
 }
 
-# majors = [s for s in all_scales['diatonic'].values() if s.name == 'major']
-
 # circle of fifths clockwise
 majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF')
-
 
 
 @functools.cache
