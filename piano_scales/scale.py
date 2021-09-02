@@ -139,10 +139,11 @@ class ComparedScale(Scale):
         return Piano(
             scale=self,
             red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
-            notes_fill_border={
+            notes_squares={
                 chord.root: (
                     config.chord_colors[chord.name],
-                    config.GREEN_COLOR if chord in self.shared_chords else config.BLACK_COLOR
+                    config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
+                    config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                 )
                 for chord in self.chords
             },

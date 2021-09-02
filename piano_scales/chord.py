@@ -137,6 +137,3 @@ class SpecificChord:
     async def play(self, seconds: Number = 1):
         tasks = (note.play(seconds) for note in self.notes)
         await asyncio.gather(*tasks)
-
-class LabeledChord(Chord):
-    pass
