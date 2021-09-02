@@ -80,8 +80,8 @@ class Piano:
                 fill, border, text_color, str_chord = fill_border_color
                 self.rects.append(f"""
                     <g onclick=play_chord('{str_chord}')>
-                        <rect x='{x - SMALL_SQUARE_SIZE // 2}' y='20' width='{SMALL_SQUARE_SIZE}' height='{SMALL_SQUARE_SIZE}' style='fill:rgb{fill};stroke-width:1;stroke:rgb{border}'/>
-                        <text x='{x - SMALL_SQUARE_SIZE // 2}' y='{20 + SMALL_SQUARE_SIZE}' font-family="Menlo" font-size='15' style='fill:rgb{text_color}'>{note.name}</text>
+                        <rect x='{x - SMALL_SQUARE_SIZE // 2}' y='{bh - 15}' width='{SMALL_SQUARE_SIZE}' height='{SMALL_SQUARE_SIZE}' style='fill:rgb{fill};stroke-width:1;stroke:rgb{border}'/>
+                        <text x='{x - SMALL_SQUARE_SIZE // 2}' y='{bh - 15 + SMALL_SQUARE_SIZE}' font-family="Menlo" font-size='15' style='fill:rgb{text_color}'>{note.name}</text>
                     </g>
                 """)
 
