@@ -1,3 +1,5 @@
+import pytest
+
 from piano_scales.chord import Chord
 from piano_scales.note import Note
 
@@ -8,6 +10,11 @@ def test_creation_from_notes():
 
 def test_creation_from_str():
     assert str(Chord(frozenset({'C', 'E', 'G'}), root=Note('C'))) == 'CEG/C'
+
+
+@pytest.mark.xfail(reason='todo: sort chromatically even for abstract notes when chord is in 2 octaves')
+def test_str_sort_2_octaves():
+    assert str(Chord(frozenset({'B', 'D', 'F'}), root='B')) == 'BDF/B'
 
 
 def test_name():
