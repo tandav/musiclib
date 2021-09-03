@@ -30,14 +30,14 @@ def scale_not_found():
 @app.get("/play_chord/{chord}")
 async def play_chord(chord: str):
     print('PLAYIN CHORD', chord)
-    notes = tuple(SpecificNote(Note(n), octave=5) for n in chord)
+    notes = tuple(SpecificNote(n, octave=5) for n in chord)
     await SpecificChord(frozenset(notes), root=notes[0]).play(bass=-1)
     return {'status': 'play_chord success'}
 
 @app.get("/play_note/{note}/{octave}")
 async def play_note(note: str, octave: int):
     print('PLAYIN NOTE', note, octave)
-    await SpecificNote(Note(note), octave).play()
+    await SpecificNote(note, octave).play()
     return {'status': 'play_note success'}
 
 @app.get("/", response_class=HTMLResponse)

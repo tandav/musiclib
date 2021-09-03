@@ -21,8 +21,8 @@ class Piano:
         bw = int(ww * 0.6)  # black key width
         bh = int(self.size[1] * 0.6) # black key height
         do = config.default_octave
-        white_notes = tuple(SpecificNote(Note(config.chromatic_notes[i]), octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
-        black_notes = tuple(SpecificNote(Note(config.chromatic_notes[i]), octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
+        white_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
+        black_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
 
         WHITE_COLOR = (170,) * 3
         BLACK_COLOR = (80,) * 3

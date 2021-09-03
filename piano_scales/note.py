@@ -4,6 +4,7 @@ from numbers import Number
 import mido
 from . import config
 import warnings
+from typing import Union # TODO: python3.10 just use X | Y
 
 
 class Note:
@@ -37,10 +38,12 @@ class Note:
 
 
 class SpecificNote(Note):
-    def __init__(self, abstract: Note, octave: int = config.default_octave):
+    def __init__(self, abstract: Union[Note, str], octave: int = config.default_octave):
         """
         :param octave: in midi format (C5-midi == C3-ableton)
         """
+        if isinstance(abstract, str):
+            abstract = Note(abstract)
         self.abstract = abstract
         super().__init__(abstract.name)
         self.octave = octave
