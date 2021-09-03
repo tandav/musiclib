@@ -1,0 +1,25 @@
+name: Test
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: ls pwd
+        run: |
+          pwd
+          ls -Al
+      - name: install dependencies
+        run: |
+          python3 -m pip install isort flake8 pytest
+      - name: lint
+        run: |
+          make lint
+      - name: test
+        run: |
+          make test
