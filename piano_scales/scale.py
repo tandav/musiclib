@@ -2,10 +2,7 @@ import functools
 import itertools
 from collections import defaultdict
 from collections import deque
-from collections.abc import Iterable
 from typing import Optional
-
-import tqdm
 
 from . import config
 from . import util
@@ -31,6 +28,7 @@ bits_2_name = {
 }
 
 name_2_bits = {v: k for k, v in bits_2_name.items()}
+
 
 def iter_chromatic(
     start_note: str = config.chromatic_notes[0],
@@ -62,10 +60,10 @@ class Scale:
         self.notes = tuple(itertools.compress(iter_chromatic(start_note=root), map(int, self.bits)))
 
         # self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits)))
-        #print(self.notes)
+        # print(self.notes)
         self.chromatic_mask = ''.join(note.name if note in self.notes else '_' for note in iter_chromatic(take_n=12))
-        #self.chromatic_bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
-        #self.chromatic_bits = int(self.bits, base=2)
+        # self.chromatic_bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
+        # self.chromatic_bits = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
@@ -84,10 +82,8 @@ class Scale:
             notes_deque.rotate(-1)
         self.chords = tuple(chords)
 
-
     def to_piano_image(self):
         return Piano(scale=self)._repr_svg_()
-
 
     def _chords_text(self):
         x = 'chords:\n'
@@ -120,6 +116,7 @@ class Scale:
     def __hash__(self): return hash(self.key)
     def __repr__(self): return f'Scale({self.root} {self.name})'
 
+
 class ComparedScale(Scale):
     '''
     this is compared scale
@@ -134,11 +131,10 @@ class ComparedScale(Scale):
         if self.kind == 'diatonic':
             self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
         self.left = left
-        self.right = right # clean
+        self.right = right  # clean
         self.key = left, right
 
     def to_piano_image(self, as_base64=False):
-
 
         return Piano(
             scale=self,
@@ -154,14 +150,13 @@ class ComparedScale(Scale):
             },
         )._repr_svg_()
 
-
-
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
     def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
+
 all_scales = {
-    'diatonic'  : {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)},
+    'diatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)},
     'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
 }
 

@@ -1,15 +1,9 @@
 import asyncio
-import functools
-import itertools
-from collections.abc import Sequence
 from numbers import Number
 from typing import Optional
 
-from . import config
-from . import util
 from .note import Note
 from .note import SpecificNote
-from .piano import Piano
 
 
 class Chord:
@@ -67,24 +61,21 @@ class Chord:
 
         raise NotImplementedError
 
-
     def inversions(self):
         raise NotImplementedError
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
-    def __getitem__(self, item): return self.notes[item]
     def __len__(self): return len(self.notes)
     def __contains__(self, item): return item in self.notes
-    #def __str__(self): return ''.join(note.name for note in self.notes)
+    # def __str__(self): return ''.join(note.name for note in self.notes)
 
-    def to_piano_image(self, base64=False):
-        return Piano(chord=self)._repr_svg_()
-        # return chord_to_piano(self, as_base64=base64)
+    # def to_piano_image(self, base64=False):
+    #     return Piano(chord=self)._repr_svg_()
 
     def __repr__(self):
         # _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
-        #return f"Chord({self.str_chord} / {self.root.name if self.root is not None else self.root})"
+        # return f"Chord({self.str_chord} / {self.root.name if self.root is not None else self.root})"
         _ = self.str_chord
         if self.root is not None:
             _ += f'/{self.root.name}'
@@ -92,8 +83,8 @@ class Chord:
 
     async def play(self, seconds=1):
         await SpecificChord(
-            notes = frozenset(SpecificNote(note) for note in self.notes),
-            root = self.root,
+            notes=frozenset(SpecificNote(note) for note in self.notes),
+            root=self.root,
         ).play(seconds)
     #     notes_to_play = self.specific_notes
     #

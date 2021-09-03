@@ -7,15 +7,11 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config
-from . import util
-from .chord import Chord
 from .chord import SpecificChord
-from .note import Note
 from .note import SpecificNote
 from .scale import ComparedScale
 from .scale import all_scales
 from .scale import majors
-from .scale import neighbors
 
 chromatic_notes_set = set(config.chromatic_notes)
 
@@ -27,10 +23,11 @@ app.mount("/static/", StaticFiles(directory=static_folder), name="static")
 
 @app.get("/scale_not_found", response_class=HTMLResponse)
 def scale_not_found():
-    return f'''
+    return '''
     <header><a href='/'>home</a></header>
     <h1>404: scale not found</h1>
     '''
+
 
 @app.get("/play_chord/{chord}")
 async def play_chord(chord: str):
@@ -39,17 +36,21 @@ async def play_chord(chord: str):
     await SpecificChord(frozenset(notes), root=notes[0]).play(bass=-1)
     return {'status': 'play_chord success'}
 
+
 @app.get("/play_note/{note}/{octave}")
 async def play_note(note: str, octave: int):
     print('PLAYIN NOTE', note, octave)
     await SpecificNote(note, octave).play()
     return {'status': 'play_note success'}
 
+
 @app.get("/", response_class=HTMLResponse)
 async def root(): return RedirectResponse('/diatonic/C/major')
 
+
 @app.get("/favicon.ico", response_class=HTMLResponse)
 async def favicon(): return FileResponse(static_folder / 'favicon.ico')
+
 
 @app.get("/circle", response_class=HTMLResponse)
 async def circle():
@@ -64,6 +65,7 @@ async def circle():
         # html += f"<div class='circle _{i}'>{i}</div>"
         html += scale.with_html_classes(('kinda_circle', f'_{i}'))
     return html
+
 
 @app.get("/circle/{selected_major}", response_class=HTMLResponse)
 async def circle_selected(selected_major: str):

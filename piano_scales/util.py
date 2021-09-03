@@ -10,6 +10,7 @@ from . import config
 def hex_to_rgb(color):
     return tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
 
+
 def rgba_to_rgb(rgb_background, rgba_color):
     '''https://stackoverflow.com/a/21576659/4204843'''
 
@@ -32,5 +33,3 @@ def iter_scales(kind, start=None):
 
 
 n_intersect_notes_to_n_shared_chords = {7: 7, 6: 4, 5: 2, 4: 0, 3: 0, 2: 0}
-
-

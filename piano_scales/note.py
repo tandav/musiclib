@@ -36,7 +36,6 @@ class Note:
         return 12 + self.i - other.i
 
 
-
 class SpecificNote(Note):
     def __init__(self, abstract: Union[Note, str], octave: int = config.default_octave):
         """
@@ -47,10 +46,8 @@ class SpecificNote(Note):
         self.abstract = abstract
         super().__init__(abstract.name)
         self.octave = octave
-        self.absolute_i = octave * 12 + self.i # this is also midi_code
+        self.absolute_i = octave * 12 + self.i  # this is also midi_code
         self.key = self.abstract, self.octave
-
-
 
     async def play(self, seconds: Number = 1):
         config.port.send(mido.Message('note_on', note=self.absolute_i, channel=0))
