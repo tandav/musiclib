@@ -2,13 +2,11 @@ import functools
 import itertools
 from collections import defaultdict
 from collections import deque
-from typing import Optional
 
+from . import chromatic
 from . import config
 from . import util
 from .chord import Chord
-from .note import Note
-from .note import SpecificNote
 from .piano import Piano
 
 bits_2_name = {
@@ -30,38 +28,17 @@ bits_2_name = {
 name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 
-def iter_chromatic(
-    start_note: str = config.chromatic_notes[0],
-    start_octave: Optional[int] = None,
-    take_n: Optional[int] = None,
-):
-    names = itertools.cycle(config.chromatic_notes)
-    if start_octave is None:
-        notes = (Note(name) for name in names)
-    else:
-        octaves = itertools.chain.from_iterable(
-            itertools.repeat(octave, 12)
-            for octave in itertools.count(start=start_octave)
-        )
-        notes = (SpecificNote(name, octave) for name, octave in zip(names, octaves))
-
-    notes = itertools.dropwhile(lambda note: note.name != start_note, notes)
-    if take_n:
-        notes = itertools.islice(notes, take_n)
-    yield from notes
-
-
 class Scale:
     def __init__(self, root: str, name: str):
         self.root = root
         self.name = name
         self.key = root, name
         self.bits = name_2_bits[name]
-        self.notes = tuple(itertools.compress(iter_chromatic(start_note=root), map(int, self.bits)))
+        self.notes = tuple(itertools.compress(chromatic.iterate(start_note=root), map(int, self.bits)))
 
         # self.notes = tuple(itertools.compress(chromatic(root), map(int, self.bits)))
         # print(self.notes)
-        self.chromatic_mask = ''.join(note.name if note in self.notes else '_' for note in iter_chromatic(take_n=12))
+        self.chromatic_mask = ''.join(note.name if note in self.notes else '_' for note in chromatic.iterate(take_n=12))
         # self.chromatic_bits = ''.join(str(int(note in self.notes)) for note in config.chromatic_notes) # from C (config.chromatic_notes[0])
         # self.chromatic_bits = int(self.bits, base=2)
         self.kind = config.kinds.get(name)
@@ -155,13 +132,12 @@ class ComparedScale(Scale):
     def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-all_scales = {
-    'diatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)},
-    'pentatonic': {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)},
-}
+diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
+pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
+all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic}
 
 # circle of fifths clockwise
-majors = tuple(all_scales['diatonic'][note, 'major'] for note in 'CGDAEBfdaebF')
+majors = tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF')
 
 
 @functools.cache
@@ -173,6 +149,23 @@ def neighbors(left: Scale):
         right = ComparedScale(left, right)
         neighs[len(right.shared_notes)].append(right)
     return neighs
+
+
+def print_neighbors(s: Scale):
+    neighs = neighbors(s)
+    for n_intersect in sorted(neighs.keys(), reverse=True):
+        for n in neighs[n_intersect]:
+            if n.name != 'major': continue
+            print(repr(n).ljust(32), '|', end=' ')
+            for note in n.chromatic_mask:
+                if note in s.chromatic_mask: print(util.cprint(note, color='BLUE'), end='')
+                else: print(note, end='')
+            print(' |', end=' ')
+            for chord in n.chords:
+                if chord in n.shared_chords: print(util.cprint(chord, color='BLUE'), end=' ')
+                else: print(chord, end=' ')
+            print()
+        print('=' * 100)
 
 # warm up cache
 # for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):

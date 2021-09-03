@@ -1,16 +1,25 @@
 import asyncio
 from numbers import Number
 from typing import Optional
+from typing import Union
 
+from . import chromatic
 from .note import Note
 from .note import SpecificNote
+
+intervals_to_name = {
+    frozenset({4, 7}): 'major',
+    frozenset({3, 7}): 'minor',
+    frozenset({3, 6}): 'diminished',
+}
+name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
 
 class Chord:
     def __init__(
         self,
-        notes: frozenset[Note],
-        root: Optional[Note] = None,
+        notes: frozenset[Union[str, Note]],
+        root: Optional[Union[str, Note]] = None,
     ):
         """
         chord is an unordered set of notes
@@ -20,6 +29,12 @@ class Chord:
             chord w/o root has no intervals
         """
 
+        if isinstance(next(iter(notes)), str):
+            notes = frozenset(Note(note) for note in notes)
+
+        if isinstance(root, str):
+            root = Note(root)
+
         self.notes = notes
         self.root = root
         self.key = self.notes, self.root
@@ -27,15 +42,11 @@ class Chord:
         if root is not None:
 
             _notes = [root] + [note for note in notes if note != root]
-            self.str_chord = ''.join(note.name for note in _notes)
+            self.str_chord = ''.join(note.name for note in chromatic.sort_notes(_notes))
 
             # self.intervals = frozenset(note - root for note in self.notes if note != root)
             self.intervals = frozenset(note - root for note in _notes[1:])
-            self.name = {
-                frozenset({4, 7}): 'major',
-                frozenset({3, 7}): 'minor',
-                frozenset({3, 6}): 'diminished',
-            }[self.intervals]
+            self.name = intervals_to_name[self.intervals]
             # compute intervals (from root)
             # minimal distance between Abstract Notes (or maybe you can only go up - root should be lowest note in this case)
         else:
@@ -49,7 +60,16 @@ class Chord:
         # self.add_notes_no_inverse()
 
     @classmethod
-    def from_intervals(cls, root: Note, intervals: frozenset):
+    def from_name(cls, root: Union[str, Note], name: str):
+        if isinstance(root, str):
+            root = Note(root)
+        intervals = name_to_intervals[name]
+        notes = frozenset(chromatic.nth(root, interval) for interval in intervals)
+        return cls(notes, root)
+
+    @classmethod
+    def from_intervals(cls, root: Union[str, Note], intervals: frozenset):
+
         """
         if you're creating chord from interval, you must specify root note
         from which intervals are calculated

@@ -15,7 +15,11 @@ class Note:
     def __init__(self, name: str):
         """:param name: one of CdDeEFfGaAbB"""
         self.name = name
-        self.i = config.chromatic_notes.index(name)
+        self.i = config.note_i[name]
+
+    @classmethod
+    def from_i(cls, i):
+        return cls(config.chromatic_notes[i])
 
     async def play(self, seconds: Number = 1):
         await SpecificNote(self).play(seconds)

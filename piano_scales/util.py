@@ -33,3 +33,23 @@ def iter_scales(kind, start=None):
 
 
 n_intersect_notes_to_n_shared_chords = {7: 7, 6: 4, 5: 2, 4: 0, 3: 0, 2: 0}
+
+
+def cprint(*args, color=None, **kwargs):
+    colormap = dict(
+        BLACK     = '30m',
+        RED       = '31m',
+        GREEN     = '32m',
+        YELLOW    = '33m',
+        BLUE      = '34m',
+        MAGENTA   = '35m',
+        CYAN      = '36m',
+        WHITE     = '37m',
+        UNDERLINE = '4m' ,
+    )
+    if color is None:
+        print(*args, **kwargs)
+    else:
+        print('\033[' + colormap[color], end='')
+        print(*args, **kwargs)
+        print('\033[0m', end='')
