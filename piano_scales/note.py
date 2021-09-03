@@ -2,8 +2,8 @@ import asyncio
 from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
-from . import midi
 from . import config
+from . import midi
 
 
 class Note:

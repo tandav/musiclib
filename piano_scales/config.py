@@ -1,7 +1,6 @@
 
 from . import util
 
-
 midi = False
 midi_device = 'IAC Driver Bus 1'
 
