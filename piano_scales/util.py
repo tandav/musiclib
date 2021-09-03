@@ -1,4 +1,5 @@
 import itertools
+
 from . import config
 
 # @functools.lru_cache(1024)

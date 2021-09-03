@@ -1,8 +1,12 @@
 import functools
 import itertools
 from typing import Optional
-from . import config, util
-from .note import Note, SpecificNote
+
+from . import config
+from . import util
+from .note import Note
+from .note import SpecificNote
+
 # from .chord import Chord
 # from .scale import Scale
 

@@ -1,13 +1,15 @@
+import asyncio
 import functools
 import itertools
-from . import config
-from .piano import Piano
-import asyncio
 from collections.abc import Sequence
-from typing import Optional
-from . import config, util
-from .note import Note, SpecificNote
 from numbers import Number
+from typing import Optional
+
+from . import config
+from . import util
+from .note import Note
+from .note import SpecificNote
+from .piano import Piano
 
 
 class Chord:

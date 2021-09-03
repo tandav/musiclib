@@ -1,14 +1,18 @@
-import itertools
 import functools
-import tqdm
+import itertools
+from collections import defaultdict
+from collections import deque
 from collections.abc import Iterable
-from collections import deque, defaultdict
 from typing import Optional
-from . import config, util
-from .piano import Piano
-from .chord import Chord
-from .note import Note, SpecificNote
 
+import tqdm
+
+from . import config
+from . import util
+from .chord import Chord
+from .note import Note
+from .note import SpecificNote
+from .piano import Piano
 
 bits_2_name = {
     '101011010101': 'major',

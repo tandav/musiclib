@@ -1,9 +1,10 @@
 import asyncio
 from numbers import Number
+from typing import Union  # TODO: python3.10 just use X | Y
 
 import mido
+
 from . import config
-from typing import Union # TODO: python3.10 just use X | Y
 
 
 class Note:

@@ -1,14 +1,21 @@
 from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .scale import all_scales, neighbors, ComparedScale, majors
-from .chord import Chord, SpecificChord
-from .note import Note, SpecificNote
-from . import config, util
-
-
+from . import config
+from . import util
+from .chord import Chord
+from .chord import SpecificChord
+from .note import Note
+from .note import SpecificNote
+from .scale import ComparedScale
+from .scale import all_scales
+from .scale import majors
+from .scale import neighbors
 
 chromatic_notes_set = set(config.chromatic_notes)
 
