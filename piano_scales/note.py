@@ -3,7 +3,6 @@ from numbers import Number
 
 import mido
 from . import config
-import warnings
 from typing import Union # TODO: python3.10 just use X | Y
 
 
@@ -53,10 +52,8 @@ class SpecificNote(Note):
 
 
     async def play(self, seconds: Number = 1):
-        warnings.warn(f'note_on {self} {seconds=}')
         config.port.send(mido.Message('note_on', note=self.absolute_i, channel=0))
         await asyncio.sleep(seconds)
-        warnings.warn(f'note_off {self}')
         config.port.send(mido.Message('note_off', note=self.absolute_i, channel=0))
 
     def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"

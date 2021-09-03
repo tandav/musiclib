@@ -8,8 +8,6 @@ from .chord import Chord, SpecificChord
 from .note import Note, SpecificNote
 from . import config, util
 
-import warnings
-warnings.filterwarnings(action='ignore')
 
 
 chromatic_notes_set = set(config.chromatic_notes)
