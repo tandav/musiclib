@@ -2,8 +2,7 @@ import asyncio
 from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
-import mido
-
+from . import midi
 from . import config
 
 
@@ -54,9 +53,9 @@ class SpecificNote(Note):
         self.key = self.abstract, self.octave
 
     async def play(self, seconds: Number = 1):
-        config.port.send(mido.Message('note_on', note=self.absolute_i, channel=0))
+        midi.send_message('note_on', note=self.absolute_i, channel=0)
         await asyncio.sleep(seconds)
-        config.port.send(mido.Message('note_off', note=self.absolute_i, channel=0))
+        midi.send_message('note_off', note=self.absolute_i, channel=0)
 
     def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"
     def __eq__(self, other): return self.key == other.key

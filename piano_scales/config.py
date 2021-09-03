@@ -1,10 +1,9 @@
-import mido
 
 from . import util
 
-device = 'IAC Driver Bus 1'
-port = mido.open_output(device)
 
+midi = False
+midi_device = 'IAC Driver Bus 1'
 
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
