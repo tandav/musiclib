@@ -10,7 +10,8 @@ run:
 	docker run --rm -p 8001:8001 piano_scales
 
 lint:
-	python3 -m flake8 --ignore E501 piano_scales
+	python3 -m isort --force-single-line-imports piano_scales
+	python3 -m flake8 --ignore E501,E701,E704 piano_scales
 
 test:
 	python3 -m pytest tests
