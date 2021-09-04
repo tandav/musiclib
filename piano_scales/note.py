@@ -6,10 +6,10 @@ from . import config
 from . import midi
 
 
-class Note:
+class Note:  # Note(str) ??
     """
-    abstract note, no octave/key not playable
-    kinda music theoretic  pitch-class
+    abstract note, no octave/key
+    kinda music theoretic pitch-class
     """
     def __init__(self, name: str):
         """:param name: one of CdDeEFfGaAbB"""
@@ -23,6 +23,7 @@ class Note:
     async def play(self, seconds: Number = 1):
         await SpecificNote(self).play(seconds)
 
+    def short_repr(self): return self.name
     def __repr__(self): return f"Note(name={self.name})"
     def __eq__(self, other): return self.name == other.name
     def __hash__(self): return hash(self.name)
@@ -57,6 +58,7 @@ class SpecificNote(Note):
         await asyncio.sleep(seconds)
         midi.send_message('note_off', note=self.absolute_i, channel=0)
 
+    def short_repr(self): return f'{self.abstract.name}{self.octave}'
     def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)

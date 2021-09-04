@@ -147,6 +147,7 @@ class SpecificChord:
     ):
         self.notes = notes
         self.root = root
+    def short_repr(self): return ' '.join(note.short_repr() for note in self.notes)
 
     # def add_specific_notes(self):
     #     specific_notes = []
