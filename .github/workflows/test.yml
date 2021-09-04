@@ -15,11 +15,8 @@ jobs:
           pwd
           ls -Al
       - name: install dependencies
-        run: |
-          python3 -m pip install isort flake8 pytest
+        run: python3 -m pip install isort flake8 pytest
       - name: lint
-        run: |
-          make lint
+        run: make lint
       - name: test
-        run: |
-          make test
+        run: make test
