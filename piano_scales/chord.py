@@ -67,8 +67,9 @@ class Chord:
         if isinstance(root, str):
             root = Note(root)
         intervals = name_to_intervals[name]
-        notes = frozenset(chromatic.nth(root, interval) for interval in intervals)
-        return cls(notes, root)
+        notes = set(chromatic.nth(root, interval) for interval in intervals)
+        notes.add(root)
+        return cls(frozenset(notes), root)
 
     @classmethod
     def from_intervals(cls, root: Union[str, Note], intervals: frozenset):
