@@ -59,6 +59,9 @@ class Chord:
         # self.notes = tuple(Note(note, root_octave) for note in self.str_chord)
         # self.add_notes_no_inverse()
 
+    @property
+    def rootless(self): return Chord(self.notes)
+
     @classmethod
     def from_name(cls, root: Union[str, Note], name: str):
         if isinstance(root, str):
