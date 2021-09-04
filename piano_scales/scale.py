@@ -2,11 +2,13 @@ import functools
 import itertools
 from collections import defaultdict
 from collections import deque
+from typing import Union
 
 from . import chromatic
 from . import config
 from . import util
 from .chord import Chord
+from .note import Note
 from .piano import Piano
 
 bits_2_name = {
@@ -29,7 +31,9 @@ name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 
 class Scale:
-    def __init__(self, root: str, name: str):
+    def __init__(self, root: Union[str, Note], name: str):
+        if isinstance(root, str):
+            root = Note(root)
         self.root = root
         self.name = name
         self.key = root, name
