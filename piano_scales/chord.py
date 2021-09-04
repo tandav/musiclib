@@ -153,7 +153,7 @@ class SpecificChord:
         self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
 
-    def short_repr(self): return ' '.join(note.short_repr() for note in self.notes)
+    def __repr__(self): return ' '.join(note.short_repr() for note in self.notes)
 
     # def add_specific_notes(self):
     #     specific_notes = []
