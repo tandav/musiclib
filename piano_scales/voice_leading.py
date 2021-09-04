@@ -1,6 +1,6 @@
 import itertools
 
-import pipe as P
+import pipe21 as P
 
 from . import config
 from .chord import Chord
