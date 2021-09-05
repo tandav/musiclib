@@ -1,7 +1,7 @@
 
 from . import util
 
-midi = True
+midi = False
 midi_device = 'IAC Driver Bus 1'
 
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
