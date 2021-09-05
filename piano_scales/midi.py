@@ -1,8 +1,5 @@
 import os
 
-for k, v in os.environ.items():
-    print(k, v)
-
 if (midi_device := os.environ.get('MIDI_DEVICE')):
     import mido
     port = mido.open_output(midi_device)
