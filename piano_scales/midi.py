@@ -1,9 +1,11 @@
-from . import config
+import os
 
-if config.midi:
+for k, v in os.environ.items():
+    print(k, v)
+
+if (midi_device := os.environ.get('MIDI_DEVICE')):
     import mido
-
-    port = mido.open_output(config.midi_device)
+    port = mido.open_output(midi_device)
 
     def send_message(*args, **kwargs):
         port.send(mido.Message(*args, **kwargs))
