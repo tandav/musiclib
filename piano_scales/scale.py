@@ -88,7 +88,7 @@ class Scale:
         chords_hover = ''
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
-        <a href='/circle/{self.root}'><span class='card_header'><h3>{self.root} {self.name}</h3></span></a>
+        <a href='/circle/{self.root.name}'><span class='card_header'><h3>{self.root} {self.name}</h3></span></a>
         {self.to_piano_image()}
         </div>
         '''

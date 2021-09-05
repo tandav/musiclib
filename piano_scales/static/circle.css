@@ -5,20 +5,26 @@
   /*--item_margin: = calc(-1px * var(--item_size) / 2);*/
 }
 
-.circle {
-  /*border-radius: 50%;*/
-  font-size: 50pt;
-  width: var(--item_size);
-  height: var(--item_size);
-  background-color: red;
-  display: block;
-  position: absolute;
-  overflow: hidden;
-  top: 50%;
-  left: 50%;
-  margin: var(--item_margin);
-  /*margin: -50px;*/
+.container {
+  position: relative;
+  height: 100vh;
+  margin: -38px 0 0 calc(var(--radius) / 2);
 }
+
+/*.circle {*/
+/*  !*border-radius: 50%;*!*/
+/*  font-size: 50pt;*/
+/*  width: var(--item_size);*/
+/*  height: var(--item_size);*/
+/*  background-color: red;*/
+/*  display: block;*/
+/*  position: absolute;*/
+/*  overflow: hidden;*/
+/*  top: 50%;*/
+/*  left: 50%;*/
+/*  margin: var(--item_margin);*/
+/*  !*margin: -50px;*!*/
+/*}*/
 
 .kinda_circle {
   display: block;

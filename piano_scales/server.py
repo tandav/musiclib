@@ -61,10 +61,14 @@ async def circle():
     <script src="/static/play.js"></script>
     '''
 
+    tmp = ''
+
     for i, scale in enumerate(majors, start=1):
         # html += f"<div class='circle _{i}'>{i}</div>"
-        html += scale.with_html_classes(('kinda_circle', f'_{i}'))
-    return html
+        # html += scale.with_html_classes(('kinda_circle', f'_{i}'))
+        tmp += scale.with_html_classes(('kinda_circle', f'_{i}'))
+
+    return html + f"<div class='container'>{tmp}</div>"
 
 
 @app.get("/circle/{selected_major}", response_class=HTMLResponse)
