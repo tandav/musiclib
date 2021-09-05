@@ -1,3 +1,6 @@
+import pytest
+
+
 from piano_scales.scale import Scale
 from piano_scales.note import Note
 
@@ -13,6 +16,9 @@ def test_equal():
     assert Scale(Note('C'), 'major') != Scale(Note('E'), 'major')
 
 
-def test_notes():
-    assert ''.join(note.name for note in Scale('C', 'major').notes) == 'CDEFGAB'
-    assert ''.join(note.name for note in Scale('C', 'phrygian').notes) == 'CdeFGab'
+@pytest.mark.parametrize(
+    ('scale_name', 'expected_notes'),
+    (('major', 'CDEFGAB'), ('phrygian', 'CdeFGab')),
+)
+def test_notes(scale_name, expected_notes):
+    assert ''.join(note.name for note in Scale('C', scale_name).notes) == expected_notes
