@@ -9,7 +9,7 @@ lint:
 	python3 -m flake8 --ignore E203,E221,E251,E501,W503,E701,E704 piano_scales
 
 test:
-	python3 -m pytest tests
+	python3 -m pytest -v tests
 
 clean_docker:
 	docker rmi piano_scales
