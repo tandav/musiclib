@@ -8,7 +8,38 @@
 .container {
   position: relative;
   height: 100vh;
-  margin: -38px 0 0 calc(var(--radius) / 2);
+  /*margin: -38px 0 0 calc(var(--radius) / 2);*/
+
+
+  display: grid;
+  grid-template-areas:
+   ". . . _1 . . ."
+   ". . _12 . _2 . ."
+   ". _11 . . . _3 ."
+   "_10 . . . . . _4"
+   ". _9 . . . _5 ."
+   ". . _8 . _6 . ."
+   ". . . _7 . . .";
+  grid-template-columns:
+    110px
+    200px
+    250px
+    200px
+    200px
+    200px
+    200px;
+  grid-template-rows:
+    140px
+    150px
+    140px
+    140px
+    140px
+    140px
+    140px;
+  /*grid-auto-rows: 140px;*/
+align-content: center;
+    justify-content: center;
+;
 }
 
 /*.circle {*/
@@ -30,19 +61,32 @@
   display: block;
   position: absolute;
   overflow: hidden;
-  top: 50%;
-  left: 25%;
+  /*top: 50%;*/
+  /*left: 25%;*/
 }
 
-._1  { transform: rotate(270deg) translate(var(--radius)) rotate(-270deg); }
-._2  { transform: rotate(300deg) translate(var(--radius)) rotate(-300deg); }
-._3  { transform: rotate(330deg) translate(var(--radius)) rotate(-330deg); }
-._4  { transform: rotate(360deg) translate(var(--radius)) rotate(-360deg); }
-._5  { transform: rotate(30deg ) translate(var(--radius)) rotate(-30deg ); }
-._6  { transform: rotate(60deg ) translate(var(--radius)) rotate(-60deg ); }
-._7  { transform: rotate(90deg ) translate(var(--radius)) rotate(-90deg ); }
-._8  { transform: rotate(120deg) translate(var(--radius)) rotate(-120deg); }
-._9  { transform: rotate(150deg) translate(var(--radius)) rotate(-150deg); }
-._10 { transform: rotate(180deg) translate(var(--radius)) rotate(-180deg); }
-._11 { transform: rotate(210deg) translate(var(--radius)) rotate(-210deg); }
-._12 { transform: rotate(240deg) translate(var(--radius)) rotate(-240deg); }
+._1 {grid-area: _1;}
+._2 {grid-area: _2;}
+._3 {grid-area: _3;}
+._4 {grid-area: _4;}
+._5 {grid-area: _5;}
+._6 {grid-area: _6;}
+._7 {grid-area: _7;}
+._8 {grid-area: _8;}
+._9 {grid-area: _9}
+._10 {grid-area: _10;}
+._11 {grid-area: _11;}
+._12 {grid-area: _12;}
+
+/*._1  { transform: rotate(270deg) translate(var(--radius)) rotate(-270deg); }*/
+/*._2  { transform: rotate(300deg) translate(var(--radius)) rotate(-300deg); }*/
+/*._3  { transform: rotate(330deg) translate(var(--radius)) rotate(-330deg); }*/
+/*._4  { transform: rotate(360deg) translate(var(--radius)) rotate(-360deg); }*/
+/*._5  { transform: rotate(30deg ) translate(var(--radius)) rotate(-30deg ); }*/
+/*._6  { transform: rotate(60deg ) translate(var(--radius)) rotate(-60deg ); }*/
+/*._7  { transform: rotate(90deg ) translate(var(--radius)) rotate(-90deg ); }*/
+/*._8  { transform: rotate(120deg) translate(var(--radius)) rotate(-120deg); }*/
+/*._9  { transform: rotate(150deg) translate(var(--radius)) rotate(-150deg); }*/
+/*._10 { transform: rotate(180deg) translate(var(--radius)) rotate(-180deg); }*/
+/*._11 { transform: rotate(210deg) translate(var(--radius)) rotate(-210deg); }*/
+/*._12 { transform: rotate(240deg) translate(var(--radius)) rotate(-240deg); }*/
