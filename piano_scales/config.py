@@ -1,7 +1,7 @@
 
 from . import util
 
-midi = False
+midi = True
 midi_device = 'IAC Driver Bus 1'
 
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
@@ -32,11 +32,11 @@ scale_colors = dict(
     p_minor      = 'D83A56',
 )
 
-WHITE_COLOR = (170,) * 3
-BLACK_COLOR = (80,) * 3
-RED_COLOR = 255, 0, 0
-GREEN_COLOR = 0, 255, 0
-BLUE_COLOR = 0, 0, 255
+WHITE_COLOR = (0xaa,) * 3
+BLACK_COLOR = (0x50,) * 3
+RED_COLOR = 0xff, 0, 0
+GREEN_COLOR = 0, 0xff, 0
+BLUE_COLOR = 0, 0, 0xff
 
 chord_colors = {
     'minor': util.hex_to_rgb(scale_colors['minor']),
