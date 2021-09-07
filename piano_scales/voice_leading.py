@@ -9,13 +9,10 @@ from .chord import name_to_intervals
 from .note import SpecificNote
 
 
-def all_triads(octave_limit=(4, 6)):
+def all_triads(octaves=(4, 5, 6)):
     all_notes = tuple(
         SpecificNote(note, octave)
-        for octave, note in itertools.product(
-            range(octave_limit[0], octave_limit[1] + 1),
-            config.chromatic_notes
-        )
+        for octave, note in itertools.product(octaves, config.chromatic_notes)
     )
     n3 = tuple(itertools.combinations(all_notes, 3))  # all 3-notes subsets
     all_chords = frozenset(

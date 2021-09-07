@@ -1,4 +1,5 @@
 import asyncio
+import functools
 from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
@@ -53,6 +54,11 @@ class SpecificNote(Note):
         self.absolute_i = octave * 12 + self.i  # this is also midi_code
         self.key = self.abstract, self.octave
 
+    @classmethod
+    def from_absolute_i(cls, absolute_i):
+        div, mod = divmod(absolute_i, 12)
+        return cls(Note(config.chromatic_notes[mod]), octave=div)
+
     async def play(self, seconds: Number = 1):
         midi.send_message('note_on', note=self.absolute_i, channel=0)
         await asyncio.sleep(seconds)
@@ -63,9 +69,10 @@ class SpecificNote(Note):
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
+    @functools.cache
     def __sub__(self, other):
         """distance between notes"""
-        return self.absolute_i - self.absolute_i
+        return self.absolute_i - other.absolute_i
 
     def __add__(self, other: int):
         """C + 7 = G"""

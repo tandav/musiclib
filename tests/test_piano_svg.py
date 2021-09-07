@@ -1,7 +1,7 @@
 import pytest
 
-from piano_scales.scale import Scale
 from piano_scales.scale import ComparedScale
+from piano_scales.scale import Scale
 
 
 @pytest.fixture

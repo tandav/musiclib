@@ -46,7 +46,7 @@ class Chord:
 
             # self.intervals = frozenset(note - root for note in self.notes if note != root)
             self.intervals = frozenset(note - root for note in _notes[1:])
-            self.name = intervals_to_name[self.intervals]
+            self.name = intervals_to_name.get(self.intervals)
             # compute intervals (from root)
             # minimal distance between Abstract Notes (or maybe you can only go up - root should be lowest note in this case)
         else:
@@ -147,26 +147,28 @@ class SpecificChord:
     def __init__(
         self,
         notes: frozenset[SpecificNote],
-        root: Optional[SpecificNote] = None,
+        root: Optional[Note] = None,
     ):
         self.notes = notes
         self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
+        self.notes_ascending = sorted(notes, key=lambda note: note.absolute_i)
+        self.key = self.notes, self.root
 
     def __repr__(self): return ' '.join(note.short_repr() for note in self.notes)
+    def __eq__(self, other): return self.key == other.key
+    def __hash__(self): return hash(self.key)
 
-    # def add_specific_notes(self):
-    #     specific_notes = []
-    #     for note in self.notes:
-    #         if note.octave is not None:
-    #             specific_notes.append(note)
-    #         else:
-    #             specific_notes.append(Note(note.name, octave=config.default_octave))
-    #     self.specific_notes = tuple(specific_notes)
+    def to_primitives(self):
+        return tuple(note.absolute_i for note in self.notes_ascending), self.root.name
 
-    async def play(self, seconds: Number = 1, bass: Optional[int] = None):
+    @classmethod
+    def from_primitives(cls, notes_root):
+        notes, root = notes_root
+        notes = frozenset(SpecificNote.from_absolute_i(i) for i in notes)
+        root = Note(root)
+        return cls(notes, root)
+
+    async def play(self, seconds: Number = 1):
         tasks = [note.play(seconds) for note in self.notes]
-        if bass:
-            assert self.root is not None
-            tasks.append(SpecificNote(self.root.abstract, octave=self.root.octave + bass).play(seconds))
         await asyncio.gather(*tasks)

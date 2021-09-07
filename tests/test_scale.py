@@ -1,8 +1,7 @@
 import pytest
 
-
-from piano_scales.scale import Scale
 from piano_scales.note import Note
+from piano_scales.scale import Scale
 
 
 def test_kind():
