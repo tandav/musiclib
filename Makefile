@@ -7,8 +7,8 @@ run_with_midi:
 lint:
 	python3 -m isort --force-single-line-imports piano_scales
 	python3 -m isort --force-single-line-imports tests
-	python3 -m flake8 --ignore E203,E221,E251,E501,W503,E701,E704 piano_scales
-	python3 -m flake8 --ignore E203,E221,E251,E501,W503,E701,E704 tests
+	python3 -m flake8 --ignore E203,E221,E251,E501,W503,E701,E704,I100 piano_scales
+	python3 -m flake8 --ignore E203,E221,E251,E501,W503,E701,E704,I100 tests
 
 test:
 	python3 -m pytest -v --cov=piano_scales tests

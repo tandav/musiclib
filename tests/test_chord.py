@@ -51,6 +51,3 @@ def test_to_primitives():
         notes = frozenset(notes)
         chord = SpecificChord(notes, root)
         assert chord == SpecificChord.from_primitives(chord.to_primitives())
-
-
-
