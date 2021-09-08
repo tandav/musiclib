@@ -158,10 +158,22 @@ class SpecificChord:
         self.key = self.notes, self.root
         self.str_chord = ' '.join(note.short_repr() for note in self.notes_ascending)
 
-    def __repr__(self): return ' '.join(note.short_repr() for note in self.notes)
+    def __repr__(self):
+        _ = self.str_chord
+        if self.root is not None:
+            _ += f'/{self.root.name}'
+        return _
+        # return ' '.join(note.short_repr() for note in self.notes)
+
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
+    def __sub__(self, other):
+        """
+        https://music.stackexchange.com/a/77630
+        considering no voice crossing
+        """
+        return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
 
     async def play(self, seconds: Number = 1):
         tasks = [note.play(seconds) for note in self.notes]
