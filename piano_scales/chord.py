@@ -39,18 +39,17 @@ class Chord:
         self.root = root
         self.key = self.notes, self.root
 
-        if root is not None:
+        self.str_chord = ''.join(note.name for note in chromatic.sort_notes(list(self.notes)))
 
-            _notes = [root] + [note for note in notes if note != root]
-            self.str_chord = ''.join(note.name for note in chromatic.sort_notes(_notes))
-
-            # self.intervals = frozenset(note - root for note in self.notes if note != root)
-            self.intervals = frozenset(note - root for note in _notes[1:])
-            self.name = intervals_to_name.get(self.intervals)
-            # compute intervals (from root)
-            # minimal distance between Abstract Notes (or maybe you can only go up - root should be lowest note in this case)
+        if root is None:
+            pass
         else:
-            self.str_chord = ''.join(note.name for note in self.notes)
+            if root not in notes:
+                raise ValueError('root note should be one of the chord notes')
+
+            self.intervals = frozenset(note - root for note in notes - {root})
+            self.name = intervals_to_name.get(self.intervals)
+
         # self.str_chord = ''.join(note.name for note in self.notes)
         # self.intervals = tuple(n - self.specific_notes[0] for n in self.specific_notes[1:])
         # self.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
@@ -147,13 +146,12 @@ class SpecificChord:
     def __init__(
         self,
         notes: frozenset[SpecificNote],
-        root: Optional[SpecificNote] = None,
+        root: Optional[Note] = None,
     ):
         self.notes = notes
-        if root is not None:
-            assert root in notes
-            self.root = root
+        self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
+
         self.notes_ascending = sorted(notes, key=lambda note: note.absolute_i)
         self.key = self.notes, self.root
         self.str_chord = ' '.join(note.short_repr() for note in self.notes_ascending)

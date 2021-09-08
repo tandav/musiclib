@@ -33,6 +33,7 @@ def scale_not_found():
 async def play_chord(chord: str):
     print('PLAYIN CHORD', chord)
     notes = tuple(SpecificNote(n, octave=5) for n in chord)
+    raise NotImplementedError('REWRITE: instead of rely on 1st note explicitly pass root CEG_C')
     await SpecificChord(frozenset(notes), root=notes[0]).play(bass=-1)
     return {'status': 'play_chord success'}
 

@@ -1,7 +1,9 @@
 import pytest
 
 from piano_scales.chord import Chord
+from piano_scales.chord import SpecificChord
 from piano_scales.note import Note
+from piano_scales.note import SpecificNote
 
 
 def test_creation_from_notes():
@@ -33,3 +35,8 @@ def test_intervals():
 
 def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
+
+
+def test_root_validation():
+    with pytest.raises(ValueError):
+        SpecificChord(frozenset({SpecificNote('A'), SpecificNote('B')}), root=Note('E'))
