@@ -1,12 +1,7 @@
-import random
-
 import pytest
 
-from piano_scales import config
 from piano_scales.chord import Chord
-from piano_scales.chord import SpecificChord
 from piano_scales.note import Note
-from piano_scales.note import SpecificNote
 
 
 def test_creation_from_notes():
@@ -38,16 +33,3 @@ def test_intervals():
 
 def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
-
-
-def test_to_primitives():
-    for _ in range(100):
-        notes = tuple(
-            SpecificNote(abstract, octave=random.randint(0, 9))
-            for abstract in
-            random.choices(config.chromatic_notes, k=random.randint(1, 9))
-        )
-        root = random.choice(notes).abstract
-        notes = frozenset(notes)
-        chord = SpecificChord(notes, root)
-        assert chord == SpecificChord.from_primitives(chord.to_primitives())

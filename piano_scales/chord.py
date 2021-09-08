@@ -159,15 +159,6 @@ class SpecificChord:
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
-    def to_primitives(self):
-        return tuple(note.absolute_i for note in self.notes_ascending), self.root.name
-
-    @classmethod
-    def from_primitives(cls, notes_root):
-        notes, root = notes_root
-        notes = frozenset(SpecificNote.from_absolute_i(i) for i in notes)
-        root = Note(root)
-        return cls(notes, root)
 
     async def play(self, seconds: Number = 1):
         tasks = [note.play(seconds) for note in self.notes]
