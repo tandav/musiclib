@@ -147,13 +147,16 @@ class SpecificChord:
     def __init__(
         self,
         notes: frozenset[SpecificNote],
-        root: Optional[Note] = None,
+        root: Optional[SpecificNote] = None,
     ):
         self.notes = notes
-        self.root = root
+        if root is not None:
+            assert root in notes
+            self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
         self.notes_ascending = sorted(notes, key=lambda note: note.absolute_i)
         self.key = self.notes, self.root
+        self.str_chord = ' '.join(note.short_repr() for note in self.notes_ascending)
 
     def __repr__(self): return ' '.join(note.short_repr() for note in self.notes)
     def __eq__(self, other): return self.key == other.key
