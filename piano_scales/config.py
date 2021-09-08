@@ -15,18 +15,18 @@ kinds = {k: 'diatonic' for k in diatonic} | {k: 'pentatonic' for k in pentatonic
 
 # if change: also change in static/main.css
 scale_colors = dict(
-    major        = 'FFFFFF',
-    dorian       = '54E346',
-    phrygian     = '00FFCC',
-    lydian       = '68A6FC',
-    mixolydian   = 'FFF47D',
-    minor        = 'D83A56',
-    locrian      = 'B980F0',
-    p_major      = 'FFFFFF',
-    p_dorian     = '54E346',
-    p_phrygian   = '00FFCC',
-    p_mixolydian = 'FFF47D',
-    p_minor      = 'D83A56',
+    major='FFFFFF',
+    dorian='54E346',
+    phrygian='00FFCC',
+    lydian='68A6FC',
+    mixolydian='FFF47D',
+    minor='D83A56',
+    locrian='B980F0',
+    p_major='FFFFFF',
+    p_dorian='54E346',
+    p_phrygian='00FFCC',
+    p_mixolydian='FFF47D',
+    p_minor='D83A56',
 )
 
 WHITE_COLOR = (0xaa,) * 3
