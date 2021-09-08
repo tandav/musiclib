@@ -45,7 +45,7 @@ def cprint(*args, color=None, **kwargs):
         MAGENTA='35m',
         CYAN='36m',
         WHITE='37m',
-        UNDERLINE='4m' ,
+        UNDERLINE='4m',
     )
     if color is None:
         print(*args, **kwargs)
