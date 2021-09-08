@@ -8,4 +8,4 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
         port.send(mido.Message(*args, **kwargs))
 else:
     def send_message(*args, **kwargs):
-        print(*args)
+        print(*args, ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))

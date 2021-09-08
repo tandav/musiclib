@@ -15,7 +15,7 @@ jobs:
           pwd
           ls -Al
       - name: install dependencies
-        run: python3 -m pip install isort flake8 pytest pytest-cov hypothesis pipe21
+        run: python3 -m pip install isort flake8 pytest pytest-cov pytest-asyncio hypothesis pipe21
       - name: lint
         run: make lint
       - name: test
