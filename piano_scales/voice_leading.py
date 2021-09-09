@@ -1,3 +1,4 @@
+import functools
 import itertools
 
 import pipe21 as P
@@ -33,6 +34,7 @@ def all_triads(octaves=(4, 5, 6)):
     )
 
 
+@functools.cache
 def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     '''
     parallel in same voices!
