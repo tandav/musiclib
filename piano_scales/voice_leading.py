@@ -31,3 +31,19 @@ def all_triads(octaves=(4, 5, 6)):
         | P.Append(lambda x: f'{x[1].root.name} {x[1].name}')
         | P.Pipe(tuple)
     )
+
+
+def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+    '''
+    parallel in same voices!
+    if there'are eg fifth in 1st and fifth in 2nd chord but not from same voices
+    - then it allowed (aint considered parallel) (test it)
+
+    a1 - b1
+    a0 - b0
+    todo: what about fifths + octave (eg C5 G6 -> F5 C6)
+    '''
+    voice_transitions = tuple(zip(a.notes_ascending, b.notes_ascending))
+    for (a0, b0), (a1, b1) in itertools.combinations(voice_transitions, 2):
+        if abs(a0 - a1) == interval == abs(b0 - b1):
+            return True

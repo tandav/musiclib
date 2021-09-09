@@ -65,8 +65,7 @@ class SpecificNote(Note):
         await asyncio.sleep(seconds)
         midi.send_message('note_off', note=self.absolute_i, channel=0)
 
-    def short_repr(self): return f'{self.abstract.name}{self.octave}'
-    def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"
+    def __repr__(self): return f'{self.abstract.name}{self.octave}'
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
     def __lt__(self, other): return self.absolute_i < other.absolute_i

@@ -159,22 +159,27 @@ class SpecificChord:
         self.key = self.notes, self.root
         self.str_chord = '_'.join(repr(note) for note in self.notes_ascending)
 
-    # @property
-    # def all_intervals(self):
-    #     for note_pair in itertools.combinations(self.notes, 2):
-
     @classmethod
     def random(cls, n_notes=None, octaves=None):
         if n_notes is None:
             n_notes = random.randint(2, 5)
         if octaves is None:
-            octaves = 3,4,5
+            octaves = 3, 4, 5
         notes_space = tuple(
             SpecificNote(note, octave)
             for note, octave in itertools.product(config.chromatic_notes, octaves)
         )
         notes = frozenset(random.sample(notes_space, n_notes))
         return cls(notes)
+
+    def notes_combinations(self, ids=False):
+        if ids: yield from itertools.combinations(range(len(self.notes_ascending)), 2)
+        else: yield from itertools.combinations(self.notes_ascending, 2)
+        # for n, m in itertools.combinations(self.notes_ascending, 2):
+        #     yield n, m
+
+    def find_intervals(self, interval: int):
+        return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
     def __repr__(self):
         _ = self.str_chord

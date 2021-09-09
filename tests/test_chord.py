@@ -40,3 +40,21 @@ def test_from_name():
 def test_root_validation():
     with pytest.raises(ValueError):
         SpecificChord(frozenset({SpecificNote('A'), SpecificNote('B')}), root=Note('E'))
+
+
+def test_combinations_order():
+    for _ in range(10):
+        for n, m in SpecificChord.random().notes_combinations():
+            assert n < m
+
+
+def test_find_intervals():
+    a = SpecificNote('C', 5)
+    b = SpecificNote('E', 5)
+    c = SpecificNote('G', 5)
+    d = SpecificNote('C', 6)
+    e = SpecificNote('D', 6)
+
+    assert SpecificChord(frozenset({a, b, c})).find_intervals(7) == ((a, c),)
+    assert SpecificChord(frozenset({a, b, c, e})).find_intervals(7) == ((a, c), (c, e))
+    assert SpecificChord(frozenset({a, d})).find_intervals(12) == ((a, d),)
