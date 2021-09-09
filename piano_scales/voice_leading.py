@@ -49,3 +49,18 @@ def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) ->
     for (a0, b0), (a1, b1) in itertools.combinations(voice_transitions, 2):
         if abs(a0 - a1) == interval == abs(b0 - b1):
             return True
+
+
+def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+    """
+    hidden/direct parallel/consecutive interval is when:
+        1. outer voices (lower and higher) go in same direction (instead of oblique or contrary motion)
+        2. they approach param:interval
+    voice leading rules often forbid hidden fifths and octaves (param:interval = 7, 12)
+    """
+    a_low, a_high = a.notes_ascending[0], a.notes_ascending[-1]
+    b_low, b_high = b.notes_ascending[0], b.notes_ascending[-1]
+
+    is_same_direction = (a_low < b_low and a_high < b_high) or (a_low > b_low and a_high > b_high)
+    if is_same_direction and b_high - b_low == interval:
+        return True

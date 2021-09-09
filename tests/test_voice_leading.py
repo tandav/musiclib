@@ -16,7 +16,9 @@ def test_have_parallel_interval():
     b = SpecificChord(frozenset({SpecificNote('F', 5), SpecificNote('A', 5), SpecificNote('C', 6)}))
     c = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('F', 5), SpecificNote('A', 5)}))
     d = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('B', 5)}))
+    h = SpecificChord(frozenset({SpecificNote('D', 5), SpecificNote('F', 5), SpecificNote('A', 5)}))
     assert voice_leading.have_parallel_interval(a, b, 7)
+    assert voice_leading.have_parallel_interval(a, h, 7)
     assert not voice_leading.have_parallel_interval(a, c, 7)
     assert not voice_leading.have_parallel_interval(a, d, 7)
 
@@ -26,3 +28,13 @@ def test_have_parallel_interval():
     g = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('E', 6)}))
     assert voice_leading.have_parallel_interval(e, f, 12)
     assert not voice_leading.have_parallel_interval(g, f, 12)
+
+
+def test_have_hidden_parallel():
+    a = SpecificChord(frozenset({SpecificNote('E', 5), SpecificNote('G', 5), SpecificNote('C', 6)}))
+    b = SpecificChord(frozenset({SpecificNote('F', 5), SpecificNote('A', 5), SpecificNote('F', 6)}))
+    c = SpecificChord(frozenset({SpecificNote('F', 5), SpecificNote('G', 5), SpecificNote('C', 6)}))
+    d = SpecificChord(frozenset({SpecificNote('F', 5), SpecificNote('A', 5), SpecificNote('C', 6)}))
+    assert voice_leading.have_hidden_parallel(a, b, 12)
+    assert not voice_leading.have_hidden_parallel(c, b, 12)
+    assert not voice_leading.have_hidden_parallel(c, d, 12)
