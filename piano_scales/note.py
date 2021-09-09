@@ -41,6 +41,7 @@ class Note:  # Note(str) ??
         return 12 + self.i - other.i
 
 
+@functools.total_ordering
 class SpecificNote(Note):
     def __init__(self, abstract: Union[Note, str], octave: int = config.default_octave):
         """
@@ -68,6 +69,7 @@ class SpecificNote(Note):
     def __repr__(self): return f"SpecificNote(name={self.abstract.name}, octave={self.octave})"
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
+    def __lt__(self, other): return self.absolute_i < other.absolute_i
 
     @functools.cache
     def __sub__(self, other):
