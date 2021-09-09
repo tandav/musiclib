@@ -1,9 +1,12 @@
 import asyncio
+import itertools
+import random
 from numbers import Number
 from typing import Optional
 from typing import Union
 
 from . import chromatic
+from . import config
 from .note import Note
 from .note import SpecificNote
 
@@ -41,9 +44,7 @@ class Chord:
 
         self.str_chord = ''.join(note.name for note in chromatic.sort_notes(list(self.notes)))
 
-        if root is None:
-            pass
-        else:
+        if root is not None:
             if root not in notes:
                 raise ValueError('root note should be one of the chord notes')
 
@@ -151,27 +152,49 @@ class SpecificChord:
         self.notes = notes
         self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
+        # self.root_specific = frozenset(note for note in notes if note.abstract == root)
 
         self.notes_ascending = sorted(notes, key=lambda note: note.absolute_i)
+        self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note
         self.key = self.notes, self.root
-        self.str_chord = ' '.join(note.short_repr() for note in self.notes_ascending)
+        self.str_chord = '_'.join(repr(note) for note in self.notes_ascending)
+
+    # @property
+    # def all_intervals(self):
+    #     for note_pair in itertools.combinations(self.notes, 2):
+
+    @classmethod
+    def random(cls, n_notes=None, octaves=None):
+        if n_notes is None:
+            n_notes = random.randint(2, 5)
+        if octaves is None:
+            octaves = 3,4,5
+        notes_space = tuple(
+            SpecificNote(note, octave)
+            for note, octave in itertools.product(config.chromatic_notes, octaves)
+        )
+        notes = frozenset(random.sample(notes_space, n_notes))
+        return cls(notes)
 
     def __repr__(self):
         _ = self.str_chord
         if self.root is not None:
-            _ += f'/{self.root.name}'
+            _ += f'__{self.root.name}'
         return _
         # return ' '.join(note.short_repr() for note in self.notes)
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
-    def __sub__(self, other):
-        """
-        https://music.stackexchange.com/a/77630
-        considering no voice crossing
-        """
-        return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
+    # def __sub__(self, other):
+    #     """
+    #     https://music.stackexchange.com/a/77630
+    #     considering no voice crossing
+    #     """
+    #     return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
+
+    def __sub__(left, right):
+        return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left.notes_ascending, right.notes_ascending))
 
     async def play(self, seconds: Number = 1):
         tasks = [note.play(seconds) for note in self.notes]
