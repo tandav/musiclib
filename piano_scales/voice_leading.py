@@ -77,3 +77,11 @@ def have_voice_overlap(a: SpecificChord, b: SpecificChord) -> bool:
         if upper or lower:
             return True
     return False
+
+
+@functools.cache
+def have_large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+    return any(
+        abs(an - bn) > interval
+        for an, bn in zip(a.notes_ascending, b.notes_ascending)
+    )
