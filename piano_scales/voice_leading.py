@@ -73,7 +73,7 @@ def have_voice_overlap(a: SpecificChord, b: SpecificChord) -> bool:
     n = len(b.notes_ascending)
     for i in range(n):
         upper = i < n - 1 and b.notes_ascending[i] > a.notes_ascending[i + 1]
-        lower = i < n - 1 and b.notes_ascending[i] > a.notes_ascending[i + 1]
+        lower = i > 0 and b.notes_ascending[i] < a.notes_ascending[i - 1]
         if upper or lower:
             return True
     return False

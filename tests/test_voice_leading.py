@@ -50,3 +50,9 @@ def test_have_hidden_parallel():
     assert voice_leading.have_hidden_parallel(g, i, 7)
     assert not voice_leading.have_hidden_parallel(c, b, 0)
     assert not voice_leading.have_hidden_parallel(c, d, 0)
+
+
+def test_have_voice_overlap():
+    a = SpecificChord(frozenset({SpecificNote('E', 3), SpecificNote('E', 5), SpecificNote('G', 5), SpecificNote('B', 5)}))
+    b = SpecificChord(frozenset({SpecificNote('A', 3), SpecificNote('C', 4), SpecificNote('E', 4), SpecificNote('A', 4)}))
+    assert voice_leading.have_voice_overlap(a, b)
