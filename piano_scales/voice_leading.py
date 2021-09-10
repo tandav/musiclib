@@ -51,6 +51,7 @@ def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) ->
             return True
 
 
+@functools.cache
 def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
@@ -64,4 +65,15 @@ def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> b
     is_same_direction = (a_low < b_low and a_high < b_high) or (a_low > b_low and a_high > b_high)
     if is_same_direction and (b_high - b_low) % 12 == interval:
         return True
+    return False
+
+
+@functools.cache
+def have_voice_overlap(a: SpecificChord, b: SpecificChord) -> bool:
+    n = len(b.notes_ascending)
+    for i in range(n):
+        upper = i < n - 1 and b.notes_ascending[i] > a.notes_ascending[i + 1]
+        lower = i < n - 1 and b.notes_ascending[i] > a.notes_ascending[i + 1]
+        if upper or lower:
+            return True
     return False
