@@ -56,7 +56,7 @@ class SpecificNote(Note):
         self.key = self.abstract, self.octave
 
     @classmethod
-    def from_absolute_i(cls, absolute_i):
+    def from_absolute_i(cls, absolute_i: int):
         div, mod = divmod(absolute_i, 12)
         return cls(Note(config.chromatic_notes[mod]), octave=div)
 
@@ -78,3 +78,7 @@ class SpecificNote(Note):
     def __add__(self, other: int):
         """C + 7 = G"""
         raise NotImplementedError
+
+
+def note_range(start: SpecificNote, stop: SpecificNote):
+    return tuple(SpecificNote.from_absolute_i(i) for i in range(start.absolute_i, stop.absolute_i + 1))
