@@ -1,5 +1,6 @@
 import functools
 import itertools
+import operator
 
 import pipe21 as P
 
@@ -163,5 +164,7 @@ def make_progressions(
         | P.Filter(lambda p: check_all_transitions_not(p, have_hidden_parallel, 7))
         | P.Filter(lambda p: check_all_transitions_not(p, have_voice_overlap))
         | P.Filter(lambda p: check_all_transitions_not(p, have_large_leaps, 5))
+        | P.KeyBy(progression_dist)
+        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
     )
