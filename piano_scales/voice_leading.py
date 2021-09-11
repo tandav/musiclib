@@ -8,6 +8,7 @@ from .chord import Chord
 from .chord import SpecificChord
 from .chord import name_to_intervals
 from .note import SpecificNote
+from .scale import Scale
 
 
 def all_triads(octaves=(4, 5, 6)):
@@ -84,4 +85,83 @@ def have_large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     return any(
         abs(an - bn) > interval
         for an, bn in zip(a.notes_ascending, b.notes_ascending)
+    )
+
+
+@functools.cache
+def iter_inversions(chord: Chord, octaves):
+    notes_iterators = []
+    for note in chord.notes:
+        notes_iterators.append([SpecificNote(note, octave) for octave in octaves])
+    return itertools.product(*notes_iterators) | P.Map(lambda notes: SpecificChord(frozenset(notes), root=chord.root)) | P.Pipe(tuple)
+
+
+def iter_inversions_chord_progression(progression, octaves):
+    inversions = []
+    for chord in progression:
+        inversions.append(iter_inversions(chord, octaves))
+    yield from itertools.product(*inversions)
+
+
+def progression_dist(p):
+    n = len(p)
+    return sum(abs(p[i] - p[(i + 1) % n]) for i in range(n))
+
+
+def progression_key(progression):
+    '''invariant to transposition'''
+    return tuple(chord.intervals for chord in progression)
+
+
+@functools.cache
+def check_all_transitions_not(p, f, *args):
+    n = len(p)
+    return all(not f(p[i], p[(i + 1) % n], *args) for i in range(n))
+
+
+def no_double_leading_tone(p, s: Scale):
+    '''leading tone here is 7th and 2nd not of a scale, maybe'''
+    return all
+
+
+@functools.cache
+def notes_are_chord(notes: tuple, scale_chords: frozenset[Chord]):
+    abstract = tuple(n.abstract for n in notes)
+    abstract_fz = frozenset(abstract)
+
+    for chord in scale_chords:
+        if abstract_fz == chord.notes:
+            root = chord.root
+            break
+    else:
+        return
+    chord = SpecificChord(frozenset(notes), root)
+    if chord.notes_ascending[0].abstract != root:
+        return
+    yield chord
+
+
+def unique_roots(progression):
+    return len(progression) == len(frozenset(chord.root for chord in progression))
+
+
+def make_progressions(
+    scale: Scale,
+    note_range: tuple[SpecificNote],
+):
+    return (
+        note_range
+        | P.Filter(lambda note: note.abstract in set(scale.notes))
+        | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
+        | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.chords if chord.name != 'diminished')))
+        | P.Pipe(lambda it: itertools.permutations(it, 4))
+        | P.Filter(lambda p: p[0].root.name == 'C')
+        | P.Filter(unique_roots)
+        | P.Filter(lambda p: check_all_transitions_not(p, have_parallel_interval, 0))
+        | P.Filter(lambda p: check_all_transitions_not(p, have_parallel_interval, 7))
+        | P.Filter(lambda p: check_all_transitions_not(p, have_hidden_parallel, 0))
+        | P.Filter(lambda p: check_all_transitions_not(p, have_hidden_parallel, 7))
+        | P.Filter(lambda p: check_all_transitions_not(p, have_voice_overlap))
+        | P.Filter(lambda p: check_all_transitions_not(p, have_large_leaps, 5))
+        | P.Pipe(tuple)
     )

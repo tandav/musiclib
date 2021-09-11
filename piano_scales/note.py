@@ -80,5 +80,5 @@ class SpecificNote(Note):
         raise NotImplementedError
 
 
-def note_range(start: SpecificNote, stop: SpecificNote):
+def note_range(start: SpecificNote, stop: SpecificNote) -> tuple[SpecificNote]:
     return tuple(SpecificNote.from_absolute_i(i) for i in range(start.absolute_i, stop.absolute_i + 1))
