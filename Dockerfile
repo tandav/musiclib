@@ -6,4 +6,4 @@ EXPOSE 8001
 
 COPY ./piano_scales /piano_scales
 WORKDIR piano_scales
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001", '--ssl-certfile', 'fullchain.pem', '--ssl-keyfile', 'privkey.pem']
