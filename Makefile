@@ -15,7 +15,9 @@ coverage_report:
 	python3 -m pytest -v --cov=piano_scales --cov-report=html tests
 	open htmlcov/index.html
 
-run_docker:
+clean_docker:
 	docker rmi piano_scales
+
+run_docker:
 	docker build -t piano_scales .
 	docker run --rm -p 8001:8001 piano_scales
