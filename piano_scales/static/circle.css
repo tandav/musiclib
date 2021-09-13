@@ -22,20 +22,20 @@
    ". . . _7 . . .";
   grid-template-columns:
     110px
-    200px
-    250px
-    200px
-    200px
-    200px
-    200px;
-  grid-template-rows:
-    140px
+    75px
     150px
-    140px
-    140px
-    140px
-    140px
-    140px;
+    150px
+    75px
+    110px
+    0px;
+  grid-template-rows:
+    135px
+    135px
+    135px
+    135px
+    135px
+    135px
+    135px;
   /*grid-auto-rows: 140px;*/
 align-content: center;
     justify-content: center;

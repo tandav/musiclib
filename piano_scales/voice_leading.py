@@ -155,7 +155,7 @@ def make_progressions(
         | P.Filter(lambda note: note.abstract in set(scale.notes))
         | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
         | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.chords if chord.name != 'diminished')))
-        | P.Pipe(lambda it: itertools.permutations(it, 4))
+        | P.Pipe(lambda it: itertools.permutations(it, 4))  # 4 bars
         | P.Filter(lambda p: p[0].root.name == 'C')
         | P.Filter(unique_roots)
         | P.Filter(lambda p: check_all_transitions_not(p, have_parallel_interval, 0))
