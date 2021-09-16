@@ -1,22 +1,36 @@
-name: Test
+name: build
 
 on: push
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - name: ls pwd
+
+      - name: pwd ls
         run: |
           pwd
           ls -Al
+
       - name: install dependencies
         run: python3 -m pip install isort flake8 pytest pytest-cov pytest-asyncio hypothesis pipe21
+
       - name: lint
         run: make lint
+
       - name: test
         run: make test
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2.7.0
+
