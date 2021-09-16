@@ -20,4 +20,4 @@ clean_docker:
 
 run_docker:
 	docker build -t piano_scales .
-	docker run -d --rm -p 8001:8001 piano_scales
+	docker run --name piano_scales -d --rm -p 8001:8001 piano_scales
