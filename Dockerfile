@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3-alpine
 
 RUN pip install fastapi uvicorn aiofiles Pillow tqdm
 
