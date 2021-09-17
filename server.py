@@ -6,12 +6,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import config
-from .chord import SpecificChord
-from .note import SpecificNote
-from .scale import ComparedScale
-from .scale import all_scales
-from .scale import majors
+from piano_scales import config
+from piano_scales.chord import SpecificChord
+from piano_scales.note import SpecificNote
+from piano_scales.scale import ComparedScale
+from piano_scales.scale import all_scales
+from piano_scales.scale import majors
 
 chromatic_notes_set = set(config.chromatic_notes)
 
@@ -46,7 +46,7 @@ async def play_note(note: str, octave: int):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(): return RedirectResponse('/diatonic/C/major')
+async def root(): return RedirectResponse('/circle')
 
 
 @app.get("/favicon.ico", response_class=HTMLResponse)

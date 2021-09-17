@@ -1,5 +1,5 @@
 run:
-	uvicorn piano_scales.server:app --host 0.0.0.0 --port 8001 --reload
+	uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn piano_scales.server:app --host 0.0.0.0 --port 8001 --reload
