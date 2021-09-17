@@ -1,9 +1,9 @@
-name: build
+name: test and publish
 
 on: push
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,6 +25,12 @@ jobs:
       - name: test
         run: make test
 
+  publish:
+    name: push to dockerhub
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
