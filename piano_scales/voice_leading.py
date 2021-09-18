@@ -1,6 +1,7 @@
 import functools
 import itertools
 import operator
+from typing import Iterable
 
 import pipe21 as P
 
@@ -125,7 +126,6 @@ def no_double_leading_tone(p, s: Scale):
     return all
 
 
-@functools.cache
 def notes_are_chord(notes: tuple, scale_chords: frozenset[Chord]):
     abstract = tuple(n.abstract for n in notes)
     abstract_fz = frozenset(abstract)
@@ -146,24 +146,65 @@ def unique_roots(progression):
     return len(progression) == len(frozenset(chord.root for chord in progression))
 
 
-def make_progressions(
-    scale: Scale,
-    note_range: tuple[SpecificNote],
-):
+def possible_chords(scale: Scale, note_range: tuple[SpecificNote]) -> tuple[SpecificChord]:
     return (
         note_range
         | P.Filter(lambda note: note.abstract in set(scale.notes))
         | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
         | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.chords if chord.name != 'diminished')))
-        | P.Pipe(lambda it: itertools.permutations(it, 4))  # 4 bars
-        | P.Filter(lambda p: p[0].root.name == 'C')
-        | P.Filter(unique_roots)
-        | P.Filter(lambda p: check_all_transitions_not(p, have_parallel_interval, 0))
-        | P.Filter(lambda p: check_all_transitions_not(p, have_parallel_interval, 7))
-        | P.Filter(lambda p: check_all_transitions_not(p, have_hidden_parallel, 0))
-        | P.Filter(lambda p: check_all_transitions_not(p, have_hidden_parallel, 7))
-        | P.Filter(lambda p: check_all_transitions_not(p, have_voice_overlap))
-        | P.Filter(lambda p: check_all_transitions_not(p, have_large_leaps, 5))
+        | P.Pipe(tuple)
+    )
+
+
+def c_not_c(chords: Iterable[SpecificChord]) -> tuple[list[SpecificChord], list[SpecificChord]]:
+    c_chords, not_c_chords = [], []
+    for c in chords:
+        if c.root.name == 'C':
+            c_chords.append(c)
+        else:
+            not_c_chords.append(c)
+    return c_chords, not_c_chords
+
+
+checks = (
+    lambda a, b: have_parallel_interval(a, b, 0),
+    lambda a, b: have_parallel_interval(a, b, 7),
+    lambda a, b: have_hidden_parallel(a, b, 0),
+    lambda a, b: have_hidden_parallel(a, b, 7),
+    lambda a, b: have_voice_overlap(a, b),
+    lambda a, b: have_large_leaps(a, b, 5),
+)
+
+
+@functools.cache
+def any_bad_check(a: SpecificChord, b: SpecificChord):
+    return any(check(a, b) for check in checks)
+
+
+def make_progressions(
+    scale: Scale,
+    note_range: tuple[SpecificNote],
+):
+
+    chords = possible_chords(scale, note_range)
+    c_chords, not_c_chords = c_not_c(chords)
+
+    # 4 chords: a, b, c, d hardcode, todo: refactor
+    progressions = []
+
+    for a in c_chords:
+        for b in not_c_chords:
+            if any_bad_check(a, b): continue
+            for c in set(not_c_chords) - {b}:
+                if any_bad_check(b, c): continue
+                for d in set(not_c_chords) - {b, c}:
+                    if (any_bad_check(c, d) or any_bad_check(d, a)): continue
+                    progression = a, b, c, d
+                    if not unique_roots(progression): continue
+                    progressions.append(progression)
+
+    return (
+        progressions
         | P.KeyBy(progression_dist)
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
