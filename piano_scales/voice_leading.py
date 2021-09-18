@@ -6,6 +6,7 @@ from typing import Iterable
 import pipe21 as P
 
 from . import config
+from . import util
 from .chord import Chord
 from .chord import SpecificChord
 from .chord import name_to_intervals
@@ -91,6 +92,11 @@ def have_large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
 
 
 @functools.cache
+def no_large_spacing(c: SpecificChord, max_interval=12):
+    return all(c.notes_ascending[i] - c.notes_ascending[i - 1] <= max_interval for i in range(1, len(c.notes_ascending)))
+
+
+@functools.cache
 def iter_inversions(chord: Chord, octaves):
     notes_iterators = []
     for note in chord.notes:
@@ -152,6 +158,7 @@ def possible_chords(scale: Scale, note_range: tuple[SpecificNote]) -> tuple[Spec
         | P.Filter(lambda note: note.abstract in set(scale.notes))
         | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
         | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.chords if chord.name != 'diminished')))
+        | P.Filter(no_large_spacing)
         | P.Pipe(tuple)
     )
 
@@ -181,6 +188,15 @@ def any_bad_check(a: SpecificChord, b: SpecificChord):
     return any(check(a, b) for check in checks)
 
 
+def transpose_uniqiue_key(progression):
+    origin = progression[0].notes_ascending[0]
+
+    return (
+        origin.abstract.i,
+        tuple(frozenset(note - origin for note in chord.notes) for chord in progression)
+    )
+
+
 def make_progressions(
     scale: Scale,
     note_range: tuple[SpecificNote],
@@ -205,6 +221,7 @@ def make_progressions(
 
     return (
         progressions
+        | P.Pipe(lambda it: util.unique(it, key=transpose_uniqiue_key))
         | P.KeyBy(progression_dist)
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
