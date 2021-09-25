@@ -15,7 +15,9 @@ from piano_scales.scale import majors
 
 chromatic_notes_set = set(config.chromatic_notes)
 
-static_folder = Path(__file__).parent / 'static'
+# static_folder = Path(__file__).parent / 'static'
+static_folder = Path('static')
+# print(static_folder.exists())
 
 app = FastAPI()
 app.mount("/static/", StaticFiles(directory=static_folder), name="static")
@@ -46,29 +48,30 @@ async def play_note(note: str, octave: int):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(): return RedirectResponse('/circle')
+async def root(): return RedirectResponse('/circle/diatonic/')
 
 
 @app.get("/favicon.ico", response_class=HTMLResponse)
 async def favicon(): return FileResponse(static_folder / 'favicon.ico')
 
 
-@app.get("/circle", response_class=HTMLResponse)
-async def circle():
+
+@app.get("/circle/diatonic/", response_class=HTMLResponse)
+async def circle_diatonic():
 
     html = ''
     for i, scale in enumerate(majors, start=1):
         html += scale.with_html_classes(('kinda_circle', f'_{i}'))
 
     return f'''\
-    <link rel="stylesheet" href="static/circle.css">
+    <link rel="stylesheet" href="/static/circle.css">
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/play.js"></script>
     <div class='container'>{html}</div>
     '''
 
 
-@app.get("/circle/{selected_major}", response_class=HTMLResponse)
+@app.get("/circle/diatonic/{selected_major}", response_class=HTMLResponse)
 async def circle_selected(selected_major: str):
     html = ''
     selected = all_scales['diatonic'][selected_major, 'major']
@@ -84,6 +87,10 @@ async def circle_selected(selected_major: str):
     <script src="/static/play.js"></script>
     <div class='container'>{html}</div>
     '''
+
+@app.get("/circle")
+async def circle(): return RedirectResponse('/circle/diatonic')
+
 
 
 # @app.get("/{kind}", response_class=HTMLResponse)
