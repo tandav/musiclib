@@ -10,7 +10,8 @@ neighsbors_min_shared = {'diatonic': 0, 'pentatonic': 0}
 
 diatonic = 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'
 pentatonic = 'p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'
-kinds = {k: 'diatonic' for k in diatonic} | {k: 'pentatonic' for k in pentatonic}
+sudu = 's_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'
+kinds = {k: 'diatonic' for k in diatonic} | {k: 'pentatonic' for k in pentatonic} | {k: 'sudu' for k in sudu}
 
 
 # if change: also change in static/main.css
@@ -22,12 +23,19 @@ scale_colors = dict(
     mixolydian='FFF47D',
     minor='D83A56',
     locrian='B980F0',
-    p_major='FFFFFF',
-    p_dorian='54E346',
-    p_phrygian='00FFCC',
-    p_mixolydian='FFF47D',
-    p_minor='D83A56',
 )
+scale_colors['p_major'] = scale_colors['major']
+scale_colors['p_dorian'] = scale_colors['dorian']
+scale_colors['p_phrygian'] = scale_colors['phrygian']
+scale_colors['p_mixolydian'] = scale_colors['mixolydian']
+scale_colors['p_minor'] = scale_colors['minor']
+
+scale_colors['s_major'] = scale_colors['major']
+scale_colors['s_dorian'] = scale_colors['dorian']
+scale_colors['s_phrygian'] = scale_colors['phrygian']
+scale_colors['s_lydian'] = scale_colors['lydian']
+scale_colors['s_mixolydian'] = scale_colors['mixolydian']
+scale_colors['s_minor'] = scale_colors['minor']
 
 WHITE_COLOR = (0xaa,) * 3
 BLACK_COLOR = (0x50,) * 3

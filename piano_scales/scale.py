@@ -25,6 +25,13 @@ bits_2_name = {
     '100101001010': 'p_phrygian',
     '101001010100': 'p_mixolydian',
     '100101010010': 'p_minor',
+
+    '101011010100': 's_major',
+    '101101010010': 's_dorian',
+    '110101001010': 's_phrygian',
+    '101010010101': 's_lydian',
+    '101001010110': 's_mixolydian',
+    '100101011010': 's_minor',
 }
 
 name_2_bits = {v: k for k, v in bits_2_name.items()}
