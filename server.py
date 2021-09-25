@@ -75,8 +75,14 @@ async def circle_diatonic(kind: str):
 
 @app.get("/circle/{kind}/{selected_major}", response_class=HTMLResponse)
 async def circle_selected(kind: str, selected_major: str):
+
+    # workaround, maybe refactor this later
+    m = 'major'
+    if kind == 'pentatonic': m = f'p_{m}'
+    if kind == 'sudu': m = f's_{m}'
+
     html = ''
-    selected = all_scales['diatonic'][selected_major, 'major']
+    selected = all_scales[kind][selected_major, m]
     for i, scale in enumerate(majors[kind], start=1):
         if scale == selected:
             html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))

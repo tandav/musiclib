@@ -146,7 +146,7 @@ class ComparedScale(Scale):
 diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
 pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
 sudu = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
-all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic}
+all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
 
 # circle of fifths clockwise
 majors = dict(
