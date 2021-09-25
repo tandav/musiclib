@@ -145,10 +145,15 @@ class ComparedScale(Scale):
 
 diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
 pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
+sudu = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
 all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic}
 
 # circle of fifths clockwise
-majors = tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF')
+majors = dict(
+    diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
+    pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
+    sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
+)
 
 
 @functools.cache

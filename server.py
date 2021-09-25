@@ -56,11 +56,13 @@ async def favicon(): return FileResponse(static_folder / 'favicon.ico')
 
 
 
-@app.get("/circle/diatonic/", response_class=HTMLResponse)
-async def circle_diatonic():
+@app.get("/circle/{kind}/", response_class=HTMLResponse)
+async def circle_diatonic(kind: str):
+
+
 
     html = ''
-    for i, scale in enumerate(majors, start=1):
+    for i, scale in enumerate(majors[kind], start=1):
         html += scale.with_html_classes(('kinda_circle', f'_{i}'))
 
     return f'''\
@@ -71,11 +73,11 @@ async def circle_diatonic():
     '''
 
 
-@app.get("/circle/diatonic/{selected_major}", response_class=HTMLResponse)
-async def circle_selected(selected_major: str):
+@app.get("/circle/{kind}/{selected_major}", response_class=HTMLResponse)
+async def circle_selected(kind: str, selected_major: str):
     html = ''
     selected = all_scales['diatonic'][selected_major, 'major']
-    for i, scale in enumerate(majors, start=1):
+    for i, scale in enumerate(majors[kind], start=1):
         if scale == selected:
             html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
         else:
