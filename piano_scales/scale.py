@@ -135,7 +135,7 @@ class ComparedScale(Scale):
                     chord.str_chord,
                 )
                 for chord in self.chords
-            },
+            } if self.kind == 'diatonic' else dict(),
         )._repr_svg_()
 
     def __eq__(self, other): return self.key == other.key
