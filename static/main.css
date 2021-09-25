@@ -1,3 +1,13 @@
+:root {
+    --major: #FFFFFF;
+    --dorian: #54E346;
+    --phrygian: #00FFCC;
+    --lydian: #68A6FC;
+    --mixolydian: #FFF47D;
+    --minor: #D83A56;
+    --locrian: #B980F0;
+}
+
 body {
     background: rgba(0,0,0, 0.04);
     font-family: Arial;
@@ -57,19 +67,25 @@ body {
     flex-wrap: wrap;
 }
 
-.major { background-color: #FFFFFF;}
-.dorian { background-color: #54E346; }
-.phrygian { background-color: #00FFCC; }
-.lydian { background-color: #68A6FC; }
-.mixolydian { background-color: #FFF47D; }
-.minor { background-color: #D83A56; }
-.locrian { background-color: #B980F0; }
-.p_major { background-color: #FFFFFF;}
-.p_dorian { background-color: #54E346; }
-.p_phrygian { background-color: #00FFCC; }
-.p_mixolydian { background-color: #FFF47D; }
-.p_minor { background-color: #D83A56; }
-.diminished { background-color: #B980F0; }
+.major { background-color: var(--major); }
+.dorian { background-color: var(--dorian); }
+.phrygian { background-color: var(--phrygian); }
+.lydian { background-color: var(--lydian); }
+.mixolydian { background-color: var(--mixolydian); }
+.minor { background-color: var(--minor); }
+.locrian { background-color: var(--locrian); }
+.p_major { background-color: var(--major); }
+.p_dorian { background-color: var(--dorian); }
+.p_phrygian { background-color: var(--phrygian); }
+.p_mixolydian { background-color: var(--mixolydian); }
+.p_minor { background-color: var(--minor); }
+.s_major { background: var(--major); }
+.s_dorian { background: var(--dorian); }
+.s_phrygian { background: var(--phrygian); }
+.s_lydian { background: var(--lydian); }
+.s_mixolydian { background: var(--mixolydian); }
+.s_minor { background: var(--minor); }
+.diminished { background-color: var(--locrian); }
 
 ol {
     list-style-type: none;
