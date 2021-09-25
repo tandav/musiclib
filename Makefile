@@ -2,7 +2,7 @@ run:
 	uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 run_with_midi:
-	MIDI_DEVICE='IAC Driver Bus 1' uvicorn piano_scales.server:app --host 0.0.0.0 --port 8001 --reload
+	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 lint:
 	python3 -m isort --force-single-line-imports piano_scales tests

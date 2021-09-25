@@ -56,39 +56,34 @@ async def favicon(): return FileResponse(static_folder / 'favicon.ico')
 @app.get("/circle", response_class=HTMLResponse)
 async def circle():
 
-    html = '''\
+    html = ''
+    for i, scale in enumerate(majors, start=1):
+        html += scale.with_html_classes(('kinda_circle', f'_{i}'))
+
+    return f'''\
     <link rel="stylesheet" href="static/circle.css">
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/play.js"></script>
+    <div class='container'>{html}</div>
     '''
-
-    tmp = ''
-
-    for i, scale in enumerate(majors, start=1):
-        # html += f"<div class='circle _{i}'>{i}</div>"
-        # html += scale.with_html_classes(('kinda_circle', f'_{i}'))
-        tmp += scale.with_html_classes(('kinda_circle', f'_{i}'))
-
-    return html + f"<div class='container'>{tmp}</div>"
 
 
 @app.get("/circle/{selected_major}", response_class=HTMLResponse)
 async def circle_selected(selected_major: str):
-
-    html = '''\
-    <link rel="stylesheet" href="/static/circle.css">
-    <link rel="stylesheet" href="/static/main.css">
-    <script src="/static/play.js"></script>
-    '''
-
+    html = ''
     selected = all_scales['diatonic'][selected_major, 'major']
-
     for i, scale in enumerate(majors, start=1):
         if scale == selected:
             html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
         else:
             html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}'))
-    return html
+
+    return f'''\
+    <link rel="stylesheet" href="/static/circle.css">
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/play.js"></script>
+    <div class='container'>{html}</div>
+    '''
 
 
 # @app.get("/{kind}", response_class=HTMLResponse)
