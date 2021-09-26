@@ -42,3 +42,11 @@ jobs:
         with:
           push: true
           tags: tandav/piano_scales:latest
+
+  deploy:
+    name: deploy to server
+    runs-on: ubuntu-latest
+    needs: publish
+
+    steps:
+      - run: curl -X POST -H "token ${{ secrets.RESTART_HOOK_TOKEN }}" ${{ secrets.RESTART_HOOK_URL }}
