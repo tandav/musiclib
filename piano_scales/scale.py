@@ -37,6 +37,7 @@ bits_2_name = {
 name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 
+@functools.cache
 class Scale:
     def __init__(self, root: Union[str, Note], name: str):
         if isinstance(root, str):
@@ -105,27 +106,48 @@ class Scale:
     def __repr__(self): return f'Scale({self.root} {self.name})'
 
 
-class ComparedScale(Scale):
+class ComparedScales:
     '''
     this is compared scale
     local terminology: left sclae is compared to right
     left is kinda parent, right is kinda child
     '''
     def __init__(self, left: Scale, right: Scale):
-        super().__init__(right.root, right.name)
-        self.shared_notes = frozenset(left.notes) & frozenset(self.notes)
-        self.new_notes = frozenset(self.notes) - frozenset(left.notes)
-        self.del_notes = frozenset(left.notes) - frozenset(self.notes)
-        if self.kind == 'diatonic':
-            self.shared_chords = frozenset(left.chords) & frozenset(self.chords)
         self.left = left
-        self.right = right  # clean
+        self.right = right
         self.key = left, right
+        self.shared_notes = frozenset(left.notes) & frozenset(right.notes)
+        self.new_notes = frozenset(right.notes) - frozenset(left.notes)
+        self.del_notes = frozenset(left.notes) - frozenset(right.notes)
+        if right.kind == 'diatonic':
+            self.shared_chords = frozenset(left.chords) & frozenset(right.chords)
+        self.html_classes = ('card',)
+
+    def with_html_classes(self, classes: tuple):
+        prev = self.html_classes
+        self.html_classes = prev + classes
+        r = self._repr_html_()
+        self.html_classes = prev
+        return r
+
+    # def __format__(self, format_spec): raise No
+
+    # @functools.cached_property
+    def _repr_html_(self):
+        # <code>bits: {self.bits}</code><br>
+        # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
+        chords_hover = ''
+        return f'''
+        <div class='{' '.join(self.html_classes)}' {chords_hover}>
+        <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}</h3></span></a>
+        {self.to_piano_image()}
+        </div>
+        '''
 
     def to_piano_image(self, as_base64=False):
 
         return Piano(
-            scale=self,
+            scale=self.right,
             red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
             notes_squares={
                 chord.root: (
@@ -134,8 +156,8 @@ class ComparedScale(Scale):
                     config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                     chord.str_chord,
                 )
-                for chord in self.chords
-            } if self.kind == 'diatonic' else dict(),
+                for chord in self.right.chords
+            } if self.right.kind == 'diatonic' else dict(),
         )._repr_svg_()
 
     def __eq__(self, other): return self.key == other.key
@@ -162,7 +184,7 @@ def neighbors(left: Scale):
     for right in all_scales[left.kind].values():
         # if left == right:
         #     continue
-        right = ComparedScale(left, right)
+        right = ComparedScales(left, right)
         neighs[len(right.shared_notes)].append(right)
     return neighs
 

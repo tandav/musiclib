@@ -1,6 +1,6 @@
 import pytest
 
-from piano_scales.scale import ComparedScale
+from piano_scales.scale import ComparedScales
 from piano_scales.scale import Scale
 
 
@@ -14,4 +14,4 @@ def test_svg_scale(scale):
 
 
 def test_svg_compared_scale(scale):
-    ComparedScale(scale, Scale('f', 'phrygian')).to_piano_image()
+    ComparedScales(scale, Scale('f', 'phrygian')).to_piano_image()

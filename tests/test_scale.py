@@ -1,6 +1,7 @@
 import pytest
 
 from piano_scales.note import Note
+from piano_scales.scale import ComparedScales
 from piano_scales.scale import Scale
 
 
@@ -15,9 +16,26 @@ def test_equal():
     assert Scale(Note('C'), 'major') != Scale(Note('E'), 'major')
 
 
+def test_cache():
+    assert Scale('C', 'major') is Scale('C', 'major')
+    assert Scale('C', 'major') is not Scale('D', 'major')
+    assert Scale('C', 'major') is Scale(Note('C'), 'major')
+
+
 @pytest.mark.parametrize(
     ('scale_name', 'expected_notes'),
     (('major', 'CDEFGAB'), ('phrygian', 'CdeFGab')),
 )
 def test_notes(scale_name, expected_notes):
     assert ''.join(note.name for note in Scale('C', scale_name).notes) == expected_notes
+
+
+def test_compared():
+    left = Scale('C', 'major')
+    right = Scale('A', 'minor')
+    assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
+
+    right = Scale('C', 'mixolydian')
+    c = ComparedScales(left, right)
+    assert c.new_notes == frozenset({Note('b')})
+    assert c.del_notes == frozenset({Note('B')})

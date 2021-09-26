@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from piano_scales import config
 from piano_scales.chord import SpecificChord
 from piano_scales.note import SpecificNote
-from piano_scales.scale import ComparedScale
+from piano_scales.scale import ComparedScales
 from piano_scales.scale import all_scales
 from piano_scales.scale import majors
 
@@ -85,9 +85,9 @@ async def circle_selected(kind: str, selected_major: str):
     selected = all_scales[kind][selected_major, m]
     for i, scale in enumerate(majors[kind], start=1):
         if scale == selected:
-            html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
+            html += ComparedScales(selected, scale).with_html_classes(('kinda_circle', f'_{i}', 'selected_scale'))
         else:
-            html += ComparedScale(selected, scale).with_html_classes(('kinda_circle', f'_{i}'))
+            html += ComparedScales(selected, scale).with_html_classes(('kinda_circle', f'_{i}'))
 
     return f'''\
     <link rel="stylesheet" href="/static/circle.css">
