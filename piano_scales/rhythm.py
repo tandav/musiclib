@@ -1,4 +1,7 @@
+import itertools
 import random
+import statistics
+from collections import deque
 from typing import Optional
 
 beats_per_minute = 120  #
@@ -17,3 +20,16 @@ def random_rhythm(n_notes: Optional[int] = None):
     r = [1] * n_notes + [0] * (bar_notes - n_notes)
     random.shuffle(r)
     return r
+
+
+def score(x):
+    """spacings variance"""
+    # rotate until first element == 1, TODO: optimize rotation
+    x = deque(x)
+    while x[0] != 1:
+        x.rotate(-1)
+
+    spacings = [len(list(g)) for k, g in itertools.groupby(x, key=bool) if not k]
+    if len(spacings) == 1:  # TODO: try normalize into 0..1
+        return float('inf')
+    return statistics.variance(spacings)
