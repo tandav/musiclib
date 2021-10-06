@@ -11,7 +11,7 @@ note_seconds = bar_seconds / bar_notes
 
 def random_rhythm(n_notes: Optional[int] = None):
     if not (0 < n_notes <= bar_notes):
-        raise ValueError('')
+        raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
     if n_notes is None:
         n_notes = random.randint(1, bar_notes)
     r = [1] * n_notes + [0] * (bar_notes - n_notes)
