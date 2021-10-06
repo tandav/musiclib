@@ -1,10 +1,10 @@
 import random
 from typing import Optional
 
-bpm = 120  # beats per minute
-bps = bpm / 60  # beats per second
-bpb = 4  # beats per bar
-bar_seconds = bpb / bps
+beats_per_minute = 120  #
+beats_per_second = beats_per_minute / 60
+beats_per_bar = 4  #
+bar_seconds = beats_per_bar / beats_per_second
 bar_notes = 16  # kinda grid size
 note_seconds = bar_seconds / bar_notes
 
