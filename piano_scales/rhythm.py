@@ -19,7 +19,7 @@ def random_rhythm(n_notes: Optional[int] = None):
         n_notes = random.randint(1, bar_notes)
     r = [1] * n_notes + [0] * (bar_notes - n_notes)
     random.shuffle(r)
-    return r
+    return tuple(r)
 
 
 def has_contiguous_ones(x):
