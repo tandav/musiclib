@@ -20,3 +20,9 @@ def test_rhythm_score():
     c = 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0
     assert rhythm.score(a) < rhythm.score(b)
     assert rhythm.score(c) == rhythm.score(b)
+
+
+def test_has_contiguous_ones():
+    assert rhythm.has_contiguous_ones((1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0))
+    assert rhythm.has_contiguous_ones((1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1))
+    assert not rhythm.has_contiguous_ones((1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0))

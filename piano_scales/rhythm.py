@@ -22,6 +22,13 @@ def random_rhythm(n_notes: Optional[int] = None):
     return r
 
 
+def has_contiguous_ones(x):
+    return (
+        x[0] == 1 and x[-1] == 1
+        or any(len(list(g)) > 1 for k, g in itertools.groupby(x, key=bool) if k)
+    )
+
+
 def score(x):
     """spacings variance"""
     # rotate until first element == 1, TODO: optimize rotation
