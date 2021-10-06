@@ -2,11 +2,32 @@ import os
 
 if (midi_device := os.environ.get('MIDI_DEVICE')):
     import mido
+    from mido import Message
+    from mido import MidiFile
+    from mido import MidiTrack
+
     port = mido.open_output(midi_device)
 
     def send_message(*args, **kwargs):
         note = kwargs.pop('note') + 24  # to match ableton octaves
         port.send(mido.Message(*args, note=note, **kwargs))
+
+    def rhythm_to_midi(rhythm, note_code=48, bpb=4, bar_notes=16):
+        mid = MidiFile(type=0)
+        ticks_per_note = mid.ticks_per_beat * bpb // bar_notes
+        track = MidiTrack()
+
+        t = 0
+        for is_play in rhythm:
+            if is_play:
+                track.append(Message('note_on', note=note_code, velocity=100, time=t))
+                track.append(Message('note_off', note=note_code, velocity=100, time=ticks_per_note))
+                t = 0
+            else:
+                t += ticks_per_note
+        mid.tracks.append(track)
+        return mid
+
 else:
     def send_message(*args, **kwargs):
         print(*args, ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))
