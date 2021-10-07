@@ -2,7 +2,6 @@ import itertools
 import random
 import statistics
 from collections import deque
-from typing import Optional
 
 beats_per_minute = 120  #
 beats_per_second = beats_per_minute / 60
@@ -12,7 +11,7 @@ bar_notes = 16  # kinda grid size
 note_seconds = bar_seconds / bar_notes
 
 
-def random_rhythm(n_notes: Optional[int] = None):
+def random_rhythm(n_notes: int | None = None):
     if not (0 < n_notes <= bar_notes):
         raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
     if n_notes is None:

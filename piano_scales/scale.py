@@ -2,7 +2,6 @@ import functools
 import itertools
 from collections import defaultdict
 from collections import deque
-from typing import Union
 
 from . import chromatic
 from . import config
@@ -39,7 +38,7 @@ name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 @functools.cache
 class Scale:
-    def __init__(self, root: Union[str, Note], name: str):
+    def __init__(self, root: str | Note, name: str):
         if isinstance(root, str):
             root = Note(root)
         self.root = root

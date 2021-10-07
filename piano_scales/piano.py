@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import itertools
 import typing
-from typing import Optional
-from typing import Union
 
 from . import config
 from .note import Note
@@ -18,7 +16,7 @@ class Piano:
     def __init__(
         self,
         size: tuple[int, int] = config.piano_img_size,
-        scale: Optional[Union[Scale, ComparedScales]] = None,
+        scale: Scale | ComparedScales | None = None,
         red_notes: frozenset[Note] = frozenset(),
         green_notes: frozenset[Note] = frozenset(),
         blue_notes: frozenset[Note] = frozenset(),

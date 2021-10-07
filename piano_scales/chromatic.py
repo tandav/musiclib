@@ -1,7 +1,5 @@
 import itertools
 from collections.abc import Sequence
-from typing import Optional
-from typing import Union
 
 from . import config
 from .note import Note
@@ -9,8 +7,8 @@ from .note import SpecificNote
 
 
 def iterate(
-    start_note: Union[str, Note, SpecificNote] = config.chromatic_notes[0],
-    take_n: Optional[int] = None,
+    start_note: str | Note | SpecificNote = config.chromatic_notes[0],
+    take_n: int | None = None,
 ):
     names = itertools.cycle(config.chromatic_notes)
 
@@ -33,11 +31,11 @@ def iterate(
     yield from notes
 
 
-def nth(start_note: Union[str, Note, SpecificNote], n: int):
+def nth(start_note: str | Note | SpecificNote, n: int):
     return next(itertools.islice(iterate(start_note), n, None))
 
 
-def sort_notes(it: Sequence[Union[str, Note]]):
+def sort_notes(it: Sequence[str | Note]):
     """
     todo: sort Sequence[SpecificNote]
     """
