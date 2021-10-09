@@ -39,3 +39,8 @@ def test_prefix(options):
     prefix = options[:2]
     for cycle in iter_cycles(4, options, prefix=prefix):
         assert all(a == b for a, b in zip(prefix, cycle))
+
+
+def test_unique(options):
+    assert all(len(cycle) == len(set(cycle)) for cycle in iter_cycles(4, options, unique=True))
+    assert any(len(cycle) != len(set(cycle)) for cycle in iter_cycles(4, options, unique=False))
