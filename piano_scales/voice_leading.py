@@ -203,15 +203,14 @@ def make_progressions(
     note_range: tuple[SpecificNote],
     n=4,
 ):
-    progressions = util.iter_cycles(
-        n,
-        options=possible_chords(scale, note_range),
-        curr_prev_constraint=no_bad_checks,
-        first_constraint=lambda chord: chord.root.name == 'C',
-        unique_key=lambda chord: chord.root,
-    ) | P.Pipe(tuple)
     return (
-        progressions
+        util.iter_cycles(
+            n,
+            options=possible_chords(scale, note_range),
+            curr_prev_constraint=no_bad_checks,
+            first_constraint=lambda chord: chord.root.name == 'C',
+            unique_key=lambda chord: chord.root,
+        )
         | P.Pipe(lambda it: util.unique(it, key=transpose_uniqiue_key))
         | P.KeyBy(progression_dist)
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
