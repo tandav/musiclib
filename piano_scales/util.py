@@ -1,4 +1,7 @@
 import itertools
+from collections.abc import Callable
+from collections.abc import Iterable
+from collections.abc import Sequence
 
 from . import config
 
@@ -63,3 +66,29 @@ def unique(iterable, key=lambda x: x):
             continue
         seen.add(ki)
         yield item
+
+
+def iter_cycles(
+    n: int,
+    options: Iterable,
+    curr_prev_constraint: Callable | None = None,
+    first_constraint: Callable | None = None,
+    prefix: Sequence | None = None,
+    unique=False,
+) -> Sequence:
+    cycle = list(prefix) if prefix else list()
+    if len(cycle) == 0:
+        first_options = filter(first_constraint, options) if first_constraint else options
+        for op in first_options:
+            yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, prefix=[op])
+    else:
+        if unique:
+            options = frozenset(options) - frozenset(prefix)
+        for op in options:
+            if curr_prev_constraint is not None and not curr_prev_constraint(cycle[-1], op):
+                continue
+            candidate = cycle + [op]
+            if len(candidate) == n:
+                yield candidate
+            else:
+                yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, prefix=candidate)
