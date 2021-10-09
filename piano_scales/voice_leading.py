@@ -53,6 +53,7 @@ def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) ->
     for (a0, b0), (a1, b1) in itertools.combinations(voice_transitions, 2):
         if abs(a0 - a1) % 12 == interval == abs(b0 - b1) % 12:
             return True
+    return False
 
 
 @functools.cache
