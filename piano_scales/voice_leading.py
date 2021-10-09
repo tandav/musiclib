@@ -185,8 +185,8 @@ checks = (
 
 
 @functools.cache
-def any_bad_check(a: SpecificChord, b: SpecificChord):
-    return any(check(a, b) for check in checks)
+def no_bad_checks(a: SpecificChord, b: SpecificChord):
+    return all(not check(a, b) for check in checks)
 
 
 def transpose_uniqiue_key(progression):
@@ -201,25 +201,15 @@ def transpose_uniqiue_key(progression):
 def make_progressions(
     scale: Scale,
     note_range: tuple[SpecificNote],
+    n=4,
 ):
-
-    chords = possible_chords(scale, note_range)
-    c_chords, not_c_chords = c_not_c(chords)
-
-    # 4 chords: a, b, c, d hardcode, todo: refactor
-    progressions = []
-
-    for a in c_chords:
-        for b in not_c_chords:
-            if any_bad_check(a, b): continue
-            for c in set(not_c_chords) - {b}:
-                if any_bad_check(b, c): continue
-                for d in set(not_c_chords) - {b, c}:
-                    if (any_bad_check(c, d) or any_bad_check(d, a)): continue
-                    progression = a, b, c, d
-                    if not unique_roots(progression): continue
-                    progressions.append(progression)
-
+    progressions = util.iter_cycles(
+        n,
+        options=possible_chords(scale, note_range),
+        curr_prev_constraint=no_bad_checks,
+        first_constraint=lambda chord: chord.root.name == 'C',
+        unique_key=lambda chord: chord.root,
+    ) | P.Pipe(tuple)
     return (
         progressions
         | P.Pipe(lambda it: util.unique(it, key=transpose_uniqiue_key))
