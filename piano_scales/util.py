@@ -73,22 +73,26 @@ def iter_cycles(
     options: Iterable,
     curr_prev_constraint: Callable | None = None,
     first_constraint: Callable | None = None,
-    unique=False,
+    unique_key=None,
     prefix: Sequence | None = None,
 ) -> Sequence:
     cycle = list(prefix) if prefix else list()
     if len(cycle) == 0:
         first_options = filter(first_constraint, options) if first_constraint else options
         for op in first_options:
-            yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, unique, prefix=[op])
+            yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, unique_key, prefix=[op])
     else:
-        if unique:
-            options = frozenset(options) - frozenset(prefix)
+        if unique_key:
+            # options = frozenset(options) - frozenset(prefix)
+            prefix_keys = frozenset(unique_key(op) for op in prefix)
+            options = frozenset(op for op in options if unique_key(op) not in prefix_keys)
         for op in options:
             if curr_prev_constraint is not None and not curr_prev_constraint(cycle[-1], op):
                 continue
             candidate = cycle + [op]
             if len(candidate) == n:
-                yield candidate
+                if curr_prev_constraint is not None and not curr_prev_constraint(candidate[-1], candidate[0]):
+                    continue
+                yield tuple(candidate)
             else:
-                yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, unique, prefix=candidate)
+                yield from iter_cycles(n, options, curr_prev_constraint, first_constraint, unique_key, prefix=candidate)
