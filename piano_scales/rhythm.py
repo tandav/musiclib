@@ -1,7 +1,12 @@
 import itertools
+import operator
 import random
 import statistics
 from collections import deque
+
+import pipe21 as P
+
+from . import util
 
 beats_per_minute = 120  #
 beats_per_second = beats_per_minute / 60
@@ -28,6 +33,10 @@ def has_contiguous_ones(x):
     )
 
 
+def no_contiguous_ones(prev, curr):
+    return not (prev == curr == 1)
+
+
 def score(x):
     """spacings variance"""
     # rotate until first element == 1, TODO: optimize rotation
@@ -39,3 +48,21 @@ def score(x):
     if len(spacings) == 1:  # TODO: try normalize into 0..1
         return float('inf')
     return statistics.variance(spacings)
+
+
+def make_rhythms(n_notes: int | None = None):
+    rhythms = util.iter_cycles(
+        n=bar_notes,
+        options=(0, 1),
+        curr_prev_constraint=no_contiguous_ones,
+    )
+
+    if n_notes is not None:
+        rhythms = rhythms | P.Filter(lambda r: sum(r) == n_notes)
+
+    return (
+        rhythms
+        | P.KeyBy(score)
+        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
+        | P.Pipe(tuple)
+    )
