@@ -1,5 +1,4 @@
 import itertools
-import operator
 import random
 import statistics
 from collections import deque
@@ -63,6 +62,6 @@ def make_rhythms(n_notes: int | None = None):
     return (
         rhythms
         | P.KeyBy(score)
-        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
+        | P.Pipe(sorted)
         | P.Pipe(tuple)
     )
