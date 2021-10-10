@@ -12,7 +12,7 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
         note = kwargs.pop('note') + 24  # to match ableton octaves
         port.send(mido.Message(*args, note=note, **kwargs))
 
-    def rhythm_to_midi(rhythm, note_code=48, bpb=4, bar_notes=16):
+    def rhythm_to_midi(rhythm, bpb=4, bar_notes=16, chord=None):
         mid = MidiFile(type=0)
         ticks_per_note = mid.ticks_per_beat * bpb // bar_notes
         track = MidiTrack()
@@ -20,8 +20,11 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
         t = 0
         for is_play in rhythm:
             if is_play:
-                track.append(Message('note_on', note=note_code, velocity=100, time=t))
-                track.append(Message('note_off', note=note_code, velocity=100, time=ticks_per_note))
+                notes = [48] if chord is None else [note.absolute_i for note in chord.notes]
+                for i, note in enumerate(notes):
+                    track.append(Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
+                for i, note in enumerate(notes):
+                    track.append(Message('note_off', note=note, velocity=100, time=ticks_per_note if i == 0 else 0))
                 t = 0
             else:
                 t += ticks_per_note
