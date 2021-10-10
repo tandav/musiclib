@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from piano_scales.util import iter_cycles
+from musictools.util import iter_cycles
 
 
 @pytest.fixture

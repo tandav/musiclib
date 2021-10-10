@@ -4,9 +4,9 @@ RUN pip install fastapi uvicorn aiofiles tqdm
 
 EXPOSE 8001
 
-RUN mkdir -p /app/piano_scales
+RUN mkdir -p /app/musictools
 RUN mkdir -p /app/static
-COPY piano_scales /app/piano_scales
+COPY musictools /app/musictools
 COPY static /app/static
 COPY server.py /app/
 WORKDIR /app

@@ -2,7 +2,7 @@ from collections import deque
 
 import pytest
 
-from piano_scales import rhythm
+from musictools import rhythm
 
 
 @pytest.fixture

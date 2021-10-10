@@ -1,9 +1,9 @@
 import pytest
 
-from piano_scales.chord import Chord
-from piano_scales.chord import SpecificChord
-from piano_scales.note import Note
-from piano_scales.note import SpecificNote
+from musictools.chord import Chord
+from musictools.chord import SpecificChord
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 
 def test_creation_from_notes():

@@ -1,6 +1,6 @@
-from piano_scales import chromatic
-from piano_scales.note import Note
-from piano_scales.note import SpecificNote
+from musictools import chromatic
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 
 def test_abstract_take():

@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: tandav/piano_scales:latest
+          tags: tandav/musictools:latest
 
   deploy:
     name: deploy to server

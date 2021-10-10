@@ -1,8 +1,8 @@
 import pytest
 
-from piano_scales import voice_leading
-from piano_scales.chord import SpecificChord
-from piano_scales.note import SpecificNote
+from musictools import voice_leading
+from musictools.chord import SpecificChord
+from musictools.note import SpecificNote
 
 
 @pytest.mark.xfail(reason='deprecated')

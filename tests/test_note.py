@@ -2,7 +2,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from piano_scales.note import SpecificNote
+from musictools.note import SpecificNote
 
 
 @given(st.integers())

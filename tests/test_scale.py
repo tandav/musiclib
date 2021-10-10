@@ -1,8 +1,8 @@
 import pytest
 
-from piano_scales.note import Note
-from piano_scales.scale import ComparedScales
-from piano_scales.scale import Scale
+from musictools.note import Note
+from musictools.scale import ComparedScales
+from musictools.scale import Scale
 
 
 def test_kind():
