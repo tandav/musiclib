@@ -150,7 +150,7 @@ class ComparedScales:
             red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
             notes_squares={
                 chord.root: (
-                    config.chord_colors[chord.name],
+                    util.hex_to_rgb(config.chord_colors[chord.name]),
                     config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                     config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                     chord.str_chord,

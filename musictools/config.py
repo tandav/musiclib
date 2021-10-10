@@ -1,6 +1,3 @@
-
-from . import util
-
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 
@@ -44,9 +41,9 @@ GREEN_COLOR = 0, 0xff, 0
 BLUE_COLOR = 0, 0, 0xff
 
 chord_colors = {
-    'minor': util.hex_to_rgb(scale_colors['minor']),
-    'major': util.hex_to_rgb(scale_colors['major']),
-    'diminished': util.hex_to_rgb(scale_colors['locrian']),
+    'minor': scale_colors['minor'],
+    'major': scale_colors['major'],
+    'diminished': scale_colors['locrian'],
 }
 
 default_octave = 5
