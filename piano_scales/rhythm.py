@@ -38,10 +38,10 @@ def no_contiguous_ones(prev, curr):
 
 def score(x):
     """spacings variance"""
-    # rotate until first element == 1, TODO: optimize rotation
-    x = deque(x)
-    while x[0] != 1:
-        x.rotate(-1)
+    # rotate until first element == 1
+    if x[0] != 1:
+        x = deque(x)
+        x.rotate(-x.index(1))
 
     spacings = [len(list(g)) for k, g in itertools.groupby(x, key=bool) if not k]
     if len(spacings) == 1:  # TODO: try normalize into 0..1
@@ -61,7 +61,7 @@ def make_rhythms(n_notes: int | None = None):
 
     return (
         rhythms
-        | P.KeyBy(score)
-        | P.Pipe(sorted)
+        # | P.KeyBy(score)
+        # | P.Pipe(sorted)
         | P.Pipe(tuple)
     )
