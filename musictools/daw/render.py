@@ -4,20 +4,15 @@ from .. import config
 
 
 def single(stream, notes, song_samples):
-    div, mod = divmod(song_samples, config.chunk_size)
-    song_samples += config.chunk_size - mod
+    song_samples += config.chunk_size - song_samples % config.chunk_size
     master = np.zeros(song_samples, dtype='float32')
     for note in notes:
         master[note.sample_on: note.sample_off] += note.render()
-    b = master.tobytes()
-    print(len(b))
-    stream.write(b)
+    stream.write(master.tobytes())
 
 
 def chunked(stream, notes, song_samples):
     n = 0
-    t = 0.
-    bytes_written = 0
     playing_notes = set()
     master = np.zeros(config.chunk_size, dtype='float32')
 
@@ -34,9 +29,5 @@ def chunked(stream, notes, song_samples):
             if note.sample_off < n + config.chunk_size:
                 stopped_notes.add(note)
         playing_notes -= stopped_notes
-        t += config.chunk_seconds
         n += config.chunk_size
-        b = master.tobytes()
         stream.write(master.tobytes())
-        bytes_written += len(b)
-    print(bytes_written)
