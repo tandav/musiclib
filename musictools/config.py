@@ -51,3 +51,10 @@ default_octave = 5
 # piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
 beats_per_minute = 120
+
+
+# daw
+sample_rate = 44100  # samples per second
+midi_file = 'midi/overlap.mid'
+chunk_size = 1024
+chunk_seconds = chunk_size / sample_rate

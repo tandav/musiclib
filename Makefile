@@ -21,3 +21,6 @@ clean_docker:
 run_docker:
 	docker build -t musictools .
 	docker run --name musictools -d --rm -p 8001:8001 musictools
+
+daw:
+	python3.9 -m musictools.daw
