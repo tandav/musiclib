@@ -1,0 +1,13 @@
+pytest
+hypothesis
+numpy
+mido
+scipy
+pipe21
+isort
+hypothesis
+flake8
+pytest
+pytest-cov
+pytest-asyncio
+pipe21

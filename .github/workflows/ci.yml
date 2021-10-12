@@ -20,7 +20,7 @@ jobs:
           ls -Al
 
       - name: install dependencies
-        run: python3 -m pip install isort flake8 pytest pytest-cov pytest-asyncio hypothesis pipe21
+        run: python3 -m pip install -r requirements.txt
 
       - name: lint
         run: make lint
