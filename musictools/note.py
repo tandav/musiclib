@@ -3,8 +3,6 @@ import functools
 from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
-import numpy as np
-
 from . import config
 from .midi import player
 
@@ -90,36 +88,3 @@ class SpecificNote(Note):
 
 def note_range(start: SpecificNote, stop: SpecificNote) -> tuple[SpecificNote]:
     return tuple(SpecificNote.from_absolute_i(i) for i in range(start.absolute_i, stop.absolute_i + 1))
-
-
-class PlayedNote:
-    def __init__(
-        self,
-        absolute_i: int,
-        sample_on: int,
-        second_on: float,
-        sample_off: int,
-        second_off: float,
-        vst=None,
-    ):
-        self.note = SpecificNote.from_absolute_i(absolute_i)
-        self.sample_on = sample_on
-        self.second_on = second_on
-        self.sample_off = sample_off
-        self.second_off = second_off
-        self.samples_rendered = 0
-        self.vst = vst
-
-    def render(self, n_samples=None):
-        if n_samples is None:
-            n_samples = self.sample_off - self.sample_on  # render all samples
-        f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
-        t0 = self.samples_rendered / config.sample_rate
-        t1 = t0 + n_samples / config.sample_rate
-        self.samples_rendered += n_samples
-        wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.3)
-        # wave = sine(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.3)
-        return wave
-
-    def __hash__(self):
-        return hash((self.note, self.sample_on, self.sample_off))
