@@ -55,6 +55,6 @@ beats_per_minute = 120
 
 # daw
 sample_rate = 44100  # samples per second
-midi_file = 'midi/overlap.mid'
+midi_file = 'static/midi/overlap.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate

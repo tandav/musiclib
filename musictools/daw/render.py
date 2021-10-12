@@ -1,35 +1,23 @@
 import numpy as np
+
 from .. import config
 
 
 def single(stream, notes, song_samples):
-    notes, song_samples = parse_midi()
-
-    print(notes)
-    print(song_samples)
-
+    div, mod = divmod(song_samples, config.chunk_size)
+    song_samples += config.chunk_size - mod
     master = np.zeros(song_samples, dtype='float32')
-    for note, events in notes.items():
-        for (note_on_sample, note_off_sample), (note_on_seconds, note_off_seconds) in events:
-            t = np.linspace(note_on_seconds, note_off_seconds, note_off_sample - note_on_sample, endpoint=False)
-            master[note_on_sample: note_off_sample] += sine(t, a=0.3, f=(440 / 32) * (2 ** ((note - 9) / 12)))
-            print(note, note_on_sample, note_off_sample, note_on_seconds, note_off_seconds)
-    print(master)
-    assert np.all(np.abs(master) < 1)
-    print(master.max())
-    stream.write(master.tobytes())
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+    for note in notes:
+        master[note.sample_on: note.sample_off] += note.render()
+    b = master.tobytes()
+    print(len(b))
+    stream.write(b)
 
 
 def chunked(stream, notes, song_samples):
-    print(notes)
-    print(song_samples)
-
     n = 0
     t = 0.
-
+    bytes_written = 0
     playing_notes = set()
     master = np.zeros(config.chunk_size, dtype='float32')
 
@@ -48,4 +36,7 @@ def chunked(stream, notes, song_samples):
         playing_notes -= stopped_notes
         t += config.chunk_seconds
         n += config.chunk_size
+        b = master.tobytes()
         stream.write(master.tobytes())
+        bytes_written += len(b)
+    print(bytes_written)
