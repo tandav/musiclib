@@ -2,6 +2,7 @@ import itertools
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
+from typing import Optional
 
 from . import config
 
@@ -71,10 +72,10 @@ def unique(iterable, key=lambda x: x):
 def iter_cycles(
     n: int,
     options: Iterable,
-    curr_prev_constraint: Callable | None = None,
-    first_constraint: Callable | None = None,
+    curr_prev_constraint: Optional[Callable] = None,
+    first_constraint: Optional[Callable] = None,
     unique_key=None,
-    prefix: Sequence | None = None,
+    prefix: Optional[Sequence] = None,
 ) -> Sequence:
     cycle = list(prefix) if prefix else list()
     if len(cycle) == 0:

@@ -3,6 +3,7 @@ import itertools
 import random
 import statistics
 from collections import deque
+from typing import Optional
 
 import pipe21 as P
 
@@ -29,7 +30,7 @@ class Rhythm:
         self.bits = ''.join(map(str, self.notes))
 
     @classmethod
-    def random_rhythm(cls, n_notes: int | None = None, bar_notes: int = 16):
+    def random_rhythm(cls, n_notes: Optional[int] = None, bar_notes: int = 16):
         if not (0 < n_notes <= bar_notes):
             raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
         if n_notes is None:
@@ -66,7 +67,7 @@ class Rhythm:
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score=False):
+    def all_rhythms(n_notes: Optional[int] = None, bar_notes: int = 16, sort_by_score=False):
         rhythms = util.iter_cycles(
             n=bar_notes,
             options=(0, 1),
