@@ -10,7 +10,11 @@ lint:
 	$(python) -m isort --force-single-line-imports musictools tests
 	$(python) -m flake8 --ignore E221,E501,W503,E701,E704,E741,I100,I201 musictools tests
 
+clean:
+	rm -f logs/*
+
 test:
+	rm -f logs/*
 	$(python) -m pytest -v --cov=musictools tests
 
 coverage_report:

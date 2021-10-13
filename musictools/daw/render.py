@@ -3,20 +3,23 @@ import numpy as np
 from .. import config
 
 
-def single(stream, notes, song_samples):
-    song_samples += config.chunk_size - song_samples % config.chunk_size
-    master = np.zeros(song_samples, dtype='float32')
-    for note in notes:
+def single(stream, track):
+    n_samples = track.n_samples + config.chunk_size - track.n_samples % config.chunk_size
+    master = np.zeros(n_samples, dtype='float32')
+    for note in track.notes:
         master[note.sample_on: note.sample_off] += note.render()
+    config.log['single'] = master
     stream.write(master.tobytes())
+    track.reset()
 
 
-def chunked(stream, notes, song_samples):
+def chunked(stream, track):
+    notes = set(track.notes)
     n = 0
     playing_notes = set()
     master = np.zeros(config.chunk_size, dtype='float32')
 
-    while n < song_samples:
+    while n < track.n_samples:
         samples = np.arange(n, n + config.chunk_size)
         master[:] = 0.
         # master[:] = 0.1 * np.random.random(len(master))
@@ -29,5 +32,8 @@ def chunked(stream, notes, song_samples):
             if note.sample_off < n + config.chunk_size:
                 stopped_notes.add(note)
         playing_notes -= stopped_notes
+        notes -= stopped_notes
         n += config.chunk_size
+        # config.log[config.n_run].append(master)
+        config.log['chunked'].append(master.copy())
         stream.write(master.tobytes())

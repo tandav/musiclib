@@ -1,22 +1,40 @@
+import io
+import pyaudio
+import pickle
+import contextlib
+
 from .. import config
-from ..midi.parse import parse_midi
+from ..midi.parse import MidiTrack
 from . import render
 
 
-def main() -> int:
-    import pyaudio
+@contextlib.contextmanager
+def audio_stream(fake=False):
+    if fake:
+        yield io.BytesIO()
+        return
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paFloat32, channels=1, rate=config.sample_rate, output=True)
-
-    notes, song_samples = parse_midi(config.midi_file)
-    print(notes)
-    print('song_samples', song_samples)
-    render.single(stream, notes, song_samples)
-    render.chunked(stream, notes, song_samples)
-
+    yield stream
     stream.stop_stream()
     stream.close()
     p.terminate()
+
+
+def main() -> int:
+    track = MidiTrack.from_file(config.midi_file)
+
+    with audio_stream(fake=False) as stream:
+        render.single(stream, track)
+        render.chunked(stream, track)
+
+        # for run in range(10):
+        #     print(run)
+        #     render.chunked(stream, notes, song_samples)
+        #     for note in notes:
+        #         note.reset()
+        #     config.n_run += 1
+        with open('logs/log.pkl', 'wb') as f: pickle.dump(config.log, f)
     return 0
 
 

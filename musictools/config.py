@@ -58,3 +58,9 @@ sample_rate = 44100  # samples per second
 midi_file = 'static/midi/overlap.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
+
+# logs
+n_run = 0
+import collections
+# log = collections.defaultdict(list)
+log = {'single': None, 'chunked': []}
