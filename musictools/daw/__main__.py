@@ -1,7 +1,7 @@
-import io
-import pyaudio
-import pickle
 import contextlib
+import io
+
+import pyaudio
 
 from .. import config
 from ..midi.parse import MidiTrack
@@ -27,14 +27,6 @@ def main() -> int:
     with audio_stream(fake=False) as stream:
         render.single(stream, track)
         render.chunked(stream, track)
-
-        # for run in range(10):
-        #     print(run)
-        #     render.chunked(stream, notes, song_samples)
-        #     for note in notes:
-        #         note.reset()
-        #     config.n_run += 1
-        with open('logs/log.pkl', 'wb') as f: pickle.dump(config.log, f)
     return 0
 
 

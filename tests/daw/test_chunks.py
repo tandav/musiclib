@@ -1,24 +1,31 @@
 import io
-import pickle
 
-from musictools import config
+import numpy as np
+import pytest
+
 from musictools.daw import render
 from musictools.midi.parse import MidiTrack
 
 
-def test_chunks():
+@pytest.mark.parametrize('midi_file', (
+    'static/midi/overlap.mid',
+    'static/midi/4.mid',
+    'static/midi/4-2.mid',
+    'static/midi/4-3.mid',
+    'static/midi/chord.mid',
+    'static/midi/weird.mid',
+))
+def test_chunks(midi_file):
+
+    track = MidiTrack.from_file(midi_file)
 
     single = io.BytesIO()
     chunked = io.BytesIO()
 
-    track = MidiTrack.from_file(config.midi_file)
-
     render.single(single, track)
     render.chunked(chunked, track)
 
-    single = single.getvalue()
-    chunked = chunked.getvalue()
+    single = np.frombuffer(single.getvalue(), dtype='float32')
+    chunked = np.frombuffer(chunked.getvalue(), dtype='float32')
 
-    assert single == chunked
-    with open('logs/log.pkl', 'wb') as f: pickle.dump(config.log, f)
-
+    assert np.allclose(single, chunked, atol=1e-7)

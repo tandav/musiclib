@@ -31,8 +31,6 @@ class PlayedNote:
         f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
         t0 = self.samples_rendered / config.sample_rate
         t1 = t0 + n_samples / config.sample_rate
-        #config.log[config.n_run].append((hash(self), t0, t1))
-        # print(t0, t1)
         self.samples_rendered += n_samples
         wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.3)
         return wave
@@ -65,7 +63,6 @@ class MidiTrack:
             d_seconds = mido.tick2second(message.time, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
             seconds += d_seconds
             n_samples += int(config.sample_rate * d_seconds)
-            # print(message, ticks, seconds, n_samples)
             if message.type == 'note_on':
                 note_buffer[message.note] = n_samples, seconds
             elif message.type == 'note_off':
