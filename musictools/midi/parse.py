@@ -30,7 +30,7 @@ class NoteSound:
         self.sample_off = sample_off + self.samples_release  # actual sample when note is off (including release)
 
         self.n_samples_wo_release = self.sample_off_wo_release - sample_on
-        self.n_samples = sample_off - sample_on # total samples for playing note sound
+        self.n_samples = sample_off - sample_on  # total samples for playing note sound
 
         self.samples_attack = min(int(vst.adsr.attack * config.sample_rate), self.n_samples_wo_release)
         self.samples_decay = min(int(vst.adsr.decay * config.sample_rate), self.n_samples_wo_release - self.samples_attack)
@@ -40,7 +40,6 @@ class NoteSound:
         self.sample_stop_decay = self.sample_stop_attack + self.samples_decay
         # self.sample_stop_sustain = self.sample_off_wo_release  # do the math
         self.sample_stop_release = self.sample_off_wo_release + self.samples_release
-
 
         # todo: use difference, not ranges
         self.range_attack = np.arange(self.sample_on, self.sample_stop_attack)
@@ -86,8 +85,6 @@ class NoteSound:
         wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
         wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
         wave[mask_sustain[mask]] *= self.vst.adsr.sustain
-        m = (samples[0] <= self.range_release) & (self.range_release <= samples[-1])
-        # print(mask_release[mask].shape, self.release_envelope.shape, m.shape, self.release_envelope[m].shape)
         wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
         chunk[mask] += wave
         if samples is None or self.sample_off + self.samples_release <= samples[-1]:
@@ -119,7 +116,12 @@ class MidiTrack:
         # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.8))
         synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.3, sustain=1, release=1))
 
+        numerator = None
+
         for message in m.tracks[0]:
+            if message.type == 'time_signature':
+                assert message.denominator == 4
+                numerator = message.numerator
             ticks += message.time
             d_seconds = mido.tick2second(message.time, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
             seconds += d_seconds
@@ -129,4 +131,9 @@ class MidiTrack:
                 note_buffer[message.note] = n_samples
             elif message.type == 'note_off':
                 notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=synth))
+
+        ticks_per_bar = numerator * m.ticks_per_beat  # todo: support 3/4 and other
+        ticks += ticks_per_bar - ticks % ticks_per_bar
+        n_samples = int(config.sample_rate * mido.tick2second(ticks, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
+        print(n_samples)
         return cls(notes, n_samples)
