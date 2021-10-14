@@ -98,9 +98,10 @@ class NoteSound:
 
 
 class MidiTrack:
-    def __init__(self, notes, n_samples):
+    def __init__(self, notes, n_samples, numerator=None):
         self.notes = notes
         self.n_samples = n_samples
+        self.numerator = numerator
 
     def reset(self):
         for note in self.notes:
@@ -135,5 +136,4 @@ class MidiTrack:
         ticks_per_bar = numerator * m.ticks_per_beat  # todo: support 3/4 and other
         ticks += ticks_per_bar - ticks % ticks_per_bar
         n_samples = int(config.sample_rate * mido.tick2second(ticks, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
-        print(n_samples)
-        return cls(notes, n_samples)
+        return cls(notes, n_samples, numerator)
