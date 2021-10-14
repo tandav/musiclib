@@ -1,3 +1,6 @@
+from enum import Enum
+from enum import auto
+
 import mido
 import numpy as np
 
@@ -6,34 +9,46 @@ from ..daw import vst
 from ..note import SpecificNote
 
 
+class State(Enum):
+    TODO = auto()
+    IN_PROGRESS = auto()
+    DONE = auto()
+
+
 class PlayedNote:
     def __init__(
         self,
         absolute_i: int,
         sample_on: int,
-        second_on: float,
         sample_off: int,
-        second_off: float,
-        vst=None,
+        vst: vst.VST,
     ):
         self.note = SpecificNote.from_absolute_i(absolute_i)
         self.sample_on = sample_on
-        self.second_on = second_on
-        self.sample_off = sample_off
-        self.second_off = second_off
+        self.sample_off = sample_off + int(vst.adsr.release * config.sample_rate)
+
         self.samples_rendered = 0
         self.vst = vst
         self.key = self.note, self.sample_on, self.sample_off
+        self.state = State.TODO
 
-    def render(self, n_samples=None):
-        if n_samples is None:
+    def render(self, channel, samples=None):
+        self.state = State.IN_PROGRESS
+        if samples is None:
             n_samples = self.sample_off - self.sample_on  # render all samples
-        f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
+            mask = np.arange(self.sample_on, self.sample_off)
+        else:
+            mask = (self.sample_on <= samples) & (samples < self.sample_off)
+            n_samples = np.count_nonzero(mask)
+
         t0 = self.samples_rendered / config.sample_rate
         t1 = t0 + n_samples / config.sample_rate
         self.samples_rendered += n_samples
-        wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.3)
-        return wave
+        f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
+        wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.1)
+        channel[mask] += wave
+        if samples is None or self.sample_off <= samples[-1]:
+            self.state = State.DONE
 
     def reset(self):
         self.samples_rendered = 0
@@ -64,7 +79,7 @@ class MidiTrack:
             seconds += d_seconds
             n_samples += int(config.sample_rate * d_seconds)
             if message.type == 'note_on':
-                note_buffer[message.note] = n_samples, seconds
+                note_buffer[message.note] = n_samples
             elif message.type == 'note_off':
-                notes.append(PlayedNote(message.note, *note_buffer.pop(message.note), n_samples, seconds, vst=vst.sine))
+                notes.append(PlayedNote(message.note, note_buffer.pop(message.note), n_samples, vst=vst.Sine()))
         return cls(notes, n_samples)

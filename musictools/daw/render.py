@@ -1,13 +1,15 @@
 import numpy as np
 
 from .. import config
+from ..midi.parse import State
 
 
 def single(stream, track):
     n_samples = track.n_samples + config.chunk_size - track.n_samples % config.chunk_size
     master = np.zeros(n_samples, dtype='float32')
     for note in track.notes:
-        master[note.sample_on: note.sample_off] += note.render()
+        note.render(master)
+    assert np.all(np.abs(master) <= 1)
     stream.write(master.tobytes())
     track.reset()
 
@@ -24,11 +26,13 @@ def chunked(stream, track):
         playing_notes |= set(note for note in notes if n <= note.sample_on < n + config.chunk_size)
         stopped_notes = set()
         for note in playing_notes:
-            mask = (note.sample_on <= samples) & (samples < note.sample_off)
-            master[mask] += note.render(n_samples=np.count_nonzero(mask))
-            if note.sample_off < n + config.chunk_size:
+            note.render(master, samples)
+
+            if note.state == State.DONE:
                 stopped_notes.add(note)
+
         playing_notes -= stopped_notes
         notes -= stopped_notes
         n += config.chunk_size
+        assert np.all(np.abs(master) <= 1)
         stream.write(master.tobytes())
