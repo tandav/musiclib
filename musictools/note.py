@@ -4,7 +4,7 @@ from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
 from . import config
-from .midi import player
+from .daw.midi import player
 
 
 class Note:  # Note(str) ??

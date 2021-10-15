@@ -1,7 +1,7 @@
 import numpy as np
 
 from .. import config
-from ..midi.parse import State
+from .midi.parse import State
 
 
 def single(stream, track):

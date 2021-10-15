@@ -67,11 +67,17 @@ class Organ(VST):
 
 
 class Sampler(VST):
+    DEFAULT_NOTE_TO_SAMPLE_PATH = note_to_sample_path = (
+        (SpecificNote('C', 3), config.kick),
+        (SpecificNote('e', 3), config.clap),
+        (SpecificNote('b', 3), config.hat),
+    )
+
     # todo: add note to sample mapping support (kinda easy)\
-    def __init__(self, note_to_sample_path: dict, adsr=ADSR()):
+    def __init__(self, note_to_sample_path=DEFAULT_NOTE_TO_SAMPLE_PATH, adsr=ADSR()):
         super().__init__(adsr)
         self.note_to_sample = dict()
-        for note, sample_path in note_to_sample_path.items():
+        for note, sample_path in note_to_sample_path:
             self.note_to_sample[note] = self.load_sample(sample_path)
 
     def load_sample(self, sample_path: Union[str, Path]):

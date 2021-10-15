@@ -4,9 +4,9 @@ from enum import auto
 import mido
 import numpy as np
 
-from .. import config
-from ..daw import vst
-from ..note import SpecificNote
+from ... import config
+from ...note import SpecificNote
+from .. import vst
 
 
 class State(Enum):
@@ -111,7 +111,7 @@ class MidiTrack:
     @classmethod
     def from_file(cls, midi_file, vst):
         ticks, seconds, n_samples = 0, 0., 0
-        m = mido.MidiFile(midi_file)
+        m = mido.MidiFile(config.midi_folder + midi_file)
         notes = []
         note_buffer = dict()
 

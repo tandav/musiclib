@@ -55,16 +55,15 @@ beats_per_minute = 120
 
 # daw
 sample_rate = 44100  # samples per second
-# midi_file = 'static/midi/weird.mid'
-# midi_file = 'static/midi/overlap.mid'
-# midi_file = 'static/midi/dots.mid'
-# midi_file = 'static/midi/halfbar.mid'
-# midi_file = 'static/midi/halfbar-and-short.mid'
-# midi_file = 'static/midi/4-4.mid'
-# midi_file = 'static/midi/3-4.mid'
-# midi_file = 'static/midi/bassline.mid'
-# midi_file = 'static/midi/4-4-kick.mid'
-midi_file = 'static/midi/drumloop.mid'
+midi_folder = 'static/midi/'
+# midi_file = 'weird.mid'
+# midi_file = 'overlap.mid'
+# midi_file = 'dots.mid'
+# midi_file = 'halfbar.mid'
+# midi_file = 'halfbar-and-short.mid'
+# midi_file = 'bassline.mid'
+# midi_file = 'drumloop.mid'
+midi_file = '4-4-8.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
 

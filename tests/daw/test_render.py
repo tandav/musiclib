@@ -17,24 +17,17 @@ from musictools.daw.midi.parse import MidiTrack
     'chord.mid',
     'weird.mid',
     'drumloop.mid',
-
 ))
-def test_chunks(midi_file, vst):
+def test_n_samples(midi_file, vst):
+    """
+    render 1 bar and check number of samples in the output
+    """
     if (
         (midi_file == 'drumloop.mid' and not isinstance(vst, vst_.Sampler)) or
         (midi_file != 'drumloop.mid' and isinstance(vst, vst_.Sampler))
     ):
         pytest.skip('Invalid case')
-
     track = MidiTrack.from_file(midi_file, vst)
-
-    single = io.BytesIO()
-    chunked = io.BytesIO()
-
-    render.single(single, track)
-    render.chunked(chunked, track)
-
-    single = np.frombuffer(single.getvalue(), dtype='float32')
-    chunked = np.frombuffer(chunked.getvalue(), dtype='float32')
-
-    assert np.allclose(single, chunked, atol=1e-7)
+    stream = io.BytesIO()
+    render.single(stream, track)
+    assert len(np.frombuffer(stream.getvalue(), dtype='float32')) == track.n_samples

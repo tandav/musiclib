@@ -8,8 +8,8 @@ from typing import Optional
 import pipe21 as P
 
 from . import config
-from . import midi
 from . import util
+from .daw import midi
 
 
 class Rhythm:
