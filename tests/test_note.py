@@ -16,3 +16,9 @@ async def test_play(capsys):
     await note.play(seconds=0.0001)
     stdout, stderr = capsys.readouterr()
     assert stdout == f'note_on note={note.absolute_i}, channel=0\nnote_off note={note.absolute_i}, channel=0\n'
+
+
+@given(st.integers(), st.integers())
+def test_add(absolute_i, to_add):
+    note = SpecificNote.from_absolute_i(absolute_i)
+    assert (note + to_add).absolute_i == note.absolute_i + to_add

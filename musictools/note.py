@@ -83,7 +83,7 @@ class SpecificNote(Note):
 
     def __add__(self, other: int):
         """C + 7 = G"""
-        raise NotImplementedError
+        return SpecificNote.from_absolute_i(self.absolute_i + other)
 
 
 def note_range(start: SpecificNote, stop: SpecificNote) -> tuple[SpecificNote]:
