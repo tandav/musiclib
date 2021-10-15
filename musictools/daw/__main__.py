@@ -25,8 +25,8 @@ def main() -> int:
     track = MidiTrack.from_file(config.midi_file)
 
     with audio_stream(fake=False) as stream:
-        # render.single(stream, track)
-        render.chunked(stream, track)
+        render.single(stream, track)
+        # render.chunked(stream, track)
     return 0
 
 
