@@ -8,7 +8,7 @@ def single(stream, track):
     n_samples = track.n_samples + config.chunk_size - track.n_samples % config.chunk_size
     master = np.zeros(n_samples, dtype='float32')
     for note in track.notes:
-        print(n_samples, note.sample_on, note.sample_off)
+        print(n_samples, note.sample_on, note.stop_release)
         note.render(master)
     assert np.all(np.abs(master) <= 1)
     stream.write(master.tobytes())

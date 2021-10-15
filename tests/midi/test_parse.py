@@ -40,5 +40,5 @@ def test_time_signature(midi_file, vst):
 def test_note_samples(midi_file, vst):
     track = MidiTrack.from_file(midi_file, vst)
     for note in track.notes:
-        assert note.sample_on <= note.sample_off_wo_release < track.n_samples
-        # assert note.sample_on <= note.sample_off < track.n_samples
+        assert note.sample_on <= note.sample_off < track.n_samples
+        # assert note.sample_on <= note.stop_release < track.n_samples

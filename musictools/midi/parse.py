@@ -23,63 +23,66 @@ class NoteSound:
         sample_off: int,
         vst: vst.VST,
     ):
-        """TODO: maybe remove some variables (which can be expressed via other)"""
+        """
+        TODO: maybe remove some variables (which can be expressed via other)
+
+        ns_ means number of samples
+        stop_xxx means sample where xxx is no more playing
+        """
         self.note = SpecificNote.from_absolute_i(absolute_i)
         self.sample_on = sample_on
-        self.sample_off_wo_release = sample_off  # todo: rename, keep note_off for note off, add with_relase
-        self.samples_release = int(vst.adsr.release * config.sample_rate)
-        self.sample_off = sample_off + self.samples_release  # actual sample when note is off (including release)
+        self.sample_off = sample_off  # todo: rename, keep note_off for note off, add with_relase
+        self.ns = sample_off - sample_on
 
-        self.n_samples_wo_release = self.sample_off_wo_release - sample_on
-        self.n_samples = sample_off - sample_on  # total samples for playing note sound
+        self.ns_release = int(vst.adsr.release * config.sample_rate)
+        self.stop_release = sample_off + self.ns_release  # actual sample when note is off (including release)
 
-        self.samples_attack = min(int(vst.adsr.attack * config.sample_rate), self.n_samples_wo_release)
-        self.samples_decay = min(int(vst.adsr.decay * config.sample_rate), self.n_samples_wo_release - self.samples_attack)
-        self.samples_sustain = self.n_samples_wo_release - self.samples_attack - self.samples_decay
+        self.ns_attack = min(int(vst.adsr.attack * config.sample_rate), self.ns)
+        self.ns_decay = min(int(vst.adsr.decay * config.sample_rate), self.ns - self.ns_attack)
+        self.ns_sustain = self.ns - self.ns_attack - self.ns_decay
 
-        self.sample_stop_attack = self.sample_on + self.samples_attack
-        self.sample_stop_decay = self.sample_stop_attack + self.samples_decay
-        # self.sample_stop_sustain = self.sample_off_wo_release  # do the math
-        self.sample_stop_release = self.sample_off_wo_release + self.samples_release
+        self.stop_attack = self.sample_on + self.ns_attack
+        self.stop_decay = self.stop_attack + self.ns_decay
+        # self.stop_sustain = self.sample_off  # do the math
 
         # todo: use difference, not ranges
-        self.range_attack = np.arange(self.sample_on, self.sample_stop_attack)
-        self.range_decay = np.arange(self.sample_stop_attack, self.sample_stop_decay)
-        self.range_sustain = np.arange(self.sample_stop_decay, self.sample_off_wo_release)
-        self.range_release = np.arange(self.sample_off_wo_release, self.sample_off)
+        self.range_attack = np.arange(self.sample_on, self.stop_attack)
+        self.range_decay = np.arange(self.stop_attack, self.stop_decay)
+        self.range_sustain = np.arange(self.stop_decay, self.sample_off)
+        self.range_release = np.arange(self.sample_off, self.stop_release)
 
-        self.attack_envelope = np.linspace(0, 1, self.samples_attack, endpoint=False, dtype='float32')
+        self.attack_envelope = np.linspace(0, 1, self.ns_attack, endpoint=False, dtype='float32')
         # if decay is longer than note then actual sustain is higher than vst.adsr.sustain (do the math)
-        print(self.samples_decay)
-        s = max((vst.adsr.sustain - 1) * (self.n_samples - self.samples_attack) / self.samples_decay + 1, vst.adsr.sustain)
-        self.decay_envelope = np.linspace(1, s, self.samples_decay, endpoint=False, dtype='float32')
-        # self.attack_decay_envelope[:self.samples_attack] = np.arange()  # todo: make envelope
-        # self.attack_decay_envelope[self.samples_attack:self.samples_decay] = 1.  # todo: make envelope
-        self.release_envelope = np.linspace(s, 0, self.samples_release, endpoint=False, dtype='float32')
+        print(self.ns_decay)
+        s = max((vst.adsr.sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay + 1, vst.adsr.sustain)
+        self.decay_envelope = np.linspace(1, s, self.ns_decay, endpoint=False, dtype='float32')
+        # self.attack_decay_envelope[:self.ns_attack] = np.arange()  # todo: make envelope
+        # self.attack_decay_envelope[self.ns_attack:self.ns_decay] = 1.  # todo: make envelope
+        self.release_envelope = np.linspace(s, 0, self.ns_release, endpoint=False, dtype='float32')
 
         self.samples_rendered = 0
         self.vst = vst
-        self.key = self.note, self.sample_on, self.sample_off
+        self.key = self.note, self.sample_on, self.stop_release
         self.state = State.TODO
 
     def render(self, chunk, samples=None):
         self.state = State.IN_PROGRESS
         if samples is None:
             samples = np.arange(len(chunk))
-        mask = (self.sample_on <= samples) & (samples < self.sample_off)
+        mask = (self.sample_on <= samples) & (samples < self.stop_release)
         n_samples = np.count_nonzero(mask)
 
-        mask_attack = (self.sample_on <= samples) & (samples < self.sample_stop_attack)
-        mask_decay = (self.sample_stop_attack <= samples) & (samples < self.sample_stop_decay)
-        mask_sustain = (self.sample_stop_decay <= samples) & (samples < self.sample_off_wo_release)
-        mask_release = (self.sample_off_wo_release <= samples) & (samples < self.sample_off)
+        mask_attack = (self.sample_on <= samples) & (samples < self.stop_attack)
+        mask_decay = (self.stop_attack <= samples) & (samples < self.stop_decay)
+        mask_sustain = (self.stop_decay <= samples) & (samples < self.sample_off)
+        mask_release = (self.sample_off <= samples) & (samples < self.stop_release)
 
         t0 = self.samples_rendered / config.sample_rate
         t1 = t0 + n_samples / config.sample_rate
         self.samples_rendered += n_samples
         f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
         wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.1)
-        print(mask_attack.shape, mask.shape, mask_attack, mask, samples, self.sample_on, self.sample_off)
+        print(mask_attack.shape, mask.shape, mask_attack, mask, samples, self.sample_on, self.stop_release)
 
         # q = mask_attack[mask]
         # print('lol')
@@ -88,7 +91,7 @@ class NoteSound:
         wave[mask_sustain[mask]] *= self.vst.adsr.sustain
         wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
         chunk[mask] += wave
-        if samples is None or self.sample_off + self.samples_release <= samples[-1]:
+        if samples is None or self.stop_release + self.ns_release <= samples[-1]:
             self.state = State.DONE
 
     def reset(self):
