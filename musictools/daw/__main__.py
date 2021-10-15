@@ -1,7 +1,9 @@
 import contextlib
 import io
 
+import numpy as np
 import pyaudio
+from scipy.io import wavfile
 
 from .. import config
 from ..midi.parse import MidiTrack
@@ -11,16 +13,22 @@ from . import vst
 
 
 @contextlib.contextmanager
-def audio_stream(fake=False):
-    if fake:
-        yield io.BytesIO()
-        return
-    p = pyaudio.PyAudio()
-    stream = p.open(format=pyaudio.paFloat32, channels=1, rate=config.sample_rate, output=True)
-    yield stream
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+def audio_stream(kind):
+    if kind == 'buffer' or kind == 'file':
+        stream = io.BytesIO()
+        yield stream
+        if kind == 'file':
+            data = np.frombuffer(stream.getvalue(), dtype='float32')
+            wavfile.write('out.wav', config.sample_rate, data)
+    elif kind == 'speakers':
+        p = pyaudio.PyAudio()
+        stream = p.open(format=pyaudio.paFloat32, channels=1, rate=config.sample_rate, output=True)
+        yield stream
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+    else:
+        raise ValueError('unknown kind, pass one of (speakers, buffer, file)')
 
 
 def main() -> int:
@@ -34,7 +42,7 @@ def main() -> int:
     }, adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     track = MidiTrack.from_file(config.midi_file, vst=synth)
 
-    with audio_stream(fake=False) as stream:
+    with audio_stream(kind='file') as stream:
         for _ in range(4):
             # render.single(stream, track)
             render.chunked(stream, track)
