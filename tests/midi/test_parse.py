@@ -17,6 +17,7 @@ from musictools.midi.parse import MidiTrack
 @pytest.mark.parametrize('midi_file', (
     'static/midi/4-4.mid',  # 1 bar
     'static/midi/3-4.mid',  # 1 bar
+    'static/midi/4-4-kick.mid',  # 1 bar
 ))
 def test_time_signature(midi_file, vst):
     m = mido.MidiFile(midi_file)

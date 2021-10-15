@@ -135,8 +135,9 @@ class MidiTrack:
             elif message.type == 'note_off':
                 notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst))
 
-        ticks_per_bar = numerator * m.ticks_per_beat  # todo: support 3/4 and other
-        ticks += ticks_per_bar - ticks % ticks_per_bar
+        ticks_per_bar = numerator * m.ticks_per_beat
+        div, mod = divmod(ticks, ticks_per_bar)
+        if mod:
+            ticks += ticks_per_bar - mod
         n_samples = int(config.sample_rate * mido.tick2second(ticks, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
-
         return cls(notes, n_samples, numerator)
