@@ -13,9 +13,9 @@ class ADSR:
     ):
         # ranges like in Ableton Live Operator, Wavetable
         if not (0. <= attack <= 20.): raise ValueError('wrong attack value')
-        if not (0. < decay <= 20.): raise ValueError('wrong decay value')
+        if not (1e-3 <= decay <= 20.): raise ValueError('wrong decay value')
         if not (0. <= sustain <= 1.): raise ValueError('wrong sustain value')
-        if not (0. < release <= 20.): raise ValueError('wrong release value')
+        if not (1e-3 <= release <= 20.): raise ValueError('wrong release value')
 
         self.attack = attack
         self.decay = decay

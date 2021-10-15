@@ -23,6 +23,7 @@ class NoteSound:
         sample_off: int,
         vst: vst.VST,
     ):
+        """TODO: maybe remove some variables (which can be expressed via other)"""
         self.note = SpecificNote.from_absolute_i(absolute_i)
         self.sample_on = sample_on
         self.sample_off_wo_release = sample_off  # todo: rename, keep note_off for note off, add with_relase
@@ -49,14 +50,12 @@ class NoteSound:
 
         self.attack_envelope = np.linspace(0, 1, self.samples_attack, endpoint=False, dtype='float32')
         # if decay is longer than note then actual sustain is higher than vst.adsr.sustain (do the math)
+        print(self.samples_decay)
         s = max((vst.adsr.sustain - 1) * (self.n_samples - self.samples_attack) / self.samples_decay + 1, vst.adsr.sustain)
         self.decay_envelope = np.linspace(1, s, self.samples_decay, endpoint=False, dtype='float32')
         # self.attack_decay_envelope[:self.samples_attack] = np.arange()  # todo: make envelope
         # self.attack_decay_envelope[self.samples_attack:self.samples_decay] = 1.  # todo: make envelope
         self.release_envelope = np.linspace(s, 0, self.samples_release, endpoint=False, dtype='float32')
-
-        # self.attack_envelope = np.ones(int((attack + decay) * config.sample_rate), dtype='float32')
-        # self.r = np.ones(int(release * config.sample_rate), dtype='float32')
 
         self.samples_rendered = 0
         self.vst = vst
@@ -67,11 +66,9 @@ class NoteSound:
         self.state = State.IN_PROGRESS
         if samples is None:
             samples = np.arange(len(chunk))
-            n_samples = self.sample_off - self.sample_on  # render all samples
-            mask = np.arange(self.sample_on, self.sample_off)
-        else:
-            mask = (self.sample_on <= samples) & (samples < self.sample_off)
-            n_samples = np.count_nonzero(mask)
+        mask = (self.sample_on <= samples) & (samples < self.sample_off)
+        n_samples = np.count_nonzero(mask)
+
         mask_attack = (self.sample_on <= samples) & (samples < self.sample_stop_attack)
         mask_decay = (self.sample_stop_attack <= samples) & (samples < self.sample_stop_decay)
         mask_sustain = (self.sample_stop_decay <= samples) & (samples < self.sample_off_wo_release)
@@ -102,24 +99,26 @@ class NoteSound:
 
 
 class MidiTrack:
-    def __init__(self, notes, n_samples, numerator=None):
+    def __init__(self, notes, n_samples, numerator=4, vst=None):
         self.notes = notes
         self.n_samples = n_samples
         self.numerator = numerator
+        self.vst = vst
 
     def reset(self):
         for note in self.notes:
             note.reset()
 
     @classmethod
-    def from_file(cls, midi_file):
+    def from_file(cls, midi_file, vst):
         ticks, seconds, n_samples = 0, 0., 0
         m = mido.MidiFile(midi_file)
         notes = []
         note_buffer = dict()
 
-        # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.8))
-        synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.3, sustain=1, release=1))
+        # FAILING BECAUSE OOF RELEASE, CUT LAST NOTE IN A TRACK
+        # ADD TESTS FOR DIFFERENT RELEASES
+        # crop notes samples which exceeds track.n_samples
 
         numerator = None
 
@@ -135,9 +134,10 @@ class MidiTrack:
             if message.type == 'note_on':
                 note_buffer[message.note] = n_samples
             elif message.type == 'note_off':
-                notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=synth))
+                notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst))
 
         ticks_per_bar = numerator * m.ticks_per_beat  # todo: support 3/4 and other
         ticks += ticks_per_bar - ticks % ticks_per_bar
         n_samples = int(config.sample_rate * mido.tick2second(ticks, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
+
         return cls(notes, n_samples, numerator)
