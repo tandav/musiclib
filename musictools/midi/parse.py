@@ -38,7 +38,8 @@ class NoteSound:
         self.stop_release = sample_off + self.ns_release  # actual sample when note is off (including release)
 
         self.ns_attack = min(int(vst.adsr.attack * config.sample_rate), self.ns)
-        self.ns_decay = min(int(vst.adsr.decay * config.sample_rate), self.ns - self.ns_attack)
+        self.ns_decay_original = max(int(vst.adsr.decay * config.sample_rate), 1)  # prevent from equal to zero
+        self.ns_decay = min(self.ns_decay_original, self.ns - self.ns_attack)
         self.ns_sustain = self.ns - self.ns_attack - self.ns_decay
 
         self.stop_attack = self.sample_on + self.ns_attack
@@ -54,11 +55,11 @@ class NoteSound:
         self.attack_envelope = np.linspace(0, 1, self.ns_attack, endpoint=False, dtype='float32')
         # if decay is longer than note then actual sustain is higher than vst.adsr.sustain (do the math)
         print(self.ns_decay)
-        s = max((vst.adsr.sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay + 1, vst.adsr.sustain)
-        self.decay_envelope = np.linspace(1, s, self.ns_decay, endpoint=False, dtype='float32')
+        se = max((vst.adsr.sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay_original + 1, vst.adsr.sustain)  # sustain extra
+        self.decay_envelope = np.linspace(1, se, self.ns_decay, endpoint=False, dtype='float32')
         # self.attack_decay_envelope[:self.ns_attack] = np.arange()  # todo: make envelope
         # self.attack_decay_envelope[self.ns_attack:self.ns_decay] = 1.  # todo: make envelope
-        self.release_envelope = np.linspace(s, 0, self.ns_release, endpoint=False, dtype='float32')
+        self.release_envelope = np.linspace(se, 0, self.ns_release, endpoint=False, dtype='float32')
 
         self.samples_rendered = 0
         self.vst = vst
