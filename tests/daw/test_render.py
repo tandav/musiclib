@@ -3,7 +3,6 @@ import io
 import numpy as np
 import pytest
 
-from musictools.daw import render
 from musictools.daw import vst as vst_
 from musictools.daw.midi.parse import MidiTrack
 
@@ -18,7 +17,7 @@ from musictools.daw.midi.parse import MidiTrack
     'weird.mid',
     'drumloop.mid',
 ))
-def test_n_samples(midi_file, vst):
+def test_n_samples(midi_file, vst, renderer):
     """
     render 1 bar and check number of samples in the output
     """
@@ -28,6 +27,7 @@ def test_n_samples(midi_file, vst):
     ):
         pytest.skip('Invalid case')
     track = MidiTrack.from_file(midi_file, vst)
+
     stream = io.BytesIO()
-    render.single(stream, track)
+    renderer(stream, track)
     assert len(np.frombuffer(stream.getvalue(), dtype='float32')) == track.n_samples
