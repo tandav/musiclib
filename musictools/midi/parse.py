@@ -24,14 +24,17 @@ class NoteSound:
         vst: vst.VST,
     ):
         """
-        TODO: maybe remove some variables (which can be expressed via other)
+        TODO:
+            - maybe remove some variables (which can be expressed via other)
+            - maybe add some logic for  not to use sustain envelope when self.stop_decay > self.sample_off
+                - now it does automatically (empty masks)
 
         ns_ means number of samples
         stop_xxx means sample where xxx is no more playing
         """
         self.note = SpecificNote.from_absolute_i(absolute_i)
         self.sample_on = sample_on
-        self.sample_off = sample_off  # todo: rename, keep note_off for note off, add with_relase
+        self.sample_off = sample_off
         self.ns = sample_off - sample_on
 
         self.ns_release = int(vst.adsr.release * config.sample_rate)
@@ -54,11 +57,8 @@ class NoteSound:
 
         self.attack_envelope = np.linspace(0, 1, self.ns_attack, endpoint=False, dtype='float32')
         # if decay is longer than note then actual sustain is higher than vst.adsr.sustain (do the math)
-        print(self.ns_decay)
         se = max((vst.adsr.sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay_original + 1, vst.adsr.sustain)  # sustain extra
         self.decay_envelope = np.linspace(1, se, self.ns_decay, endpoint=False, dtype='float32')
-        # self.attack_decay_envelope[:self.ns_attack] = np.arange()  # todo: make envelope
-        # self.attack_decay_envelope[self.ns_attack:self.ns_decay] = 1.  # todo: make envelope
         self.release_envelope = np.linspace(se, 0, self.ns_release, endpoint=False, dtype='float32')
 
         self.samples_rendered = 0
@@ -83,10 +83,7 @@ class NoteSound:
         self.samples_rendered += n_samples
         f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
         wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.1)
-        print(mask_attack.shape, mask.shape, mask_attack, mask, samples, self.sample_on, self.stop_release)
 
-        # q = mask_attack[mask]
-        # print('lol')
         wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
         wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
         wave[mask_sustain[mask]] *= self.vst.adsr.sustain

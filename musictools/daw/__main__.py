@@ -23,13 +23,13 @@ def audio_stream(fake=False):
 
 
 def main() -> int:
-    synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001))
-    # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.3, sustain=1, release=1))
+    # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001))
+    synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
     track = MidiTrack.from_file(config.midi_file, vst=synth)
 
     with audio_stream(fake=False) as stream:
-        render.single(stream, track)
-        # render.chunked(stream, track)
+        # render.single(stream, track)
+        render.chunked(stream, track)
     return 0
 
 
