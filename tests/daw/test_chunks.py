@@ -4,18 +4,18 @@ import numpy as np
 import pytest
 
 from musictools.daw import render
-from musictools.daw.vst import ADSR
-from musictools.daw.vst import Sine
+from musictools.daw import vst
 from musictools.midi.parse import MidiTrack
 
 
 @pytest.mark.parametrize('vst', (
-    Sine(adsr=ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001)),
-    Sine(adsr=ADSR(attack=0.001, decay=0.3, sustain=1, release=1))
+    vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001)),
+    vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.3, sustain=1, release=1)),
+    vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1)),
 ))
 @pytest.mark.parametrize('midi_file', (
     'static/midi/overlap.mid',
-    'static/midi/4.mid',
+    'static/midi/bassline.mid',
     'static/midi/4-2.mid',
     'static/midi/4-3.mid',
     'static/midi/4-4.mid',

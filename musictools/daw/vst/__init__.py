@@ -1,6 +1,12 @@
 import abc
+from pathlib import Path
+from typing import Union
 
 import numpy as np
+from scipy.io import wavfile
+
+from ... import config
+from ...note import SpecificNote
 
 
 class ADSR:
@@ -27,13 +33,48 @@ class VST(abc.ABC):
     def __init__(self, adsr=ADSR()):
         self.adsr = adsr
 
+    def note_to_freq(self, note: SpecificNote):
+        return (440 / 32) * (2 ** ((note.absolute_i - 9) / 12))
+
+    def samples_to_t(self, ns_rendered: int, ns_to_render: int):
+        t0 = ns_rendered / config.sample_rate
+        t1 = t0 + ns_to_render / config.sample_rate
+        return np.linspace(t0, t1, ns_to_render, endpoint=False)
+
     @abc.abstractmethod
     def __call__(self, *args, **kwargs): ...
 
 
 class Sine(VST):
-    def __init__(self, adsr=ADSR()):
-        super().__init__(adsr)
-
-    def __call__(self, t, f, a=1., p=0.):
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1, p=0.):
+        t = self.samples_to_t(ns_rendered, ns_to_render)
+        f = self.note_to_freq(note)
         return a * np.sin(2 * np.pi * f * t + p)
+
+
+class Organ(VST):
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1, p=0.):
+        t = self.samples_to_t(ns_rendered, ns_to_render)
+        f0 = self.note_to_freq(note)
+        f1 = self.note_to_freq(note + 7)
+        f2 = self.note_to_freq(note + 19)
+
+        return (
+            a * np.sin(2 * np.pi * f0 * t + p) +
+            a * np.sin(2 * np.pi * f1 * t + p) +
+            a * np.sin(2 * np.pi * f2 * t + p)
+        )
+
+
+class Sampler(VST):
+    def __init__(self, sample_path: Union[str, Path], adsr=ADSR()):
+        super().__init__(adsr)
+        sample_rate, data = wavfile.read(sample_path)
+        if sample_rate != config.sample_rate:
+            raise NotImplementedError(f'resampling is not supported yet, please save sample {sample_path} with sample rate {config.sample_rate}')
+        self.sample = data
+
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1):
+        if note != SpecificNote('C', 1):
+            raise NotImplementedError('Multisample is not supported yet. Make a midi track for each sample. Each track should play only C1 note')
+        # return a *

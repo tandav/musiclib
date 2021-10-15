@@ -61,7 +61,7 @@ class NoteSound:
         self.decay_envelope = np.linspace(1, se, self.ns_decay, endpoint=False, dtype='float32')
         self.release_envelope = np.linspace(se, 0, self.ns_release, endpoint=False, dtype='float32')
 
-        self.samples_rendered = 0
+        self.ns_rendered = 0
         self.vst = vst
         self.key = self.note, self.sample_on, self.stop_release
         self.state = State.TODO
@@ -71,29 +71,27 @@ class NoteSound:
         if samples is None:
             samples = np.arange(len(chunk))
         mask = (self.sample_on <= samples) & (samples < self.stop_release)
-        n_samples = np.count_nonzero(mask)
+        ns_to_render = np.count_nonzero(mask)
 
         mask_attack = (self.sample_on <= samples) & (samples < self.stop_attack)
         mask_decay = (self.stop_attack <= samples) & (samples < self.stop_decay)
         mask_sustain = (self.stop_decay <= samples) & (samples < self.sample_off)
         mask_release = (self.sample_off <= samples) & (samples < self.stop_release)
 
-        t0 = self.samples_rendered / config.sample_rate
-        t1 = t0 + n_samples / config.sample_rate
-        self.samples_rendered += n_samples
-        f = (440 / 32) * (2 ** ((self.note.absolute_i - 9) / 12))
-        wave = self.vst(np.linspace(t0, t1, n_samples, endpoint=False), f, a=0.1)
+        wave = self.vst(self.ns_rendered, ns_to_render, self.note)
 
         wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
         wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
         wave[mask_sustain[mask]] *= self.vst.adsr.sustain
         wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
         chunk[mask] += wave
+        self.ns_rendered += ns_to_render
+
         if samples is None or self.stop_release + self.ns_release <= samples[-1]:
             self.state = State.DONE
 
     def reset(self):
-        self.samples_rendered = 0
+        self.ns_rendered = 0
 
     def __hash__(self): return hash(self.key)
     def __eq__(self, other): return self.key == other.key
