@@ -63,10 +63,13 @@ sample_rate = 44100  # samples per second
 # midi_file = 'static/midi/4-4.mid'
 # midi_file = 'static/midi/3-4.mid'
 # midi_file = 'static/midi/bassline.mid'
-midi_file = 'static/midi/4-4-kick.mid'
+# midi_file = 'static/midi/4-4-kick.mid'
+midi_file = 'static/midi/drumloop.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
 
 
 # samples
-kick = 'static/samples/Kick-909-Tune1.wav'
+kick = 'static/samples/kick-909.wav'
+hat = 'static/samples/open-hat-909.wav'
+clap = 'static/samples/clap-909.wav'

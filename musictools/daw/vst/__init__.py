@@ -1,5 +1,4 @@
 import abc
-import functools
 from pathlib import Path
 from typing import Union
 
@@ -69,21 +68,23 @@ class Organ(VST):
 
 class Sampler(VST):
     # todo: add note to sample mapping support (kinda easy)\
-    @functools.cache
-    def __init__(self, sample_path: Union[str, Path], adsr=ADSR()):
+    def __init__(self, note_to_sample_path: dict, adsr=ADSR()):
         super().__init__(adsr)
+        self.note_to_sample = dict()
+        for note, sample_path in note_to_sample_path.items():
+            self.note_to_sample[note] = self.load_sample(sample_path)
+
+    def load_sample(self, sample_path: Union[str, Path]):
         sample_rate, sample = wavfile.read(sample_path)
         if sample.dtype != 'float32':
             raise ValueError(f'Sample {sample_path} should be in float32 format')
         if sample_rate != config.sample_rate:
-            raise NotImplementedError(f'resampling is not supported yet, please save sample {sample_path} with sample rate {config.sample_rate}')
-        self.sample = sample
+            raise NotImplementedError(
+                f'resampling is not supported yet, please save sample {sample_path} with sample rate {config.sample_rate}')
+        return sample
 
     def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1):
-        if note != SpecificNote('C', 3):
-            raise NotImplementedError('Multisample is not supported yet. Make a midi track for each sample. Each track should play only C1 note')
-
-        sample = a * self.sample[ns_rendered: ns_rendered + ns_to_render]
+        sample = a * self.note_to_sample[note][ns_rendered: ns_rendered + ns_to_render]
         out = np.zeros(ns_to_render, dtype='float32')  # handle cases when samples ends earlier than note_off, render zeros till note_off (and maybe release? idk lol)
         out[:len(sample)] = sample
         return out
