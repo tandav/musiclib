@@ -62,8 +62,8 @@ midi_folder = 'static/midi/'
 # midi_file = 'halfbar.mid'
 # midi_file = 'halfbar-and-short.mid'
 # midi_file = 'bassline.mid'
-# midi_file = 'drumloop.mid'
-midi_file = '4-4-8.mid'
+midi_file = 'drumloop.mid'
+# midi_file = '4-4-8.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
 
