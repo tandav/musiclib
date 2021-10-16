@@ -66,7 +66,7 @@ midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
 chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
-
+wav_output_file = 'out.wav'
 
 # samples
 kick = 'static/samples/kick-909.wav'

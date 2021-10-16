@@ -35,6 +35,7 @@ def chunked(stream, track):
         playing_notes -= stopped_notes
         notes -= stopped_notes
         assert np.all(np.abs(master[:chunk_size]) <= 1)
-        stream.write(master[:chunk_size].tobytes())
+        # stream.write(master[:chunk_size].tobytes())
+        stream.write(master[:chunk_size])
         n += chunk_size
     track.reset()
