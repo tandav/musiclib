@@ -1,7 +1,7 @@
 from enum import Enum
 from enum import auto
 from pathlib import Path
-from typing import Iterable
+from typing import Sequence
 from typing import Union
 
 import mido
@@ -101,26 +101,26 @@ class NoteSound:
 
 
 class ParsedMidi:
-    def __init__(self, midi: mido.MidiFile, vst: Union[VST, dict[str, VST]]):
-        ticks, seconds, n_samples = 0, 0., 0
-        notes = []
+    def __init__(self, midi: mido.MidiFile, vst: Union[VST, Sequence[VST]]):
 
+        ticks_set = set()
+        notes = []
         numerator = None
 
-        print(len(midi.tracks))
-
-        for track in midi.tracks:
+        for track_i, track in enumerate(midi.tracks):
+            ticks, seconds, n_samples = 0, 0., 0
 
             vst_ = vst if len(midi.tracks) == 1 else None
 
             note_buffer = dict()
             for message in track:
-                print(message)
                 if vst_ is None and message.type == 'track_name':
-                    vst_ = vst[message.name]
+                    vst_ = vst[track_i]
                 if message.type == 'time_signature':
                     assert message.denominator == 4
                     numerator = message.numerator
+                    ticks_per_bar = numerator * midi.ticks_per_beat
+
                 ticks += message.time
                 d_seconds = mido.tick2second(message.time, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
                 seconds += d_seconds
@@ -129,46 +129,66 @@ class ParsedMidi:
                     note_buffer[message.note] = n_samples
                 elif message.type == 'note_off':
                     notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst_))
+            ticks_set.add(self.round_ticks_to_bar(ticks, ticks_per_bar))
 
-        ticks_per_bar = numerator * midi.ticks_per_beat
-        div, mod = divmod(ticks, ticks_per_bar)
-        if mod:
-            ticks += ticks_per_bar - mod
+        if not len(ticks_set) == 1:
+            raise ValueError('number of ticks rounded to bar should be equal for all midi tracks/channels')
+        ticks = next(iter(ticks_set))
 
         self.n_samples = int(config.sample_rate * mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
         self.numerator = numerator
         self.notes = notes
+
+    def round_ticks_to_bar(self, ticks, ticks_per_bar):
+        div, mod = divmod(ticks, ticks_per_bar)
+        if mod:
+            ticks += ticks_per_bar - mod
+        return ticks
 
     def reset(self):
         for note in self.notes:
             note.reset()
 
     @classmethod
-    def from_files(cls, midi_files: Iterable, vst: Union[VST, dict[str, VST]]):
+    def from_files(cls, midi_files: Sequence[Union[str, Path]], vst: Sequence[VST]):
         """
         convert many midi files into one with multiple channels
         """
+        assert len(midi_files) == len(vst)
         midi = mido.MidiFile(type=1)
 
-        numerators, denominators = [], []
+        numerators, denominators = set(), set()
+        ticks_per_beat_s = set()
 
         for i, f in enumerate(midi_files):
             track = mido.MidiTrack()
-            for message in mido.MidiFile(config.midi_folder + f, type=0).tracks[0]:
+            time_signature_parsed = False
+            track_midi = mido.MidiFile(config.midi_folder + f, type=0)
+            ticks_per_beat_s.add(track_midi.ticks_per_beat)
+            for message in track_midi.tracks[0]:
                 if message.type == 'track_name':
                     message.name = Path(f).stem
-                if message.type == 'time_signature':
-                    numerators.append(message.numerator)
-                    denominators.append(message.denominator)
-                if message.type == 'note_on' or message.type == 'note_off':
+                elif message.type == 'time_signature':
+                    numerators.add(message.numerator)
+                    denominators.add(message.denominator)
+                    if time_signature_parsed:
+                        continue
+                    else:
+                        time_signature_parsed = True
+                elif message.type == 'note_on' or message.type == 'note_off':
                     message.channel = i
                 track.append(message)
             midi.tracks.append(track)
 
-        if not (len(set(numerators)) == len(set(denominators)) == 1):
-            raise NotImplementedError('cant merge midi files with different time_signatures')
+        if not len(ticks_per_beat_s) == 1:
+            raise NotImplementedError('cant merge midi files with different ticks_per_beat')
+
+        midi.ticks_per_beat = next(iter(ticks_per_beat_s))  # must be as in input files
+
+        if not (len(numerators) == len(denominators) == 1):
+            raise NotImplementedError('cant merge midi files with different time_signatures (numerator and denominator)')
         return cls(midi, vst)
 
     @classmethod
-    def from_file(cls, midi_file, vst: Union[VST, dict[str, VST]]):
+    def from_file(cls, midi_file, vst: VST):
         return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst)

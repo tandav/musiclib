@@ -31,16 +31,24 @@ def audio_stream(output):
 
 
 def main() -> int:
+    # synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.1))
     # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
     # synth = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    track = ParsedMidi.from_file(config.midi_file, vst=synth)
+    # midi = ParsedMidi.from_file(config.midi_file, vst=synth)
+    # midi = ParsedMidi.from_file('drumloop.mid', vst=synth)
+    # midi = ParsedMidi.from_file('bassline.mid', vst=synth)
+    # midi = ParsedMidi.from_file('4-4-8.mid', vst=synth)
+    # midi = ParsedMidi.from_files(['4-4-8.mid', '4-4-8-offbeat.mid'], vst=(
+    midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(
+        vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1)),
+        vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1)),
+    ))
 
     with audio_stream(output='speakers') as stream:
         for _ in range(4):
-            # render.single(stream, track)
-            render.chunked(stream, track)
+            # render.single(stream, midi)
+            render.chunked(stream, midi)
     return 0
 
 
