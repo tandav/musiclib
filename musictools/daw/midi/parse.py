@@ -111,29 +111,26 @@ class ParsedMidi:
     @classmethod
     def from_file(cls, midi_file, vst):
         ticks, seconds, n_samples = 0, 0., 0
-        m = mido.MidiFile(config.midi_folder + midi_file)
+        m = mido.MidiFile(config.midi_folder + midi_file, type=1)
         notes = []
         note_buffer = dict()
 
-        # FAILING BECAUSE OOF RELEASE, CUT LAST NOTE IN A TRACK
-        # ADD TESTS FOR DIFFERENT RELEASES
-        # crop notes samples which exceeds track.n_samples
-
         numerator = None
 
-        for message in m.tracks[0]:
-            if message.type == 'time_signature':
-                assert message.denominator == 4
-                numerator = message.numerator
-            ticks += message.time
-            d_seconds = mido.tick2second(message.time, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
-            seconds += d_seconds
-            n_samples += int(config.sample_rate * d_seconds)
-            print(message)
-            if message.type == 'note_on':
-                note_buffer[message.note] = n_samples
-            elif message.type == 'note_off':
-                notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst))
+        for track in m.tracks:
+            for message in track:
+                if message.type == 'time_signature':
+                    assert message.denominator == 4
+                    numerator = message.numerator
+                ticks += message.time
+                d_seconds = mido.tick2second(message.time, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
+                seconds += d_seconds
+                n_samples += int(config.sample_rate * d_seconds)
+                print(message)
+                if message.type == 'note_on':
+                    note_buffer[message.note] = n_samples
+                elif message.type == 'note_off':
+                    notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst))
 
         ticks_per_bar = numerator * m.ticks_per_beat
         div, mod = divmod(ticks, ticks_per_bar)
