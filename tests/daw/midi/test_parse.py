@@ -30,3 +30,11 @@ def test_note_samples(midi_file, vst):
     for note in track.notes:
         assert note.sample_on <= note.sample_off < track.n_samples
         # assert note.sample_on <= note.stop_release < track.n_samples
+
+
+def test_merge_different_time_signatures(single_vst):
+    with pytest.raises(NotImplementedError):
+        ParsedMidi.from_files(('3-4-16.mid', '4-4-16.mid'), vst={
+            '3-4-16': single_vst,
+            '4-4-16': single_vst,
+        })

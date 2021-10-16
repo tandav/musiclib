@@ -1,12 +1,15 @@
 from enum import Enum
 from enum import auto
+from pathlib import Path
+from typing import Iterable
+from typing import Union
 
 import mido
 import numpy as np
 
 from ... import config
 from ...note import SpecificNote
-from .. import vst
+from ..vst import VST
 
 
 class State(Enum):
@@ -21,7 +24,7 @@ class NoteSound:
         absolute_i: int,
         sample_on: int,
         sample_off: int,
-        vst: vst.VST,
+        vst: VST,
     ):
         """
         TODO:
@@ -98,43 +101,74 @@ class NoteSound:
 
 
 class ParsedMidi:
-    def __init__(self, notes, n_samples, numerator=4, vst=None):
-        self.notes = notes
-        self.n_samples = n_samples
+    def __init__(self, midi: mido.MidiFile, vst: Union[VST, dict[str, VST]]):
+        ticks, seconds, n_samples = 0, 0., 0
+        notes = []
+
+        numerator = None
+
+        print(len(midi.tracks))
+
+        for track in midi.tracks:
+
+            vst_ = vst if len(midi.tracks) == 1 else None
+
+            note_buffer = dict()
+            for message in track:
+                print(message)
+                if vst_ is None and message.type == 'track_name':
+                    vst_ = vst[message.name]
+                if message.type == 'time_signature':
+                    assert message.denominator == 4
+                    numerator = message.numerator
+                ticks += message.time
+                d_seconds = mido.tick2second(message.time, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
+                seconds += d_seconds
+                n_samples += int(config.sample_rate * d_seconds)
+                if message.type == 'note_on':
+                    note_buffer[message.note] = n_samples
+                elif message.type == 'note_off':
+                    notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst_))
+
+        ticks_per_bar = numerator * midi.ticks_per_beat
+        div, mod = divmod(ticks, ticks_per_bar)
+        if mod:
+            ticks += ticks_per_bar - mod
+
+        self.n_samples = int(config.sample_rate * mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
         self.numerator = numerator
-        self.vst = vst
+        self.notes = notes
 
     def reset(self):
         for note in self.notes:
             note.reset()
 
     @classmethod
-    def from_file(cls, midi_file, vst):
-        ticks, seconds, n_samples = 0, 0., 0
-        m = mido.MidiFile(config.midi_folder + midi_file, type=1)
-        notes = []
-        note_buffer = dict()
+    def from_files(cls, midi_files: Iterable, vst: Union[VST, dict[str, VST]]):
+        """
+        convert many midi files into one with multiple channels
+        """
+        midi = mido.MidiFile(type=1)
 
-        numerator = None
+        numerators, denominators = [], []
 
-        for track in m.tracks:
-            for message in track:
+        for i, f in enumerate(midi_files):
+            track = mido.MidiTrack()
+            for message in mido.MidiFile(config.midi_folder + f, type=0).tracks[0]:
+                if message.type == 'track_name':
+                    message.name = Path(f).stem
                 if message.type == 'time_signature':
-                    assert message.denominator == 4
-                    numerator = message.numerator
-                ticks += message.time
-                d_seconds = mido.tick2second(message.time, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
-                seconds += d_seconds
-                n_samples += int(config.sample_rate * d_seconds)
-                print(message)
-                if message.type == 'note_on':
-                    note_buffer[message.note] = n_samples
-                elif message.type == 'note_off':
-                    notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst))
+                    numerators.append(message.numerator)
+                    denominators.append(message.denominator)
+                if message.type == 'note_on' or message.type == 'note_off':
+                    message.channel = i
+                track.append(message)
+            midi.tracks.append(track)
 
-        ticks_per_bar = numerator * m.ticks_per_beat
-        div, mod = divmod(ticks, ticks_per_bar)
-        if mod:
-            ticks += ticks_per_bar - mod
-        n_samples = int(config.sample_rate * mido.tick2second(ticks, m.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
-        return cls(notes, n_samples, numerator)
+        if not (len(set(numerators)) == len(set(denominators)) == 1):
+            raise NotImplementedError('cant merge midi files with different time_signatures')
+        return cls(midi, vst)
+
+    @classmethod
+    def from_file(cls, midi_file, vst: Union[VST, dict[str, VST]]):
+        return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst)

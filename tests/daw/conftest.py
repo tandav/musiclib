@@ -14,6 +14,11 @@ def vst(request):
     yield request.param
 
 
+@pytest.fixture
+def single_vst():
+    yield vst0
+
+
 @pytest.fixture(params=[render.single, render.chunked])
 def renderer(request):
     yield request.param

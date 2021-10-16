@@ -17,7 +17,6 @@ from musictools.daw.midi.parse import ParsedMidi
     'chord.mid',
     'weird.mid',
     'drumloop.mid',
-
 ))
 def test_chunks(midi_file, vst):
     if (
