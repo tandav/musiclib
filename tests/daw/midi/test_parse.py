@@ -2,7 +2,7 @@ import mido
 import pytest
 
 from musictools import config
-from musictools.daw.midi.parse import MidiTrack
+from musictools.daw.midi.parse import ParsedMidi
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -12,7 +12,7 @@ from musictools.daw.midi.parse import MidiTrack
 ))
 def test_time_signature(midi_file, vst):
     m = mido.MidiFile(config.midi_folder + midi_file)
-    track = MidiTrack.from_file(midi_file, vst)
+    track = ParsedMidi.from_file(midi_file, vst)
     ticks_per_bar = track.numerator * m.ticks_per_beat
     sample_rate = 44100
     beats_per_minute = 120
@@ -26,7 +26,7 @@ def test_time_signature(midi_file, vst):
     'weird.mid',
 ))
 def test_note_samples(midi_file, vst):
-    track = MidiTrack.from_file(midi_file, vst)
+    track = ParsedMidi.from_file(midi_file, vst)
     for note in track.notes:
         assert note.sample_on <= note.sample_off < track.n_samples
         # assert note.sample_on <= note.stop_release < track.n_samples

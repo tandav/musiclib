@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from musictools.daw import vst as vst_
-from musictools.daw.midi.parse import MidiTrack
+from musictools.daw.midi.parse import ParsedMidi
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -26,7 +26,7 @@ def test_n_samples(midi_file, vst, renderer):
         (midi_file != 'drumloop.mid' and isinstance(vst, vst_.Sampler))
     ):
         pytest.skip('Invalid case')
-    track = MidiTrack.from_file(midi_file, vst)
+    track = ParsedMidi.from_file(midi_file, vst)
 
     stream = io.BytesIO()
     renderer(stream, track)

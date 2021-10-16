@@ -5,7 +5,7 @@ import pytest
 
 from musictools.daw import render
 from musictools.daw import vst as vst_
-from musictools.daw.midi.parse import MidiTrack
+from musictools.daw.midi.parse import ParsedMidi
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -26,7 +26,7 @@ def test_chunks(midi_file, vst):
     ):
         pytest.skip('Invalid case')
 
-    track = MidiTrack.from_file(midi_file, vst)
+    track = ParsedMidi.from_file(midi_file, vst)
 
     single = io.BytesIO()
     chunked = io.BytesIO()

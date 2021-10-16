@@ -8,7 +8,7 @@ from scipy.io import wavfile
 from .. import config
 from . import render
 from . import vst
-from .midi.parse import MidiTrack
+from .midi.parse import ParsedMidi
 
 
 @contextlib.contextmanager
@@ -35,7 +35,7 @@ def main() -> int:
     # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
     # synth = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    track = MidiTrack.from_file(config.midi_file, vst=synth)
+    track = ParsedMidi.from_file(config.midi_file, vst=synth)
 
     with audio_stream(output='speakers') as stream:
         for _ in range(4):

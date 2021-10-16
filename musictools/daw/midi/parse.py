@@ -97,7 +97,7 @@ class NoteSound:
     def __eq__(self, other): return self.key == other.key
 
 
-class MidiTrack:
+class ParsedMidi:
     def __init__(self, notes, n_samples, numerator=4, vst=None):
         self.notes = notes
         self.n_samples = n_samples
