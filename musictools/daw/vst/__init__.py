@@ -1,5 +1,6 @@
 import abc
 from pathlib import Path
+from typing import Iterable
 from typing import Union
 
 import numpy as np
@@ -30,8 +31,10 @@ class ADSR:
 
 
 class VST(abc.ABC):
-    def __init__(self, adsr=ADSR()):
-        self.adsr = adsr
+    def __init__(self, adsr: Union[ADSR, dict[SpecificNote, ADSR]] = ADSR()):
+        self._adsr = adsr
+
+    def adsr(self, note): return self._adsr
 
     def note_to_freq(self, note: SpecificNote):
         return (440 / 32) * (2 ** ((note.absolute_i - 9) / 12))
@@ -67,14 +70,25 @@ class Organ(VST):
 
 
 class Sampler(VST):
-    DEFAULT_NOTE_TO_SAMPLE_PATH = note_to_sample_path = (
+    DEFAULT_NOTE_TO_SAMPLE_PATH = (
         (SpecificNote('C', 3), config.kick),
         (SpecificNote('e', 3), config.clap),
         (SpecificNote('b', 3), config.hat),
     )
 
-    # todo: add note to sample mapping support (kinda easy)\
-    def __init__(self, note_to_sample_path=DEFAULT_NOTE_TO_SAMPLE_PATH, adsr=ADSR()):
+    DEFAULT_ADSR = ADSR()
+
+    DEFAULT_NOTE_TO_ADSR = {
+        SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.2),
+        SpecificNote('e', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
+        SpecificNote('b', 3): ADSR(attack=0.001, decay=0.3, sustain=0, release=0.1),
+    }
+
+    def __init__(
+        self,
+        note_to_sample_path: Iterable[tuple[SpecificNote, Union[str, Path]]] = DEFAULT_NOTE_TO_SAMPLE_PATH,
+        adsr: Union[ADSR, dict[SpecificNote, ADSR]] = DEFAULT_NOTE_TO_ADSR
+    ):
         super().__init__(adsr)
         self.note_to_sample = dict()
         for note, sample_path in note_to_sample_path:
@@ -90,7 +104,12 @@ class Sampler(VST):
         return sample
 
     def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1):
-        sample = a * self.note_to_sample[note][ns_rendered: ns_rendered + ns_to_render]
         out = np.zeros(ns_to_render, dtype='float32')  # handle cases when samples ends earlier than note_off, render zeros till note_off (and maybe release? idk lol)
-        out[:len(sample)] = sample
+        sample = self.note_to_sample.get(note)
+        if sample is not None:
+            sample = a * sample[ns_rendered: ns_rendered + ns_to_render]
+            out[:len(sample)] = sample
         return out
+
+    def adsr(self, note):
+        return self._adsr.get(note, Sampler.DEFAULT_ADSR)

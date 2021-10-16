@@ -34,7 +34,4 @@ def test_note_samples(midi_file, vst):
 
 def test_merge_different_time_signatures(single_vst):
     with pytest.raises(NotImplementedError):
-        ParsedMidi.from_files(('3-4-16.mid', '4-4-16.mid'), vst={
-            '3-4-16': single_vst,
-            '4-4-16': single_vst,
-        })
+        ParsedMidi.from_files(('3-4-16.mid', '4-4-16.mid'), vst=(single_vst, single_vst))

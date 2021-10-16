@@ -40,11 +40,11 @@ class NoteSound:
         self.sample_off = sample_off
         self.ns = sample_off - sample_on
 
-        self.ns_release = int(vst.adsr.release * config.sample_rate)
+        self.ns_release = int(vst.adsr(self.note).release * config.sample_rate)
         self.stop_release = sample_off + self.ns_release  # actual sample when note is off (including release)
 
-        self.ns_attack = min(int(vst.adsr.attack * config.sample_rate), self.ns)
-        self.ns_decay_original = max(int(vst.adsr.decay * config.sample_rate), 1)  # prevent from equal to zero
+        self.ns_attack = min(int(vst.adsr(self.note).attack * config.sample_rate), self.ns)
+        self.ns_decay_original = max(int(vst.adsr(self.note).decay * config.sample_rate), 1)  # prevent from equal to zero
         self.ns_decay = min(self.ns_decay_original, self.ns - self.ns_attack)
         self.ns_sustain = self.ns - self.ns_attack - self.ns_decay
 
@@ -59,8 +59,8 @@ class NoteSound:
         self.range_release = np.arange(self.sample_off, self.stop_release)
 
         self.attack_envelope = np.linspace(0, 1, self.ns_attack, endpoint=False, dtype='float32')
-        # if decay is longer than note then actual sustain is higher than vst.adsr.sustain (do the math)
-        se = max((vst.adsr.sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay_original + 1, vst.adsr.sustain)  # sustain extra
+        # if decay is longer than note then actual sustain is higher than vst.adsr(self.note).sustain (do the math)
+        se = max((vst.adsr(self.note).sustain - 1) * (self.ns - self.ns_attack) / self.ns_decay_original + 1, vst.adsr(self.note).sustain)  # sustain extra
         self.decay_envelope = np.linspace(1, se, self.ns_decay, endpoint=False, dtype='float32')
         self.release_envelope = np.linspace(se, 0, self.ns_release, endpoint=False, dtype='float32')
 
@@ -85,7 +85,7 @@ class NoteSound:
 
         wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
         wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
-        wave[mask_sustain[mask]] *= self.vst.adsr.sustain
+        wave[mask_sustain[mask]] *= self.vst.adsr(self.note).sustain
         wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
         chunk[mask] += wave
         self.ns_rendered += ns_to_render
