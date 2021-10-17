@@ -10,7 +10,7 @@ def single(stream, track):
     for note in track.notes:
         note.render(master)
     assert np.all(np.abs(master) <= 1)
-    stream.write(master.tobytes())
+    stream.write(master)
     track.reset()
 
 

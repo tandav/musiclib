@@ -72,3 +72,9 @@ wav_output_file = 'out.wav'
 kick = 'static/samples/kick-909.wav'
 hat = 'static/samples/open-hat-909.wav'
 clap = 'static/samples/clap-909.wav'
+
+
+# streaming
+audio_pipe = 'audio.fifo'
+video_pipe = 'video.fifo'
+fps = 30

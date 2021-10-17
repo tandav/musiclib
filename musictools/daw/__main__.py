@@ -22,10 +22,12 @@ def main() -> int:
 
     # with streams.Speakers() as stream:
     # with streams.WavFile(config.wav_output_file, dtype='float32') as stream:
-    with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
+    # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
+    # with streams.PCM16File(config.audio_pipe) as stream:
+    with streams.YouTube(config.audio_pipe) as stream:
         for _ in range(1):
-            # render.single(stream, midi)
-            render.chunked(stream, midi)
+            render.single(stream, midi)
+            # render.chunked(stream, midi)
     return 0
 
 
