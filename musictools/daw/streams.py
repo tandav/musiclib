@@ -118,23 +118,7 @@ class Speakers(Stream):
 frame_width = 426
 frame_height = 240
 
-# fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
-#
-# R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-# im = plt.imshow(R)
-# ax.grid(False)
-# ax.axis('off')
-# images = []
-# for _ in range(16):
-#     b = io.BytesIO()
-#     R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-#     im.set_data(R)
-#     fig.savefig(b, format='rgba', dpi=100)
-#     images.append(b)
 
-
-
-# audio_seconds_written = 0.
 
 audio_data = collections.deque()
 video_data = collections.deque()
@@ -195,21 +179,12 @@ class GenerateVideoToPipe(Thread):
 
         seconds_to_write = 0.
 
-        while True:
-            if audio_finished:
-                if frames_written == int(audio_seconds_written * config.fps):
-                    print('gg', audio_seconds_written)
-                    break
+        while not audio_finished or frames_written != int(audio_seconds_written * config.fps):
 
             if frames_written == 0:
-                seconds_to_write = 1
+                n_frames = 30
             else:
-                seconds_to_write = audio_seconds_written - video_seconds_written
-
-            n_frames = int(config.fps * seconds_to_write)
-            print('n_frames, seconds_to_write', n_frames, audio_seconds_written, video_seconds_written, seconds_to_write)
-            if n_frames == 0:
-                time.sleep(1)
+                n_frames = int(audio_seconds_written * config.fps) - frames_written
 
             for frame in range(n_frames):
                 b = random.choice(self.images).getvalue()
@@ -276,8 +251,6 @@ class YouTube(Stream):
            OUTPUT_VIDEO,  # output encoding
         )
 
-
-
         # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         self.ffmpeg = subprocess.Popen(cmd)
         # self.p = None
@@ -289,28 +262,6 @@ class YouTube(Stream):
         self.video_thread = GenerateVideoToPipe()
         self.audio_thread.start()
         self.video_thread.start()
-
-        # self.video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
-        # self.audio = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
-
-        # try:
-        #     self.video = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
-        # except OSError as e:
-        #     if e == errno.ENOENT:
-        #         print(e)
-        #         self.video = None
-        #
-        #
-        # try:
-        #     self.audio = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
-        # except OSError as e:
-        #     if e == errno.ENOENT:
-        #         print(e)
-        #         self.audio = None
-        #
-        #
-        #
-        # self.video = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
         print('1'* 100)
 
     def __enter__(self):
@@ -342,74 +293,3 @@ class YouTube(Stream):
 
         audio_data.appendleft(a)
 
-        # n_frames = int(config.fps * seconds)
-        #
-        # for frame in range(n_frames):
-        #     v = random.choice(images).getvalue()
-        #     video_data.appendleft(v)
-        #
-        # print('written --------', seconds, n_frames, len(audio_data), len(video_data))
-
-
-        # v = b''.join(random.choice(self.images).getvalue() for frame in range(n_frames))
-        # V = set(random.choice(self.images).getvalue() for frame in range(n_frames))
-        # V_done = set()
-        # print(len(a), len(v))
-        # print(len(a), sum(len(v) for v in V), len(V))
-        # retry_times = itertools.cycle((1, 1, 1, 1, 1, 1, 2, 3, 5))
-        #
-        #
-        # t = time.time()
-        #
-        # while not (audio_written and video_written):
-        #     if not audio_written:
-        #         try:
-        #             ab = os.write(self.audio, a)
-        #         except BlockingIOError:
-        #             print('AUDIO fails', t)
-        #         else:
-        #             print('AUDIO write sucess', t, ab)
-        #             audio_written = True
-        #
-        #     if not video_written:
-        #         try:
-        #             for v in V - V_done:
-        #                 os.write(self.video, v)
-        #         except BlockingIOError:
-        #             print('VIDEO fails', t, len(V))
-        #         else:
-        #             print('VIDEO write sucess', t)
-        #             video_written = True
-        #     r = next(retry_times)
-        #     time.sleep(r)
-
-        # while True:
-        #     try:
-        #         os.write(self.audio, b)
-        #
-        #     except BlockingIOError:
-        #         r = next(retry_times)
-        #         print('AUDIO retry', len(b), time.time(), r)
-        #         time.sleep(next(retry_times))
-        #     else:
-        #         print('AUDIO write sucess', time.time())
-        #         break
-
-        # write video frames
-        # for frame in range(n_frames):
-        #     # self.p.stdin.write(random.choice(self.images).getvalue())
-        #     b = random.choice(self.images).getvalue()
-        #
-        #     retry_times = itertools.cycle((1, 1, 1, 1, 1, 1, 2, 3, 5))
-        #
-        #     while True:
-        #         try:
-        #             os.write(self.video, b)
-        #         except BlockingIOError:
-        #             r = next(retry_times)
-        #             print('VIDEO retry', len(b), time.time(), r)
-        #             time.sleep(next(retry_times))
-        #         else:
-        #             print('VIDEO write sucess', time.time())
-        #             break
-        # self.p.communicate()

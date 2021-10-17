@@ -8,7 +8,7 @@ from .midi.parse import ParsedMidi
 def main() -> int:
     # synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.1))
-    # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
+    synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
     # synth = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     # midi = ParsedMidi.from_file(config.midi_file, vst=synth)
     # midi = ParsedMidi.from_file('drumloop.mid', vst=synth)
@@ -25,9 +25,10 @@ def main() -> int:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
     # with streams.PCM16File(config.audio_pipe) as stream:
     with streams.YouTube(config.audio_pipe) as stream:
-        for _ in range(1):
-            # render.single(stream, midi)
-            render.chunked(stream, midi)
+        for _ in range(4): render.chunked(stream, midi)
+        for _ in range(4): render.single(stream, ParsedMidi.from_file('weird.mid', vst=synth))
+        for _ in range(4): render.chunked(stream, ParsedMidi.from_file('dots.mid', vst=synth))
+
     print('exit main')
     return 0
 
