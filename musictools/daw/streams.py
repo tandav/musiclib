@@ -139,22 +139,22 @@ class GenerateAudioToPipe(Thread):
         global audio_finished
         global audio_seconds_written
         fd = open(self._pipe_name, 'wb')
-        print('GenerateAudioToPipe')
+        # print('GenerateAudioToPipe')
 
         while not no_more_data or len(audio_data) > 0:
-            print('1111111111111GenerateAudioToPipe')
+            # print('1111111111111GenerateAudioToPipe')
 
             if not audio_data:
-                print('***********AUDIO', len(audio_data))
+                # print('***********AUDIO', len(audio_data))
                 time.sleep(1)
                 continue
 
             while audio_data:
-                print('44444444444 AUDIO')
+                # print('44444444444 AUDIO')
                 b = audio_data.pop()
                 # print(b, b.tobytes()[:100])
                 fd.write(b.tobytes())
-                print('5555555555')
+                # print('5555555555')
                 audio_seconds_written += len(b) / config.sample_rate
 
 
@@ -211,7 +211,7 @@ class YouTube(Stream):
         OUTPUT_VIDEO = str(Path.home() / 'Desktop/radiant2.mp4')
 
         cmd = ('ffmpeg',
-           '-loglevel', 'trace',
+           # '-loglevel', 'trace',
            '-hwaccel', 'videotoolbox',
            # '-threads', '16',
            # '-y', '-r', '60', # overwrite, 60fps
@@ -223,7 +223,7 @@ class YouTube(Stream):
            # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
            # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
            # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
-           '-thread_queue_size', '512',
+           '-thread_queue_size', '1024',
            '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
            "-f", 's16le',  # means 16bit input
@@ -231,7 +231,7 @@ class YouTube(Stream):
            '-r', "44100",  # the input will have 44100 Hz
            '-ac', '1',  # number of audio channels (mono1/stereo=2)
            # '-i', f'pipe:{config.audio_pipe}',
-           '-thread_queue_size', '512',
+           '-thread_queue_size', '1024',
            '-i', config.audio_pipe,
            # '-b:a', "3000k",  # output bitrate (=quality). Here, 3000kb/second
 
