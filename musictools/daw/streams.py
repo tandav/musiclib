@@ -1,6 +1,7 @@
 import abc
 import io
 import itertools
+import pickle
 import random
 import time
 
@@ -12,7 +13,7 @@ import numpy as np
 import os
 import pyaudio
 from scipy.io import wavfile
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import subprocess
 import numpy as np
 from musictools import config
@@ -117,87 +118,106 @@ class Speakers(Stream):
 frame_width = 426
 frame_height = 240
 
-fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
+# fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
+#
+# R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+# im = plt.imshow(R)
+# ax.grid(False)
+# ax.axis('off')
+# images = []
+# for _ in range(16):
+#     b = io.BytesIO()
+#     R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+#     im.set_data(R)
+#     fig.savefig(b, format='rgba', dpi=100)
+#     images.append(b)
 
-R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-im = plt.imshow(R)
-ax.grid(False)
-ax.axis('off')
-images = []
-for _ in range(16):
-    b = io.BytesIO()
-    R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-    im.set_data(R)
-    fig.savefig(b, format='rgba', dpi=100)
-    images.append(b)
+
 
 # audio_seconds_written = 0.
+
 audio_data = collections.deque()
 video_data = collections.deque()
-
-
 audio_finished = False
 video_finished = False
+no_more_data = False
+audio_seconds_written = 0.
+video_seconds_written = 0.
 
 
-def write_audio():
-    # audio = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
-    audio = os.open(config.audio_pipe, os.O_WRONLY)
-    # audio = os.open(config.audio_pipe)
-    # audio = open(config.audio_pipe, 'wb')
-    print('AUDIO')
+class GenerateAudioToPipe(Thread):
+    def __init__(self):
+        super().__init__()
+        self._pipe_name = config.audio_pipe
 
-    while not audio_finished:
-        print('AAA AUDIO')
-        if not audio_data:
-            print('AUDIO', len(audio_data))
-            time.sleep(1)
-            continue
-        while audio_data:
-            print('AUDIO')
-            b = audio_data.pop()
-            # os.write(audio, a)
-            for i in range(0, len(b), config.chunk_size):
-                # audio.write(b[i:i + config.chunk_size])
-                os.write(audio, b[i:i + config.chunk_size])
-    # audio.close()
-    os.close(audio)
 
-def write_video():
-    # video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
-    video = os.open(config.video_pipe, os.O_WRONLY)
-    # video = os.open(config.video_pipe)
-    # video = open(config.video_pipe, 'wb')
-    print('VIDEO')
-    while not video_finished:
-        print('VVVV VIDEO ' * 5)
-        if not video_data:
-            print('VIDEO ' * 5, len(video_data))
-            time.sleep(1)
-            continue
-        while video_data:
-            print('VIDEO ' * 5)
-            b = video_data.pop()
-            # os.write(video, a)
-            for i in range(0, len(b), config.chunk_size):
-                # video.write(b[i:i + config.chunk_size])
-                os.write(video, b[i:i + config.chunk_size])
-    # video.close()
-    os.close(video)
-    # def write_video(data, pipe_name, chunk_size=1024):
-# def write_video():
-    # video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
-    #
-    # os.write(video, b)
-    # # Open the pipes as opening files (open for "open for writing only").
-    # fd_pipe = os.open(pipe_name, os.O_WRONLY)  # fd_pipe1 is a file descriptor (an integer)
-    #
-    # for i in range(0, len(data), chunk_size):
-    #     # Write to named pipe as writing to a file (but write the data in small chunks).
-    #     os.write(fd_pipe, data[i:chunk_size+i])  # Write 1024 bytes of data to fd_pipe
-    #
-    # # Closing the pipes as closing files.
-    # os.close(fd_pipe)
+    def run(self):
+        global audio_finished
+        global audio_seconds_written
+        fd = open(self._pipe_name, 'wb')
+        print('GenerateAudioToPipe')
+
+        while not no_more_data or len(audio_data) > 0:
+            print('1111111111111GenerateAudioToPipe')
+
+            if not audio_data:
+                print('***********AUDIO', len(audio_data))
+                time.sleep(1)
+                continue
+
+            while audio_data:
+                print('44444444444 AUDIO')
+                b = audio_data.pop()
+                # print(b, b.tobytes()[:100])
+                fd.write(b.tobytes())
+                print('5555555555')
+                audio_seconds_written += len(b) / config.sample_rate
+
+
+        fd.close()
+        print('IIIIIIIIIII')
+        audio_finished = True
+
+
+
+class GenerateVideoToPipe(Thread):
+    def __init__(self):
+        super().__init__()
+        self._pipe_name = config.video_pipe
+        with open('/Users/tandav/GoogleDrive/projects/yt-stream/images.pkl', 'rb') as f:
+            self.images = pickle.load(f)
+
+    def run(self):
+        # global video_seconds_written
+        fd = open(self._pipe_name, 'wb')
+        frames_written = 0
+        video_seconds_written = 0
+
+        seconds_to_write = 0.
+
+        while True:
+            if audio_finished:
+                if frames_written == int(audio_seconds_written * config.fps):
+                    print('gg', audio_seconds_written)
+                    break
+
+            if frames_written == 0:
+                seconds_to_write = 1
+            else:
+                seconds_to_write = audio_seconds_written - video_seconds_written
+
+            n_frames = int(config.fps * seconds_to_write)
+            print('n_frames, seconds_to_write', n_frames, audio_seconds_written, video_seconds_written, seconds_to_write)
+            if n_frames == 0:
+                time.sleep(1)
+
+            for frame in range(n_frames):
+                b = random.choice(self.images).getvalue()
+                fd.write(b)
+                frames_written += 1
+            video_seconds_written += seconds_to_write
+        fd.close()
+
 
 def recreate(p):
     p = Path(p)
@@ -228,6 +248,7 @@ class YouTube(Stream):
            # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
            # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
            # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
+           '-thread_queue_size', '512',
            '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
            "-f", 's16le',  # means 16bit input
@@ -235,6 +256,7 @@ class YouTube(Stream):
            '-r', "44100",  # the input will have 44100 Hz
            '-ac', '1',  # number of audio channels (mono1/stereo=2)
            # '-i', f'pipe:{config.audio_pipe}',
+           '-thread_queue_size', '512',
            '-i', config.audio_pipe,
            # '-b:a', "3000k",  # output bitrate (=quality). Here, 3000kb/second
 
@@ -263,8 +285,8 @@ class YouTube(Stream):
         # print(self.p)
         # print('2'* 100)
 
-        self.audio_thread = Thread(target=write_audio)
-        self.video_thread = Thread(target=write_video)
+        self.audio_thread = GenerateAudioToPipe()
+        self.video_thread = GenerateVideoToPipe()
         self.audio_thread.start()
         self.video_thread.start()
 
@@ -295,9 +317,10 @@ class YouTube(Stream):
         return self
 
     def __exit__(self, type, value, traceback):
-        global audio_finished, video_finished
+        global audio_finished, video_finished, no_more_data
         audio_finished = True
         video_finished = True
+        no_more_data = True
 
         self.audio_thread.join()
         self.video_thread.join()
@@ -313,19 +336,19 @@ class YouTube(Stream):
 
         # write audio samples
         # self.path.write(float32_to_int16(data).tobytes())
-        a = float32_to_int16(data).tobytes()
+        a = float32_to_int16(data)#.tobytes()
         # ab = os.write(self.audio, a)
         seconds = len(data) / config.sample_rate
 
         audio_data.appendleft(a)
 
-        n_frames = int(config.fps * seconds)
-
-        for frame in range(n_frames):
-            v = random.choice(images).getvalue()
-            video_data.appendleft(v)
-
-        print('written --------', seconds, n_frames, len(audio_data), len(video_data))
+        # n_frames = int(config.fps * seconds)
+        #
+        # for frame in range(n_frames):
+        #     v = random.choice(images).getvalue()
+        #     video_data.appendleft(v)
+        #
+        # print('written --------', seconds, n_frames, len(audio_data), len(video_data))
 
 
         # v = b''.join(random.choice(self.images).getvalue() for frame in range(n_frames))
