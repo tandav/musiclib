@@ -5,6 +5,9 @@ import random
 import time
 
 import errno
+from threading import Thread
+
+import collections
 import numpy as np
 import os
 import pyaudio
@@ -110,29 +113,112 @@ class Speakers(Stream):
     def write(self, data: np.ndarray):
         self.stream.write(data.tobytes())
 
+# https://support.google.com/youtube/answer/6375112
+frame_width = 426
+frame_height = 240
+
+fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
+
+R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+im = plt.imshow(R)
+ax.grid(False)
+ax.axis('off')
+images = []
+for _ in range(16):
+    b = io.BytesIO()
+    R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+    im.set_data(R)
+    fig.savefig(b, format='rgba', dpi=100)
+    images.append(b)
+
+# audio_seconds_written = 0.
+audio_data = collections.deque()
+video_data = collections.deque()
+
+
+audio_finished = False
+video_finished = False
+
+
+def write_audio():
+    # audio = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
+    audio = os.open(config.audio_pipe, os.O_WRONLY)
+    # audio = os.open(config.audio_pipe)
+    # audio = open(config.audio_pipe, 'wb')
+    print('AUDIO')
+
+    while not audio_finished:
+        print('AAA AUDIO')
+        if not audio_data:
+            print('AUDIO', len(audio_data))
+            time.sleep(1)
+            continue
+        while audio_data:
+            print('AUDIO')
+            b = audio_data.pop()
+            # os.write(audio, a)
+            for i in range(0, len(b), config.chunk_size):
+                # audio.write(b[i:i + config.chunk_size])
+                os.write(audio, b[i:i + config.chunk_size])
+    # audio.close()
+    os.close(audio)
+
+def write_video():
+    # video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
+    video = os.open(config.video_pipe, os.O_WRONLY)
+    # video = os.open(config.video_pipe)
+    # video = open(config.video_pipe, 'wb')
+    print('VIDEO')
+    while not video_finished:
+        print('VVVV VIDEO ' * 5)
+        if not video_data:
+            print('VIDEO ' * 5, len(video_data))
+            time.sleep(1)
+            continue
+        while video_data:
+            print('VIDEO ' * 5)
+            b = video_data.pop()
+            # os.write(video, a)
+            for i in range(0, len(b), config.chunk_size):
+                # video.write(b[i:i + config.chunk_size])
+                os.write(video, b[i:i + config.chunk_size])
+    # video.close()
+    os.close(video)
+    # def write_video(data, pipe_name, chunk_size=1024):
+# def write_video():
+    # video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
+    #
+    # os.write(video, b)
+    # # Open the pipes as opening files (open for "open for writing only").
+    # fd_pipe = os.open(pipe_name, os.O_WRONLY)  # fd_pipe1 is a file descriptor (an integer)
+    #
+    # for i in range(0, len(data), chunk_size):
+    #     # Write to named pipe as writing to a file (but write the data in small chunks).
+    #     os.write(fd_pipe, data[i:chunk_size+i])  # Write 1024 bytes of data to fd_pipe
+    #
+    # # Closing the pipes as closing files.
+    # os.close(fd_pipe)
+
+def recreate(p):
+    p = Path(p)
+    if p.exists():
+        p.unlink()
+    os.mkfifo(p)
+
 
 class YouTube(Stream):
     def __init__(self, path):
 
+        recreate(config.audio_pipe)
+        recreate(config.video_pipe)
 
-        INPUT_AUDIO = config.audio_pipe
+        # INPUT_AUDIO = config.audio_pipe
         OUTPUT_VIDEO = str(Path.home() / 'Desktop/radiant2.mp4')
-
-        # https://support.google.com/youtube/answer/6375112
-        frame_width = 426
-        frame_height = 240
-
-        fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
-
-        R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-        im = plt.imshow(R)
-        ax.grid(False)
-        ax.axis('off')
 
         cmd = ('ffmpeg',
            '-loglevel', 'trace',
            '-hwaccel', 'videotoolbox',
-           '-threads', '16',
+           # '-threads', '16',
            # '-y', '-r', '60', # overwrite, 60fps
            '-y', '-r', str(config.fps),  # overwrite, 60fps
            '-s', f'{frame_width}x{frame_height}',  # size of image string
@@ -141,13 +227,15 @@ class YouTube(Stream):
            # '-f', 'image2pipe',
            # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
            # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-           '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
+           # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
+           '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
            "-f", 's16le',  # means 16bit input
            "-acodec", "pcm_s16le",  # means raw 16bit input
            '-r', "44100",  # the input will have 44100 Hz
            '-ac', '1',  # number of audio channels (mono1/stereo=2)
-           '-i', f'pipe:{config.audio_pipe}',
+           # '-i', f'pipe:{config.audio_pipe}',
+           '-i', config.audio_pipe,
            # '-b:a', "3000k",  # output bitrate (=quality). Here, 3000kb/second
 
            '-deinterlace',
@@ -167,22 +255,21 @@ class YouTube(Stream):
         )
 
 
-        self.images = []
-        for _ in range(16):
-            b = io.BytesIO()
-            R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-            im.set_data(R)
-            fig.savefig(b, format='rgba', dpi=100)
-            self.images.append(b)
-        # self.p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        self.p = subprocess.Popen(cmd)
-        # self.p = None
-        time.sleep(0.5)
-        print(self.p)
-        print('2'* 100)
 
-        self.video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
-        self.audio = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
+        # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        self.ffmpeg = subprocess.Popen(cmd)
+        # self.p = None
+        # time.sleep(5)
+        # print(self.p)
+        # print('2'* 100)
+
+        self.audio_thread = Thread(target=write_audio)
+        self.video_thread = Thread(target=write_video)
+        self.audio_thread.start()
+        self.video_thread.start()
+
+        # self.video = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
+        # self.audio = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
 
         # try:
         #     self.video = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
@@ -208,51 +295,70 @@ class YouTube(Stream):
         return self
 
     def __exit__(self, type, value, traceback):
-        os.close(self.audio)
-        os.close(self.video)
+        global audio_finished, video_finished
+        audio_finished = True
+        video_finished = True
+
+        self.audio_thread.join()
+        self.video_thread.join()
+        self.ffmpeg.wait()
+
+        # os.close(self.audio)
+        # os.close(self.video)
         # self.path.close()
 
     def write(self, data: np.ndarray):
-
-        audio_written, video_written = False, False
-
-        seconds = len(data) / config.sample_rate
-        n_frames = int(config.fps * seconds)
+        # global audio_seconds_written
+        # audio_written, video_written = False, False
 
         # write audio samples
         # self.path.write(float32_to_int16(data).tobytes())
         a = float32_to_int16(data).tobytes()
+        # ab = os.write(self.audio, a)
+        seconds = len(data) / config.sample_rate
+
+        audio_data.appendleft(a)
+
+        n_frames = int(config.fps * seconds)
+
+        for frame in range(n_frames):
+            v = random.choice(images).getvalue()
+            video_data.appendleft(v)
+
+        print('written --------', seconds, n_frames, len(audio_data), len(video_data))
+
+
         # v = b''.join(random.choice(self.images).getvalue() for frame in range(n_frames))
-        V = set(random.choice(self.images).getvalue() for frame in range(n_frames))
-        V_done = set()
+        # V = set(random.choice(self.images).getvalue() for frame in range(n_frames))
+        # V_done = set()
         # print(len(a), len(v))
-        print(len(a), sum(len(v) for v in V), len(V))
-        retry_times = itertools.cycle((1, 1, 1, 1, 1, 1, 2, 3, 5))
-
-
-        t = time.time()
-
-        while not (audio_written and video_written):
-            if not audio_written:
-                try:
-                    ab = os.write(self.audio, a)
-                except BlockingIOError:
-                    print('AUDIO fails', t)
-                else:
-                    print('AUDIO write sucess', t, ab)
-                    audio_written = True
-
-            if not video_written:
-                try:
-                    for v in V - V_done:
-                        os.write(self.video, v)
-                except BlockingIOError:
-                    print('VIDEO fails', t, len(V))
-                else:
-                    print('VIDEO write sucess', t)
-                    video_written = True
-            r = next(retry_times)
-            time.sleep(r)
+        # print(len(a), sum(len(v) for v in V), len(V))
+        # retry_times = itertools.cycle((1, 1, 1, 1, 1, 1, 2, 3, 5))
+        #
+        #
+        # t = time.time()
+        #
+        # while not (audio_written and video_written):
+        #     if not audio_written:
+        #         try:
+        #             ab = os.write(self.audio, a)
+        #         except BlockingIOError:
+        #             print('AUDIO fails', t)
+        #         else:
+        #             print('AUDIO write sucess', t, ab)
+        #             audio_written = True
+        #
+        #     if not video_written:
+        #         try:
+        #             for v in V - V_done:
+        #                 os.write(self.video, v)
+        #         except BlockingIOError:
+        #             print('VIDEO fails', t, len(V))
+        #         else:
+        #             print('VIDEO write sucess', t)
+        #             video_written = True
+        #     r = next(retry_times)
+        #     time.sleep(r)
 
         # while True:
         #     try:

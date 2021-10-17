@@ -26,8 +26,9 @@ def main() -> int:
     # with streams.PCM16File(config.audio_pipe) as stream:
     with streams.YouTube(config.audio_pipe) as stream:
         for _ in range(1):
-            render.single(stream, midi)
-            # render.chunked(stream, midi)
+            # render.single(stream, midi)
+            render.chunked(stream, midi)
+    print('exit main')
     return 0
 
 
