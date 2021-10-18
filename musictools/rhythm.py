@@ -88,7 +88,7 @@ class Rhythm:
         return rhythms | P.Pipe(tuple)
 
     def to_midi(self, path, chord=None, progression=None):
-        return midi.rhythm_to_midi(self, path, chord, progression)
+        return midi.player.rhythm_to_midi(self, path, chord, progression)
 
     def play(self):
         raise NotImplementedError

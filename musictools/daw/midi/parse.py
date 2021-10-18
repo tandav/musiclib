@@ -102,6 +102,7 @@ class NoteSound:
 
 class ParsedMidi:
     def __init__(self, midi: mido.MidiFile, vst: Union[VST, Sequence[VST]]):
+        print('-'*100)
 
         ticks_set = set()
         notes = []
@@ -114,6 +115,7 @@ class ParsedMidi:
 
             note_buffer = dict()
             for message in track:
+                print(track_i, track, message)
                 if vst_ is None and message.type == 'track_name':
                     vst_ = vst[track_i]
                 if message.type == 'time_signature':
@@ -128,6 +130,7 @@ class ParsedMidi:
                 if message.type == 'note_on':
                     note_buffer[message.note] = n_samples
                 elif message.type == 'note_off':
+                    # print(n_samples)
                     notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst_))
             ticks_set.add(self.round_ticks_to_bar(ticks, ticks_per_bar))
 
@@ -158,14 +161,17 @@ class ParsedMidi:
         midi = mido.MidiFile(type=1)
 
         numerators, denominators = set(), set()
-        ticks_per_beat_s = set()
+        ticks_per_beat_s = dict()
 
         for i, f in enumerate(midi_files):
+            print(f)
             track = mido.MidiTrack()
             time_signature_parsed = False
             track_midi = mido.MidiFile(config.midi_folder + f, type=0)
-            ticks_per_beat_s.add(track_midi.ticks_per_beat)
+            ticks_per_beat_s[f] = track_midi.ticks_per_beat
+
             for message in track_midi.tracks[0]:
+                print(message)
                 if message.type == 'track_name':
                     message.name = Path(f).stem
                 elif message.type == 'time_signature':
@@ -178,15 +184,20 @@ class ParsedMidi:
                 elif message.type == 'note_on' or message.type == 'note_off':
                     message.channel = i
                 track.append(message)
+            if not time_signature_parsed:
+                raise ValueError(f'input midi {f} must have time_signature message')
+
             midi.tracks.append(track)
 
-        if not len(ticks_per_beat_s) == 1:
-            raise NotImplementedError('cant merge midi files with different ticks_per_beat')
+        print('ticks_per_beat:', ticks_per_beat_s)
+        if not len(set(ticks_per_beat_s.values())) == 1:
+            raise NotImplementedError(f'cant merge midi files with different ticks_per_beat')
 
-        midi.ticks_per_beat = next(iter(ticks_per_beat_s))  # must be as in input files
+        midi.ticks_per_beat = next(iter(ticks_per_beat_s.values()))  # in merged file must be as in input files
 
         if not (len(numerators) == len(denominators) == 1):
-            raise NotImplementedError('cant merge midi files with different time_signatures (numerator and denominator)')
+            raise NotImplementedError(f'cant merge midi files with different or without time_signatures (numerator {numerators} and denominator {denominators})')
+
         return cls(midi, vst)
 
     @classmethod

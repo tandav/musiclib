@@ -1,10 +1,9 @@
 import os
+from typing import Optional
 
 if (midi_device := os.environ.get('MIDI_DEVICE')):
     import mido
-    from mido import Message
-    from mido import MidiFile
-    from mido import MidiTrack
+
 
     port = mido.open_output(midi_device)
 
@@ -12,10 +11,12 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
         note = kwargs.pop('note') + 24  # to match ableton octaves
         port.send(mido.Message(*args, note=note, **kwargs))
 
-    def rhythm_to_midi(rhythm, path, chord=None, progression=None) -> None:
-        mid = MidiFile(type=0)
+    def rhythm_to_midi(rhythm, path, chord=None, progression=None, return_midi=False) -> Optional[mido.MidiFile]:
+        mid = mido.MidiFile(type=0, ticks_per_beat=96)
         ticks_per_note = mid.ticks_per_beat * rhythm.beats_per_bar // rhythm.bar_notes
-        track = MidiTrack()
+        track = mido.MidiTrack()
+        track.append(mido.MetaMessage(type='track_name', name='test_name'))
+        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
         t = 0
 
         def append_bar(chord):
@@ -24,9 +25,9 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
                 if is_play:
                     notes = [48] if chord is None else [note.absolute_i for note in chord.notes]
                     for i, note in enumerate(notes):
-                        track.append(Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
+                        track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                     for i, note in enumerate(notes):
-                        track.append(Message('note_off', note=note, velocity=100, time=ticks_per_note if i == 0 else 0))
+                        track.append(mido.Message('note_off', note=note, velocity=100, time=ticks_per_note if i == 0 else 0))
                     t = 0
                 else:
                     t += ticks_per_note
@@ -38,6 +39,8 @@ if (midi_device := os.environ.get('MIDI_DEVICE')):
                 append_bar(chord)
 
         mid.tracks.append(track)
+        if return_midi:
+            return mid
         mid.save(path)
 else:
     def send_message(*args, **kwargs):
