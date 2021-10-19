@@ -7,6 +7,7 @@ import time
 
 import errno
 from threading import Thread
+from threading import Event
 
 import collections
 import numpy as np
@@ -16,7 +17,6 @@ from . import wavfile
 # import matplotlib.pyplot as plt
 import subprocess
 import numpy as np
-from musictools import config
 from pathlib import Path
 
 from .. import config
@@ -124,14 +124,14 @@ import queue
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
 # audio_data = collections.deque()
-audio_data = queue.Queue(maxsize=256)
-video_data = queue.Queue(maxsize=256)
+q_audio = queue.Queue(maxsize=1024)
+q_video = queue.Queue(maxsize=1024)
 # video_data = collections.deque()
-audio_finished = False
-video_finished = False
-no_more_data = False
+# no_more_data = False
 audio_seconds_written = 0.
 video_seconds_written = 0.
+frames_written = 0
+
 n_runs = 0
 # class GenerateAudioToPipe(Thread):
 #     def __init__(self):
@@ -207,20 +207,32 @@ n_runs = 0
 
 
 class PipeWriter(Thread):
-    def __init__(self, pipe, q):
+    def __init__(self, pipe, q: queue.Queue):
         super().__init__()
         self.pipe = pipe
         self.q = q
+        self.stream_finished = Event()
 
     def run(self):
         with open(self.pipe, 'wb') as pipe:
             # while True:
-            while not audio_finished:
+            while not self.stream_finished.is_set() or not self.q.empty():
                 print(self.pipe, 'lol')
                 b = self.q.get(block=True)
                 print(self.pipe, 'kek')
                 pipe.write(b)
                 self.q.task_done()
+
+    # def run(self):
+    #     # fd = os.open(self.pipe, os.O_WRONLY | os.O_NONBLOCK)
+    #     fd = os.open(self.pipe, os.O_WRONLY)
+    #     while not self.stream_finished.is_set():
+    #         print(self.pipe, 'lol')
+    #         b = self.q.get(block=True)
+    #         print(self.pipe, 'kek')
+    #         os.write(fd, b)
+    #         self.q.task_done()
+    #     os.close(fd)
 
 # def audio_thread():
 #     with open(config.audio_pipe, 'wb') as pipe:
@@ -256,53 +268,59 @@ class YouTube(Stream):
 
 
         cmd = ('ffmpeg',
-           '-loglevel', 'trace',
-           # '-hwaccel', 'videotoolbox',
-           # '-threads', '16',
-           # '-y', '-r', '60', # overwrite, 60fps
-           '-y',
-           # '-r', str(config.fps),  # overwrite, 60fps
+            '-loglevel', 'trace',
+            '-hwaccel', 'videotoolbox',
+            # '-threads', '16',
+            # '-y', '-r', '60', # overwrite, 60fps
+            '-y',
 
-           '-s', f'{frame_width}x{frame_height}',  # size of image string
-           '-f', 'rawvideo',
-           '-pix_fmt', 'rgba',  # format
-           # '-f', 'image2pipe',
-           # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
-           # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-           # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
-           '-thread_queue_size', '1024',
-           '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
-           "-f", 's16le',  # means 16bit input
-           "-acodec", "pcm_s16le",  # means raw 16bit input
-           '-r', "44100",  # the input will have 44100 Hz
-           '-ac', '1',  # number of audio channels (mono1/stereo=2)
-           # '-i', f'pipe:{config.audio_pipe}',
-           '-thread_queue_size', '2048',
-           '-i', config.audio_pipe,
-           # '-b:a', "3000k",  # output bitrate (=quality). Here, 3000kb/second
+            "-f", 's16le',  # means 16bit input
+            "-acodec", "pcm_s16le",  # means raw 16bit input
+            '-r', "44100",  # the input will have 44100 Hz
+            '-ac', '1',  # number of audio channels (mono1/stereo=2)
+            # '-i', f'pipe:{config.audio_pipe}',
+            # '-thread_queue_size', '2048',
+            '-i', config.audio_pipe,
 
-           '-deinterlace',
-           # '-c:v', 'hevc_videotoolbox',
-           '-c:v', 'libx264',
-           '-pix_fmt', 'yuv420p',
-           # '-preset', 'ultrafast',
+            '-s', f'{frame_width}x{frame_height}',  # size of image string
+            '-f', 'rawvideo',
+            '-pix_fmt', 'rgba',  # format
+            # '-f', 'image2pipe',
+            # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
+            # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
+            # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
+            # '-thread_queue_size', '1024',
+            '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
-           # '-tag:v', 'hvc1', '-profile:v', 'main10',
-           # '-b:v', '16M',
-           # '-b:a', "100k",
-           # '-b:v', '200k',
-           # '-b:v', '100k',
 
-           # '-framerate', '20',
-           # '-maxrate', '1000k',
+            # '-c:a', 'libvorbis',
+            # '-ac', '1',  # number of audio channels (mono1/stereo=2)
+            # '-b:a', "320k",  # output bitrate (=quality). Here, 3000kb/second
 
-           # '-f', 'flv',
-           # '-flvflags', 'no_duration_filesize',
-           # 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg',
-           # f'rtmp://a.rtmp.youtube.com/live2/{os.environ["YOUTUBE_STREAM_KEY"]}',
+            # '-c:v', 'hevc_videotoolbox',
+            '-c:v', 'libx264',
+            '-pix_fmt', 'yuv420p',
+            # '-preset', 'ultrafast',
 
-           config.OUTPUT_VIDEO,  # output encoding
+            # '-tag:v', 'hvc1', '-profile:v', 'main10',
+            # '-b:v', '16M',
+            # '-b:a', "300k",
+            # '-b:v', '200k',
+            '-b:v', '500k',
+            '-deinterlace',
+            '-r', str(config.fps),  # overwrite, 60fps
+
+               # '-framerate', '20',
+            # '-maxrate', '1000k',
+            # '-map', '0:a',
+            # '-map', '1:v',
+            # '-f', 'flv',
+            # '-flvflags', 'no_duration_filesize',
+            # 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg',
+            # f'rtmp://a.rtmp.youtube.com/live2/{os.environ["YOUTUBE_STREAM_KEY"]}',
+
+            config.OUTPUT_VIDEO,  # output encoding
         )
 
         # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
@@ -315,13 +333,15 @@ class YouTube(Stream):
         # self.audio_thread = GenerateAudioToPipe()
         # self.video_thread = GenerateVideoToPipe()
 
-        self.audio_thread = PipeWriter(config.audio_pipe, audio_data)
-        self.video_thread = PipeWriter(config.video_pipe, video_data)
+        self.audio_thread = PipeWriter(config.audio_pipe, q_audio)
+        self.video_thread = PipeWriter(config.video_pipe, q_video)
         self.audio_thread.start()
         self.video_thread.start()
-
-        # self.audio_pipe = os.open(config.audio_pipe, os.O_WRONLY)
-        # self.video_pipe = os.open(config.video_pipe, os.O_WRONLY)
+        # time.sleep(2)
+        # print('sfsfsf')
+        # self.audio_pipe = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
+        # print('qq')
+        # self.video_pipe = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
 
         print('1'* 100)
 
@@ -329,10 +349,13 @@ class YouTube(Stream):
         return self
 
     def __exit__(self, type, value, traceback):
-        global audio_finished, video_finished, no_more_data
-        audio_finished = True
-        video_finished = True
-        no_more_data = True
+        # global no_more_data
+        # audio_finished = True
+        # video_finished = True
+        # no_more_data = True
+
+        self.audio_thread.stream_finished.set()
+        self.video_thread.stream_finished.set()
 
         self.audio_thread.join()
         self.video_thread.join()
@@ -341,13 +364,16 @@ class YouTube(Stream):
         os.unlink(config.audio_pipe)
         os.unlink(config.video_pipe)
 
-        # os.close(self.audio)
-        # os.close(self.video)
+        # os.close(self.audio_pipe)
+        # os.close(self.video_pipe)
         # self.path.close()
 
     def write(self, data: np.ndarray):
         global n_runs
-        # global audio_seconds_written
+        global audio_seconds_written
+        global video_seconds_written
+        global frames_written
+
         # audio_written, video_written = False, False
 
         # write audio samples
@@ -355,17 +381,26 @@ class YouTube(Stream):
         # a = float32_to_int16(data)#.tobytes()
         # ab = os.write(self.audio, a)
         seconds = len(data) / config.sample_rate
+        b = float32_to_int16(data).tobytes()
+        # print('XG', len(b))
+        # os.write(self.audio_pipe, b)
+        # print('VVS')
+        q_audio.put(b, block=True)
+        audio_seconds_written += seconds
 
-        audio_data.put(data.tobytes(), block=True)
-        n_frames = int(seconds * config.fps)# - frames_written
+        n_frames = int(audio_seconds_written * config.fps) - frames_written
+        # n_frames = int(seconds * config.fps)# - frames_written
         assert n_frames > 0
         # print('fffffffffff', n_frames)
-        print('eeeeeeeeeeeeeeeeee', audio_data.qsize(), video_data.qsize(), n_frames)
+        print('eeeeeeeeeeeeeeeeee', q_audio.qsize(), q_video.qsize(), seconds, n_frames, frames_written, audio_seconds_written)
 
         for frame in range(n_frames):
             # print(n_frames)
             b = random.choice(self.images).getvalue()
-            video_data.put(b, block=True)
+            # os.write(self.video_pipe, b)
+            q_video.put(b, block=True)
+
+        frames_written += n_frames
         # if n_runs < 100:
         #     n_runs += 1
         #     return
