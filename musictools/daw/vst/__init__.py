@@ -81,7 +81,7 @@ class Sampler(VST):
     DEFAULT_NOTE_TO_ADSR = {
         SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.2),
         SpecificNote('e', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
-        SpecificNote('b', 3): ADSR(attack=0.001, decay=0.3, sustain=0, release=0.1),
+        SpecificNote('b', 3): ADSR(attack=0.001, decay=0.2, sustain=0, release=0.1),
     }
 
     def __init__(
