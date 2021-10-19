@@ -4,7 +4,7 @@ from typing import Iterable
 from typing import Union
 
 import numpy as np
-from scipy.io import wavfile
+from .. import wavfile  # from scipy.io import wavfile
 
 from ... import config
 from ...note import SpecificNote
