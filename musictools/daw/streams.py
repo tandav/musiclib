@@ -217,9 +217,10 @@ class PipeWriter(Thread):
         with open(self.pipe, 'wb') as pipe:
             # while True:
             while not self.stream_finished.is_set() or not self.q.empty():
-                print(self.pipe, 'lol')
+            # while not self.stream_finished.is_set():
+                print(self.pipe, self.q.qsize(), 'lol')
                 b = self.q.get(block=True)
-                print(self.pipe, 'kek')
+                # print(self.pipe, 'kek')
                 pipe.write(b)
                 self.q.task_done()
 
@@ -279,17 +280,17 @@ class YouTube(Stream):
             "-acodec", "pcm_s16le",  # means raw 16bit input
             '-r', "44100",  # the input will have 44100 Hz
             '-ac', '1',  # number of audio channels (mono1/stereo=2)
-            # '-i', f'pipe:{config.audio_pipe}',
             # '-thread_queue_size', '2048',
             '-i', config.audio_pipe,
 
             '-s', f'{frame_width}x{frame_height}',  # size of image string
             '-f', 'rawvideo',
             '-pix_fmt', 'rgba',  # format
+            '-r', str(config.fps),
+            '-vsync', 'cfr',
             # '-f', 'image2pipe',
             # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
             # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-            # '-i', f'pipe:{config.video_pipe}',  # tell ffmpeg to expect raw video from the pipe
             # '-thread_queue_size', '1024',
             '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
@@ -302,14 +303,15 @@ class YouTube(Stream):
             '-c:v', 'libx264',
             '-pix_fmt', 'yuv420p',
             # '-preset', 'ultrafast',
-
+            # '-vsync', 'drop',
+            # '-async', '1',
             # '-tag:v', 'hvc1', '-profile:v', 'main10',
             # '-b:v', '16M',
             # '-b:a', "300k",
             # '-b:v', '200k',
-            '-b:v', '500k',
+            # '-b:v', '500k',
             '-deinterlace',
-            '-r', str(config.fps),  # overwrite, 60fps
+            # '-r', str(config.fps),
 
                # '-framerate', '20',
             # '-maxrate', '1000k',
@@ -364,6 +366,10 @@ class YouTube(Stream):
         os.unlink(config.audio_pipe)
         os.unlink(config.video_pipe)
 
+        print('='*100)
+        assert frames_written == int(audio_seconds_written * config.fps)
+        print(frames_written, audio_seconds_written, int(audio_seconds_written * config.fps))
+
         # os.close(self.audio_pipe)
         # os.close(self.video_pipe)
         # self.path.close()
@@ -392,13 +398,13 @@ class YouTube(Stream):
         # n_frames = int(seconds * config.fps)# - frames_written
         assert n_frames > 0
         # print('fffffffffff', n_frames)
-        print('eeeeeeeeeeeeeeeeee', q_audio.qsize(), q_video.qsize(), seconds, n_frames, frames_written, audio_seconds_written)
+        print('eeeeeeeeeeeeeeeeee', f'{q_audio.qsize()=}, {q_video.qsize()=}, {seconds=}, {n_frames=}, {frames_written=}, {audio_seconds_written=}')
 
-        for frame in range(n_frames):
-            # print(n_frames)
-            b = random.choice(self.images).getvalue()
-            # os.write(self.video_pipe, b)
-            q_video.put(b, block=True)
+        # for frame in range(n_frames):
+        #     b = random.choice(self.images).getvalue()
+        #     q_video.put(b, block=True)
+
+        q_video.put(b''.join(random.choice(self.images).getvalue() for frame in range(n_frames)), block=True)
 
         frames_written += n_frames
         # if n_runs < 100:
