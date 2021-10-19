@@ -1,3 +1,5 @@
+from pathlib import Path
+
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 
@@ -64,7 +66,7 @@ midi_folder = 'static/midi/'
 # midi_file = 'bassline.mid'
 midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
-chunk_size = 1024
+chunk_size = 1024 * 16
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
@@ -77,5 +79,8 @@ clap = 'static/samples/clap-909.wav'
 # streaming
 audio_pipe = 'audio.fifo'
 video_pipe = 'video.fifo'
-# fps = 30
-fps = 60
+fps = 30
+# fps = 60
+
+
+OUTPUT_VIDEO = str(Path.home() / 'Desktop/radiant2.mp4')
