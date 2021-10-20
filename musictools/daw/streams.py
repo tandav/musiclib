@@ -124,12 +124,13 @@ import queue
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
 # audio_data = collections.deque()
-q_audio = queue.Queue(maxsize=1024)
-q_video = queue.Queue(maxsize=1024)
+qsize = 2 ** 8
+q_audio = queue.Queue(maxsize=qsize)
+q_video = queue.Queue(maxsize=qsize)
 # video_data = collections.deque()
 # no_more_data = False
 audio_seconds_written = 0.
-video_seconds_written = 0.
+# video_seconds_written = 0.
 frames_written = 0
 
 n_runs = 0
@@ -218,7 +219,7 @@ class PipeWriter(Thread):
             # while True:
             while not self.stream_finished.is_set() or not self.q.empty():
             # while not self.stream_finished.is_set():
-                print(self.pipe, self.q.qsize(), 'lol')
+            #     print(self.pipe, self.q.qsize(), 'lol')
                 b = self.q.get(block=True)
                 # print(self.pipe, 'kek')
                 pipe.write(b)
@@ -235,17 +236,6 @@ class PipeWriter(Thread):
     #         self.q.task_done()
     #     os.close(fd)
 
-# def audio_thread():
-#     with open(config.audio_pipe, 'wb') as pipe:
-#         while True:
-#             item = audio_data.get(block=True)
-#             audio_data.task_done()
-#
-# def audio_thread():
-#     with open(config.audio_pipe, 'wb') as pipe:
-#         while True:
-#             item = audio_data.get(block=True)
-#             audio_data.task_done()
 
 
 
@@ -267,10 +257,11 @@ class YouTube(Stream):
 
         # INPUT_AUDIO = config.audio_pipe
 
+        thread_queue_size = str(2**13)
 
         cmd = ('ffmpeg',
-            '-loglevel', 'trace',
-            '-hwaccel', 'videotoolbox',
+            # '-loglevel', 'trace',
+            # '-hwaccel', 'videotoolbox',
             # '-threads', '16',
             # '-y', '-r', '60', # overwrite, 60fps
             '-y',
@@ -280,18 +271,18 @@ class YouTube(Stream):
             "-acodec", "pcm_s16le",  # means raw 16bit input
             '-r', "44100",  # the input will have 44100 Hz
             '-ac', '1',  # number of audio channels (mono1/stereo=2)
-            # '-thread_queue_size', '2048',
+            '-thread_queue_size', thread_queue_size,
             '-i', config.audio_pipe,
 
             '-s', f'{frame_width}x{frame_height}',  # size of image string
             '-f', 'rawvideo',
             '-pix_fmt', 'rgba',  # format
-            '-r', str(config.fps),
-            '-vsync', 'cfr',
+            # '-r', str(config.fps),
+            # '-vsync', 'cfr', # kinda optional but you can turn it on
             # '-f', 'image2pipe',
             # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
             # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-            # '-thread_queue_size', '1024',
+            '-thread_queue_size', thread_queue_size,
             '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
 
@@ -299,7 +290,7 @@ class YouTube(Stream):
             # '-ac', '1',  # number of audio channels (mono1/stereo=2)
             # '-b:a', "320k",  # output bitrate (=quality). Here, 3000kb/second
 
-            # '-c:v', 'hevc_videotoolbox',
+            # '-c:v', 'h264_videotoolbox',
             '-c:v', 'libx264',
             '-pix_fmt', 'yuv420p',
             # '-preset', 'ultrafast',
@@ -307,22 +298,25 @@ class YouTube(Stream):
             # '-async', '1',
             # '-tag:v', 'hvc1', '-profile:v', 'main10',
             # '-b:v', '16M',
-            # '-b:a', "300k",
-            # '-b:v', '200k',
+            '-b:a', "300k",
+            '-b:v', '200k',
             # '-b:v', '500k',
             '-deinterlace',
             # '-r', str(config.fps),
 
-               # '-framerate', '20',
+            '-framerate', str(config.fps),
             # '-maxrate', '1000k',
             # '-map', '0:a',
             # '-map', '1:v',
-            # '-f', 'flv',
-            # '-flvflags', 'no_duration_filesize',
-            # 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg',
+
+            # '-f', 'flv', '/dev/null',
+
+            '-f', 'flv',
+            '-flvflags', 'no_duration_filesize',
+            'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg',
             # f'rtmp://a.rtmp.youtube.com/live2/{os.environ["YOUTUBE_STREAM_KEY"]}',
 
-            config.OUTPUT_VIDEO,  # output encoding
+            # config.OUTPUT_VIDEO,  # output encoding
         )
 
         # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
@@ -348,6 +342,7 @@ class YouTube(Stream):
         print('1'* 100)
 
     def __enter__(self):
+        self.t_start = time.time()
         return self
 
     def __exit__(self, type, value, traceback):
@@ -375,10 +370,21 @@ class YouTube(Stream):
         # self.path.close()
 
     def write(self, data: np.ndarray):
+        """
+        TODO:
+            track speed of audio generating here
+            (timie.time, local fps)
+            dont generate more if there's no need
+        """
+
         global n_runs
         global audio_seconds_written
-        global video_seconds_written
         global frames_written
+
+
+        real_seconds = time.time() - self.t_start
+        if real_seconds < audio_seconds_written:
+            time.sleep(audio_seconds_written - real_seconds)
 
         # audio_written, video_written = False, False
 
@@ -395,8 +401,11 @@ class YouTube(Stream):
         audio_seconds_written += seconds
 
         n_frames = int(audio_seconds_written * config.fps) - frames_written
+        # assert n_frames > 0
+        # if n_frames == 0:
+        if n_frames < 100:
+            return
         # n_frames = int(seconds * config.fps)# - frames_written
-        assert n_frames > 0
         # print('fffffffffff', n_frames)
         print('eeeeeeeeeeeeeeeeee', f'{q_audio.qsize()=}, {q_video.qsize()=}, {seconds=}, {n_frames=}, {frames_written=}, {audio_seconds_written=}')
 
@@ -407,6 +416,7 @@ class YouTube(Stream):
         q_video.put(b''.join(random.choice(self.images).getvalue() for frame in range(n_frames)), block=True)
 
         frames_written += n_frames
+
         # if n_runs < 100:
         #     n_runs += 1
         #     return

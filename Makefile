@@ -33,3 +33,14 @@ run_docker:
 
 daw:
 	$(python) -m musictools.daw
+
+
+build_streaming:
+	docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
+	#docker build --no-cache -t tandav/musictools-stream -f ./Dockerfile-stream .
+
+push_streaming:
+	docker push tandav/musictools-stream
+
+run_streaming:
+	docker run --rm -it tandav/musictools-stream
