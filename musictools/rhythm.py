@@ -6,7 +6,6 @@ from collections import deque
 from typing import Optional
 
 import pipe21 as P
-
 from . import config
 from . import util
 from .daw import midi
@@ -92,3 +91,38 @@ class Rhythm:
 
     def play(self):
         raise NotImplementedError
+
+    def to_midi(self, path=None, note_=None, chord=None, progression=None) -> 'Optional[mido.MidiFile]':
+        import mido
+
+        mid = mido.MidiFile(type=0, ticks_per_beat=96)
+
+        ticks_per_note = mid.ticks_per_beat * self.beats_per_bar // self.bar_notes
+        track = mido.MidiTrack()
+        track.append(mido.MetaMessage(type='track_name', name='test_name'))
+        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+        t = 0
+
+        def append_bar(chord):
+            nonlocal t
+            for is_play in self.notes:
+                if is_play:
+                    notes = [note_.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
+                    for i, note in enumerate(notes):
+                        track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
+                    for i, note in enumerate(notes):
+                        track.append(mido.Message('note_off', note=note, velocity=100, time=ticks_per_note if i == 0 else 0))
+                    t = 0
+                else:
+                    t += ticks_per_note
+
+        if progression is None:
+            append_bar(chord)
+        else:
+            for chord in progression:
+                append_bar(chord)
+
+        mid.tracks.append(track)
+        if path is None:
+            return mid
+        mid.save(path)
