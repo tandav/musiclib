@@ -9,15 +9,38 @@ from .midi.parse import ParsedMidi
 from ..note import SpecificNote
 import itertools
 import random
-from .midi.player import rhythm_to_midi
+from ..rhythm import Rhythm
+from ..note import Note, SpecificNote, note_range
+# from .midi.player import rhythm_to_midi
+from .. import voice_leading
+from ..scale import Scale
 import argparse
+import pipe21 as P
 import sys
 
 
-def make_rhythms(note):
+# def make_rhythms(note):
+def make_rhythms():
     _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(6, 8 + 1))
     _ = itertools.chain.from_iterable(_)
-    return tuple(rhythm_to_midi(rhythm, note_=note) for rhythm in _)
+    # return tuple(rhythm.to_midi(note_=note) for rhythm in _)
+    return tuple(_)
+
+
+def make_progressions():
+    progressions = []
+    for scale in config.diatonic[:-1]:
+        # for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('G', 2), SpecificNote('C', 6))):
+        for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('G', 3), SpecificNote('C', 7))):
+            progressions.append(p)
+    return progressions
+
+#     s = Scale('C', 'major')
+#     s = Scale('C', 'phrygian')
+#     s = Scale('C', 'dorian')
+#     s = Scale('C', 'lyd/ian')
+#     s = Scale('C', 'mixolydian')
+#     s = Scale('C', 'minor')
 
 
 def main() -> int:
@@ -33,7 +56,6 @@ def main() -> int:
     # print(args)
     # raise
     # synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    # synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.1))
     # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
     # synth = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     # midi = ParsedMidi.from_file(config.midi_file, vst=synth)
@@ -53,49 +75,73 @@ def main() -> int:
             # 'devnull': streams.DevNull,
         }[sys.argv[1]]
 
-    C = make_rhythms(SpecificNote('C', 4))
+    # C = make_rhythms(SpecificNote('C', 4))
+    #
+    # notes_rhythms = [
+    #     make_rhythms(SpecificNote('b', 3)),
+    #     make_rhythms(SpecificNote('a', 3)),
+    #     make_rhythms(SpecificNote('G', 3)),
+    #     make_rhythms(SpecificNote('F', 3)),
+    # ]
 
-    notes_rhythms = [
-        make_rhythms(SpecificNote('b', 3)),
-        make_rhythms(SpecificNote('a', 3)),
-        make_rhythms(SpecificNote('G', 3)),
-        make_rhythms(SpecificNote('F', 3)),
-    ]
+    rhythms = make_rhythms()
+    progressions = make_progressions()
 
-    n = len(notes_rhythms[0])
+    # n = len(notes_rhythms[0])
 
-    m0 = mido.MidiFile(config.midi_folder + 'drumloop.mid')
+    drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
     bass = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    drumrack = vst.Sampler()
+    synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.1, sustain=0, release=0.1))
+
 
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
-    midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(
-    # midi = ParsedMidi.from_many([m0, m1], vst=(
-        vst.Sampler(),
-        bass,
-    ))
+    # midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(
+    # # midi = ParsedMidi.from_many([m0, m1], vst=(
+    #     vst.Sampler(),
+    #     bass,
+    # ))
+
+
     # with streams.WavFile(config.wav_output_file, dtype='float32') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
     # with streams.PCM16File(config.audio_pipe) as stream:
-    # with streams.Speakers() as stream:
-    with output() as stream:
+    with streams.Speakers() as stream:
+    # with output() as stream:
         # for _ in range(4): render.chunked(stream, midi)
         # for _ in range(4): render.single(stream, midi)
         # for _ in range(1): render.chunked(stream, midi)
         # for _ in range(4): render.single(stream, ParsedMidi.from_file('weird.mid', vst=synth))
     #     for _ in range(4): render.chunked(stream, ParsedMidi.from_file('dots.mid', vst=synth))
 
+    # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
+
         while True:
+            progression = random.choice(progressions)
+            print(progression)
+            for chord in progression:
+                print(chord)
+                rhythm = random.choice(rhythms)
+                # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
+                bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
+                chord_midi = rhythm.to_midi(chord=chord)
+                render.chunked(stream, ParsedMidi.from_many(
+                    [drum_midi, bass_midi, chord_midi],
+                    [drumrack, bass, synth],
+                ))
+
+
         # for _ in range(1):
-            i = random.randrange(0, n)
-            for _ in range(1):
-                midi = ParsedMidi.from_many([m0, C[i]], vst=(vst.Sampler(), bass))
-                render.chunked(stream, midi)
-            for _ in range(3):
-                midi = ParsedMidi.from_many([m0, random.choice(notes_rhythms)[i]], vst=(vst.Sampler(), bass))
-                render.chunked(stream, midi)
+        #     i = random.randrange(0, n)
+        #     for _ in range(1):
+        #         midi = ParsedMidi.from_many([drum_midi, C[i]], vst=(vst.Sampler(), bass))
+        #         render.chunked(stream, midi)
+        #     for _ in range(3):
+        #         midi = ParsedMidi.from_many([drum_midi, random.choice(notes_rhythms)[i]], vst=(vst.Sampler(), bass))
+        #         render.chunked(stream, midi)
 
 
     print('exit main')
