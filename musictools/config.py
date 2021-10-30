@@ -66,8 +66,8 @@ midi_folder = 'static/midi/'
 # midi_file = 'bassline.mid'
 midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
-chunk_size = 1024 * 4
-# chunk_size = 1024
+# chunk_size = 1024 * 4
+chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
@@ -84,5 +84,10 @@ fps = 30
 # fps = 20
 # fps = 60
 
+video_queue_item_size = 20
+assert video_queue_item_size < fps
+
 
 OUTPUT_VIDEO = str(Path.home() / 'Desktop/radiant2.mp4')
+
+log_path = 'logs/log.jsonl'

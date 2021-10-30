@@ -1,8 +1,8 @@
 import functools
+from collections.abc import Sequence
 from enum import Enum
 from enum import auto
 from pathlib import Path
-from typing import Sequence
 from typing import Union
 from typing import get_args
 
@@ -11,9 +11,9 @@ PathLike = Union[str, Path]
 import mido
 import numpy as np
 
-from ... import config
-from ...note import SpecificNote
-from ..vst import VST
+from musictools import config
+from musictools.daw.vst import VST
+from musictools.note import SpecificNote
 
 
 class State(Enum):
@@ -111,14 +111,14 @@ class ParsedMidi:
         :param vst:
         """
 
-        ticks_set = set()
+        ticks_info = dict()
         notes = []
         numerator = None
 
         if len(midi.tracks) == 1:
             vst = [vst]
 
-        for track, vst_ in zip(midi.tracks, vst):
+        for i, (track, vst_) in enumerate(zip(midi.tracks, vst)):
             ticks, seconds, n_samples = 0, 0., 0
             note_buffer = dict()
             for message in track:
@@ -138,11 +138,11 @@ class ParsedMidi:
                 elif message.type == 'note_off':
                     # print(n_samples)
                     notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst_))
-            ticks_set.add(self.round_ticks_to_bar(ticks, ticks_per_bar))
+            ticks_info[i] = self.round_ticks_to_bar(ticks, ticks_per_bar)
 
-        if not len(ticks_set) == 1:
-            raise ValueError('number of ticks rounded to bar should be equal for all midi tracks/channels')
-        ticks = next(iter(ticks_set))
+        if not len(set(ticks_info.values())) == 1:
+            raise ValueError(f'number of ticks rounded to bar should be equal for all midi tracks/channels {ticks_info}')
+        ticks = next(iter(ticks_info.values()))
 
         self.n_samples = int(config.sample_rate * mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
         self.numerator = numerator

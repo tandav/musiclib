@@ -1,8 +1,7 @@
 import os
-import mido
-
 from typing import Optional
 
+import mido
 
 if (midi_device := os.environ.get('MIDI_DEVICE')):
     port = mido.open_output(midi_device)

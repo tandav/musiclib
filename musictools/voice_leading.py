@@ -1,7 +1,7 @@
 import functools
 import itertools
 import operator
-from typing import Iterable
+from collections.abc import Iterable
 
 import pipe21 as P
 

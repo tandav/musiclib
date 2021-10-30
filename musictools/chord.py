@@ -204,3 +204,22 @@ class SpecificChord:
     async def play(self, seconds: Number = 1):
         tasks = [note.play(seconds) for note in self.notes]
         await asyncio.gather(*tasks)
+
+    def to_midi(self, path=None, n_bars=1):
+        import mido
+        mid = mido.MidiFile(type=0, ticks_per_beat=96)
+        track = mido.MidiTrack()
+        track.append(mido.MetaMessage(type='track_name', name='test_name'))
+        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+
+        stop_time = int(n_bars * mid.ticks_per_beat * 4)
+
+        for note in self.notes_ascending:
+            track.append(mido.Message('note_on', note=note.absolute_i, velocity=100, time=0))
+        for i, note in enumerate(self.notes_ascending):
+            track.append(mido.Message('note_off', note=note.absolute_i, velocity=100, time=stop_time if i == 0 else 0))
+
+        mid.tracks.append(track)
+        if path is None:
+            return mid
+        mid.save(path)

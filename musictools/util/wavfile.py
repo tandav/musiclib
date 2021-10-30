@@ -12,12 +12,12 @@ Functions
 
 """
 import io
-import sys
-import numpy
 import struct
+import sys
 import warnings
 from enum import IntEnum
 
+import numpy
 
 __all__ = [
     'WavFileWarning',

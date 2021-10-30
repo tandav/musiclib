@@ -6,6 +6,7 @@ from collections import deque
 from typing import Optional
 
 import pipe21 as P
+
 from . import config
 from . import util
 from .daw import midi

@@ -1,13 +1,14 @@
 import abc
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 from typing import Union
 
 import numpy as np
-from .. import wavfile  # from scipy.io import wavfile
 
-from ... import config
-from ...note import SpecificNote
+from musictools import config
+from musictools.note import SpecificNote
+# import musictools.util.wavfile as wavfile  # from scipy.io import wavfile
+from musictools.util import wavfile  # from scipy.io import wavfile
 
 
 class ADSR:
@@ -31,8 +32,9 @@ class ADSR:
 
 
 class VST(abc.ABC):
-    def __init__(self, adsr: Union[ADSR, dict[SpecificNote, ADSR]] = ADSR()):
+    def __init__(self, adsr: Union[ADSR, dict[SpecificNote, ADSR]] = ADSR(), amplitude=0.1):
         self._adsr = adsr
+        self.amplitude = amplitude
 
     def adsr(self, note): return self._adsr
 
@@ -49,23 +51,23 @@ class VST(abc.ABC):
 
 
 class Sine(VST):
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1, p=0.):
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, p=0.):
         t = self.samples_to_t(ns_rendered, ns_to_render)
         f = self.note_to_freq(note)
-        return a * np.sin(2 * np.pi * f * t + p)
+        return self.amplitude * np.sin(2 * np.pi * f * t + p)
 
 
 class Organ(VST):
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1, p=0.):
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, p=0.):
         t = self.samples_to_t(ns_rendered, ns_to_render)
         f0 = self.note_to_freq(note)
         f1 = self.note_to_freq(note + 7)
         f2 = self.note_to_freq(note + 19)
 
         return (
-            a * np.sin(2 * np.pi * f0 * t + p) +
-            a * np.sin(2 * np.pi * f1 * t + p) +
-            a * np.sin(2 * np.pi * f2 * t + p)
+            self.amplitude * np.sin(2 * np.pi * f0 * t + p) +
+            self.amplitude * np.sin(2 * np.pi * f1 * t + p) +
+            self.amplitude * np.sin(2 * np.pi * f2 * t + p)
         )
 
 
@@ -103,11 +105,11 @@ class Sampler(VST):
                 f'resampling is not supported yet, please save sample {sample_path} with sample rate {config.sample_rate}')
         return sample
 
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, a=0.1):
+    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote):
         out = np.zeros(ns_to_render, dtype='float32')  # handle cases when samples ends earlier than note_off, render zeros till note_off (and maybe release? idk lol)
         sample = self.note_to_sample.get(note)
         if sample is not None:
-            sample = a * sample[ns_rendered: ns_rendered + ns_to_render]
+            sample = self.amplitude * sample[ns_rendered: ns_rendered + ns_to_render]
             out[:len(sample)] = sample
         return out
 

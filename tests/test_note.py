@@ -22,3 +22,10 @@ async def test_play(capsys):
 def test_add(absolute_i, to_add):
     note = SpecificNote.from_absolute_i(absolute_i)
     assert (note + to_add).absolute_i == note.absolute_i + to_add
+
+
+@pytest.mark.xfail
+@given(st.integers(), st.integers())
+def test_sub(absolute_i, to_sub):
+    note = SpecificNote.from_absolute_i(absolute_i)
+    assert (note - to_sub).absolute_i == note.absolute_i - to_sub

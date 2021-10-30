@@ -1,7 +1,8 @@
 import pytest
 
-from musictools.daw import render
+# from musictools.daw import render
 from musictools.daw import vst as vst_
+from musictools.daw.streams import Bytes
 
 vst0 = vst_.Sine(adsr=vst_.ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001))
 vst1 = vst_.Sine(adsr=vst_.ADSR(attack=0.001, decay=0.3, sustain=1, release=2))
@@ -19,6 +20,10 @@ def single_vst():
     yield vst0
 
 
-@pytest.fixture(params=[render.single, render.chunked])
-def renderer(request):
-    yield request.param
+# @pytest.fixture(params=[render.single, render.chunked])
+# def renderer(request):
+#     yield request.param
+
+
+def stream():
+    yield Bytes()
