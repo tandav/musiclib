@@ -53,13 +53,9 @@ def make_progressions():
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack):
     progression, dist, scale = random.choice(progressions)
-    progression_str = '\n'.join(
-        f'{chord} {chord.abstract.name}'
-        for chord in progression
-    )
 
     rhythm = random.choice(rhythms)
-    for chord in progression:
+    for chord_i, chord in enumerate(progression):
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
         bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
@@ -76,7 +72,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
             [drumrack, bass, synth],
             meta={
                 'bassline': rhythm.bits,
-                'chords': progression_str,
+                'chords': '\n'.join(f'{"*" if i == chord_i else " "} {chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
                 'dist': dist,
                 'scale': scale,
             },
