@@ -6,7 +6,7 @@ import pytest
 from musictools.daw.vst.sampler import Sampler
 
 from musictools.daw.midi.parse import ParsedMidi
-from musictools.daw.streams import Bytes
+from musictools.daw.streams.bytes import Bytes
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -33,3 +33,8 @@ def test_n_samples(midi_file, vst):
     with Bytes() as stream:
         stream.render_chunked(track)
     assert len(np.frombuffer(stream.buffer.getvalue(), dtype='float32')) == track.n_samples
+
+
+@pytest.mark.xfail(reason='TODO')
+def test_main():
+    assert False

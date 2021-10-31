@@ -8,8 +8,16 @@ import mido
 from musictools import config
 from musictools import voice_leading
 from musictools.daw import streams
+from musictools.daw.streams.bytes import Bytes
+from musictools.daw.streams.speakers import Speakers
+from musictools.daw.streams.youtube import YouTube
+from musictools.daw.streams.wavfile import WavFile
+from musictools.daw.streams.pcmfile import PCM16File
 from musictools.daw import vst
-from musictools.daw.ADSR import ADSR
+from musictools.daw.vst.adsr import ADSR
+from musictools.daw.vst.sine import Sine
+from musictools.daw.vst.organ import Organ
+from musictools.daw.vst.sampler import Sampler
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.note import SpecificNote
 from musictools.note import note_range
@@ -65,13 +73,13 @@ def main() -> int:
     # midi = ParsedMidi.from_files(['4-4-8.mid', '4-4-8-offbeat.mid'], vst=(
 
     if len(sys.argv) == 1:
-        output = streams.Speakers
+        output = Speakers
     else:
         output = {
-            'speakers': streams.Speakers,
-            'youtube': streams.YouTube,
-            'wav': streams.WavFile,
-            'pcm': streams.PCM16File,
+            'speakers': Speakers,
+            'youtube': YouTube,
+            'wav': WavFile,
+            'pcm': PCM16File,
             # 'devnull': streams.DevNull,
         }[sys.argv[1]]
 
@@ -91,9 +99,9 @@ def main() -> int:
 
     drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
-    bass = vst.Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    drumrack = vst.Sampler()
-    synth = vst.Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1))
+    bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    drumrack = Sampler()
+    synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1))
 
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(

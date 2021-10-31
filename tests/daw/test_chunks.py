@@ -7,7 +7,7 @@ import pytest
 
 from musictools.daw.vst.sampler import Sampler
 from musictools.daw.midi.parse import ParsedMidi
-from musictools.daw.streams import Bytes
+from musictools.daw.streams.bytes import Bytes
 
 
 @pytest.mark.parametrize('midi_file', (
