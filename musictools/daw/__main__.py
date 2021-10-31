@@ -9,6 +9,7 @@ from musictools import config
 from musictools import voice_leading
 from musictools.daw import streams
 from musictools.daw import vst
+from musictools.daw.ADSR import ADSR
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.note import SpecificNote
 from musictools.note import note_range
@@ -54,9 +55,9 @@ def main() -> int:
     # print(args, args.output_stream)
     # print(args)
     # raise
-    # synth = vst.Sampler(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    # synth = vst.Sine(adsr=vst.ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
-    # synth = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    # synth = vst.Sampler(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    # synth = vst.Sine(adsr=ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
+    # synth = vst.Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     # midi = ParsedMidi.from_file(config.midi_file, vst=synth)
     # midi = ParsedMidi.from_file('drumloop.mid', vst=synth)
     # midi = ParsedMidi.from_file('bassline.mid', vst=synth)
@@ -90,10 +91,9 @@ def main() -> int:
 
     drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
-    bass = vst.Organ(adsr=vst.ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    bass = vst.Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
     drumrack = vst.Sampler()
-    synth = vst.Sine(adsr=vst.ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1))
-
+    synth = vst.Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1))
 
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
