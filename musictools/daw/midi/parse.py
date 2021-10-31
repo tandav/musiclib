@@ -13,7 +13,7 @@ import mido
 import numpy as np
 
 from musictools import config
-from musictools.daw.vst import VST
+from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
 
 

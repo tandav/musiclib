@@ -3,7 +3,8 @@ import io
 import numpy as np
 import pytest
 
-from musictools.daw import vst as vst_
+from musictools.daw.vst.sampler import Sampler
+
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams import Bytes
 
@@ -23,8 +24,8 @@ def test_n_samples(midi_file, vst):
     render 1 bar and check number of samples in the output
     """
     if (
-        (midi_file == 'drumloop.mid' and not isinstance(vst, vst_.Sampler)) or
-        (midi_file != 'drumloop.mid' and isinstance(vst, vst_.Sampler))
+        (midi_file == 'drumloop.mid' and not isinstance(vst, Sampler)) or
+        (midi_file != 'drumloop.mid' and isinstance(vst, Sampler))
     ):
         pytest.skip('Invalid case')
     track = ParsedMidi.from_file(midi_file, vst)

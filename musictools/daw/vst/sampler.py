@@ -1,58 +1,14 @@
-import abc
+from musictools.daw.vst.base import VST
+from musictools.daw.vst.adsr import ADSR
+import numpy as np
+from musictools import config
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Union
 
-import numpy as np
 
-from musictools import config
 from musictools.note import SpecificNote
-# import musictools.util.wavfile as wavfile  # from scipy.io import wavfile
 from musictools.util import wavfile  # from scipy.io import wavfile
-from musictools.daw.vst.adsr import ADSR
-
-
-
-
-class VST(abc.ABC):
-    def __init__(self, adsr: Union[ADSR, dict[SpecificNote, ADSR]] = ADSR(), amplitude=0.1):
-        self._adsr = adsr
-        self.amplitude = amplitude
-
-    def adsr(self, note): return self._adsr
-
-    def note_to_freq(self, note: SpecificNote):
-        return (440 / 32) * (2 ** ((note.absolute_i - 9) / 12))
-
-    def samples_to_t(self, ns_rendered: int, ns_to_render: int):
-        t0 = ns_rendered / config.sample_rate
-        t1 = t0 + ns_to_render / config.sample_rate
-        return np.linspace(t0, t1, ns_to_render, endpoint=False)
-
-    @abc.abstractmethod
-    def __call__(self, *args, **kwargs): ...
-
-
-class Sine(VST):
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, p=0.):
-        t = self.samples_to_t(ns_rendered, ns_to_render)
-        f = self.note_to_freq(note)
-        return self.amplitude * np.sin(2 * np.pi * f * t + p)
-
-
-class Organ(VST):
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote, p=0.):
-        t = self.samples_to_t(ns_rendered, ns_to_render)
-        f0 = self.note_to_freq(note)
-        f1 = self.note_to_freq(note + 7)
-        f2 = self.note_to_freq(note + 19)
-
-        return (
-            self.amplitude * np.sin(2 * np.pi * f0 * t + p) +
-            self.amplitude * np.sin(2 * np.pi * f1 * t + p) +
-            self.amplitude * np.sin(2 * np.pi * f2 * t + p)
-        )
-
 
 class Sampler(VST):
     DEFAULT_NOTE_TO_SAMPLE_PATH = (

@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 # from musictools.daw import render
-from musictools.daw import vst as vst_
+
+from musictools.daw.vst.sampler import Sampler
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams import Bytes
 
@@ -21,8 +22,8 @@ from musictools.daw.streams import Bytes
 ))
 def test_chunks(midi_file, vst):
     if (
-        (midi_file == 'drumloop.mid' and not isinstance(vst, vst_.Sampler)) or
-        (midi_file != 'drumloop.mid' and isinstance(vst, vst_.Sampler))
+        (midi_file == 'drumloop.mid' and not isinstance(vst, Sampler)) or
+        (midi_file != 'drumloop.mid' and isinstance(vst, Sampler))
     ):
         pytest.skip('Invalid case')
 
