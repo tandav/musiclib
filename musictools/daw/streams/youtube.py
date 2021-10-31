@@ -294,7 +294,9 @@ class YouTube(Stream):
             # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
             d.text((100, 0), self.meta['bassline'], font=font, fill=text_color)
             d.text((100, 60), self.meta['chords'], font=font2, fill=text_color)
-            d.text((70, 100), 'tandav.me', font=font, fill=text_color)
+            d.text((0, 170), self.meta['scale'], font=font2, fill=text_color)
+            d.text((150, 170), f"dist{self.meta['dist']}", font=font2, fill=text_color)
+            d.text((0, 200), 'tandav.me', font=font, fill=text_color)
             d.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # self.vbuff.write(random.choice(self.images))

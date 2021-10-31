@@ -30,7 +30,7 @@ def make_progressions():
     for scale in config.diatonic[:-1]:
         # for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('G', 2), SpecificNote('C', 6))):
         for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
-            progressions.append(p)
+            progressions.append((p, dist, scale))
     return progressions
 
 #     s = Scale('C', 'major')
@@ -118,7 +118,7 @@ def main() -> int:
     # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
 
         while True:
-            progression = random.choice(progressions)
+            progression, dist, scale = random.choice(progressions)
             # print(progression)
             rhythm = random.choice(rhythms)
             for chord in progression:
@@ -136,7 +136,12 @@ def main() -> int:
                 stream.render_chunked(ParsedMidi.from_many(
                     [drum_midi, bass_midi, chord_midi],
                     [drumrack, bass, synth],
-                    meta={'bassline': rhythm.bits, 'chords': '\n'.join(map(str,progression))},
+                    meta={
+                        'bassline': rhythm.bits,
+                        'chords': '\n'.join(map(str,progression)),
+                        'dist': dist,
+                        'scale': scale,
+                    },
                 ))
             # counter += 1
             # if counter % 10 == 0:
