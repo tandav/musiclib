@@ -56,3 +56,23 @@ jobs:
 
     steps:
       - run: 'curl -X POST -H "token: ${{ secrets.RESTART_HOOK_TOKEN }}" ${{ secrets.RESTART_HOOK_URL }}'
+
+
+  publish-stream:
+    name: build and publish stream
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          file: Dockerfile-stream
+          tags: tandav/musictools-stream
