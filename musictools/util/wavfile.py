@@ -315,8 +315,8 @@ def _raise_bad_format(format_tag):
         format_name = WAVE_FORMAT(format_tag).name
     except ValueError:
         format_name = f'{format_tag:#06x}'
-    raise ValueError(f"Unknown wave file format: {format_name}. Supported "
-                     "formats: " +
+    raise ValueError(f'Unknown wave file format: {format_name}. Supported '
+                     'formats: ' +
                      ', '.join(x.name for x in KNOWN_WAVE_FORMATS))
 
 
@@ -351,7 +351,7 @@ def _read_fmt_chunk(fid, is_big_endian):
     size = struct.unpack(fmt+'I', fid.read(4))[0]
 
     if size < 16:
-        raise ValueError("Binary structure of wave file is not compliant")
+        raise ValueError('Binary structure of wave file is not compliant')
 
     res = struct.unpack(fmt+'HHIIHH', fid.read(16))
     bytes_read = 16
@@ -375,7 +375,7 @@ def _read_fmt_chunk(fid, is_big_endian):
             if raw_guid.endswith(tail):
                 format_tag = struct.unpack(fmt+'I', raw_guid[:4])[0]
         else:
-            raise ValueError("Binary structure of wave file is not compliant")
+            raise ValueError('Binary structure of wave file is not compliant')
 
     if format_tag not in KNOWN_WAVE_FORMATS:
         _raise_bad_format(format_tag)
@@ -389,11 +389,11 @@ def _read_fmt_chunk(fid, is_big_endian):
 
     if format_tag == WAVE_FORMAT.PCM:
         if bytes_per_second != fs * block_align:
-            raise ValueError("WAV header is invalid: nAvgBytesPerSec must"
-                             " equal product of nSamplesPerSec and"
-                             " nBlockAlign, but file has nSamplesPerSec ="
-                             f" {fs}, nBlockAlign = {block_align}, and"
-                             f" nAvgBytesPerSec = {bytes_per_second}")
+            raise ValueError('WAV header is invalid: nAvgBytesPerSec must'
+                             ' equal product of nSamplesPerSec and'
+                             ' nBlockAlign, but file has nSamplesPerSec ='
+                             f' {fs}, nBlockAlign = {block_align}, and'
+                             f' nAvgBytesPerSec = {bytes_per_second}')
 
     return (size, format_tag, channels, fs, bytes_per_second, block_align,
             bit_depth)
@@ -447,14 +447,14 @@ def _read_data_chunk(fid, format_tag, channels, bit_depth, is_big_endian,
             # Remaining bit depths can map directly to signed numpy dtypes
             dtype = f'{fmt}i{bytes_per_sample}'
         else:
-            raise ValueError("Unsupported bit depth: the WAV file "
-                             f"has {bit_depth}-bit integer data.")
+            raise ValueError('Unsupported bit depth: the WAV file '
+                             f'has {bit_depth}-bit integer data.')
     elif format_tag == WAVE_FORMAT.IEEE_FLOAT:
         if bit_depth in {32, 64}:
             dtype = f'{fmt}f{bytes_per_sample}'
         else:
-            raise ValueError("Unsupported bit depth: the WAV file "
-                             f"has {bit_depth}-bit floating-point data.")
+            raise ValueError('Unsupported bit depth: the WAV file '
+                             f'has {bit_depth}-bit floating-point data.')
     else:
         _raise_bad_format(format_tag)
 
@@ -484,8 +484,8 @@ def _read_data_chunk(fid, format_tag, channels, bit_depth, is_big_endian,
                                 shape=(n_samples,))
             fid.seek(start + size)
         else:
-            raise ValueError("mmap=True not compatible with "
-                             f"{bytes_per_sample}-byte container size.")
+            raise ValueError('mmap=True not compatible with '
+                             f'{bytes_per_sample}-byte container size.')
 
     _handle_pad_byte(fid, size)
 
@@ -521,7 +521,7 @@ def _read_riff_chunk(fid):
         fmt = '>I'
     else:
         # There are also .wav files with "FFIR" or "XFIR" signatures?
-        raise ValueError(f"File format {repr(str1)} not understood. Only "
+        raise ValueError(f'File format {repr(str1)} not understood. Only '
                          "'RIFF' and 'RIFX' supported.")
 
     # Size of entire file
@@ -529,7 +529,7 @@ def _read_riff_chunk(fid):
 
     str2 = fid.read(4)
     if str2 != b'WAVE':
-        raise ValueError(f"Not a WAV file. RIFF form type is {repr(str2)}.")
+        raise ValueError(f'Not a WAV file. RIFF form type is {repr(str2)}.')
 
     return file_size, is_big_endian
 
@@ -661,18 +661,18 @@ def read(filename, mmap=False):
                 if data_chunk_received:
                     # End of file but data successfully read
                     warnings.warn(
-                        "Reached EOF prematurely; finished at {:d} bytes, "
-                        "expected {:d} bytes from header."
+                        'Reached EOF prematurely; finished at {:d} bytes, '
+                        'expected {:d} bytes from header.'
                         .format(fid.tell(), file_size),
                         WavFileWarning, stacklevel=2)
                     break
                 else:
-                    raise ValueError("Unexpected end of file.")
+                    raise ValueError('Unexpected end of file.')
             elif len(chunk_id) < 4:
-                msg = f"Incomplete chunk ID: {repr(chunk_id)}"
+                msg = f'Incomplete chunk ID: {repr(chunk_id)}'
                 # If we have the data, ignore the broken chunk
                 if fmt_chunk_received and data_chunk_received:
-                    warnings.warn(msg + ", ignoring it.", WavFileWarning,
+                    warnings.warn(msg + ', ignoring it.', WavFileWarning,
                                   stacklevel=2)
                 else:
                     raise ValueError(msg)
@@ -688,7 +688,7 @@ def read(filename, mmap=False):
             elif chunk_id == b'data':
                 data_chunk_received = True
                 if not fmt_chunk_received:
-                    raise ValueError("No fmt chunk before data")
+                    raise ValueError('No fmt chunk before data')
                 data = _read_data_chunk(fid, format_tag, channels, bit_depth,
                                         is_big_endian, block_align, mmap)
             elif chunk_id == b'LIST':
@@ -698,7 +698,7 @@ def read(filename, mmap=False):
                 # Skip alignment chunks without warning
                 _skip_unknown_chunk(fid, is_big_endian)
             else:
-                warnings.warn("Chunk (non-data) not understood, skipping it.",
+                warnings.warn('Chunk (non-data) not understood, skipping it.',
                               WavFileWarning, stacklevel=2)
                 _skip_unknown_chunk(fid, is_big_endian)
     finally:
@@ -812,7 +812,7 @@ def write(filename, rate, data):
 
         # check data size (needs to be immediately before the data chunk)
         if ((len(header_data)-4-4) + (4+4+data.nbytes)) > 0xFFFFFFFF:
-            raise ValueError("Data exceeds wave file size limit")
+            raise ValueError('Data exceeds wave file size limit')
 
         fid.write(header_data)
 

@@ -10,8 +10,8 @@ lint:
 	$(python) -m isort --force-single-line-imports musictools tests
 	$(python) -m autoflake --recursive --in-place musictools tests
 	$(python) -m autopep8 --verbose --in-place --recursive --aggressive --ignore=E221,E401,E402,E501,W503,E701,E704,E721,E741,I100,I201,W504 --exclude=musictools/util/wavfile.py musictools tests
+	$(python) -m unify --recursive --in-place musictools
 	$(python) -m flake8 musictools tests
-
 
 clean:
 	rm -f logs/*

@@ -48,7 +48,7 @@ n_runs = 0
 
 font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
 font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
-layer = Image.new("RGBA", (config.frame_width, config.frame_height), (255, 255, 255, 0))
+layer = Image.new('RGBA', (config.frame_width, config.frame_height), (255, 255, 255, 0))
 d = ImageDraw.Draw(layer)
 text_color = (0, 0, 0)
 
@@ -120,8 +120,8 @@ class Video(Stream):
                '-y',
 
                # '-err_detect', 'ignore_err',
-               "-f", 's16le',  # means 16bit input
-               "-acodec", "pcm_s16le",  # means raw 16bit input
+               '-f', 's16le',  # means 16bit input
+               '-acodec', 'pcm_s16le',  # means raw 16bit input
                '-r', str(config.sample_rate),  # the input will have 44100 Hz
                '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-thread_queue_size', thread_queue_size,
