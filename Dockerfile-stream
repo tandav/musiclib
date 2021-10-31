@@ -11,4 +11,4 @@ RUN mkdir -p /app/static
 COPY musictools /app/musictools
 COPY static /app/static
 WORKDIR /app
-CMD ["python", "-m", "musictools.daw", "youtube"]
+CMD ["python", "-m", "musictools.daw", "video"]

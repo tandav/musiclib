@@ -2,6 +2,8 @@ import io
 
 import numpy as np
 import pytest
+import subprocess
+import sys
 
 from musictools.daw.vst.sampler import Sampler
 
@@ -35,6 +37,6 @@ def test_n_samples(midi_file, vst):
     assert len(np.frombuffer(stream.buffer.getvalue(), dtype='float32')) == track.n_samples
 
 
-@pytest.mark.xfail(reason='TODO')
 def test_main():
-    assert False
+    cmd = sys.executable, '-m', 'musictools.daw', 'video_test'
+    subprocess.check_call(cmd)

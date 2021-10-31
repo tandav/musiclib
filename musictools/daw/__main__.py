@@ -10,7 +10,7 @@ from musictools import voice_leading
 from musictools.daw import streams
 from musictools.daw.streams.bytes import Bytes
 from musictools.daw.streams.speakers import Speakers
-from musictools.daw.streams.youtube import YouTube
+from musictools.daw.streams.video import Video
 from musictools.daw.streams.wavfile import WavFile
 from musictools.daw.streams.pcmfile import PCM16File
 from musictools.daw import vst
@@ -51,6 +51,37 @@ def make_progressions():
 #     s = Scale('C', 'minor')
 
 
+def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack):
+    progression, dist, scale = random.choice(progressions)
+    progression_str = '\n'.join(
+        f'{chord} {chord.abstract.name}'
+        for chord in progression
+    )
+
+    rhythm = random.choice(rhythms)
+    for chord in progression:
+        # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
+        # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
+        bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
+        # chord_midi = rhythm.to_midi(chord=chord)
+        chord_midi = chord.to_midi()
+        # render.chunked(stream, ParsedMidi.from_many(
+        #     [drum_midi, bass_midi, chord_midi],
+        #     [drumrack, bass, synth],
+        # ))
+        bass._adsr.decay = random.uniform(0.1, 0.5)
+        synth.amplitude = 0.025
+        stream.render_chunked(ParsedMidi.from_many(
+            [drum_midi, bass_midi, chord_midi],
+            [drumrack, bass, synth],
+            meta={
+                'bassline': rhythm.bits,
+                'chords': progression_str,
+                'dist': dist,
+                'scale': scale,
+            },
+        ))
+
 def main() -> int:
     # todo: argparse
     # parser = argparse.ArgumentParser(description='Run streaming, pass output stream')
@@ -72,16 +103,26 @@ def main() -> int:
     # midi = ParsedMidi.from_file('4-4-8.mid', vst=synth)
     # midi = ParsedMidi.from_files(['4-4-8.mid', '4-4-8-offbeat.mid'], vst=(
 
+    is_test = False
     if len(sys.argv) == 1:
         output = Speakers
     else:
-        output = {
-            'speakers': Speakers,
-            'youtube': YouTube,
-            'wav': WavFile,
-            'pcm': PCM16File,
-            # 'devnull': streams.DevNull,
-        }[sys.argv[1]]
+        if sys.argv[1] == 'video_test':
+            output = Video
+            config.OUTPUT_VIDEO = '/dev/null'
+            # config.OUTPUT_VIDEO = '/tmp/output.flv'
+            config.beats_per_minute = 480
+            is_test = True
+        else:
+            output = {
+                'speakers': Speakers,
+                'video': Video,
+                'wav': WavFile,
+                'pcm': PCM16File,
+            }[sys.argv[1]]
+
+
+
 
     # C = make_rhythms(SpecificNote('C', 4))
     #
@@ -111,7 +152,6 @@ def main() -> int:
     #     bass,
     # ))
 
-    counter = 0
     # with streams.WavFile(config.wav_output_file, dtype='float32') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
@@ -126,45 +166,13 @@ def main() -> int:
 
     # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
 
-        while True:
-            progression, dist, scale = random.choice(progressions)
-            progression_str = '\n'.join(
-                f'{chord} {chord.abstract.name}'
-                for chord in progression
-            )
+        if is_test:
+            for _ in range(2):
+                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
+        else:
+            while True:
+                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
 
-            # print(progression)
-            rhythm = random.choice(rhythms)
-
-
-
-
-            for chord in progression:
-                # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
-                # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
-                bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
-                # chord_midi = rhythm.to_midi(chord=chord)
-                chord_midi = chord.to_midi()
-                # render.chunked(stream, ParsedMidi.from_many(
-                #     [drum_midi, bass_midi, chord_midi],
-                #     [drumrack, bass, synth],
-                # ))
-                bass._adsr.decay = random.uniform(0.1, 0.5)
-                synth.amplitude = 0.025
-                stream.render_chunked(ParsedMidi.from_many(
-                    [drum_midi, bass_midi, chord_midi],
-                    [drumrack, bass, synth],
-                    meta={
-                        'bassline': rhythm.bits,
-                        'chords': progression_str,
-                        'dist': dist,
-                        'scale': scale,
-                    },
-                ))
-            # counter += 1
-            # if counter % 10 == 0:
-            #     print('gc.collect()')
-                # gc.collect()
 
 
         # for _ in range(1):

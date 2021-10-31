@@ -1,5 +1,3 @@
-from pathlib import Path
-
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 
@@ -92,6 +90,8 @@ video_queue_item_size = 1
 assert video_queue_item_size < fps
 
 
-OUTPUT_VIDEO = str(Path.home() / 'Desktop/radiant2.mp4')
+# OUTPUT_VIDEO = '/tmp/output.mp4'
+# OUTPUT_VIDEO = '/dev/null'
+OUTPUT_VIDEO = 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg'
 
 log_path = 'logs/log.jsonl'

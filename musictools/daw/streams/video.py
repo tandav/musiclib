@@ -66,15 +66,20 @@ class PipeWriter(Thread):
 
     def run(self):
         with open(self.pipe, 'wb') as pipe:
-            # while True:
             while not self.stream_finished.is_set() or not self.q.empty():
+                # print(self.pipe, self.q.empty(), self.stream_finished.is_set(), 'foo')
                 # if self.pipe == config.video_pipe: print(self.pipe, self.q.qsize(), 'lol')
                 # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_start', 'qsize': self.q.qsize()}), file=self.log)
-                b = self.q.get(block=True)
-                # if self.pipe == config.video_pipe: print(self.pipe, 'kek')
+
+                # you can't block w/o timeout because stream_finished event may be set at any time
+                try:
+                    b = self.q.get(block=True, timeout=0.01)
+                except queue.Empty:
+                    pass
+                else:
+                    pipe.write(b)
+                    self.q.task_done()
                 # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_stop', 'qsize': self.q.qsize()}), file=self.log)
-                pipe.write(b)
-                self.q.task_done()
 
 
     # def run(self):
@@ -89,10 +94,10 @@ class PipeWriter(Thread):
     #     os.close(fd)
 
 
-class YouTube(Stream):
+class Video(Stream):
     def __enter__(self):
         # with open('static/images_backup.pkl', 'rb') as f: self.images = [i.getvalue() for i in pickle.load(f)]
-        with open('static/images.pkl', 'rb') as f: self.images = pickle.load(f)
+        # with open('static/images.pkl', 'rb') as f: self.images = pickle.load(f)
 
         def recreate(p):
             p = Path(p)
@@ -177,9 +182,7 @@ class YouTube(Stream):
                # '-flush_packets', '1',
                '-f', 'flv',
                '-flvflags', 'no_duration_filesize',
-               # '/dev/null',
-               'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg',
-               # config.OUTPUT_VIDEO,  # output encoding
+               config.OUTPUT_VIDEO,
                )
 
         # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
@@ -212,11 +215,6 @@ class YouTube(Stream):
         return self
 
     def __exit__(self, type, value, traceback):
-        # global no_more_data
-        # audio_finished = True
-        # video_finished = True
-        # no_more_data = True
-
         self.audio_thread.stream_finished.set()
         self.video_thread.stream_finished.set()
 
@@ -231,9 +229,6 @@ class YouTube(Stream):
         assert frames_written == int(audio_seconds_written * config.fps)
         print(frames_written, audio_seconds_written, int(audio_seconds_written * config.fps))
         # self.log.close()
-        # os.close(self.audio_pipe)
-        # os.close(self.video_pipe)
-        # self.path.close()
 
     def write(self, data: np.ndarray):
         """
