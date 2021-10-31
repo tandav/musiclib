@@ -21,9 +21,16 @@ class Sampler(VST):
     DEFAULT_ADSR = ADSR()
 
     DEFAULT_NOTE_TO_ADSR = {
-        SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.2),
+        SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.6),
         SpecificNote('e', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
         SpecificNote('b', 3): ADSR(attack=0.001, decay=0.2, sustain=0, release=0.1),
+    }
+
+    DEFAULT_AMPLITUDE = 0.1
+    DEFAULT_NOTE_TO_AMPLITUDE = {
+        SpecificNote('C', 3): 0.1,
+        SpecificNote('e', 3): 0.07,
+        SpecificNote('b', 3): 0.03,
     }
 
     def __init__(
@@ -35,6 +42,7 @@ class Sampler(VST):
         self.note_to_sample = dict()
         for note, sample_path in note_to_sample_path:
             self.note_to_sample[note] = self.load_sample(sample_path)
+        self.note_to_amplitude = Sampler.DEFAULT_NOTE_TO_AMPLITUDE
 
     def load_sample(self, sample_path: Union[str, Path]):
         sample_rate, sample = wavfile.read(sample_path)
@@ -49,7 +57,7 @@ class Sampler(VST):
         out = np.zeros(ns_to_render, dtype='float32')  # handle cases when samples ends earlier than note_off, render zeros till note_off (and maybe release? idk lol)
         sample = self.note_to_sample.get(note)
         if sample is not None:
-            sample = self.amplitude * sample[ns_rendered: ns_rendered + ns_to_render]
+            sample = self.note_to_amplitude.get(note, self.amplitude) * sample[ns_rendered: ns_rendered + ns_to_render]
             out[:len(sample)] = sample
         return out
 

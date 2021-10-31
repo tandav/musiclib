@@ -134,9 +134,9 @@ def main() -> int:
 
     drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
-    bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
+    bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05)
     drumrack = Sampler()
-    synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1))
+    synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.02)
 
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
