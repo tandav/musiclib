@@ -41,8 +41,7 @@ class Stream(abc.ABC):
 
             playing_notes -= stopped_notes
             notes -= stopped_notes
-            assert np.all(np.abs(self.master[:chunk_size]) <= 1)
-            # stream.write(master[:chunk_size].tobytes())
+            # assert np.all(np.abs(self.master[:chunk_size]) <= 1)
             self.write(self.master[:chunk_size])
             n += chunk_size
         track.reset()
