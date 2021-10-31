@@ -4,13 +4,14 @@ import numpy as np
 
 from musictools import config
 from musictools.daw.midi.parse import State
+from musictools.daw.midi.parse import ParsedMidi
 
 
 class Stream(abc.ABC):
     def __init__(self):
         self.master = np.zeros(config.chunk_size, dtype='float32')
 
-    def render_single(self, track):
+    def render_single(self, track: ParsedMidi):
         master = np.zeros(track.n_samples, dtype='float32')
         for note in track.notes:
             note.render(master)
@@ -18,7 +19,7 @@ class Stream(abc.ABC):
         self.write(master)
         track.reset()
 
-    def render_chunked(self, track):
+    def render_chunked(self, track: ParsedMidi):
         notes = set(track.notes)
         n = 0
         playing_notes = set()
