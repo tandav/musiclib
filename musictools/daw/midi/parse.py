@@ -224,6 +224,34 @@ class ParsedMidi:
     def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
         return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
 
-    @classmethod
-    def concat(cls, midis: Iterable):
-        raise NotImplementedError
+    @staticmethod
+    def concat(midi_objects: Iterable[mido.MidiFile]):
+        """
+        TODO: assert all midis have same ticks_per_beat_s, numerators, denominators etc
+        TODO: accept multi-
+        TODO: assert all midis are 1-bar length (mvp, then maybe support arbitary length midi objects)
+        TODO: test carefully
+        :param midis:
+        :return:
+        """
+        mid = mido.MidiFile(type=0)
+        tick_offset = 0
+        track = mido.MidiTrack()
+        track.append(mido.MetaMessage(type='track_name', name='concatenated_midi'))
+        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+
+        for midi in midi_objects:
+            numerator = None
+            for message in midi.tracks[0]:
+                if message.type == 'time_signature':
+                    if message.denominator != 4:
+                        raise NotImplementedError('denominators other than 4 are not supported')
+                    numerator = message.numerator
+                    ticks_per_bar = numerator * midi.ticks_per_beat
+
+                if message.type == 'note_on' or message.type == 'note_off':
+                    track.append(mido.Message(message.type, channel=message.channel, note=message.note, velocity=message.velocity, time=message.time + tick_offset))
+            tick_offset += ticks_per_bar
+        mid.tracks.append(track)
+        return mid
+

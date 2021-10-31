@@ -73,3 +73,34 @@ def test_main():
     # TODO: test result with ffprobe/ffplay
 
 
+def test_concat():
+    # todo: use smallest possible release values on all synths to make this work
+    # maybe turn off sustain and small decay
+    a = SpecificChord.random().to_midi()
+    b = SpecificChord.random().to_midi()
+    c = SpecificChord.random().to_midi()
+    d = SpecificChord.random().to_midi()
+    synth = Sine(adsr=ADSR(attack=0.05, decay=0.2, sustain=0, release=1e-3), amplitude=0.02)
+
+    with Bytes() as stream:
+        stream.render_chunked(ParsedMidi(a, synth))
+        stream.render_chunked(ParsedMidi(b, synth))
+        stream.render_chunked(ParsedMidi(c, synth))
+        stream.render_chunked(ParsedMidi(d, synth))
+
+    z = stream.to_numpy()
+
+    with Bytes() as sa: sa.render_chunked(ParsedMidi(a, synth))
+    with Bytes() as sb: sb.render_chunked(ParsedMidi(b, synth))
+    with Bytes() as sc: sc.render_chunked(ParsedMidi(c, synth))
+    with Bytes() as sd: sd.render_chunked(ParsedMidi(d, synth))
+    x = np.concatenate((sa.to_numpy(), sb.to_numpy(), sc.to_numpy(), sd.to_numpy()))
+    assert np.allclose(x, z, atol=1e-7)
+
+    with Bytes() as stream_concat:
+        stream_concat.render_chunked(ParsedMidi(ParsedMidi.concat((a, b, c, d)), synth))
+
+    y = stream_concat.to_numpy()
+    print(x, x.shape)
+    print(y, y.shape)
+    assert np.allclose(x, y, atol=1e-7)
