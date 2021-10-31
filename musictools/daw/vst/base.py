@@ -1,9 +1,11 @@
-from typing import Union
 import abc
+from typing import Union
+
+import numpy as np
+
+from musictools import config
 from musictools.daw.vst.adsr import ADSR
 from musictools.note import SpecificNote
-from musictools import config
-import numpy as np
 
 
 class VST(abc.ABC):

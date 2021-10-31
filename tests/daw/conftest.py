@@ -1,11 +1,9 @@
 import pytest
 
-from musictools.daw import vst as vst_
 from musictools.daw.vst.adsr import ADSR
-from musictools.daw.vst.sine import Sine
 from musictools.daw.vst.organ import Organ
 from musictools.daw.vst.sampler import Sampler
-from musictools.daw.streams.bytes import Bytes
+from musictools.daw.vst.sine import Sine
 
 vst0 = Sine(adsr=ADSR(attack=0.05, decay=0.3, sustain=0.1, release=0.001))
 vst1 = Sine(adsr=ADSR(attack=0.001, decay=0.3, sustain=1, release=2))

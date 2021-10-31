@@ -1,14 +1,15 @@
-from musictools.daw.vst.base import VST
-from musictools.daw.vst.adsr import ADSR
-import numpy as np
-from musictools import config
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 
+from musictools import config
+from musictools.daw.vst.adsr import ADSR
+from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
 from musictools.util import wavfile  # from scipy.io import wavfile
+
 
 class Sampler(VST):
     DEFAULT_NOTE_TO_SAMPLE_PATH = (

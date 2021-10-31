@@ -5,6 +5,7 @@ import statistics
 from collections import deque
 from typing import Optional
 
+import mido
 import pipe21 as P
 
 from musictools import config
@@ -90,7 +91,6 @@ class Rhythm:
         raise NotImplementedError
 
     def to_midi(self, path=None, note_=None, chord=None, progression=None) -> 'Optional[mido.MidiFile]':
-        import mido
 
         mid = mido.MidiFile(type=0, ticks_per_beat=96)
 

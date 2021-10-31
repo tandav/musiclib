@@ -19,5 +19,3 @@ class Speakers(Stream):
 
     def write(self, data: np.ndarray):
         self.stream.write(data.tobytes())
-
-

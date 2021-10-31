@@ -1,4 +1,3 @@
-import argparse
 import itertools
 import random
 import sys
@@ -7,18 +6,15 @@ import mido
 
 from musictools import config
 from musictools import voice_leading
-from musictools.daw import streams
-from musictools.daw.streams.bytes import Bytes
+from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.streams.pcmfile import PCM16File
 from musictools.daw.streams.speakers import Speakers
 from musictools.daw.streams.video import Video
 from musictools.daw.streams.wavfile import WavFile
-from musictools.daw.streams.pcmfile import PCM16File
-from musictools.daw import vst
 from musictools.daw.vst.adsr import ADSR
-from musictools.daw.vst.sine import Sine
 from musictools.daw.vst.organ import Organ
 from musictools.daw.vst.sampler import Sampler
-from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.vst.sine import Sine
 from musictools.note import SpecificNote
 from musictools.note import note_range
 from musictools.rhythm import Rhythm
@@ -28,6 +24,8 @@ from musictools.scale import Scale
 # memory = joblib.Memory('/tmp', verbose=0)
 
 # @memory.cache
+
+
 def make_rhythms():
     _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(6, 8 + 1))
     _ = itertools.chain.from_iterable(_)
@@ -35,6 +33,8 @@ def make_rhythms():
     return tuple(_)
 
 # @memory.cache
+
+
 def make_progressions():
     progressions = []
     for scale in config.diatonic[:-1]:
@@ -82,6 +82,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
             },
         ))
 
+
 def main() -> int:
     # todo: argparse
     # parser = argparse.ArgumentParser(description='Run streaming, pass output stream')
@@ -121,9 +122,6 @@ def main() -> int:
                 'pcm': PCM16File,
             }[sys.argv[1]]
 
-
-
-
     # C = make_rhythms(SpecificNote('C', 4))
     #
     # notes_rhythms = [
@@ -162,9 +160,9 @@ def main() -> int:
         # for _ in range(4): render.single(stream, midi)
         # for _ in range(1): render.chunked(stream, midi)
         # for _ in range(4): render.single(stream, ParsedMidi.from_file('weird.mid', vst=synth))
-    #     for _ in range(4): render.chunked(stream, ParsedMidi.from_file('dots.mid', vst=synth))
+        #     for _ in range(4): render.chunked(stream, ParsedMidi.from_file('dots.mid', vst=synth))
 
-    # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
+        # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
 
         if is_test:
             for _ in range(2):
@@ -172,8 +170,6 @@ def main() -> int:
         else:
             while True:
                 render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
-
-
 
         # for _ in range(1):
         #     i = random.randrange(0, n)
@@ -183,7 +179,6 @@ def main() -> int:
         #     for _ in range(3):
         #         midi = ParsedMidi.from_many([drum_midi, random.choice(notes_rhythms)[i]], vst=(vst.Sampler(), bass))
         #         render.chunked(stream, midi)
-
 
     print('exit main')
     return 0

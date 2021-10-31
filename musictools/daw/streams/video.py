@@ -1,7 +1,5 @@
 import io
-import json
 import os
-import pickle
 import queue
 import random
 import string
@@ -22,8 +20,6 @@ from musictools.daw.streams.base import Stream
 from musictools.util import float32_to_int16
 
 # https://support.google.com/youtube/answer/6375112
-
-
 
 
 # TODO: change to thread-safe queue.Queue
@@ -54,7 +50,8 @@ font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
 font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
 layer = Image.new("RGBA", (config.frame_width, config.frame_height), (255, 255, 255, 0))
 d = ImageDraw.Draw(layer)
-text_color=(0, 0, 0)
+text_color = (0, 0, 0)
+
 
 class PipeWriter(Thread):
     def __init__(self, pipe, q: queue.Queue):
@@ -80,7 +77,6 @@ class PipeWriter(Thread):
                     pipe.write(b)
                     self.q.task_done()
                 # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_stop', 'qsize': self.q.qsize()}), file=self.log)
-
 
     # def run(self):
     #     # fd = os.open(self.pipe, os.O_WRONLY | os.O_NONBLOCK)
@@ -155,7 +151,7 @@ class Video(Stream):
                # '-preset', 'ultrafast',
                # '-tune', 'zerolatency',
                # '-g', '150',  #  GOP: group of pictures
-               '-g', str(keyframe_seconds * config.fps),  #  GOP: group of pictures
+               '-g', str(keyframe_seconds * config.fps),  # GOP: group of pictures
                '-x264opts', 'no-scenecut',
                # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
                '-vsync', 'cfr',
@@ -225,7 +221,7 @@ class Video(Stream):
         os.unlink(config.audio_pipe)
         os.unlink(config.video_pipe)
 
-        print('='*100)
+        print('=' * 100)
         assert frames_written == int(audio_seconds_written * config.fps)
         print(frames_written, audio_seconds_written, int(audio_seconds_written * config.fps))
         # self.log.close()
@@ -243,7 +239,6 @@ class Video(Stream):
         global video_seconds_written
         global frames_written
         global samples_written
-
 
         seconds = len(data) / config.sample_rate
         b = float32_to_int16(data).tobytes()
@@ -272,12 +267,11 @@ class Video(Stream):
         # if n_frames == 0:
         # if n_frames < 100:
         if n_frames < config.video_queue_item_size:
-        # if n_frames < 1:
-        # if n_frames < 300:
+            # if n_frames < 1:
+            # if n_frames < 300:
             return
         # n_frames = int(seconds * config.fps)# - frames_written
         # print('fffffffffff', n_frames)
-
 
         # self.vbuff.truncate(0)
         # assert self.vbuff.getvalue() == b''
@@ -305,7 +299,7 @@ class Video(Stream):
             # fig.savefig(self.vbuff, format='rgba', dpi=100)
             # self.vbuff.write(random.choice(self.images))
             # b = random.choice(self.images).getvalue()
-            #q_video.put(b, block=True)
+            # q_video.put(b, block=True)
 
             # q_video.put(random.choice(self.images), block=True)
             q_video.put(layer.tobytes(), block=True)
@@ -316,20 +310,18 @@ class Video(Stream):
         video_seconds_written += n_frames / config.fps
 
         print('eeeeeeeeeeeeeeeeee', f'QA{q_audio.qsize()} QV{q_video.qsize()} {seconds=} {n_frames=} {frames_written=} {samples_written=} {audio_seconds_written=:.2f}')
-        info = {
-            'timestamp': time.monotonic(),
-            'qa': q_audio.qsize(),
-            'qv': q_video.qsize(),
-            'seconds': seconds,
-            'n_frames': n_frames,
-            'frames_written': frames_written,
-            'samples_written': samples_written,
-            'audio_seconds_written': audio_seconds_written,
-            'video_seconds_written': video_seconds_written,
-        }
+        # info = {
+        #     'timestamp': time.monotonic(),
+        #     'qa': q_audio.qsize(),
+        #     'qv': q_video.qsize(),
+        #     'seconds': seconds,
+        #     'n_frames': n_frames,
+        #     'frames_written': frames_written,
+        #     'samples_written': samples_written,
+        #     'audio_seconds_written': audio_seconds_written,
+        #     'video_seconds_written': video_seconds_written,
+        # }
         # print(json.dumps(info), file=self.log)
-
-
 
         # if n_runs < 100:
         #     n_runs += 1
@@ -338,12 +330,6 @@ class Video(Stream):
         # # audio_data.put(a, block=True)
         # audio_data.join()
         # video_data.join()
-
-
-
-
-
-
 
 
 # class GenerateAudioToPipe(Thread):
@@ -385,7 +371,6 @@ class Video(Stream):
 #         fd.close()
 #         print('IIIIIIIIIII')
 #         audio_finished = True
-
 
 
 # class GenerateVideoToPipe(Thread):

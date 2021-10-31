@@ -47,7 +47,6 @@ class Stream(abc.ABC):
             n += chunk_size
         track.reset()
 
-
     @abc.abstractmethod
     def write(self, data: np.ndarray):
         """data.dtype must be float32"""

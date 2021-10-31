@@ -12,6 +12,7 @@ class Note:  # Note(str) ??
     abstract note, no octave/key
     kinda music theoretic pitch-class
     """
+
     def __init__(self, name: str):
         """:param name: one of CdDeEFfGaAbB"""
         self.name = name

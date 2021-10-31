@@ -73,7 +73,6 @@ class Chord:
 
     @classmethod
     def from_intervals(cls, root: Union[str, Note], intervals: frozenset):
-
         """
         if you're creating chord from interval, you must specify root note
         from which intervals are calculated

@@ -1,14 +1,12 @@
-import io
-
-import numpy as np
-import pytest
 import subprocess
 import sys
 
-from musictools.daw.vst.sampler import Sampler
+import numpy as np
+import pytest
 
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.bytes import Bytes
+from musictools.daw.vst.sampler import Sampler
 
 
 @pytest.mark.parametrize('midi_file', (

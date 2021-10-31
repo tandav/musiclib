@@ -1,4 +1,3 @@
-import functools
 from collections.abc import Iterable
 from collections.abc import Sequence
 from enum import Enum
@@ -7,14 +6,14 @@ from pathlib import Path
 from typing import Union
 from typing import get_args
 
-PathLike = Union[str, Path]
-
 import mido
 import numpy as np
 
 from musictools import config
 from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
+
+PathLike = Union[str, Path]
 
 
 class State(Enum):
@@ -167,7 +166,6 @@ class ParsedMidi:
     # def from_many(cls, midis: Union[Sequence[PathLike], Sequence[mido.MidiFile]], vst: Sequence[VST]):
     #     if isinstance(Sequence)
 
-
     @classmethod
     def from_files(cls, midi_files: Union[PathLike, Sequence[PathLike]], vst: Union[VST, Sequence[VST]], meta: Union[dict, None] = None):
         if isinstance(midi_files, get_args(PathLike)):  # get_args is shitty but works
@@ -225,7 +223,6 @@ class ParsedMidi:
     @classmethod
     def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
         return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
-
 
     @classmethod
     def concat(cls, midis: Iterable):

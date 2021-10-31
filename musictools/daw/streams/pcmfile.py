@@ -8,6 +8,7 @@ class PCM16File(Stream):
     """
     pcm_s16le PCM signed 16-bit little-endian
     """
+
     def __init__(self, path):
         super().__init__()
         self.path = open(path, 'wb')

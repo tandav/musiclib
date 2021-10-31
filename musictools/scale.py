@@ -112,6 +112,7 @@ class ComparedScales:
     local terminology: left sclae is compared to right
     left is kinda parent, right is kinda child
     '''
+
     def __init__(self, left: Scale, right: Scale):
         self.left = left
         self.right = right

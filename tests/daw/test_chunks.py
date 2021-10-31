@@ -1,13 +1,12 @@
-import io
 
 import numpy as np
 import pytest
 
-# from musictools.daw import render
-
-from musictools.daw.vst.sampler import Sampler
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.bytes import Bytes
+from musictools.daw.vst.sampler import Sampler
+
+# from musictools.daw import render
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -46,6 +45,5 @@ def test_chunks(midi_file, vst):
 
     single = np.frombuffer(single.buffer.getvalue(), dtype='float32')
     chunked = np.frombuffer(chunked.buffer.getvalue(), dtype='float32')
-
 
     assert np.allclose(single, chunked, atol=1e-7)
