@@ -1,0 +1,14 @@
+FROM python:3.9-alpine
+RUN apk add g++ && apk add ffmpeg && pip install numpy
+RUN apk add --no-cache freetype-dev jpeg-dev zlib-dev && apk add --no-cache --virtual .build-deps build-base linux-headers && pip install Pillow
+RUN pip install mido pipe21
+
+#FROM python:3.9
+#RUN #pip install numpy Pillow mido pipe21 && apt update && apt install --yes ffmpeg
+
+RUN mkdir -p /app/musictools
+RUN mkdir -p /app/static
+COPY musictools /app/musictools
+COPY static /app/static
+WORKDIR /app
+CMD ["python", "-m", "musictools.daw", "youtube"]

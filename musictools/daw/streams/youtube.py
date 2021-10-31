@@ -1,7 +1,9 @@
+import io
 import json
 import os
 import pickle
 import random
+import string
 import subprocess
 import time
 from pathlib import Path
@@ -9,14 +11,15 @@ from threading import Event
 from threading import Thread
 
 import numpy as np
+# import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
 
 from musictools import config
 from musictools.daw.streams.base import Stream
 from musictools.util import float32_to_int16
 
 # https://support.google.com/youtube/answer/6375112
-frame_width = 426
-frame_height = 240
+
 
 
 import queue
@@ -37,7 +40,18 @@ frames_written = 0  # video
 samples_written = 0  # audio
 
 n_runs = 0
+# fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
+# ax.grid(False)
+# ax.axis('off')
 
+# R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+# im = plt.imshow(R)
+
+font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
+font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
+layer = Image.new("RGBA", (config.frame_width, config.frame_height), (255, 255, 255, 0))
+d = ImageDraw.Draw(layer)
+text_color=(0, 0, 0)
 
 class PipeWriter(Thread):
     def __init__(self, pipe, q: queue.Queue):
@@ -72,12 +86,10 @@ class PipeWriter(Thread):
     #     os.close(fd)
 
 
-
-
 class YouTube(Stream):
     def __enter__(self):
-        with open('static/images.pkl', 'rb') as f:
-            self.images = [i.getvalue() for i in pickle.load(f)]
+        # with open('static/images_backup.pkl', 'rb') as f: self.images = [i.getvalue() for i in pickle.load(f)]
+        with open('static/images.pkl', 'rb') as f: self.images = pickle.load(f)
 
         def recreate(p):
             p = Path(p)
@@ -98,7 +110,6 @@ class YouTube(Stream):
 
         cmd = ('ffmpeg',
                # '-loglevel', 'trace',
-               # '-hwaccel', 'videotoolbox',
                '-threads', '2',
                # '-y', '-r', '60', # overwrite, 60fps
                '-re',
@@ -110,15 +121,15 @@ class YouTube(Stream):
                '-r', str(config.sample_rate),  # the input will have 44100 Hz
                '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-thread_queue_size', thread_queue_size,
-               '-thread_queue_size', '16',
+               '-thread_queue_size', '32',
                '-i', config.audio_pipe,
 
 
-               '-s', f'{frame_width}x{frame_height}',  # size of image string
+               '-s', f'{config.frame_width}x{config.frame_height}',  # size of image string
                '-f', 'rawvideo',
                '-pix_fmt', 'rgba',  # format
                # '-r', str(config.fps),
-               '-r', str(config.fps),
+               '-r', str(config.fps),  # input framrate. This parameter is important to stream w/o memory overflow
                # '-vsync', 'cfr', # kinda optional but you can turn it on
                # '-f', 'image2pipe',
                # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
@@ -131,13 +142,13 @@ class YouTube(Stream):
                # '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-b:a', "320k",  # output bitrate (=quality). Here, 3000kb/second
 
-               # '-c:v', 'h264_videotoolbox',
                '-c:v', 'libx264',
                '-pix_fmt', 'yuv420p',
                # '-preset', 'ultrafast',
                # '-tune', 'zerolatency',
-               # '-g', '150',
-               # '-x264opts', 'no-scenecut',
+               # '-g', '150',  #  GOP: group of pictures
+               '-g', str(keyframe_seconds * config.fps),  #  GOP: group of pictures
+               '-x264opts', 'no-scenecut',
                # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
                '-vsync', 'cfr',
                # '-async', '1',
@@ -148,10 +159,10 @@ class YouTube(Stream):
                # '-b:v', '64k',
                '-b:v', '200k',
                # '-b:v', '500k',
-               # '-deinterlace',
+               '-deinterlace',
                # '-r', str(config.fps),
 
-               '-r', str(config.fps),
+               '-r', str(config.fps),  # output framerate
                # '-maxrate', '1000k',
                # '-map', '0:a',
                # '-map', '1:v',
@@ -182,6 +193,9 @@ class YouTube(Stream):
         self.video_thread = PipeWriter(config.video_pipe, q_video)
         self.audio_thread.start()
         self.video_thread.start()
+
+        self.vbuff = io.BytesIO()
+
         # time.sleep(2)
         # print('sfsfsf')
         # self.audio_pipe = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
@@ -267,14 +281,37 @@ class YouTube(Stream):
         # print('fffffffffff', n_frames)
 
 
-        # for frame in range(n_frames):
-        #     b = random.choice(self.images).getvalue()
-        #     q_video.put(b, block=True)
+        # self.vbuff.truncate(0)
+        # assert self.vbuff.getvalue() == b''
+        # background_color = 255, 255, 255, 255
+        background_color = tuple(random.randrange(255) for _ in range(4))
+        for frame in range(n_frames):
+            # print('g')
+            # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
 
-        q_video.put(b''.join(random.choices(self.images, k=n_frames)), block=True)
+            d.rectangle((0, 0, config.frame_width, config.frame_height), fill=background_color)
+            d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
+            d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
+            d.text((70, 100), 'tandav.me', font=font, fill=text_color)
+            d.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
+
+            # self.vbuff.write(random.choice(self.images))
+            # layer.save(self.vbuff, format='PNG'
+            # self.vbuff.write(layer.tobytes())
+            # print('w')
+            # im.set_data(R)
+            # fig.savefig(self.vbuff, format='rgba', dpi=100)
+            # self.vbuff.write(random.choice(self.images))
+            # b = random.choice(self.images).getvalue()
+            #q_video.put(b, block=True)
+
+            # q_video.put(random.choice(self.images), block=True)
+            q_video.put(layer.tobytes(), block=True)
+
+        # q_video.put(b''.join(random.choices(self.images, k=n_frames)), block=True)
+        # q_video.put(self.vbuff.getvalue(), block=True)
         frames_written += n_frames
         video_seconds_written += n_frames / config.fps
-
 
         print('eeeeeeeeeeeeeeeeee', f'QA{q_audio.qsize()} QV{q_video.qsize()} {seconds=} {n_frames=} {frames_written=} {samples_written=} {audio_seconds_written=:.2f}')
         info = {

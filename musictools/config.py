@@ -84,7 +84,11 @@ fps = 30
 # fps = 20
 # fps = 60
 
-video_queue_item_size = 20
+frame_width = 426
+frame_height = 240
+
+# video_queue_item_size = 20
+video_queue_item_size = 1
 assert video_queue_item_size < fps
 
 
