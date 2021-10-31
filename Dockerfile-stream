@@ -6,9 +6,8 @@ RUN pip install mido pipe21
 #FROM python:3.9
 #RUN #pip install numpy Pillow mido pipe21 && apt update && apt install --yes ffmpeg
 
-RUN mkdir -p /app/musictools
-RUN mkdir -p /app/static
-COPY musictools /app/musictools
-COPY static /app/static
+RUN mkdir -p /app/musictools && mkdir -p /app/static
 WORKDIR /app
+COPY static /app/static
+COPY musictools /app/musictools
 CMD ["python", "-m", "musictools.daw", "video"]
