@@ -3,6 +3,7 @@ import numpy as np
 from musictools.daw.streams.base import Stream
 from musictools.util import float32_to_int16
 
+
 class PCM16File(Stream):
     """
     pcm_s16le PCM signed 16-bit little-endian

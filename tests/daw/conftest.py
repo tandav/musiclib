@@ -25,5 +25,5 @@ def single_vst():
 #     yield request.param
 
 
-def stream():
-    yield Bytes()
+# def stream():
+#     yield Bytes()

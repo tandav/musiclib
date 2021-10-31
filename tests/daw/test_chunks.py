@@ -6,6 +6,7 @@ import pytest
 # from musictools.daw import render
 from musictools.daw import vst as vst_
 from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.streams import Bytes
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -18,7 +19,7 @@ from musictools.daw.midi.parse import ParsedMidi
     'weird.mid',
     'drumloop.mid',
 ))
-def test_chunks(midi_file, vst, stream):
+def test_chunks(midi_file, vst):
     if (
         (midi_file == 'drumloop.mid' and not isinstance(vst, vst_.Sampler)) or
         (midi_file != 'drumloop.mid' and isinstance(vst, vst_.Sampler))
@@ -27,17 +28,23 @@ def test_chunks(midi_file, vst, stream):
 
     track = ParsedMidi.from_file(midi_file, vst)
 
-    single = io.BytesIO()
-    chunked = io.BytesIO()
+    # single = io.BytesIO()
+    # chunked = io.BytesIO()
 
-    single = stream.render_single(track)
-    chunked = stream.render_chunked(track)
+    with Bytes() as single:
+        single.render_single(track)
+
+    with Bytes() as chunked:
+        chunked.render_chunked(track)
+
+    # single = stream.render_single(track)
+    # chunked = stream.render_chunked(track)
 
     # render.single(single, track)
     # render.chunked(chunked, track)
 
-    # single = np.frombuffer(single.getvalue(), dtype='float32')
-    # chunked = np.frombuffer(chunked.getvalue(), dtype='float32')
+    single = np.frombuffer(single.buffer.getvalue(), dtype='float32')
+    chunked = np.frombuffer(chunked.buffer.getvalue(), dtype='float32')
 
 
     assert np.allclose(single, chunked, atol=1e-7)

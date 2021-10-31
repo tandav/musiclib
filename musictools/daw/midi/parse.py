@@ -1,4 +1,5 @@
 import functools
+from collections.abc import Iterable
 from collections.abc import Sequence
 from enum import Enum
 from enum import auto
@@ -224,3 +225,8 @@ class ParsedMidi:
     @classmethod
     def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
         return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
+
+
+    @classmethod
+    def concat(cls, midis: Iterable):
+        raise NotImplementedError

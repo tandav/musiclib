@@ -5,6 +5,7 @@ import pytest
 
 from musictools.daw import vst as vst_
 from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.streams import Bytes
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -17,7 +18,7 @@ from musictools.daw.midi.parse import ParsedMidi
     'weird.mid',
     'drumloop.mid',
 ))
-def test_n_samples(midi_file, vst, renderer):
+def test_n_samples(midi_file, vst):
     """
     render 1 bar and check number of samples in the output
     """
@@ -28,6 +29,6 @@ def test_n_samples(midi_file, vst, renderer):
         pytest.skip('Invalid case')
     track = ParsedMidi.from_file(midi_file, vst)
 
-    stream = io.BytesIO()
-    renderer(stream, track)
-    assert len(np.frombuffer(stream.getvalue(), dtype='float32')) == track.n_samples
+    with Bytes() as stream:
+        stream.render_chunked(track)
+    assert len(np.frombuffer(stream.buffer.getvalue(), dtype='float32')) == track.n_samples

@@ -2,6 +2,7 @@ import io
 import json
 import os
 import pickle
+import queue
 import random
 import string
 import subprocess
@@ -12,7 +13,9 @@ from threading import Thread
 
 import numpy as np
 # import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 from musictools import config
 from musictools.daw.streams.base import Stream
@@ -22,14 +25,14 @@ from musictools.util import float32_to_int16
 
 
 
-import queue
 
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
 # audio_data = collections.deque()
 # qsize = 2 ** 9
 # qsize = 2 ** 4
-qsize = 2 ** 6
+# qsize = 2 ** 6
+qsize = 2 ** 8
 q_audio = queue.Queue(maxsize=qsize)
 q_video = queue.Queue(maxsize=qsize)
 # video_data = collections.deque()
@@ -105,7 +108,7 @@ class YouTube(Stream):
         # thread_queue_size = str(2**16)
         # thread_queue_size = str(2**10)
         # thread_queue_size = str(2**5)
-        thread_queue_size = str(2 ** 7)
+        thread_queue_size = str(2 ** 8)
         keyframe_seconds = 3
 
         cmd = ('ffmpeg',
@@ -121,7 +124,7 @@ class YouTube(Stream):
                '-r', str(config.sample_rate),  # the input will have 44100 Hz
                '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-thread_queue_size', thread_queue_size,
-               '-thread_queue_size', '32',
+               '-thread_queue_size', '128',
                '-i', config.audio_pipe,
 
 
@@ -293,7 +296,7 @@ class YouTube(Stream):
             # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
             # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
             d.text((100, 0), self.meta['bassline'], font=font, fill=text_color)
-            d.text((100, 60), self.meta['chords'], font=font2, fill=text_color)
+            d.text((0, 60), self.meta['chords'], font=font2, fill=text_color)
             d.text((0, 170), self.meta['scale'], font=font2, fill=text_color)
             d.text((150, 170), f"dist{self.meta['dist']}", font=font2, fill=text_color)
             d.text((0, 200), 'tandav.me', font=font, fill=text_color)

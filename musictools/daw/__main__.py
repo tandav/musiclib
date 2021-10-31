@@ -14,6 +14,7 @@ from musictools.note import SpecificNote
 from musictools.note import note_range
 from musictools.rhythm import Rhythm
 from musictools.scale import Scale
+
 # import joblib
 # memory = joblib.Memory('/tmp', verbose=0)
 
@@ -119,8 +120,17 @@ def main() -> int:
 
         while True:
             progression, dist, scale = random.choice(progressions)
+            progression_str = '\n'.join(
+                f'{chord} {chord.abstract.name}'
+                for chord in progression
+            )
+
             # print(progression)
             rhythm = random.choice(rhythms)
+
+
+
+
             for chord in progression:
                 # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
                 # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
@@ -138,7 +148,7 @@ def main() -> int:
                     [drumrack, bass, synth],
                     meta={
                         'bassline': rhythm.bits,
-                        'chords': '\n'.join(map(str,progression)),
+                        'chords': progression_str,
                         'dist': dist,
                         'scale': scale,
                     },

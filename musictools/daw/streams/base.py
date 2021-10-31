@@ -3,8 +3,8 @@ import abc
 import numpy as np
 
 from musictools import config
-from musictools.daw.midi.parse import State
 from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.midi.parse import State
 
 
 class Stream(abc.ABC):
@@ -52,4 +52,3 @@ class Stream(abc.ABC):
     def write(self, data: np.ndarray):
         """data.dtype must be float32"""
         ...
-
