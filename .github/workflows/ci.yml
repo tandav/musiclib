@@ -19,8 +19,11 @@ jobs:
           pwd
           ls -Al
 
-      - name: install dependencies
+      - name: install python dependencies
         run: python3 -m pip install -r requirements.txt
+
+      - name: install ffmpeg
+        run: sudo apt update && sudo  apt install --yes ffmpeg
 
       - name: lint
         run: make lint
