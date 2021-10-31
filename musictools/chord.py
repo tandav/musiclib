@@ -183,9 +183,8 @@ class SpecificChord:
     def __repr__(self):
         _ = self.str_chord
         if self.root is not None:
-            _ += f'__{self.root.name}'
+            _ = f'{self.root.name}__{_}'
         return _
-        # return ' '.join(note.short_repr() for note in self.notes)
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
