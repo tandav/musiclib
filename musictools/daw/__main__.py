@@ -136,6 +136,7 @@ def main() -> int:
                 stream.render_chunked(ParsedMidi.from_many(
                     [drum_midi, bass_midi, chord_midi],
                     [drumrack, bass, synth],
+                    meta={'bassline': rhythm.bits, 'chords': '\n'.join(map(str,progression))},
                 ))
             # counter += 1
             # if counter % 10 == 0:

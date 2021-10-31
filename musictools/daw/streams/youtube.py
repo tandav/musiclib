@@ -283,15 +283,17 @@ class YouTube(Stream):
 
         # self.vbuff.truncate(0)
         # assert self.vbuff.getvalue() == b''
-        # background_color = 255, 255, 255, 255
-        background_color = tuple(random.randrange(255) for _ in range(4))
+        background_color = 255, 255, 255, 255
+        # background_color = tuple(random.randrange(255) for _ in range(4))
         for frame in range(n_frames):
             # print('g')
             # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
 
             d.rectangle((0, 0, config.frame_width, config.frame_height), fill=background_color)
-            d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
-            d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
+            # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
+            # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
+            d.text((100, 0), self.meta['bassline'], font=font, fill=text_color)
+            d.text((100, 60), self.meta['chords'], font=font2, fill=text_color)
             d.text((70, 100), 'tandav.me', font=font, fill=text_color)
             d.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 

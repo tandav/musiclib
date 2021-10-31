@@ -105,10 +105,12 @@ class NoteSound:
 
 
 class ParsedMidi:
-    def __init__(self, midi: mido.MidiFile, vst: Union[VST, Sequence[VST]]):
+    def __init__(self, midi: mido.MidiFile, vst: Union[VST, Sequence[VST]], meta: Union[dict, None] = None):
         """
         :param midi: Midi with one or many channels
         :param vst:
+        :param meta: extra meta information to store
+        :return:
         """
 
         ticks_info = dict()
@@ -147,6 +149,7 @@ class ParsedMidi:
         self.n_samples = int(config.sample_rate * mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
         self.numerator = numerator
         self.notes = notes
+        self.meta = meta
 
     def round_ticks_to_bar(self, ticks, ticks_per_bar):
         div, mod = divmod(ticks, ticks_per_bar)
@@ -165,15 +168,15 @@ class ParsedMidi:
 
 
     @classmethod
-    def from_files(cls, midi_files: Union[PathLike, Sequence[PathLike]], vst: Union[VST, Sequence[VST]]):
+    def from_files(cls, midi_files: Union[PathLike, Sequence[PathLike]], vst: Union[VST, Sequence[VST]], meta: Union[dict, None] = None):
         if isinstance(midi_files, get_args(PathLike)):  # get_args is shitty but works
             assert isinstance(vst, VST)
             midi = mido.MidiFile(config.midi_folder + midi_files, type=0)
             return cls(midi, vst)
-        return cls.from_many([mido.MidiFile(config.midi_folder + f, type=0) for f in midi_files], vst)
+        return cls.from_many([mido.MidiFile(config.midi_folder + f, type=0) for f in midi_files], vst, meta)
 
     @classmethod
-    def from_many(cls, midi_objects: Sequence[mido.MidiFile], vst: Sequence[VST]):
+    def from_many(cls, midi_objects: Sequence[mido.MidiFile], vst: Sequence[VST], meta: Union[dict, None] = None):
         """
         convert many midi files into one with multiple channels
         """
@@ -216,8 +219,8 @@ class ParsedMidi:
         if not (len(numerators) == len(denominators) == 1):
             raise NotImplementedError(f'cant merge midi files with different or without time_signatures (numerator {numerators} and denominator {denominators})')
 
-        return cls(midi, vst)
+        return cls(midi, vst, meta)
 
     @classmethod
-    def from_file(cls, midi_file, vst: VST):
-        return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst)
+    def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
+        return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
