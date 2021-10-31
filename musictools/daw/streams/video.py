@@ -45,7 +45,7 @@ n_runs = 0
 # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
 # im = plt.imshow(R)
 
-font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 40)
+font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 30)
 font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
 layer = Image.new('RGBA', (config.frame_width, config.frame_height), (255, 255, 255, 0))
 d = ImageDraw.Draw(layer)
