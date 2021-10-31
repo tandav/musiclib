@@ -10,7 +10,6 @@ from threading import Event
 from threading import Thread
 
 import numpy as np
-# import matplotlib.pyplot as plt
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -107,9 +106,9 @@ class Video(Stream):
         # INPUT_AUDIO = config.audio_pipe
 
         # thread_queue_size = str(2**16)
-        # thread_queue_size = str(2**10)
+        thread_queue_size = str(2**10)
         # thread_queue_size = str(2**5)
-        thread_queue_size = str(2 ** 8)
+        # thread_queue_size = str(2 ** 8)
         keyframe_seconds = 3
 
         cmd = ('ffmpeg',
@@ -125,7 +124,7 @@ class Video(Stream):
                '-r', str(config.sample_rate),  # the input will have 44100 Hz
                '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-thread_queue_size', thread_queue_size,
-               '-thread_queue_size', '128',
+               '-thread_queue_size', '1024',
                '-i', config.audio_pipe,
 
 
@@ -148,8 +147,9 @@ class Video(Stream):
 
                '-c:v', 'libx264',
                '-pix_fmt', 'yuv420p',
-               # '-preset', 'ultrafast',
-               # '-tune', 'zerolatency',
+               '-preset', 'ultrafast',
+               '-tune', 'zerolatency',
+               # '-tune', 'animation',
                # '-g', '150',  #  GOP: group of pictures
                '-g', str(keyframe_seconds * config.fps),  # GOP: group of pictures
                '-x264opts', 'no-scenecut',
@@ -276,18 +276,21 @@ class Video(Stream):
         # self.vbuff.truncate(0)
         # assert self.vbuff.getvalue() == b''
         background_color = 255, 255, 255, 255
+        progress_color = 0, 255, 0, 100
         # background_color = tuple(random.randrange(255) for _ in range(4))
         for frame in range(n_frames):
             # print('g')
             # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-
             d.rectangle((0, 0, config.frame_width, config.frame_height), fill=background_color)
+
+            d.rectangle((0, 0, self.n * config.frame_width // self.track.n_samples, config.frame_height), fill=progress_color)
+
             # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
             # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
-            d.text((100, 0), self.meta['bassline'], font=font, fill=text_color)
-            d.text((0, 60), self.meta['chords'], font=font2, fill=text_color)
-            d.text((0, 170), self.meta['scale'], font=font2, fill=text_color)
-            d.text((150, 170), f"dist{self.meta['dist']}", font=font2, fill=text_color)
+            d.text((100, 0), self.track.meta['bassline'], font=font, fill=text_color)
+            d.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
+            d.text((0, 170), self.track.meta['scale'], font=font2, fill=text_color)
+            d.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
             d.text((0, 200), 'tandav.me', font=font, fill=text_color)
             d.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
