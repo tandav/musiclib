@@ -15,3 +15,6 @@ class Bytes(Stream):
 
     def write(self, data: np.ndarray):
         self.buffer.write(data.tobytes())
+
+    def to_numpy(self) -> np.ndarray:
+        return np.frombuffer(self.buffer.getvalue(), dtype='float32')
