@@ -37,9 +37,9 @@ def make_rhythms():
 
 def make_progressions():
     progressions = []
-    for scale in config.diatonic[:-1]:
-        # for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('G', 2), SpecificNote('C', 6))):
-        for dist, p in voice_leading.make_progressions(Scale('C', scale), note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
+    scales = [Scale('C', scale) for scale in config.diatonic[:-1]]
+    for scale in scales:
+        for dist, p in voice_leading.make_progressions(scale, note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
             progressions.append((p, dist, scale))
     return progressions
 

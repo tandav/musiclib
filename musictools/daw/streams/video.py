@@ -97,7 +97,7 @@ class Video(Stream):
         self.clear_background()
 
     def clear_background(self):
-        self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(255, 255, 255))
+        self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
 
     def __enter__(self):
         # with open('static/images_backup.pkl', 'rb') as f: self.images = [i.getvalue() for i in pickle.load(f)]
@@ -213,10 +213,10 @@ class Video(Stream):
         # print('qq')
         # self.video_pipe = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
 
-        self.background = Image.new('RGBA', layer.size, (255, 255, 255, 0))
+        self.background = Image.new('RGBA', layer.size, (200, 200, 200))
         self.background_draw = ImageDraw.Draw(self.background)
-        self.t_start = time.time()
         # self.log = open(config.log_path, 'w')
+        self.t_start = time.time()
         return self
 
     def __exit__(self, type, value, traceback):
@@ -285,12 +285,6 @@ class Video(Stream):
         # assert self.vbuff.getvalue() == b''
         # progress_color = 0, 255, 0, 100
 
-        colors = [
-            (255, 0, 0, 255),
-            (0, 255, 0, 255),
-            (0, 0, 255, 255),
-            (255, 255, 0, 255),
-        ]
         start_px = int(config.frame_width * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
         chunk_width = int(config.frame_width * len(data) / self.track.n_samples)
 
@@ -304,7 +298,7 @@ class Video(Stream):
         for frame in range(n_frames):
             # print('g')
             # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-            d.rectangle((0, 0, config.frame_width, config.frame_height), fill=config.WHITE_COLOR)
+            d.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
             # print(chord_length * chord_i, self.n * config.frame_width // self.track.n_samples - chord_length * chord_i)
 
             # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
@@ -320,7 +314,9 @@ class Video(Stream):
             # b = random.choice(self.images).getvalue()
             # q_video.put(b, block=True)
             chord_i = int(x / chord_length)
-            background_color = colors[chord_i]
+
+            chord = self.track.meta['progression'][chord_i]
+            background_color = self.track.meta['scale'].note_colors[chord.root]
 
             self.background_draw.rectangle((x, 0, x + frame_dx, config.frame_height), fill=background_color)
             x += frame_dx
@@ -330,7 +326,7 @@ class Video(Stream):
             q = ImageDraw.Draw(out)
             q.text((100, 0), self.track.meta['bassline'], font=font, fill=text_color)
             q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
-            q.text((0, 170), self.track.meta['scale'], font=font2, fill=text_color)
+            q.text((0, 170), self.track.meta['scale'].name, font=font2, fill=text_color)
             q.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
             q.text((0, 200), 'tandav.me', font=font, fill=text_color)
             q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
