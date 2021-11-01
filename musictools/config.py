@@ -79,11 +79,11 @@ clap = 'static/samples/clap-909.wav'
 audio_pipe = 'audio.fifo'
 video_pipe = 'video.fifo'
 fps = 30
-# fps = 20
 # fps = 60
 
-frame_width = 426
-frame_height = 240
+frame_width, frame_height = 426, 240
+# frame_width, frame_height = 1920, 1080
+
 
 # video_queue_item_size = 20
 video_queue_item_size = 1

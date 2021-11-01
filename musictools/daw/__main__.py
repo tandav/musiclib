@@ -53,30 +53,43 @@ def make_progressions():
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack):
     progression, dist, scale = random.choice(progressions)
-
     rhythm = random.choice(rhythms)
+
+    bass_midi = []
+    chord_midi = []
+
     for chord_i, chord in enumerate(progression):
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
-        bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
+
+        # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
+        bass_midi.append(rhythm.to_midi(note_=chord.notes_ascending[0]))
+
         # chord_midi = rhythm.to_midi(chord=chord)
-        chord_midi = chord.to_midi(n_bars=1)
+        # chord_midi = chord.to_midi(n_bars=1)
+        chord_midi.append(chord.to_midi(n_bars=1))
+
         # render.chunked(stream, ParsedMidi.vstack(
         #     [drum_midi, bass_midi, chord_midi],
         #     [drumrack, bass, synth],
         # ))
-        bass._adsr.decay = random.uniform(0.1, 0.5)
-        synth.amplitude = 0.025
-        stream.render_chunked(ParsedMidi.vstack(
-            [drum_midi, bass_midi, chord_midi],
-            [drumrack, bass, synth],
-            meta={
-                'bassline': rhythm.bits,
-                'chords': '\n'.join(f'{"*" if i == chord_i else " "} {chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
-                'dist': dist,
-                'scale': scale,
-            },
-        ))
+
+    bass._adsr.decay = random.uniform(0.1, 0.5)
+    bass_midi = ParsedMidi.hstack(bass_midi)
+    chord_midi = ParsedMidi.hstack(chord_midi)
+
+    stream.render_chunked(ParsedMidi.vstack(
+        [drum_midi, bass_midi, chord_midi],
+        [drumrack, bass, synth],
+        meta={
+            'bassline': rhythm.bits,
+            # 'chords': '\n'.join(f'{"*" if i == chord_i else " "} {chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
+            'chords': '\n'.join(f'{chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
+            'progression': progression,
+            'dist': dist,
+            'scale': scale,
+        },
+    ))
 
 
 def main() -> int:
@@ -132,12 +145,13 @@ def main() -> int:
 
     # n = len(notes_rhythms[0])
 
-    drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
+    # drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
+    drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop.mid')] * 4)
+
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
     bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05)
     drumrack = Sampler()
-    synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.02)
-
+    synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.025)
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(

@@ -15,6 +15,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 from musictools import config
+from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
 from musictools.util import float32_to_int16
 
@@ -48,8 +49,8 @@ n_runs = 0
 font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 30)
 font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
 layer = Image.new('RGBA', (config.frame_width, config.frame_height), (255, 255, 255, 0))
-d = ImageDraw.Draw(layer)
 text_color = (0, 0, 0)
+d = ImageDraw.Draw(layer)
 
 
 class PipeWriter(Thread):
@@ -90,6 +91,14 @@ class PipeWriter(Thread):
 
 
 class Video(Stream):
+
+    def render_chunked(self, track: ParsedMidi):
+        super().render_chunked(track)
+        self.clear_background()
+
+    def clear_background(self):
+        self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(255, 255, 255))
+
     def __enter__(self):
         # with open('static/images_backup.pkl', 'rb') as f: self.images = [i.getvalue() for i in pickle.load(f)]
         # with open('static/images.pkl', 'rb') as f: self.images = pickle.load(f)
@@ -159,10 +168,10 @@ class Video(Stream):
                # '-tag:v', 'hvc1', '-profile:v', 'main10',
                # '-b:v', '16M',
                # '-b:a', "300k",
-               # '-b:a', '64',
+               '-b:a', '128k',
                # '-b:v', '64k',
                '-b:v', '200k',
-               # '-b:v', '500k',
+               # '-b:v', '12m',
                '-deinterlace',
                # '-r', str(config.fps),
 
@@ -204,8 +213,8 @@ class Video(Stream):
         # print('qq')
         # self.video_pipe = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
 
-        print('1' * 100)
-
+        self.background = Image.new('RGBA', layer.size, (255, 255, 255, 0))
+        self.background_draw = ImageDraw.Draw(self.background)
         self.t_start = time.time()
         # self.log = open(config.log_path, 'w')
         return self
@@ -221,7 +230,6 @@ class Video(Stream):
         os.unlink(config.audio_pipe)
         os.unlink(config.video_pipe)
 
-        print('=' * 100)
         assert frames_written == int(audio_seconds_written * config.fps)
         print(frames_written, audio_seconds_written, int(audio_seconds_written * config.fps))
         # self.log.close()
@@ -275,24 +283,32 @@ class Video(Stream):
 
         # self.vbuff.truncate(0)
         # assert self.vbuff.getvalue() == b''
-        background_color = 255, 255, 255, 255
-        progress_color = 0, 255, 0, 100
+        # progress_color = 0, 255, 0, 100
+
+        colors = [
+            (255, 0, 0, 255),
+            (0, 255, 0, 255),
+            (0, 0, 255, 255),
+            (255, 255, 0, 255),
+        ]
+        start_px = int(config.frame_width * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
+        chunk_width = int(config.frame_width * len(data) / self.track.n_samples)
+
+        chord_length = config.frame_width / len(self.track.meta['progression'])
+        # chord_start_px = chord_i * chord_length
+        frame_dx = chunk_width // n_frames
+
+        x = start_px
+
         # background_color = tuple(random.randrange(255) for _ in range(4))
         for frame in range(n_frames):
             # print('g')
             # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-            d.rectangle((0, 0, config.frame_width, config.frame_height), fill=background_color)
-
-            d.rectangle((0, 0, self.n * config.frame_width // self.track.n_samples, config.frame_height), fill=progress_color)
+            d.rectangle((0, 0, config.frame_width, config.frame_height), fill=config.WHITE_COLOR)
+            # print(chord_length * chord_i, self.n * config.frame_width // self.track.n_samples - chord_length * chord_i)
 
             # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
             # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
-            d.text((100, 0), self.track.meta['bassline'], font=font, fill=text_color)
-            d.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
-            d.text((0, 170), self.track.meta['scale'], font=font2, fill=text_color)
-            d.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
-            d.text((0, 200), 'tandav.me', font=font, fill=text_color)
-            d.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # self.vbuff.write(random.choice(self.images))
             # layer.save(self.vbuff, format='PNG'
@@ -303,9 +319,24 @@ class Video(Stream):
             # self.vbuff.write(random.choice(self.images))
             # b = random.choice(self.images).getvalue()
             # q_video.put(b, block=True)
+            chord_i = int(x / chord_length)
+            background_color = colors[chord_i]
+
+            self.background_draw.rectangle((x, 0, x + frame_dx, config.frame_height), fill=background_color)
+            x += frame_dx
+
+            out = Image.alpha_composite(layer, self.background)
+
+            q = ImageDraw.Draw(out)
+            q.text((100, 0), self.track.meta['bassline'], font=font, fill=text_color)
+            q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
+            q.text((0, 170), self.track.meta['scale'], font=font2, fill=text_color)
+            q.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
+            q.text((0, 200), 'tandav.me', font=font, fill=text_color)
+            q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # q_video.put(random.choice(self.images), block=True)
-            q_video.put(layer.tobytes(), block=True)
+            q_video.put(out.tobytes(), block=True)
 
         # q_video.put(b''.join(random.choices(self.images, k=n_frames)), block=True)
         # q_video.put(self.vbuff.getvalue(), block=True)
