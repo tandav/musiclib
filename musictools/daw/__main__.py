@@ -60,14 +60,14 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
         bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
         # chord_midi = rhythm.to_midi(chord=chord)
-        chord_midi = chord.to_midi()
-        # render.chunked(stream, ParsedMidi.from_many(
+        chord_midi = chord.to_midi(n_bars=1)
+        # render.chunked(stream, ParsedMidi.vstack(
         #     [drum_midi, bass_midi, chord_midi],
         #     [drumrack, bass, synth],
         # ))
         bass._adsr.decay = random.uniform(0.1, 0.5)
         synth.amplitude = 0.025
-        stream.render_chunked(ParsedMidi.from_many(
+        stream.render_chunked(ParsedMidi.vstack(
             [drum_midi, bass_midi, chord_midi],
             [drumrack, bass, synth],
             meta={
@@ -141,7 +141,7 @@ def main() -> int:
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(
-    # # midi = ParsedMidi.from_many([m0, m1], vst=(
+    # # midi = ParsedMidi.vstack([m0, m1], vst=(
     #     vst.Sampler(),
     #     bass,
     # ))
@@ -170,10 +170,10 @@ def main() -> int:
         # for _ in range(1):
         #     i = random.randrange(0, n)
         #     for _ in range(1):
-        #         midi = ParsedMidi.from_many([drum_midi, C[i]], vst=(vst.Sampler(), bass))
+        #         midi = ParsedMidi.vstack([drum_midi, C[i]], vst=(vst.Sampler(), bass))
         #         render.chunked(stream, midi)
         #     for _ in range(3):
-        #         midi = ParsedMidi.from_many([drum_midi, random.choice(notes_rhythms)[i]], vst=(vst.Sampler(), bass))
+        #         midi = ParsedMidi.vstack([drum_midi, random.choice(notes_rhythms)[i]], vst=(vst.Sampler(), bass))
         #         render.chunked(stream, midi)
 
     print('exit main')

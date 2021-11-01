@@ -13,6 +13,17 @@ from musictools import config
 from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
 
+
+def print_midi(midi: mido.MidiFile):
+    print('n_tracks:', len(midi.tracks))
+    print(midi.tracks)
+    for i, track in enumerate(midi.tracks):
+        print('track', i)
+        for message in track:
+            print(message)
+        print('=' * 100)
+
+
 PathLike = Union[str, Path]
 
 
@@ -163,7 +174,7 @@ class ParsedMidi:
 
     # @classmethod
     # @functools.singledispatchmethod # TODO
-    # def from_many(cls, midis: Union[Sequence[PathLike], Sequence[mido.MidiFile]], vst: Sequence[VST]):
+    # def vstack(cls, midis: Union[Sequence[PathLike], Sequence[mido.MidiFile]], vst: Sequence[VST]):
     #     if isinstance(Sequence)
 
     @classmethod
@@ -172,12 +183,12 @@ class ParsedMidi:
             assert isinstance(vst, VST)
             midi = mido.MidiFile(config.midi_folder + midi_files, type=0)
             return cls(midi, vst)
-        return cls.from_many([mido.MidiFile(config.midi_folder + f, type=0) for f in midi_files], vst, meta)
+        return cls.vstack([mido.MidiFile(config.midi_folder + f, type=0) for f in midi_files], vst, meta)
 
     @classmethod
-    def from_many(cls, midi_objects: Sequence[mido.MidiFile], vst: Sequence[VST], meta: Union[dict, None] = None):
+    def vstack(cls, midi_objects: Sequence[mido.MidiFile], vst: Sequence[VST], meta: Union[dict, None] = None):
         """
-        convert many midi files into one with multiple channels
+        convert many midi objects into one with multiple channels (vertical stacking)
         """
         assert len(midi_objects) == len(vst)
         midi = mido.MidiFile(type=1)
@@ -225,8 +236,9 @@ class ParsedMidi:
         return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
 
     @staticmethod
-    def concat(midi_objects: Iterable[mido.MidiFile]):
+    def hstack(midi_objects: Iterable[mido.MidiFile]) -> mido.MidiFile:
         """
+        convert many midi objects into one: objects goes one by one after each other (horizontal stacking)
         TODO: assert all midis have same ticks_per_beat_s, numerators, denominators etc
         TODO: accept multi-
         TODO: assert all midis are 1-bar length (mvp, then maybe support arbitary length midi objects)
@@ -235,23 +247,43 @@ class ParsedMidi:
         :return:
         """
         mid = mido.MidiFile(type=0)
-        tick_offset = 0
         track = mido.MidiTrack()
         track.append(mido.MetaMessage(type='track_name', name='concatenated_midi'))
-        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+        time_signature = mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36)
+        track.append(time_signature)
 
-        for midi in midi_objects:
-            numerator = None
+        # time_signatures = dict()
+        ticks_per_beat_set = set()
+
+        for i, midi in enumerate(midi_objects):
+            ticks = 0
+
+            ticks_per_beat_set.add(midi.ticks_per_beat)
+
+            if len(midi.tracks) != 1:
+                raise NotImplementedError(f'now can hstack only midi objects with 1 track, {i}th midi object has {len(midi.tracks)}')
+
             for message in midi.tracks[0]:
+                ticks += message.time
+
                 if message.type == 'time_signature':
-                    if message.denominator != 4:
-                        raise NotImplementedError('denominators other than 4 are not supported')
+                    assert message == time_signature
+                    # time_signatures[i] = message
+                    # if message.denominator != 4:
+                    #     raise NotImplementedError('denominators other than 4 are not supported')
                     numerator = message.numerator
                     ticks_per_bar = numerator * midi.ticks_per_beat
 
                 if message.type == 'note_on' or message.type == 'note_off':
-                    track.append(mido.Message(message.type, channel=message.channel, note=message.note, velocity=message.velocity, time=message.time + tick_offset))
-            tick_offset += ticks_per_bar
+                    # m = message.copy()
+                    # m.time =
+                    track.append(message)
+            track.append(mido.MetaMessage(type='text', text='end_of_bar', time=ticks_per_bar - ticks))
+        # assert util.all_equal(time_signatures.values())
+
+        assert len(ticks_per_beat_set) == 1
+        mid.ticks_per_beat = next(iter(ticks_per_beat_set))
+        print(mid.ticks_per_beat, mid.ticks_per_beat * numerator)
+
         mid.tracks.append(track)
         return mid
-
