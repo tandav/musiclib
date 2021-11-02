@@ -318,7 +318,7 @@ class Video(Stream):
             q.text((0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
             q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
             q.text((250, 60), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
-            q.text((0, 160), f"root scale: {self.track.meta['scale'].name}", font=font2, fill=text_color)
+            q.text((0, 160), f"root scale: {self.track.meta['scale'].root.name} {self.track.meta['scale'].name}", font=font2, fill=text_color)
             q.text((chord_start_px, 180), scale, font=font2, fill=text_color)
             q.text((0, 30), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
             q.text((0, 200), 'tandav.me', font=font, fill=text_color)
