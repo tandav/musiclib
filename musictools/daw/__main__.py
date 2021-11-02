@@ -49,6 +49,12 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
     bass_midi = []
     chord_midi = []
 
+    drumrack.note_mute = {
+        SpecificNote('C', 3): random.random() < 0.1,
+        SpecificNote('e', 3): random.random() < 0.1,
+        SpecificNote('b', 3): random.random() < 0.1,
+    }
+
     for chord_i, chord in enumerate(progression):
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
