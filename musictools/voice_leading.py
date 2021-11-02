@@ -208,7 +208,7 @@ def make_progressions(
             n,
             options=possible_chords(scale, note_range),
             curr_prev_constraint=no_bad_checks,
-            first_constraint=lambda chord: chord.root.name == 'C',
+            first_constraint=lambda chord: chord.root == scale.root,
             unique_key=lambda chord: chord.root,
         )
         | P.Pipe(lambda it: util.unique(it, key=transpose_uniqiue_key))
