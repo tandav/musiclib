@@ -48,7 +48,7 @@ chord_colors = {
 
 default_octave = 5
 # DEFAULT_TUNING = 440  # default A hz tuning
-DEFAULT_TUNING = 500
+DEFAULT_TUNING = 520
 tuning = DEFAULT_TUNING
 
 
@@ -85,8 +85,11 @@ video_pipe = 'video.fifo'
 fps = 30
 # fps = 60
 
-frame_width, frame_height = 426, 240
 # frame_width, frame_height = 1920, 1080
+# frame_width, frame_height = 854, 480 # 480p
+# frame_width, frame_height = 640, 360 # 360p
+frame_width, frame_height = 426, 240  # 240p
+video_bitrate = '500k'
 
 
 # video_queue_item_size = 20

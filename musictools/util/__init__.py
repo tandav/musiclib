@@ -120,3 +120,20 @@ def float32_to_int16(signal: np.ndarray, dtype='int16'):
     abs_max = 2 ** (i.bits - 1)
     offset = i.min + abs_max
     return (signal * abs_max + offset).clip(i.min, i.max).astype(dtype)
+
+
+def minmax_scaler(value, oldmin, oldmax, newmin=0.0, newmax=1.0):
+    '''
+    >>> minmax_scaler(50, 0, 100, 0.0, 1.0)
+    0.5
+    '''
+    return (value - oldmin) * (newmax - newmin) / (oldmax - oldmin) + newmin
+
+
+def rel_to_abs_w(value): return int(minmax_scaler(value, 0, 1, 0, config.frame_width))
+def rel_to_abs_h(value): return int(minmax_scaler(value, 0, 1, 0, config.frame_height))
+
+
+def rel_to_abs(x, y):
+    """xy: coordinates in fractions of screen"""
+    return rel_to_abs_w(x), rel_to_abs_h(y)
