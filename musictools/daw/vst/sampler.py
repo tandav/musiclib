@@ -30,7 +30,7 @@ class Sampler(VST):
     DEFAULT_NOTE_TO_AMPLITUDE = {
         SpecificNote('C', 3): 0.15,
         SpecificNote('e', 3): 0.05,
-        SpecificNote('b', 3): 0.03,
+        SpecificNote('b', 3): 0.02,
     }
 
     def __init__(
