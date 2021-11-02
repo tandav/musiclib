@@ -307,6 +307,7 @@ class Video(Stream):
 
             chord = self.track.meta['progression'][chord_i]
             background_color = self.track.meta['scale'].note_colors[chord.root]
+            scale = self.track.meta['scale'].note_scales[chord.root]
 
             self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
 
@@ -316,11 +317,12 @@ class Video(Stream):
             q.text((120, 0), self.track.meta['bassline'], font=font, fill=text_color)
             q.text((0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
             q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
-            q.text((0, 170), self.track.meta['scale'].name, font=font2, fill=text_color)
+            q.text((250, 60), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
+            q.text((0, 160), f"root scale: {self.track.meta['scale'].name}", font=font2, fill=text_color)
+            q.text((chord_start_px, 180), scale, font=font2, fill=text_color)
             q.text((0, 30), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
-            q.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
             q.text((0, 200), 'tandav.me', font=font, fill=text_color)
-            q.text((200, 200), sys.platform, font=font2, fill=text_color)
+            q.text((200, 205), sys.platform, font=font2, fill=text_color)
             q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # q_video.put(random.choice(self.images), block=True)

@@ -33,7 +33,7 @@ def make_rhythms():
 
 
 # @memory.cache
-def make_progressions(note_range_ = note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
+def make_progressions(note_range_=note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
     progressions = []
     scales = [Scale(root, scale) for root, scale in zip('CDEFGA', config.diatonic[:-1])]
     for scale in scales:

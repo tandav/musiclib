@@ -56,10 +56,14 @@ class Scale:
         self.kind = config.kinds.get(name)
         if self.kind == 'diatonic':
             self.add_chords()
-        self.note_colors = {
-            note: util.hex_to_rgb(config.scale_colors[scale])
-            for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name))
-        }
+
+        self.note_colors = {}
+        self.note_scales = {}
+
+        for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name)):
+            self.note_colors[note] = util.hex_to_rgb(config.scale_colors[scale])
+            self.note_scales[note] = scale
+
         self.html_classes = ('card', self.name)
 
     def add_chords(self):
