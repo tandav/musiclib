@@ -290,37 +290,25 @@ class Video(Stream):
         chunk_width = int(config.frame_width * len(data) / self.track.n_samples)
 
         chord_length = config.frame_width / len(self.track.meta['progression'])
-        # chord_start_px = chord_i * chord_length
         frame_dx = chunk_width // n_frames
 
         x = start_px
 
-        # background_color = tuple(random.randrange(255) for _ in range(4))
         for frame in range(n_frames):
-            # print('g')
-            # R = np.random.randint(-200, 0, size=(frame_height, frame_width))
+            x += frame_dx
             d.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
             # print(chord_length * chord_i, self.n * config.frame_width // self.track.n_samples - chord_length * chord_i)
 
-            # d.text((100, 0), ''.join(random.choices(string.ascii_letters, k=8)), font=font, fill=text_color)
-            # d.text((100, 60), ''.join(random.choices(string.ascii_letters, k=8)), font=font2, fill=text_color)
-
             # self.vbuff.write(random.choice(self.images))
-            # layer.save(self.vbuff, format='PNG'
             # self.vbuff.write(layer.tobytes())
-            # print('w')
-            # im.set_data(R)
-            # fig.savefig(self.vbuff, format='rgba', dpi=100)
-            # self.vbuff.write(random.choice(self.images))
-            # b = random.choice(self.images).getvalue()
             # q_video.put(b, block=True)
             chord_i = int(x / chord_length)
+            chord_start_px = int(chord_i * chord_length)
 
             chord = self.track.meta['progression'][chord_i]
             background_color = self.track.meta['scale'].note_colors[chord.root]
 
-            self.background_draw.rectangle((x, 0, x + frame_dx, config.frame_height), fill=background_color)
-            x += frame_dx
+            self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
 
             out = Image.alpha_composite(layer, self.background)
 
