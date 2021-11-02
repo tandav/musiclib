@@ -321,6 +321,7 @@ class Video(Stream):
             q.text((0, 160), f"root scale: {self.track.meta['scale'].root.name} {self.track.meta['scale'].name}", font=font2, fill=text_color)
             q.text((chord_start_px, 180), scale, font=font2, fill=text_color)
             q.text((0, 30), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
+            q.text((200, 30), f'tuning{config.tuning}Hz', font=font2, fill=text_color)
             q.text((0, 200), 'tandav.me', font=font, fill=text_color)
             q.text((200, 205), sys.platform, font=font2, fill=text_color)
             q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)

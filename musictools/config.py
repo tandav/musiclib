@@ -47,8 +47,11 @@ chord_colors = {
 }
 
 default_octave = 5
-# tuning = 440  # default A hz tuning
-tuning = 500
+# DEFAULT_TUNING = 440  # default A hz tuning
+DEFAULT_TUNING = 500
+tuning = DEFAULT_TUNING
+
+
 # piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
 beats_per_minute = 120
