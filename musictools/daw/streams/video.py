@@ -4,6 +4,7 @@ import queue
 import random
 import string
 import subprocess
+import sys
 import time
 from pathlib import Path
 from threading import Event
@@ -324,11 +325,14 @@ class Video(Stream):
             out = Image.alpha_composite(layer, self.background)
 
             q = ImageDraw.Draw(out)
-            q.text((100, 0), self.track.meta['bassline'], font=font, fill=text_color)
+            q.text((120, 0), self.track.meta['bassline'], font=font, fill=text_color)
+            q.text((0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
             q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
             q.text((0, 170), self.track.meta['scale'].name, font=font2, fill=text_color)
+            q.text((0, 30), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
             q.text((150, 170), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
             q.text((0, 200), 'tandav.me', font=font, fill=text_color)
+            q.text((200, 200), sys.platform, font=font2, fill=text_color)
             q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # q_video.put(random.choice(self.images), block=True)
@@ -352,83 +356,3 @@ class Video(Stream):
         #     'video_seconds_written': video_seconds_written,
         # }
         # print(json.dumps(info), file=self.log)
-
-        # if n_runs < 100:
-        #     n_runs += 1
-        #     return
-        # # audio_data.appendleft(a)
-        # # audio_data.put(a, block=True)
-        # audio_data.join()
-        # video_data.join()
-
-
-# class GenerateAudioToPipe(Thread):
-#     def __init__(self):
-#         super().__init__()
-#         self._pipe_name = config.audio_pipe
-#
-#
-#     def run(self):
-#         global audio_finished
-#         global audio_seconds_written
-#         fd = open(self._pipe_name, 'wb')
-#         # print('GenerateAudioToPipe')
-#
-#         # while not no_more_data or len(audio_data) > 0:
-#         #     # print('1111111111111GenerateAudioToPipe')
-#         #
-#         #     if not audio_data:
-#         #         # print('***********AUDIO', len(audio_data))
-#         #         time.sleep(1)
-#         #         continue
-#         #
-#         #     while audio_data:
-#         #         # print('44444444444 AUDIO')
-#         #         # b = audio_data.pop()
-#         #         print(audio_data.qsize())
-#         #         b = audio_data.get(block=True)
-#         #         # print(b, b.tobytes()[:100])
-#         #         fd.write(b.tobytes())
-#         #         # print('5555555555')
-#         #         audio_seconds_written += len(b) / config.sample_rate
-#
-#         while not no_more_data:
-#             print(audio_data.qsize(), audio_seconds_written)
-#             b = audio_data.get(block=True)
-#             fd.write(b.tobytes())
-#             audio_seconds_written += len(b) / config.sample_rate
-#
-#         fd.close()
-#         print('IIIIIIIIIII')
-#         audio_finished = True
-
-
-# class GenerateVideoToPipe(Thread):
-#     def __init__(self):
-#         super().__init__()
-#         self._pipe_name = config.video_pipe
-#         with open('static/images.pkl', 'rb') as f:
-#             self.images = pickle.load(f)
-#
-#     def run(self):
-#         # global video_seconds_written
-#         fd = open(self._pipe_name, 'wb')
-#         frames_written = 0
-#         video_seconds_written = 0
-#         seconds_to_write = 0.
-#
-#         while not audio_finished or frames_written != int(audio_seconds_written * config.fps):
-#
-#             if frames_written == 0:
-#                 n_frames = 30
-#             else:
-#                 n_frames = int(audio_seconds_written * config.fps) - frames_written
-#
-#             for frame in range(n_frames):
-#                 b = random.choice(self.images).getvalue()
-#                 fd.write(b)
-#                 frames_written += 1
-#             if n_frames != 0:
-#                 print(frames_written, n_frames)
-#             video_seconds_written += seconds_to_write
-#         fd.close()

@@ -23,32 +23,23 @@ from musictools.scale import Scale
 # import joblib
 # memory = joblib.Memory('/tmp', verbose=0)
 
+
 # @memory.cache
-
-
 def make_rhythms():
-    _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(6, 8 + 1))
+    _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(5, 8 + 1))
     _ = itertools.chain.from_iterable(_)
     # return tuple(rhythm.to_midi(note_=note) for rhythm in _)
     return tuple(_)
 
+
 # @memory.cache
-
-
 def make_progressions():
     progressions = []
-    scales = [Scale('C', scale) for scale in config.diatonic[:-1]]
+    scales = [Scale(root, scale) for root, scale in zip('CDEFGA', config.diatonic[:-1])]
     for scale in scales:
         for dist, p in voice_leading.make_progressions(scale, note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
             progressions.append((p, dist, scale))
     return progressions
-
-#     s = Scale('C', 'major')
-#     s = Scale('C', 'phrygian')
-#     s = Scale('C', 'dorian')
-#     s = Scale('C', 'lyd/ian')
-#     s = Scale('C', 'mixolydian')
-#     s = Scale('C', 'minor')
 
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack):
@@ -83,6 +74,8 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         [drumrack, bass, synth],
         meta={
             'bassline': rhythm.bits,
+            'bass_decay': str(round(bass._adsr.decay, 3)),
+            'rhythm_score': str(round(rhythm.score, 3)),
             # 'chords': '\n'.join(f'{"*" if i == chord_i else " "} {chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
             'chords': '\n'.join(f'{chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
             'progression': progression,
