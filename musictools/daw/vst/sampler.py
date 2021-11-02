@@ -23,13 +23,13 @@ class Sampler(VST):
     DEFAULT_NOTE_TO_ADSR = {
         SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.6),
         SpecificNote('e', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
-        SpecificNote('b', 3): ADSR(attack=0.001, decay=0.2, sustain=0, release=0.1),
+        SpecificNote('b', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
     }
 
     DEFAULT_AMPLITUDE = 0.1
     DEFAULT_NOTE_TO_AMPLITUDE = {
-        SpecificNote('C', 3): 0.1,
-        SpecificNote('e', 3): 0.07,
+        SpecificNote('C', 3): 0.15,
+        SpecificNote('e', 3): 0.05,
         SpecificNote('b', 3): 0.03,
     }
 
