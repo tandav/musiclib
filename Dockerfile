@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-RUN pip install fastapi uvicorn aiofiles tqdm
+RUN pip install fastapi uvicorn aiofiles tqdm mido
 
 EXPOSE 8001
 
