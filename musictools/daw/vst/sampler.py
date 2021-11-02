@@ -44,6 +44,12 @@ class Sampler(VST):
             self.note_to_sample[note] = self.load_sample(sample_path)
         self.note_to_amplitude = Sampler.DEFAULT_NOTE_TO_AMPLITUDE
 
+        self.note_mute = {
+            SpecificNote('C', 3): False,
+            SpecificNote('e', 3): False,
+            SpecificNote('b', 3): False,
+        }
+
     def load_sample(self, sample_path: Union[str, Path]):
         sample_rate, sample = wavfile.read(sample_path)
         if sample.dtype != 'float32':
@@ -59,6 +65,9 @@ class Sampler(VST):
         if sample is not None:
             sample = self.note_to_amplitude.get(note, self.amplitude) * sample[ns_rendered: ns_rendered + ns_to_render]
             out[:len(sample)] = sample
+
+        if self.note_mute[note]:
+            return out * 0
         return out
 
     def adsr(self, note):
