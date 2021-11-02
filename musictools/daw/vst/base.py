@@ -15,8 +15,8 @@ class VST(abc.ABC):
 
     def adsr(self, note): return self._adsr
 
-    def note_to_freq(self, note: SpecificNote):
-        return (440 / 32) * (2 ** ((note.absolute_i - 9) / 12))
+    def note_to_freq(self, note: SpecificNote, tunning: float = config.tuning):
+        return (tunning / 32) * (2 ** ((note.absolute_i - 9) / 12))
 
     def samples_to_t(self, ns_rendered: int, ns_to_render: int):
         t0 = ns_rendered / config.sample_rate
