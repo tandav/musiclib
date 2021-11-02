@@ -53,7 +53,7 @@ class Sampler(VST):
                 f'resampling is not supported yet, please save sample {sample_path} with sample rate {config.sample_rate}')
         return sample
 
-    def __call__(self, ns_rendered: int, ns_to_render: int, note: SpecificNote):
+    def _call(self, ns_rendered: int, ns_to_render: int, note: SpecificNote):
         out = np.zeros(ns_to_render, dtype='float32')  # handle cases when samples ends earlier than note_off, render zeros till note_off (and maybe release? idk lol)
         sample = self.note_to_sample.get(note)
         if sample is not None:
