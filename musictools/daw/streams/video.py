@@ -25,27 +25,7 @@ from musictools.daw.streams.base import Stream
 
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
-# audio_data = collections.deque()
-# qsize = 2 ** 9
-# qsize = 2 ** 4
-# qsize = 2 ** 6
-qsize = 2 ** 8
-q_audio = queue.Queue(maxsize=qsize)
-q_video = queue.Queue(maxsize=qsize)
-# video_data = collections.deque()
-# no_more_data = False
-audio_seconds_written = 0.
-video_seconds_written = 0.
-frames_written = 0  # video
-samples_written = 0  # audio
 
-n_runs = 0
-# fig, ax = plt.subplots(figsize=(frame_width / 100, frame_height / 100), frameon=False, dpi=100)
-# ax.grid(False)
-# ax.axis('off')
-
-# R = np.random.randint(-200, 0, size=(frame_height, frame_width))
-# im = plt.imshow(R)
 
 font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 30)
 font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
@@ -78,17 +58,6 @@ class PipeWriter(Thread):
                     pipe.write(b)
                     self.q.task_done()
                 # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_stop', 'qsize': self.q.qsize()}), file=self.log)
-
-    # def run(self):
-    #     # fd = os.open(self.pipe, os.O_WRONLY | os.O_NONBLOCK)
-    #     fd = os.open(self.pipe, os.O_WRONLY)
-    #     while not self.stream_finished.is_set():
-    #         print(self.pipe, 'lol')
-    #         b = self.q.get(block=True)
-    #         print(self.pipe, 'kek')
-    #         os.write(fd, b)
-    #         self.q.task_done()
-    #     os.close(fd)
 
 
 class Video(Stream):
@@ -198,11 +167,22 @@ class Video(Stream):
         # print(self.p)
         # print('2'* 100)
 
+        self.audio_seconds_written = 0.
+        self.video_seconds_written = 0.
+        self.frames_written = 0  # video
+        self.samples_written = 0  # audio
+
         # self.audio_thread = GenerateAudioToPipe()
         # self.video_thread = GenerateVideoToPipe()
+        # qsize = 2 ** 9
+        # qsize = 2 ** 4
+        # qsize = 2 ** 6
+        qsize = 2 ** 8
+        self.q_audio = queue.Queue(maxsize=qsize)
+        self.q_video = queue.Queue(maxsize=qsize)
 
-        self.audio_thread = PipeWriter(config.audio_pipe, q_audio)
-        self.video_thread = PipeWriter(config.video_pipe, q_video)
+        self.audio_thread = PipeWriter(config.audio_pipe, self.q_audio)
+        self.video_thread = PipeWriter(config.video_pipe, self.q_video)
         self.audio_thread.start()
         self.video_thread.start()
 
@@ -231,8 +211,8 @@ class Video(Stream):
         os.unlink(config.audio_pipe)
         os.unlink(config.video_pipe)
 
-        assert frames_written == int(audio_seconds_written * config.fps)
-        print(frames_written, audio_seconds_written, int(audio_seconds_written * config.fps))
+        assert self.frames_written == int(self.audio_seconds_written * config.fps)
+        print(self.frames_written, self.audio_seconds_written, int(self.audio_seconds_written * config.fps))
         # self.log.close()
 
     def write(self, data: np.ndarray):
@@ -243,19 +223,19 @@ class Video(Stream):
             dont generate more if there's no need
         """
 
-        global n_runs
-        global audio_seconds_written
-        global video_seconds_written
-        global frames_written
-        global samples_written
+        # global n_runs
+        # global audio_seconds_written
+        # global video_seconds_written
+        # global frames_written
+        # global samples_written
 
         seconds = len(data) / config.sample_rate
         b = util.float32_to_int16(data).tobytes()
 
         real_seconds = time.time() - self.t_start
-        if real_seconds < audio_seconds_written:
+        if real_seconds < self.audio_seconds_written:
             # print('sleeping for', audio_seconds_written - real_seconds)
-            time.sleep(audio_seconds_written - real_seconds)
+            time.sleep(self.audio_seconds_written - real_seconds)
 
         # audio_written, video_written = False, False
 
@@ -267,11 +247,11 @@ class Video(Stream):
         # print('XG', len(b))
         # os.write(self.audio_pipe, b)
         # print('VVS')
-        q_audio.put(b, block=True)
-        samples_written += len(data)
-        audio_seconds_written += seconds
+        self.q_audio.put(b, block=True)
+        self.samples_written += len(data)
+        self.audio_seconds_written += seconds
 
-        n_frames = int(audio_seconds_written * config.fps) - frames_written
+        n_frames = int(self.audio_seconds_written * config.fps) - self.frames_written
         # assert n_frames > 0
         # if n_frames == 0:
         # if n_frames < 100:
@@ -315,17 +295,6 @@ class Video(Stream):
 
             q = ImageDraw.Draw(out)
 
-            # q.text((120, 0), self.track.meta['bassline'], font=font, fill=text_color)
-            # q.text((0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
-            # q.text((0, 60), self.track.meta['chords'], font=font2, fill=text_color)
-            # q.text((250, 60), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
-            # q.text((0, 160), f"root scale: {self.track.meta['scale'].root.name} {self.track.meta['scale'].name}", font=font2, fill=text_color)
-            # q.text((chord_start_px, 180), scale, font=font2, fill=text_color)
-            # q.text((0, 30), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
-            # q.text((200, 30), f'tuning{config.tuning}Hz', font=font2, fill=text_color)
-            # q.text((0, 200), 'tandav.me', font=font, fill=text_color)
-            # q.text((200, 205), sys.platform, font=font2, fill=text_color)
-            # q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             q.text(util.rel_to_abs(0.28, 0), self.track.meta['bassline'], font=font, fill=text_color)
             q.text(util.rel_to_abs(0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
@@ -340,14 +309,14 @@ class Video(Stream):
             q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
 
             # q_video.put(random.choice(self.images), block=True)
-            q_video.put(out.tobytes(), block=True)
+            self.q_video.put(out.tobytes(), block=True)
 
         # q_video.put(b''.join(random.choices(self.images, k=n_frames)), block=True)
         # q_video.put(self.vbuff.getvalue(), block=True)
-        frames_written += n_frames
-        video_seconds_written += n_frames / config.fps
+        self.frames_written += n_frames
+        self.video_seconds_written += n_frames / config.fps
 
-        print('eeeeeeeeeeeeeeeeee', f'QA{q_audio.qsize()} QV{q_video.qsize()} {seconds=} {n_frames=} {frames_written=} {samples_written=} {audio_seconds_written=:.2f}')
+        print('eeeeeeeeeeeeeeeeee', f'QA{self.q_audio.qsize()} QV{self.q_video.qsize()} {seconds=} {n_frames=} {self.frames_written=} {self.samples_written=} {self.audio_seconds_written=:.2f}')
         # info = {
         #     'timestamp': time.monotonic(),
         #     'qa': q_audio.qsize(),
