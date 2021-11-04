@@ -68,8 +68,9 @@ midi_folder = 'static/midi/'
 # midi_file = 'bassline.mid'
 midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
-chunk_size = 1024 * 32
+# chunk_size = 1024 * 32
 # chunk_size = 1024
+chunk_size = 1024 * 2
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
@@ -93,7 +94,8 @@ frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
 # frame_width, frame_height = 426, 240  # 240p
 # video_bitrate = '500k'
-video_bitrate = '2m'
+video_bitrate = '3000k'
+# video_bitrate = '3m'
 # video_bitrate = '5m'
 
 

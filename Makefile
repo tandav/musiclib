@@ -44,3 +44,7 @@ build_push_streaming:
 	docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
 	#docker build --no-cache -t tandav/musictools-stream -f ./Dockerfile-stream .
 	docker push tandav/musictools-stream
+
+#profile:
+# 	$(python) -m cProfile -o logs/profile.txt -m musictools.daw video
+#	$(python) -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
