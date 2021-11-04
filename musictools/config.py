@@ -68,8 +68,8 @@ midi_folder = 'static/midi/'
 # midi_file = 'bassline.mid'
 midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
-# chunk_size = 1024 * 4
-chunk_size = 1024
+chunk_size = 1024 * 32
+# chunk_size = 1024
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
@@ -82,14 +82,19 @@ clap = 'static/samples/clap-909.wav'
 # streaming
 audio_pipe = 'audio.fifo'
 video_pipe = 'video.fifo'
+
+# fps = 24
 fps = 30
 # fps = 60
 
-# frame_width, frame_height = 1920, 1080
-# frame_width, frame_height = 854, 480 # 480p
+# frame_width, frame_height = 1920, 1080 # 1080p
+# frame_width, frame_height = 1280, 720 # 720p
+frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
-frame_width, frame_height = 426, 240  # 240p
-video_bitrate = '500k'
+# frame_width, frame_height = 426, 240  # 240p
+# video_bitrate = '500k'
+video_bitrate = '2m'
+# video_bitrate = '5m'
 
 
 # video_queue_item_size = 20

@@ -283,7 +283,7 @@ class ParsedMidi:
 
         assert len(ticks_per_beat_set) == 1
         mid.ticks_per_beat = next(iter(ticks_per_beat_set))
-        print(mid.ticks_per_beat, mid.ticks_per_beat * numerator)
+        # print(mid.ticks_per_beat, mid.ticks_per_beat * numerator)
 
         mid.tracks.append(track)
         return mid
