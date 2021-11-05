@@ -7,11 +7,11 @@ run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 lint:
-	$(python) -m isort --force-single-line-imports musictools tests
-	$(python) -m autoflake --recursive --in-place musictools tests
-	$(python) -m autopep8 --verbose --in-place --recursive --aggressive --ignore=E221,E401,E402,E501,W503,E701,E704,E721,E741,I100,I201,W504 --exclude=musictools/util/wavfile.py musictools tests
-	$(python) -m unify --recursive --in-place musictools tests
-	$(python) -m flake8 musictools tests
+	$(python) -m isort --force-single-line-imports musictools tests benchmark
+	$(python) -m autoflake --recursive --in-place musictools tests benchmark
+	$(python) -m autopep8 --verbose --in-place --recursive --aggressive --ignore=E221,E401,E402,E501,W503,E701,E704,E721,E741,I100,I201,W504 --exclude=musictools/util/wavfile.py musictools tests benchmark
+	$(python) -m unify --recursive --in-place musictools tests benchmark
+	$(python) -m flake8 musictools tests benchmark
 
 clean:
 	rm -f logs/*
@@ -37,6 +37,9 @@ daw:
 stream:
 	$(python) -m musictools.daw video
 
+file:
+	$(python) -m musictools.daw video_file 4
+
 run_streaming:
 	docker run --rm -it tandav/musictools-stream
 
@@ -48,3 +51,8 @@ build_push_streaming:
 #profile:
 # 	$(python) -m cProfile -o logs/profile.txt -m musictools.daw video
 #	$(python) -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
+
+.PHONY: benchmark
+benchmark:
+	mkdir -p logs
+	$(python) -m benchmark

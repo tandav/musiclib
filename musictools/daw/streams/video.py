@@ -123,7 +123,6 @@ class Video(Stream):
                '-s', f'{config.frame_width}x{config.frame_height}',  # size of image string
                '-f', 'rawvideo',
                '-pix_fmt', 'rgba',  # format
-               # '-r', str(config.fps),
                '-r', str(config.fps),  # input framrate. This parameter is important to stream w/o memory overflow
                # '-vsync', 'cfr', # kinda optional but you can turn it on
                # '-f', 'image2pipe',
@@ -138,12 +137,16 @@ class Video(Stream):
                # '-c:v', 'h264_videotoolbox',
                '-c:v', 'libx264',
                '-pix_fmt', 'yuv420p',
-               '-preset', 'ultrafast',
-               '-tune', 'zerolatency',
                # '-tune', 'animation',
+
+
+               # ultrafast or zerolatency kinda makes audio and video out of sync when save to file (but stream to yt is kinda OK)
+               # '-preset', 'ultrafast',
+               # '-tune', 'zerolatency',
 
                # '-g', '150',  #  GOP: group of pictures
                '-g', str(keyframe_seconds * config.fps),  # GOP: group of pictures
+               # '-g', str(config.fps // 2),  # GOP: group of pictures
                '-x264opts', 'no-scenecut',
                # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
                '-vsync', 'cfr',

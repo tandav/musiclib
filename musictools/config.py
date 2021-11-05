@@ -86,6 +86,7 @@ video_pipe = 'video.fifo'
 
 # fps = 24
 fps = 30
+# fps = 48
 # fps = 60
 
 # frame_width, frame_height = 1920, 1080 # 1080p
@@ -104,7 +105,7 @@ video_queue_item_size = 1
 assert video_queue_item_size < fps
 
 
-# OUTPUT_VIDEO = '/tmp/output.mp4'
+# OUTPUT_VIDEO = '/tmp/output.flv'
 # OUTPUT_VIDEO = '/dev/null'
 OUTPUT_VIDEO = 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg'
 

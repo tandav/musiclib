@@ -19,11 +19,11 @@ jobs:
           pwd
           ls -Al
 
+      - name: install ffmpeg
+        run: sudo apt update && sudo  apt install --yes ffmpeg libvips
+
       - name: install python dependencies
         run: python3 -m pip install -r requirements.txt
-
-      - name: install ffmpeg
-        run: sudo apt update && sudo  apt install --yes ffmpeg
 
       - name: lint
         run: make lint
@@ -76,3 +76,24 @@ jobs:
           push: true
           file: Dockerfile-stream
           tags: tandav/musictools-stream
+
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: install ffmpeg and libvips
+        run: sudo apt update && sudo apt install --yes ffmpeg libvips
+
+      - name: install python dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: benchmark
+        run: make benchmark
+
+      - name: print benchmark results
+        run: cat logs/benchmark.jsonl

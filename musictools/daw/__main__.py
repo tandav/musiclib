@@ -139,6 +139,12 @@ def main() -> int:
             # config.OUTPUT_VIDEO = '/tmp/output.flv'
             config.beats_per_minute = 480
             is_test = True
+            n_loops = 2
+        elif sys.argv[1] == 'video_file':
+            output = Video
+            config.OUTPUT_VIDEO = '/tmp/output.flv'
+            is_test = True
+            n_loops = int(sys.argv[2]) if len(sys.argv) == 3 else 4
         else:
             output = {
                 'speakers': Speakers,
@@ -191,7 +197,7 @@ def main() -> int:
         # midi.rhythm_to_midi(r, Path.home() / f"Desktop/midi/prog.mid",  progression=p)
 
         if is_test:
-            for _ in range(2):
+            for _ in range(n_loops):
                 render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         else:
             while True:
