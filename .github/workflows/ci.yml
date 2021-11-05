@@ -76,30 +76,3 @@ jobs:
           push: true
           file: Dockerfile-stream
           tags: tandav/musictools-stream
-
-  benchmark:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: install ffmpeg and libvips
-        run: sudo apt update && sudo apt install --yes ffmpeg libvips
-
-      - name: install python dependencies
-        run: python3 -m pip install -r requirements.txt
-
-      - name: benchmark
-        run: make benchmark
-
-      - name: print benchmark results
-        run: cat logs/benchmark.jsonl
-
-      - name: save benchmark results
-        uses: actions/upload-artifact@v2
-        with:
-          name: benchmark-results
-          path: logs/benchmark.jsonl
