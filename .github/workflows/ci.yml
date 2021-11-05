@@ -97,3 +97,9 @@ jobs:
 
       - name: print benchmark results
         run: cat logs/benchmark.jsonl
+
+      - name: save benchmark results
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-results
+          path: logs/benchmark.jsonl
