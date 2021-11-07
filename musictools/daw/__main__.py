@@ -81,7 +81,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         [drum_midi, bass_midi, chord_midi],
         [drumrack, bass, synth],
         meta={
-            'bassline': rhythm.bits,
+            'bassline': f'bassline {rhythm.bits}',
             'rhythm_score': f'score{rhythm.score:.2f}',
             'bass_decay': f'bass_decay{bass._adsr.decay:.2f}',
             'tuning': f'tuning{config.tuning}Hz',

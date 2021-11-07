@@ -241,10 +241,6 @@ class Video(Stream):
         for frame in range(n_frames):
             x += frame_dx
 
-            # d.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
-            # im = bg.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
-            # print(chord_length * chord_i, self.n * config.frame_width // self.track.n_samples - chord_length * chord_i)
-
             # self.vbuff.write(layer.tobytes())
             # q_video.put(b, block=True)
             chord_i = int(x / chord_length)
@@ -260,16 +256,18 @@ class Video(Stream):
 
             # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=-1)
             cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color + (255,), thickness=-1)
+
             cv2.putText(im, meta['scale'].note_scales[chord.root], (chord_start_px, util.rel_to_abs_h(0.75)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, str(chord), (chord_start_px, util.rel_to_abs_h(0.8)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['bassline'], util.rel_to_abs(0.28, 0.1), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['bassline'], util.rel_to_abs(0, 0.3), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
             cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, sys.platform, util.rel_to_abs(0.2, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
 
             self.q_video.put(im.tobytes(), block=True)
