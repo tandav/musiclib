@@ -4,8 +4,8 @@ import numpy as np
 
 from musictools import config
 from musictools.daw.streams.base import Stream
-from musictools.util import float32_to_int16
 from musictools.util import wavfile
+from musictools.util.signal import float32_to_int16
 
 
 class WavFile(Stream):

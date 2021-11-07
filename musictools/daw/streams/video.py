@@ -15,9 +15,11 @@ from musictools import config
 from musictools import util
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
+from musictools.util.signal import float32_to_int16
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
+# https://support.google.com/youtube/answer/2853702 # streaming
 
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
@@ -138,17 +140,14 @@ class Video(Stream):
                # '-r', str(config.fps),
 
                '-r', str(config.fps),  # output framerate
-               # '-maxrate', '1000k',
-               # '-map', '0:a',
-               # '-map', '1:v',
-
-               # '-b', '400k', '-minrate', '400k', '-maxrate', '400k', '-bufsize', '1835k',
-               # '-b', '400k', '-minrate', '400k', '-maxrate', '400k', '-bufsize', '300m',
 
                # '-blocksize', '2048',
                # '-flush_packets', '1',
+
                '-f', 'flv',
                '-flvflags', 'no_duration_filesize',
+               # '-f', 'mp4',
+
                config.OUTPUT_VIDEO,
                )
 
@@ -198,15 +197,11 @@ class Video(Stream):
 
     def write(self, data: np.ndarray):
         seconds = len(data) / config.sample_rate
-        b = util.float32_to_int16(data).tobytes()
+        b = float32_to_int16(data).tobytes()
 
         real_seconds = time.time() - self.t_start
         if real_seconds < self.audio_seconds_written:
             time.sleep(self.audio_seconds_written - real_seconds)
-
-        # write audio samples
-        # self.path.write(float32_to_int16(data).tobytes())
-        # a = float32_to_int16(data)#.tobytes()
 
         self.q_audio.put(b, block=True)
         # self.q_audio.append(b)
