@@ -8,18 +8,13 @@ from pathlib import Path
 from threading import Event
 from threading import Thread
 
+import cv2
 import numpy as np
-import pyvips
 
 from musictools import config
 from musictools import util
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
-
-# from PIL import Image
-# from PIL import ImageDraw
-# from PIL import ImageFont
-
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
@@ -28,15 +23,8 @@ from musictools.daw.streams.base import Stream
 #   also compare speed of appendleft, pop vs append, popleft?
 
 
-# font = ImageFont.truetype('static/fonts/SFMono-Semibold.otf', 30)
-# font2 = ImageFont.truetype('static/fonts/SFMono-Regular.otf', 20)
-# layer = Image.new('RGBA', (config.frame_width, config.frame_height), (255, 255, 255, 0))
-# text_color = (0, 0, 0)
-# d = ImageDraw.Draw(layer)
-bg = pyvips.Image.black(config.frame_width, config.frame_height, bands=3)
-
-website = (pyvips.Image.text('tandav.me'), *util.rel_to_abs(0, 0.83))
-platform = (pyvips.Image.text(sys.platform), *util.rel_to_abs(0.47, 0.85))
+im = np.ones(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 
 class PipeWriter(Thread):
@@ -77,13 +65,11 @@ class Video(Stream):
         self.clear_background()
 
     def clear_background(self):
+        im[...] = 200
         # self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
-        self.background_draw = self.background_draw.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
+        # self.background_draw = self.background_draw.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
 
     def __enter__(self):
-        # with open('static/images_backup.pkl', 'rb') as f: self.images = [i.getvalue() for i in pickle.load(f)]
-        # with open('static/images.pkl', 'rb') as f: self.images = pickle.load(f)
-
         def recreate(p):
             p = Path(p)
             if p.exists():
@@ -93,21 +79,14 @@ class Video(Stream):
         recreate(config.audio_pipe)
         recreate(config.video_pipe)
 
-        # INPUT_AUDIO = config.audio_pipe
-
-        # thread_queue_size = str(2**16)
-        thread_queue_size = str(2**10)
-        # thread_queue_size = str(2**5)
-        # thread_queue_size = str(2 ** 8)
         keyframe_seconds = 3
 
         cmd = ('ffmpeg',
                # '-loglevel', 'trace',
-               # '-hwaccel', 'videotoolbox',
                # '-threads', '2',
                # '-threads', '7',
                # '-y', '-r', '60', # overwrite, 60fps
-               '-re',
+               # '-re',
                '-y',
 
                # '-err_detect', 'ignore_err',
@@ -123,19 +102,20 @@ class Video(Stream):
                '-s', f'{config.frame_width}x{config.frame_height}',  # size of image string
                '-f', 'rawvideo',
                '-pix_fmt', 'rgba',  # format
+               # '-pix_fmt', 'rgb24',  # format
                '-r', str(config.fps),  # input framrate. This parameter is important to stream w/o memory overflow
                # '-vsync', 'cfr', # kinda optional but you can turn it on
                # '-f', 'image2pipe',
                # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
                # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-               '-thread_queue_size', thread_queue_size,
+               '-thread_queue_size', '128',
                # '-blocksize', '2048',
                '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
                # '-c:a', 'libvorbis',
                # '-ac', '1',  # number of audio channels (mono1/stereo=2)
-               # '-c:v', 'h264_videotoolbox',
-               '-c:v', 'libx264',
+               '-c:v', 'h264_videotoolbox',
+               # '-c:v', 'libx264',
                '-pix_fmt', 'yuv420p',
                # '-tune', 'animation',
 
@@ -147,17 +127,13 @@ class Video(Stream):
                # '-g', '150',  #  GOP: group of pictures
                '-g', str(keyframe_seconds * config.fps),  # GOP: group of pictures
                # '-g', str(config.fps // 2),  # GOP: group of pictures
-               '-x264opts', 'no-scenecut',
+               # '-x264opts', 'no-scenecut',
                # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
                '-vsync', 'cfr',
                # '-async', '1',
                # '-tag:v', 'hvc1', '-profile:v', 'main10',
-               # '-b:v', '16M',
-               # '-b:a', "300k",
-               '-b:a', '128k',
-               # '-b:v', '64k',
+               '-b:a', config.audio_bitrate,
                '-b:v', config.video_bitrate,
-               # '-b:v', '12m',
                '-deinterlace',
                # '-r', str(config.fps),
 
@@ -176,12 +152,7 @@ class Video(Stream):
                config.OUTPUT_VIDEO,
                )
 
-        # self.ffmpeg = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         self.ffmpeg = subprocess.Popen(cmd)
-        # self.p = None
-        # time.sleep(5)
-        # print(self.p)
-        # print('2'* 100)
 
         self.audio_seconds_written = 0.
         self.video_seconds_written = 0.
@@ -190,10 +161,10 @@ class Video(Stream):
 
         # self.audio_thread = GenerateAudioToPipe()
         # self.video_thread = GenerateVideoToPipe()
-        # qsize = 2 ** 9
+        qsize = 2 ** 9
         # qsize = 2 ** 4
         # qsize = 2 ** 6
-        qsize = 2 ** 8
+        # qsize = 2 ** 8
         self.q_audio = queue.Queue(maxsize=qsize)
         self.q_video = queue.Queue(maxsize=qsize)
         # self.q_audio = collections.deque(maxlen=qsize)
@@ -205,16 +176,6 @@ class Video(Stream):
         self.video_thread.start()
 
         self.vbuff = io.BytesIO()
-
-        # time.sleep(2)
-        # print('sfsfsf')
-        # self.audio_pipe = os.open(config.audio_pipe, os.O_WRONLY | os.O_NONBLOCK)
-        # print('qq')
-        # self.video_pipe = os.open(config.video_pipe, os.O_WRONLY | os.O_NONBLOCK)
-
-        # self.background = Image.new('RGBA', layer.size, (200, 200, 200))
-        # self.background_draw = ImageDraw.Draw(self.background)
-        self.background_draw = pyvips.Image.black(config.frame_width, config.frame_height, bands=3)
 
         # self.log = open(config.log_path, 'w')
         self.t_start = time.time()
@@ -236,37 +197,17 @@ class Video(Stream):
         # self.log.close()
 
     def write(self, data: np.ndarray):
-        """
-        TODO:
-            track speed of audio generating here
-            (timie.time, local fps)
-            dont generate more if there's no need
-        """
-
-        # global n_runs
-        # global audio_seconds_written
-        # global video_seconds_written
-        # global frames_written
-        # global samples_written
-
         seconds = len(data) / config.sample_rate
         b = util.float32_to_int16(data).tobytes()
 
         real_seconds = time.time() - self.t_start
         if real_seconds < self.audio_seconds_written:
-            # print('sleeping for', audio_seconds_written - real_seconds)
-            # time.sleep(self.audio_seconds_written - real_seconds)
-            pass
-        # audio_written, video_written = False, False
+            time.sleep(self.audio_seconds_written - real_seconds)
 
         # write audio samples
         # self.path.write(float32_to_int16(data).tobytes())
         # a = float32_to_int16(data)#.tobytes()
-        # ab = os.write(self.audio, a)
 
-        # print('XG', len(b))
-        # os.write(self.audio_pipe, b)
-        # print('VVS')
         self.q_audio.put(b, block=True)
         # self.q_audio.append(b)
         self.samples_written += len(data)
@@ -304,69 +245,35 @@ class Video(Stream):
             # im = bg.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
             # print(chord_length * chord_i, self.n * config.frame_width // self.track.n_samples - chord_length * chord_i)
 
-            # self.vbuff.write(random.choice(self.images))
             # self.vbuff.write(layer.tobytes())
             # q_video.put(b, block=True)
             chord_i = int(x / chord_length)
             chord_start_px = int(chord_i * chord_length)
 
-            chord = self.track.meta['progression'][chord_i]
+            chord = meta['progression'][chord_i]
             background_color = self.track.meta['scale'].note_colors[chord.root]
-            scale = self.track.meta['scale'].note_scales[chord.root]
 
             # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
             # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x + frame_dx - chord_start_px, config.frame_height, fill=True)
-            self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x - chord_start_px, config.frame_height, fill=True)
+            # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x - chord_start_px, config.frame_height, fill=True)
             # ..method:: draw_rect(ink, left, top, width, height, fill=bool)
 
-            # out = Image.alpha_composite(layer, self.background)
-            out = (
-                bg.composite2(self.background_draw, pyvips.enums.BlendMode.OVER, x=0, y=0)
-                .insert(*meta['bassline'])
-                .insert(*meta['rhythm_score'])
-                .insert(*meta['bass_decay'])
-                .insert(*meta['chords'])
-                .insert(*meta['tuning'])
-                .insert(*meta['root_scale'])
-                .insert(*meta['dist'])
-                .insert(*website)
-                .insert(*platform)
-                .insert(pyvips.Image.text(scale), chord_start_px, util.rel_to_abs_h(0.75))
+            # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=-1)
+            cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color + (255,), thickness=-1)
+            cv2.putText(im, meta['scale'].note_scales[chord.root], (chord_start_px, util.rel_to_abs_h(0.75)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, str(chord), (chord_start_px, util.rel_to_abs_h(0.8)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['bassline'], util.rel_to_abs(0.28, 0.1), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, sys.platform, util.rel_to_abs(0.2, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
 
-                # .insert(pyvips.Image.text(self.track.meta['bassline']), *util.rel_to_abs(0.28, 0))
-                # .insert(pyvips.Image.text(f"score{self.track.meta['rhythm_score']}"), *util.rel_to_abs(0, 0))
-                # .insert(pyvips.Image.text(self.track.meta['chords']), *util.rel_to_abs(0, 0.25))
-                # .insert(pyvips.Image.text(f"dist{self.track.meta['dist']}"), *util.rel_to_abs(0.58, 0.25))
-                # .insert(pyvips.Image.text(f"root scale: {self.track.meta['scale'].root.name} {self.track.meta['scale'].name}"), *util.rel_to_abs(0, 0.66))
-                # .insert(pyvips.Image.text(scale), chord_start_px, util.rel_to_abs_h(0.75))
-                # .insert(pyvips.Image.text(f"bass_decay{self.track.meta['bass_decay']}"), *util.rel_to_abs(0, 0.125))
-                # .insert(pyvips.Image.text(f'tuning{config.tuning}Hz'), *util.rel_to_abs(0.47, 0.125))
-                # .insert(pyvips.Image.text('tandav.me'), *util.rel_to_abs(0, 0.83))
-                # .insert(pyvips.Image.text(sys.platform), *util.rel_to_abs(0.47, 0.85))
-                # .insert(pyvips.Image.text(random.choice(string.ascii_letters)), random.randrange(config.frame_width), random.randrange(config.frame_height))
-            )
+            self.q_video.put(im.tobytes(), block=True)
 
-            # q = ImageDraw.Draw(out)
-
-            # q.text(util.rel_to_abs(0.28, 0), self.track.meta['bassline'], font=font, fill=text_color)
-            # q.text(util.rel_to_abs(0, 0), f"score{self.track.meta['rhythm_score']}", font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0, 0.25), self.track.meta['chords'], font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0.58, 0.25), f"dist{self.track.meta['dist']}", font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0, 0.66), f"root scale: {self.track.meta['scale'].root.name} {self.track.meta['scale'].name}", font=font2, fill=text_color)
-            # q.text((chord_start_px, util.rel_to_abs_h(0.75)), scale, font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0, 0.125), f"bass_decay{self.track.meta['bass_decay']}", font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0.47, 0.125), f'tuning{config.tuning}Hz', font=font2, fill=text_color)
-            # q.text(util.rel_to_abs(0, 0.83), 'tandav.me', font=font, fill=text_color)
-            # q.text(util.rel_to_abs(0.47, 0.85), sys.platform, font=font2, fill=text_color)
-
-            # q.text((random.randrange(config.frame_width), random.randrange(config.frame_height)), random.choice(string.ascii_letters), font=font, fill=text_color)
-
-            # q_video.put(random.choice(self.images), block=True)
-            # self.q_video.put(out.tobytes(), block=True)
-            self.q_video.put(out.write_to_memory(), block=True)
-            # self.q_video.append(out.write_to_memory())
-
-        # q_video.put(b''.join(random.choices(self.images, k=n_frames)), block=True)
         # q_video.put(self.vbuff.getvalue(), block=True)
         self.frames_written += n_frames
         self.video_seconds_written += n_frames / config.fps

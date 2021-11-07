@@ -3,10 +3,8 @@ import random
 import sys
 
 import mido
-import pyvips
 
 from musictools import config
-from musictools import util
 from musictools import voice_leading
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.pcmfile import PCM16File
@@ -83,26 +81,13 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         [drum_midi, bass_midi, chord_midi],
         [drumrack, bass, synth],
         meta={
-            # 'bassline': rhythm.bits,
-            'bassline': (pyvips.Image.text(rhythm.bits), *util.rel_to_abs(0.28, 0)),
-
-            # 'rhythm_score': str(round(rhythm.score, 3)),
-            'rhythm_score': (pyvips.Image.text(str(round(rhythm.score, 3))), *util.rel_to_abs(0, 0)),
-
-            # 'bass_decay': str(round(bass._adsr.decay, 3)),
-            'bass_decay': (pyvips.Image.text(f'bass_decay{str(round(bass._adsr.decay, 3))}'), *util.rel_to_abs(0, 0.125)),
-
-
-            # 'chords': '\n'.join(f'{"*" if i == chord_i else " "} {chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
-            # 'chords': '\n'.join(f'{chord} {chord.abstract.name}' for i, chord in enumerate(progression)),
-            'chords': (pyvips.Image.text('\n'.join(f'{chord} {chord.abstract.name}' for i, chord in enumerate(progression))), *util.rel_to_abs(0, 0.25)),
-
-            'tuning': (pyvips.Image.text(f'tuning{config.tuning}Hz'), *util.rel_to_abs(0.47, 0.125)),
-
-            'root_scale': (pyvips.Image.text(f'root scale: {scale.root.name} {scale.name}'), *util.rel_to_abs(0, 0.66)),
-
+            'bassline': rhythm.bits,
+            'rhythm_score': f'score{rhythm.score:.2f}',
+            'bass_decay': f'bass_decay{bass._adsr.decay:.2f}',
+            'tuning': f'tuning{config.tuning}Hz',
+            'root_scale': f'root scale: {scale.root.name} {scale.name}',
             'progression': progression,
-            'dist': (pyvips.Image.text(f'dist{dist}'), *util.rel_to_abs(0.58, 0.25)),
+            'dist': f'dist{dist}',
             'scale': scale,
         },
     ))

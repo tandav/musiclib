@@ -1,4 +1,6 @@
 import itertools
+import random
+import string
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
@@ -137,3 +139,15 @@ def rel_to_abs_h(value): return int(minmax_scaler(value, 0, 1, 0, config.frame_h
 def rel_to_abs(x, y):
     """xy: coordinates in fractions of screen"""
     return rel_to_abs_w(x), rel_to_abs_h(y)
+
+
+def random_xy():
+    return random.randrange(config.frame_width), random.randrange(config.frame_height)
+
+
+def random_text(words=tuple(''.join(random.choices(string.ascii_letters, k=random.randint(1, 15))) for _ in range(200))):
+    return random.choice(words)
+
+
+def random_color():
+    return random.randrange(255), random.randrange(255), random.randrange(255)

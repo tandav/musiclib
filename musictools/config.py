@@ -85,19 +85,20 @@ audio_pipe = 'audio.fifo'
 video_pipe = 'video.fifo'
 
 # fps = 24
-fps = 30
+# fps = 30
 # fps = 48
-# fps = 60
+fps = 60
 
-# frame_width, frame_height = 1920, 1080 # 1080p
+frame_width, frame_height = 1920, 1080  # 1080p
 # frame_width, frame_height = 1280, 720 # 720p
-frame_width, frame_height = 854, 480  # 480p
+# frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
 # frame_width, frame_height = 426, 240  # 240p
 # video_bitrate = '500k'
-video_bitrate = '3000k'
+# video_bitrate = '3000k'
 # video_bitrate = '3m'
-# video_bitrate = '5m'
+audio_bitrate = '128k'
+video_bitrate = '12M'
 
 
 # video_queue_item_size = 20
