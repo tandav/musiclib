@@ -2,7 +2,6 @@ pytest
 hypothesis
 numpy
 mido
-scipy
 pipe21
 isort
 hypothesis
@@ -14,5 +13,4 @@ pytest-cov
 pytest-asyncio
 pipe21
 unify
-Pillow
-pyvips
+opencv-python
