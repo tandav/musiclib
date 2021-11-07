@@ -263,6 +263,8 @@ class Video(Stream):
             cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
             cv2.putText(im, meta['scale'].note_scales[chord.root], (chord_start_px, util.rel_to_abs_h(0.75)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
