@@ -23,6 +23,9 @@ test:
 	rm -f logs/*
 	$(python) -m pytest -v --cov=musictools tests
 
+test_video:
+	$(python) -m pytest -v -k test_main
+
 coverage_report:
 	$(python) -m pytest -v --cov=musictools --cov-report=html tests
 	open htmlcov/index.html

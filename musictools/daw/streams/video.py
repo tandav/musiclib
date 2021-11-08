@@ -28,14 +28,23 @@ from musictools.util.signal import float32_to_int16
 # im = np.ones(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-piano = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
-piano[:, :, :3] = 180
+# piano = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
+# piano[:, :, :3] = 180
+# black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
+# for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
+#     thickness = cv2.FILLED if is_black else 1
+#     cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=thickness)
+
+piano = np.zeros(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
 black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
 for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
-    thickness = cv2.FILLED if is_black else 1
-    cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=thickness)
+    if is_black:
+        cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=cv2.FILLED)
 
-# progress = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
+# bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
+bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=0, dtype=np.uint8)
+bg[:, :, -1] = 255
+chord_length = config.frame_height / 4
 
 
 class PipeWriter(Thread):
@@ -72,12 +81,28 @@ class PipeWriter(Thread):
 class Video(Stream):
 
     def render_chunked(self, track: ParsedMidi):
-        self.clear_background()
+        self.make_background(track)
         super().render_chunked(track)
 
-    def clear_background(self):
-        self.piano = piano.copy()
-        self.progress = piano.copy()
+    def make_background(self, track):
+        # self.piano = piano.copy()
+        # self.progress = piano.copy()
+
+        self.bg = bg.copy()
+        overlay = bg.copy()
+        chord_length_int = int(chord_length)
+        for y, chord in zip(range(0, config.frame_height, chord_length_int), track.meta['progression']):
+            background_color = track.meta['scale'].note_colors[chord.root]
+            cv2.rectangle(overlay, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
+
+        alpha = 0.3
+        self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)
+
+        # add piano
+        alpha = 0.2
+        self.bg = cv2.addWeighted(piano, alpha, self.bg, 1 - alpha, gamma=0)
+
+        self.bg_bright = self.bg.copy()
         # im[...] = 200
         # im[...] = piano[...]
         # for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
@@ -248,7 +273,7 @@ class Video(Stream):
 
         start_px = int(config.frame_height * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
         chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
-        chord_length = config.frame_height / len(self.track.meta['progression'])
+
         frame_dy = chunk_width // n_frames
 
         y = start_px
@@ -264,7 +289,7 @@ class Video(Stream):
             chord_start_px = int(chord_i * chord_length)
 
             chord = meta['progression'][chord_i]
-            background_color = self.track.meta['scale'].note_colors[chord.root]
+            background_color = meta['scale'].note_colors[chord.root]
 
             # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
             # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x + frame_dx - chord_start_px, config.frame_height, fill=True)
@@ -272,10 +297,11 @@ class Video(Stream):
             # ..method:: draw_rect(ink, left, top, width, height, fill=bool)
 
             # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
-            cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+            # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+            cv2.rectangle(self.bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
-            alpha = 0.5
-            im = cv2.addWeighted(self.progress, alpha, self.piano, 1 - alpha, 0)
+            alpha = 0.9
+            im = cv2.addWeighted(self.bg_bright, alpha, self.bg, 1 - alpha, 0)
             im = cv2.flip(im, 0)
 
             # for _ in range(1):
