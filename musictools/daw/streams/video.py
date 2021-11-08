@@ -1,4 +1,5 @@
 import io
+import itertools
 import os
 import queue
 import subprocess
@@ -24,9 +25,17 @@ from musictools.util.signal import float32_to_int16
 # TODO: change to thread-safe queue.Queue
 #   also compare speed of appendleft, pop vs append, popleft?
 
-
-im = np.ones(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
+# im = np.ones(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
+
+piano = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
+piano[:, :, :3] = 180
+black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
+for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
+    thickness = cv2.FILLED if is_black else 1
+    cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=thickness)
+
+# progress = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
 
 
 class PipeWriter(Thread):
@@ -63,11 +72,17 @@ class PipeWriter(Thread):
 class Video(Stream):
 
     def render_chunked(self, track: ParsedMidi):
-        super().render_chunked(track)
         self.clear_background()
+        super().render_chunked(track)
 
     def clear_background(self):
-        im[...] = 200
+        self.piano = piano.copy()
+        self.progress = piano.copy()
+        # im[...] = 200
+        # im[...] = piano[...]
+        # for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
+        #     thickness = -1 if is_black else 1
+        #     cv2.rectangle(im, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 50), thickness=thickness)
         # self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
         # self.background_draw = self.background_draw.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
 
@@ -110,20 +125,28 @@ class Video(Stream):
                # '-f', 'image2pipe',
                # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
                # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-               '-thread_queue_size', '128',
+               # '-thread_queue_size', '128',
+               '-thread_queue_size', '8',
                # '-blocksize', '2048',
                '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
+               # '-filter:v', f'fps={config.fps}', # tryna get very stable fps?? maybe this is useless
                # '-c:a', 'libvorbis',
                # '-ac', '1',  # number of audio channels (mono1/stereo=2)
                # '-c:v', 'h264_videotoolbox',
+               # '-c:v', 'h264_vaapi',
                '-c:v', 'libx264',
+               # '-c:v', 'libx264rgb',
                '-pix_fmt', 'yuv420p',
+               # '-pix_fmt', 'rgba',
                # '-tune', 'animation',
 
 
                # ultrafast or zerolatency kinda makes audio and video out of sync when save to file (but stream to yt is kinda OK)
                # '-preset', 'ultrafast',
+               # '-preset', 'slow',
+               # '-preset', 'slower',
+               # '-crf', '18',
                # '-tune', 'zerolatency',
 
                # '-g', '150',  #  GOP: group of pictures
@@ -223,22 +246,21 @@ class Video(Stream):
         # assert self.vbuff.getvalue() == b''
         # progress_color = 0, 255, 0, 100
 
-        start_px = int(config.frame_width * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
-        chunk_width = int(config.frame_width * len(data) / self.track.n_samples)
+        start_px = int(config.frame_height * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
+        chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
+        chord_length = config.frame_height / len(self.track.meta['progression'])
+        frame_dy = chunk_width // n_frames
 
-        chord_length = config.frame_width / len(self.track.meta['progression'])
-        frame_dx = chunk_width // n_frames
-
-        x = start_px
+        y = start_px
 
         meta = self.track.meta
 
         for frame in range(n_frames):
-            x += frame_dx
+            y += frame_dy
 
             # self.vbuff.write(layer.tobytes())
             # q_video.put(b, block=True)
-            chord_i = int(x / chord_length)
+            chord_i = int(y / chord_length)
             chord_start_px = int(chord_i * chord_length)
 
             chord = meta['progression'][chord_i]
@@ -249,8 +271,12 @@ class Video(Stream):
             # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x - chord_start_px, config.frame_height, fill=True)
             # ..method:: draw_rect(ink, left, top, width, height, fill=bool)
 
-            # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=-1)
-            cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color + (255,), thickness=-1)
+            # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
+            cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+
+            alpha = 0.5
+            im = cv2.addWeighted(self.progress, alpha, self.piano, 1 - alpha, 0)
+            im = cv2.flip(im, 0)
 
             # for _ in range(1):
             # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
@@ -267,8 +293,8 @@ class Video(Stream):
             cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
-            cv2.putText(im, meta['scale'].note_scales[chord.root], (chord_start_px, util.rel_to_abs_h(0.75)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, str(chord), (chord_start_px, util.rel_to_abs_h(0.8)), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
 
             self.q_video.put(im.tobytes(), block=True)

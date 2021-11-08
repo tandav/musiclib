@@ -89,8 +89,9 @@ video_pipe = 'video.fifo'
 # fps = 48
 fps = 60
 
-frame_width, frame_height = 1920, 1080  # 1080p
-# frame_width, frame_height = 1280, 720 # 720p
+# frame_width, frame_height = 2560, 1440
+# frame_width, frame_height = 1920, 1080  # 1080p
+frame_width, frame_height = 1280, 720  # 720p
 # frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
 # frame_width, frame_height = 426, 240  # 240p
@@ -99,6 +100,7 @@ frame_width, frame_height = 1920, 1080  # 1080p
 # video_bitrate = '3m'
 audio_bitrate = '128k'
 video_bitrate = '12M'
+# video_bitrate = '24M'
 
 
 # video_queue_item_size = 20
@@ -111,3 +113,8 @@ assert video_queue_item_size < fps
 OUTPUT_VIDEO = 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg'
 
 log_path = 'logs/log.jsonl'
+
+
+# piano
+n_ocataves = 4
+key_width = w = frame_width // n_ocataves // 12
