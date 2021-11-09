@@ -2,6 +2,7 @@ import itertools
 import random
 import sys
 
+import joblib
 import mido
 
 from musictools import config
@@ -20,19 +21,17 @@ from musictools.note import note_range
 from musictools.rhythm import Rhythm
 from musictools.scale import Scale
 
-# import joblib
-# memory = joblib.Memory('/tmp', verbose=0)
+memory = joblib.Memory('static/cache', verbose=0)
 
 
-# @memory.cache
+@memory.cache
 def make_rhythms():
     _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(5, 8 + 1))
     _ = itertools.chain.from_iterable(_)
-    # return tuple(rhythm.to_midi(note_=note) for rhythm in _)
     return tuple(_)
 
 
-# @memory.cache
+@memory.cache
 def make_progressions(note_range_=note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
     progressions = []
     scales = [Scale(root, scale) for root, scale in zip('CDEFGA', config.diatonic[:-1])]
