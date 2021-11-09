@@ -19,7 +19,7 @@ class Stream(abc.ABC):
         master = np.zeros(track.n_samples, dtype='float32')
         for note in track.notes:
             note.render(master)
-        # assert np.all(np.abs(master) <= 1)
+        assert np.all(np.abs(master) <= 1)
         if normalize:
             self.write(normalize_(master))
         else:
@@ -47,12 +47,11 @@ class Stream(abc.ABC):
 
             playing_notes -= stopped_notes
             notes -= stopped_notes
-            # assert np.all(np.abs(self.master[:chunk_size]) <= 1)
+            assert np.all(np.abs(self.master[:chunk_size]) <= 1)
             if normalize:
                 self.write(normalize_(self.master[:chunk_size]))
             else:
                 self.write(self.master[:chunk_size])
-            # self.write(self.master[:chunk_size])
             n += chunk_size
         track.reset()
 
