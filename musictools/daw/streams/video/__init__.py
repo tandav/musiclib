@@ -78,6 +78,7 @@ def make_frame(args):
     # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
     # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=(0,0,0), thickness=1)
 
+    cv2.putText(im, meta['message'], util.rel_to_abs(0, 0.03), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, meta['bassline'], util.rel_to_abs(0, 0.07), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)

@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import random
 import sys
@@ -6,6 +7,7 @@ import joblib
 import mido
 
 from musictools import config
+from musictools import util
 from musictools import voice_leading
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.pcmfile import PCM16File
@@ -41,7 +43,7 @@ def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
     return progressions
 
 
-def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack):
+def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages):
     progression, dist, scale = random.choice(progressions)
     rhythm = random.choice(rhythms)
 
@@ -77,10 +79,16 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
     bass_midi = ParsedMidi.hstack(bass_midi)
     chord_midi = ParsedMidi.hstack(chord_midi)
 
+    timestamp, rest = random.choice(messages).split(maxsplit=1)
+    timestamp = int(timestamp)
+    ago = util.ago(datetime.datetime.now().timestamp() - timestamp)
+    sha, message = rest.split(maxsplit=1)
+
     stream.render_chunked(ParsedMidi.vstack(
         [drum_midi, bass_midi, chord_midi],
         [drumrack, bass, synth],
         meta={
+            'message': f'{sha} | {ago} | {message}',
             'bassline': f'bassline {rhythm.bits}',
             'rhythm_score': f'score{rhythm.score:.2f}',
             'bass_decay': f'bass_decay{bass._adsr.decay:.2f}',
@@ -173,6 +181,8 @@ def main() -> int:
     #     bass,
     # ))
 
+    messages = open('static/messages.txt').read().splitlines()
+
     # with streams.WavFile(config.wav_output_file, dtype='float32') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
     # with streams.WavFile(config.wav_output_file, dtype='int16') as stream:
@@ -189,10 +199,10 @@ def main() -> int:
 
         if is_test:
             for _ in range(n_loops):
-                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
+                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages)
         else:
             while True:
-                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
+                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages)
 
         # for _ in range(1):
         #     i = random.randrange(0, n)

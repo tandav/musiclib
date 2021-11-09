@@ -48,8 +48,8 @@ run_streaming:
 	docker run --rm -it tandav/musictools-stream
 
 build_push_streaming:
+	git log --pretty='%ad %h %s' --date=unix > static/messages.txt
 	docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
-	#docker build --no-cache -t tandav/musictools-stream -f ./Dockerfile-stream .
 	docker push tandav/musictools-stream
 
 #profile:
