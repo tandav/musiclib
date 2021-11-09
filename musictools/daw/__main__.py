@@ -32,7 +32,7 @@ def make_rhythms():
 
 
 @memory.cache
-def make_progressions(note_range_=note_range(SpecificNote('C', 3), SpecificNote('G', 6))):
+def make_progressions(note_range_):
     progressions = []
     scales = [Scale(root, scale) for root, scale in zip('CDEFGA', config.diatonic[:-1])]
     for scale in scales:
@@ -122,6 +122,8 @@ def main() -> int:
             config.OUTPUT_VIDEO = '/dev/null'
             # config.OUTPUT_VIDEO = '/tmp/output.flv'
             config.beats_per_minute = 480
+            # config.frame_width = 426
+            # config.frame_width = 240
             is_test = True
             n_loops = 2
         elif sys.argv[1] == 'video_file':
@@ -146,8 +148,10 @@ def main() -> int:
     #     make_rhythms(SpecificNote('F', 3)),
     # ]
 
+    config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 6))
+
     rhythms = make_rhythms()
-    progressions = make_progressions()
+    progressions = make_progressions(config.note_range)
 
     # n = len(notes_rhythms[0])
 

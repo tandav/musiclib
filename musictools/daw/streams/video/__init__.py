@@ -1,14 +1,11 @@
 import concurrent.futures
 import io
-import itertools
 import os
 import queue
 import subprocess
 import sys
 import time
 from pathlib import Path
-from threading import Event
-from threading import Thread
 
 import cv2
 import numpy as np
@@ -17,7 +14,8 @@ from musictools import config
 from musictools import util
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
-from musictools.util import image
+from musictools.daw.streams.video.pipewriter import PipeWriter
+from musictools.util import image as imageutil
 from musictools.util.signal import float32_to_int16
 
 # https://support.google.com/youtube/answer/6375112
@@ -37,12 +35,6 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 #     thickness = cv2.FILLED if is_black else 1
 #     cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=thickness)
 
-piano = np.zeros((config.frame_height, config.frame_width, 4), dtype=np.uint8)
-# piano[:, :, -1] = 255 # todo: try del
-black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
-for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
-    if is_black:
-        cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=cv2.FILLED)
 
 # bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
 bg = np.zeros((config.frame_height, config.frame_width, 4), dtype=np.uint8)
@@ -95,37 +87,6 @@ def make_frame(args):
     return im.tobytes()
 
 
-class PipeWriter(Thread):
-    def __init__(self, pipe, q: queue.Queue):
-        # def __init__(self, pipe, q: collections.deque):
-        super().__init__()
-        self.pipe = pipe
-        self.q = q
-        self.stream_finished = Event()
-        # self.log = open(f'logs/{self.pipe}_log.jsonl', 'w')
-
-    def run(self):
-        with open(self.pipe, 'wb') as pipe:
-            while not self.stream_finished.is_set() or not self.q.empty():
-                # while not self.stream_finished.is_set() or len(self.q):
-                # print(self.pipe, self.q.empty(), self.stream_finished.is_set(), 'foo')
-                # if self.pipe == config.video_pipe: print(self.pipe, self.q.qsize(), 'lol')
-                # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_start', 'qsize': self.q.qsize()}), file=self.log)
-
-                # you can't block w/o timeout because stream_finished event may be set at any time
-                try:
-                    b = self.q.get(block=True, timeout=0.01)
-                    # b = self.q.popleft()
-                    # time.sleep(0.01)
-                except queue.Empty:
-                    # except IndexError:
-                    pass
-                else:
-                    pipe.write(b)
-                    self.q.task_done()
-                # print(json.dumps({'timestamp': time.monotonic(), 'writer': self.pipe, 'event': 'write_stop', 'qsize': self.q.qsize()}), file=self.log)
-
-
 class Video(Stream):
 
     def render_chunked(self, track: ParsedMidi):
@@ -145,13 +106,20 @@ class Video(Stream):
             background_color = track.meta['scale'].note_colors[chord.root]
             cv2.rectangle(chord_rects, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
 
-        self.bg = image.overlay_image(bg, chord_rects, alpha=0.3)
+        self.bg = imageutil.overlay_image(bg, chord_rects, alpha=0.3)
 
+        key_width = config.frame_width // len(config.note_range)
         # self.bg = image.overlay_image(self.bg, piano, alpha=0.4)
-        black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
-        for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
-            if is_black:
-                self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+        # for x, note in zip(range(0, config.frame_width, key_width), config.note_range):
+        #     if note.is_black:
+        # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+        # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+
+        for x, note in zip(range(0, config.frame_width, key_width), config.note_range):
+            if note.is_black:
+                self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+            else:
+                cv2.line(self.bg, (x + key_width, 0), (x + key_width, config.frame_height), (0, 0, 0, 255), thickness=1)
 
         # alpha = 0.3
         # self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)

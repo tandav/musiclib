@@ -118,6 +118,4 @@ OUTPUT_VIDEO = 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg'
 log_path = 'logs/log.jsonl'
 
 
-# piano
-n_ocataves = 4
-key_width = w = frame_width // n_ocataves // 12
+note_range = None
