@@ -32,9 +32,9 @@ def make_rhythms():
 
 
 @memory.cache
-def make_progressions(note_range_):
+def make_progressions(note_range_, scale=Scale('C', 'major')):
     progressions = []
-    scales = [Scale(root, scale) for root, scale in zip('CDEFGA', config.diatonic[:-1])]
+    scales = [Scale(note, name) for note, name in scale.note_scales.items()]
     for scale in scales:
         for dist, p in voice_leading.make_progressions(scale, note_range_):
             progressions.append((p, dist, scale))
