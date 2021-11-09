@@ -70,7 +70,9 @@ midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
 # chunk_size = 1024 * 32
 # chunk_size = 1024
-chunk_size = 1024 * 2
+# chunk_size = 1024 * 2
+# chunk_size = 1024 * 32
+chunk_size = 1024 * 4
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
@@ -87,11 +89,12 @@ video_pipe = 'video.fifo'
 # fps = 24
 # fps = 30
 # fps = 48
-fps = 60
+fps = 50
+# fps = 60
 
 # frame_width, frame_height = 2560, 1440
-# frame_width, frame_height = 1920, 1080  # 1080p
-frame_width, frame_height = 1280, 720  # 720p
+frame_width, frame_height = 1920, 1080  # 1080p
+# frame_width, frame_height = 1280, 720  # 720p
 # frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
 # frame_width, frame_height = 426, 240  # 240p

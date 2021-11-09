@@ -1,5 +1,6 @@
 import io
 import itertools
+from functools import partial
 import os
 import queue
 import subprocess
@@ -18,6 +19,7 @@ from musictools import util
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
 from musictools.util.signal import float32_to_int16
+from musictools.util import image
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
@@ -36,16 +38,62 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 #     thickness = cv2.FILLED if is_black else 1
 #     cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=thickness)
 
-piano = np.zeros(shape=(config.frame_height, config.frame_width, 4), dtype=np.uint8)
+piano = np.zeros((config.frame_height, config.frame_width, 4), dtype=np.uint8)
+# piano[:, :, -1] = 255 # todo: try del
 black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
 for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
     if is_black:
         cv2.rectangle(piano, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0, 255), thickness=cv2.FILLED)
 
 # bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
-bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=0, dtype=np.uint8)
+bg = np.zeros((config.frame_height, config.frame_width, 4), dtype=np.uint8)
 bg[:, :, -1] = 255
 chord_length = config.frame_height / 4
+
+
+# def make_frame(y, meta, bg, bg_bright):
+def make_frame(args):
+    y, meta, bg, bg_bright = args
+    # print('zed')
+
+    chord_i = int(y / chord_length)
+    chord_start_px = int(chord_i * chord_length)
+
+    chord = meta['progression'][chord_i]
+    background_color = meta['scale'].note_colors[chord.root]
+
+    # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
+    # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x + frame_dx - chord_start_px, config.frame_height, fill=True)
+    # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x - chord_start_px, config.frame_height, fill=True)
+    # ..method:: draw_rect(ink, left, top, width, height, fill=bool)
+
+    # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
+    # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+    cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+
+    alpha = 0.9
+    im = cv2.addWeighted(bg_bright, alpha, bg, 1 - alpha, 0)
+    im = cv2.flip(im, 0)
+    # print('kek')
+    # for _ in range(1):
+    # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
+    # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=(0,0,0), thickness=1)
+
+    cv2.putText(im, meta['bassline'], util.rel_to_abs(0, 0.07), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+
+    cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
+    return im.tobytes()
 
 
 class PipeWriter(Thread):
@@ -89,19 +137,29 @@ class Video(Stream):
         # self.piano = piano.copy()
         # self.progress = piano.copy()
 
-        self.bg = bg.copy()
-        overlay = bg.copy()
+        chord_rects = np.empty_like(bg)
+
+        # self.bg = bg.copy()
+        # overlay = bg.copy()
         chord_length_int = int(chord_length)
         for y, chord in zip(range(0, config.frame_height, chord_length_int), track.meta['progression']):
             background_color = track.meta['scale'].note_colors[chord.root]
-            cv2.rectangle(overlay, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
+            cv2.rectangle(chord_rects, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
 
-        alpha = 0.3
-        self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)
+        self.bg = image.overlay_image(bg, chord_rects, alpha=0.3)
+
+        # self.bg = image.overlay_image(self.bg, piano, alpha=0.4)
+        black_white_pattern = itertools.cycle(bool(int(x)) for x in '010100101010')
+        for x, is_black in zip(range(0, config.frame_width, config.key_width), black_white_pattern):
+            if is_black:
+                self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + config.key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+
+        # alpha = 0.3
+        # self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)
 
         # add piano
-        alpha = 0.2
-        self.bg = cv2.addWeighted(piano, alpha, self.bg, 1 - alpha, gamma=0)
+        # alpha = 0.2
+        # self.bg = cv2.addWeighted(piano, alpha, self.bg, 1 - alpha, gamma=0)
 
         self.bg_bright = self.bg.copy()
         # im[...] = 200
@@ -151,8 +209,8 @@ class Video(Stream):
                # '-f', 'image2pipe',
                # '-i', 'pipe:', '-', # tell ffmpeg to expect raw video from the pipe
                # '-i', '-',  # tell ffmpeg to expect raw video from the pipe
-               # '-thread_queue_size', '128',
-               '-thread_queue_size', '8',
+               '-thread_queue_size', '128',
+               # '-thread_queue_size', '8',
                # '-blocksize', '2048',
                '-i', config.video_pipe,  # tell ffmpeg to expect raw video from the pipe
 
@@ -181,6 +239,8 @@ class Video(Stream):
                # '-x264opts', 'no-scenecut',
                # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
                '-vsync', 'cfr',
+               # '-vsync', 'drop',
+               # '-vsync', 'vfr',
                # '-async', '1',
                # '-tag:v', 'hvc1', '-profile:v', 'main10',
                '-b:a', config.audio_bitrate,
@@ -209,9 +269,10 @@ class Video(Stream):
 
         # self.audio_thread = GenerateAudioToPipe()
         # self.video_thread = GenerateVideoToPipe()
-        qsize = 2 ** 9
+        # qsize = 2 ** 9
+        # qsize = 2 ** 11
         # qsize = 2 ** 4
-        # qsize = 2 ** 6
+        qsize = 2 ** 6
         # qsize = 2 ** 8
         self.q_audio = queue.Queue(maxsize=qsize)
         self.q_video = queue.Queue(maxsize=qsize)
@@ -244,65 +305,32 @@ class Video(Stream):
         print(self.frames_written, self.audio_seconds_written, int(self.audio_seconds_written * config.fps))
         # self.log.close()
 
-    def make_frame(self):
-        pass
-
     def make_frames(self, n_frames, chunk_width):
+
         start_px = int(config.frame_height * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
-
         frame_dy = chunk_width // n_frames
+        # y = start_px
 
-        y = start_px
+        Y = range(start_px, start_px + frame_dy * n_frames, frame_dy)
+        # with concurrent.futures.ThreadPoolExecutor() as pool:
 
-        meta = self.track.meta
+        # with concurrent.futures.ProcessPoolExecutor() as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+            # return tuple(pool.map(self.make_frame, Y))
+            # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
+            args = ((y, self.track.meta, self.bg, self.bg_bright) for y in Y)
+            # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
+            return tuple(pool.map(make_frame, args))
 
-        frames = []
 
-        for frame in range(n_frames):
-            y += frame_dy
-
-            # self.vbuff.write(layer.tobytes())
-            # q_video.put(b, block=True)
-            chord_i = int(y / chord_length)
-            chord_start_px = int(chord_i * chord_length)
-
-            chord = meta['progression'][chord_i]
-            background_color = meta['scale'].note_colors[chord.root]
-
-            # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
-            # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x + frame_dx - chord_start_px, config.frame_height, fill=True)
-            # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x - chord_start_px, config.frame_height, fill=True)
-            # ..method:: draw_rect(ink, left, top, width, height, fill=bool)
-
-            # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
-            # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
-            cv2.rectangle(self.bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
-
-            alpha = 0.9
-            im = cv2.addWeighted(self.bg_bright, alpha, self.bg, 1 - alpha, 0)
-            im = cv2.flip(im, 0)
-
-            # for _ in range(1):
-            # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
-            # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=(0,0,0), thickness=1)
-
-            cv2.putText(im, meta['bassline'], util.rel_to_abs(0, 0.07), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-
-            cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-            cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
-
-            frames.append(im.tobytes())
-        return frames
+        # frames = []
+        #
+        # for frame in range(n_frames):
+        #     y += frame_dy
+        #     frames.append()
+        # return frames
 
 
     def write(self, data: np.ndarray):
@@ -326,7 +354,7 @@ class Video(Stream):
             # if n_frames < 1:
             # if n_frames < 300:
             return
-
+        print(n_frames)
         chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
         frames = self.make_frames(n_frames, chunk_width)
         # n_frames = int(seconds * config.fps)# - frames_written
