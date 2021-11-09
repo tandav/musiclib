@@ -24,7 +24,8 @@ test:
 	$(python) -m pytest -v --cov=musictools tests
 
 test_video:
-	$(python) -m pytest -v -k test_main
+	# $(python) -m pytest -v -k test_main
+	$(python) -m musictools.daw video_test
 
 coverage_report:
 	$(python) -m pytest -v --cov=musictools --cov-report=html tests

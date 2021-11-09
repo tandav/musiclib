@@ -72,9 +72,9 @@ midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
 # chunk_size = 1024 * 32
 # chunk_size = 1024
-# chunk_size = 1024 * 2
-# chunk_size = 1024 * 32
-chunk_size = 1024 * 4
+chunk_size = 1024 * 2
+# chunk_size = 1024 * 128
+# chunk_size = 1024 * 4
 chunk_seconds = chunk_size / sample_rate
 wav_output_file = 'out.wav'
 
