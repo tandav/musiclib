@@ -1,10 +1,11 @@
 import pickle
+
 import pytest
 
-from musictools.note import Note
-from musictools.note import SpecificNote
 from musictools.chord import Chord
 from musictools.chord import SpecificChord
+from musictools.note import Note
+from musictools.note import SpecificNote
 from musictools.scale import Scale
 
 

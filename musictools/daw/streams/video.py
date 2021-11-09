@@ -1,6 +1,6 @@
+import concurrent.futures
 import io
 import itertools
-from functools import partial
 import os
 import queue
 import subprocess
@@ -9,7 +9,6 @@ import time
 from pathlib import Path
 from threading import Event
 from threading import Thread
-import concurrent.futures
 
 import cv2
 import numpy as np
@@ -18,8 +17,8 @@ from musictools import config
 from musictools import util
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
-from musictools.util.signal import float32_to_int16
 from musictools.util import image
+from musictools.util.signal import float32_to_int16
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
@@ -316,14 +315,13 @@ class Video(Stream):
 
         # with concurrent.futures.ProcessPoolExecutor() as pool:
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+            # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+            # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
             # return tuple(pool.map(self.make_frame, Y))
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             args = ((y, self.track.meta, self.bg, self.bg_bright) for y in Y)
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             return tuple(pool.map(make_frame, args))
-
 
         # frames = []
         #
@@ -331,7 +329,6 @@ class Video(Stream):
         #     y += frame_dy
         #     frames.append()
         # return frames
-
 
     def write(self, data: np.ndarray):
         seconds = len(data) / config.sample_rate
@@ -359,7 +356,6 @@ class Video(Stream):
         frames = self.make_frames(n_frames, chunk_width)
         # n_frames = int(seconds * config.fps)# - frames_written
         # print('fffffffffff', n_frames)
-
 
         for frame in frames:
             self.q_video.put(frame, block=True)
