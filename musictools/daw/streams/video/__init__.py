@@ -114,6 +114,7 @@ class Video(Stream):
         for y, chord in zip(range(0, config.frame_height, chord_length_int), track.meta['progression']):
             background_color = track.meta['scale'].note_colors[chord.root]
             cv2.rectangle(chord_rects, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
+            cv2.putText(chord_rects, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), (y + util.rel_to_abs_h(0.01))), font, fontScale=1, color=(210, 210, 210), thickness=2, lineType=cv2.LINE_AA, bottomLeftOrigin=True)
 
         self.bg = imageutil.overlay_image(bg, chord_rects, alpha=0.3)
 
