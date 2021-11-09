@@ -32,7 +32,7 @@ def make_rhythms():
 
 
 @memory.cache
-def make_progressions(note_range_, scale=Scale('C', 'major')):
+def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
     progressions = []
     scales = [Scale(note, name) for note, name in scale.note_scales.items()]
     for scale in scales:
@@ -54,6 +54,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
         SpecificNote('C', 3): random.random() < 0.1,
         SpecificNote('e', 3): random.random() < 0.1,
         SpecificNote('b', 3): random.random() < 0.1,
+        SpecificNote('f', 3): random.random() < 0.5,
     }
 
     for chord_i, chord in enumerate(progression):
@@ -156,7 +157,8 @@ def main() -> int:
     # n = len(notes_rhythms[0])
 
     # drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
-    drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop.mid')] * 4)
+    # drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop.mid')] * 4)
+    drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop-with-closed-hat.mid')] * 4)
 
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
     bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05)

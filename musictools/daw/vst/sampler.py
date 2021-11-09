@@ -16,6 +16,7 @@ class Sampler(VST):
         (SpecificNote('C', 3), config.kick),
         (SpecificNote('e', 3), config.clap),
         (SpecificNote('b', 3), config.hat),
+        (SpecificNote('f', 3), config.hat),
     )
 
     DEFAULT_ADSR = ADSR()
@@ -24,6 +25,7 @@ class Sampler(VST):
         SpecificNote('C', 3): ADSR(attack=0.001, decay=0.1, sustain=1, release=0.6),
         SpecificNote('e', 3): ADSR(attack=0.001, decay=0.2, sustain=0, release=0.1),
         SpecificNote('b', 3): ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1),
+        SpecificNote('f', 3): ADSR(attack=0.001, decay=0.02, sustain=0, release=0.1),
     }
 
     DEFAULT_AMPLITUDE = 0.1
@@ -31,6 +33,7 @@ class Sampler(VST):
         SpecificNote('C', 3): 0.15,
         SpecificNote('e', 3): 0.05,
         SpecificNote('b', 3): 0.02,
+        SpecificNote('f', 3): 0.007,
     }
 
     def __init__(
@@ -48,6 +51,7 @@ class Sampler(VST):
             SpecificNote('C', 3): False,
             SpecificNote('e', 3): False,
             SpecificNote('b', 3): False,
+            SpecificNote('f', 3): False,
         }
 
     def load_sample(self, sample_path: Union[str, Path]):

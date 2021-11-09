@@ -68,7 +68,7 @@ midi_folder = 'static/midi/'
 # midi_file = 'halfbar.mid'
 # midi_file = 'halfbar-and-short.mid'
 # midi_file = 'bassline.mid'
-midi_file = 'drumloop.mid'
+# midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
 # chunk_size = 1024 * 32
 # chunk_size = 1024
@@ -91,7 +91,7 @@ video_pipe = 'video.fifo'
 # fps = 24
 # fps = 30
 # fps = 48
-fps = 50
+fps = 48
 # fps = 60
 
 # frame_width, frame_height = 2560, 1440
