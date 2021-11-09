@@ -1,5 +1,4 @@
 import concurrent.futures
-import io
 import os
 import queue
 import subprocess
@@ -108,18 +107,23 @@ class Video(Stream):
 
         self.bg = imageutil.overlay_image(bg, chord_rects, alpha=0.3)
 
-        key_width = config.frame_width // len(config.note_range)
         # self.bg = image.overlay_image(self.bg, piano, alpha=0.4)
         # for x, note in zip(range(0, config.frame_width, key_width), config.note_range):
         #     if note.is_black:
         # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
         # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
 
-        for x, note in zip(range(0, config.frame_width, key_width), config.note_range):
+        # self.note_to_x
+        for x, note in zip(range(0, config.frame_width, self.key_width), config.note_range):
             if note.is_black:
-                self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
+                self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + self.key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
             else:
-                cv2.line(self.bg, (x + key_width, 0), (x + key_width, config.frame_height), (0, 0, 0, 255), thickness=1)
+                cv2.line(self.bg, (x + self.key_width, 0), (x + self.key_width, config.frame_height), (0, 0, 0, 255), thickness=1)
+
+        if self.extra_note_space:
+            extra_note, extra_space = self.extra_note_space
+            x += self.key_width
+            self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + extra_space, config.frame_height), color=(0, 0, 0), alpha=0.5)
 
         # alpha = 0.3
         # self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)
@@ -251,7 +255,14 @@ class Video(Stream):
         self.audio_thread.start()
         self.video_thread.start()
 
-        self.vbuff = io.BytesIO()
+        # self.vbuff = io.BytesIO()
+        self.key_width = config.frame_width // len(config.note_range)
+
+        self.extra_note_space = None
+        if (extra_space := config.frame_width % self.key_width):
+            extra_note = config.note_range[-1] + 1
+            if extra_note.is_black:  # if it white there is nothing extra to do
+                self.extra_note_space = extra_note, extra_space
 
         # self.log = open(config.log_path, 'w')
         self.t_start = time.time()
