@@ -43,7 +43,7 @@ chord_length = config.frame_height / 4
 
 # def make_frame(y, meta, bg, bg_bright):
 def make_frame(args):
-    y, meta, bg, bg_bright = args
+    y, meta, bg, bg_bright, note_to_x, key_width = args
     # print('zed')
 
     chord_i = int(y / chord_length)
@@ -59,7 +59,10 @@ def make_frame(args):
 
     # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
     # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
-    cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
+
+    for note in chord.notes_ascending:
+        cv2.rectangle(bg_bright, pt1=(note_to_x[note], chord_start_px), pt2=(note_to_x[note] + key_width, y), color=background_color, thickness=cv2.FILLED)
+    # cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
     alpha = 0.9
     im = cv2.addWeighted(bg_bright, alpha, bg, 1 - alpha, 0)
@@ -80,8 +83,8 @@ def make_frame(args):
     cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
-    cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
     return im.tobytes()
 
@@ -113,8 +116,9 @@ class Video(Stream):
         # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
         # self.bg = image.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
 
-        # self.note_to_x
+        self.note_to_x = dict()
         for x, note in zip(range(0, config.frame_width, self.key_width), config.note_range):
+            self.note_to_x[note] = x
             if note.is_black:
                 self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + self.key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
             else:
@@ -298,7 +302,7 @@ class Video(Stream):
             # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
             # return tuple(pool.map(self.make_frame, Y))
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
-            args = ((y, self.track.meta, self.bg, self.bg_bright) for y in Y)
+            args = ((y, self.track.meta, self.bg, self.bg_bright, self.note_to_x, self.key_width) for y in Y)
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             return tuple(pool.map(make_frame, args))
 
