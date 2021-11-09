@@ -65,8 +65,7 @@ def make_frame(args):
 
     # cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
-    alpha = 0.9
-    im = cv2.addWeighted(bg_bright, alpha, bg, 1 - alpha, 0)
+    im = imageutil.overlay_image(bg, bg_bright, alpha=1.0)
     im = cv2.flip(im, 0)
     for note in chord.notes_ascending:
         cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - chord_start_px), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
