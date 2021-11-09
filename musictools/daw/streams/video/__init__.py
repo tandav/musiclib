@@ -62,11 +62,18 @@ def make_frame(args):
 
     for note in chord.notes_ascending:
         cv2.rectangle(bg_bright, pt1=(note_to_x[note], chord_start_px), pt2=(note_to_x[note] + key_width, y), color=background_color, thickness=cv2.FILLED)
+
     # cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
     alpha = 0.9
     im = cv2.addWeighted(bg_bright, alpha, bg, 1 - alpha, 0)
     im = cv2.flip(im, 0)
+    for note in chord.notes_ascending:
+        cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - chord_start_px), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+
+    for note in chord.root_specific:
+        cv2.putText(im, 'r', (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.03))), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+
     # print('kek')
     # for _ in range(1):
     # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
@@ -84,7 +91,7 @@ def make_frame(args):
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0, 0.9), font, fontScale=2, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
 
     cv2.putText(im, meta['scale'].note_scales[chord.root], (util.rel_to_abs_w(0.9), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
     return im.tobytes()
 

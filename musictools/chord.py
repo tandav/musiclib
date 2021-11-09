@@ -151,7 +151,7 @@ class SpecificChord:
         self.notes = notes
         self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
-        # self.root_specific = frozenset(note for note in notes if note.abstract == root)
+        self.root_specific = frozenset(note for note in notes if note.abstract == root)
 
         self.notes_ascending = sorted(notes, key=lambda note: note.absolute_i)
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note
