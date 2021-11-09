@@ -17,6 +17,7 @@ class Note:  # Note(str) ??
         """:param name: one of CdDeEFfGaAbB"""
         self.name = name
         self.i = config.note_i[name]
+        self.is_black = config.is_black[name]
 
     @classmethod
     def from_i(cls, i):

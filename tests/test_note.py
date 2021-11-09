@@ -2,6 +2,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
+from musictools.note import Note
 from musictools.note import SpecificNote
 
 
@@ -29,3 +30,10 @@ def test_add(absolute_i, to_add):
 def test_sub(absolute_i, to_sub):
     note = SpecificNote.from_absolute_i(absolute_i)
     assert (note - to_sub).absolute_i == note.absolute_i - to_sub
+
+
+def test_color():
+    assert not Note('C').is_black
+    assert Note('d').is_black
+    assert not SpecificNote('D').is_black
+    assert SpecificNote('f').is_black
