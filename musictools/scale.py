@@ -37,9 +37,26 @@ bits_2_name = {
 name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 
-@functools.cache
 class Scale:
-    def __init__(self, root: Union[str, Note], name: str):
+    _cache = {}
+
+    def __new__(cls, root: Union[str, Note], name: str):
+        key = root, name
+        if instance := cls._cache.get(key):
+            return instance
+        instance = super().__new__(cls)
+        instance._long_init(root, name)
+        cls._cache[key] = instance
+        return instance
+
+    def __getnewargs__(self):
+        """
+        tells pickle.dumps to pickle x in such a way that a pickle.loads
+        back from that string will use __new__ with the proper argument.
+        """
+        return self.root, self.name
+
+    def _long_init(self, root: Union[str, Note], name: str):
         if isinstance(root, str):
             root = Note(root)
         self.root = root
