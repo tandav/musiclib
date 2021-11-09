@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from threading import Event
 from threading import Thread
+import concurrent.futures
 
 import cv2
 import numpy as np
@@ -243,42 +244,19 @@ class Video(Stream):
         print(self.frames_written, self.audio_seconds_written, int(self.audio_seconds_written * config.fps))
         # self.log.close()
 
-    def write(self, data: np.ndarray):
-        seconds = len(data) / config.sample_rate
-        b = float32_to_int16(data).tobytes()
+    def make_frame(self):
+        pass
 
-        real_seconds = time.time() - self.t_start
-        if real_seconds < self.audio_seconds_written:
-            time.sleep(self.audio_seconds_written - real_seconds)
-
-        self.q_audio.put(b, block=True)
-        # self.q_audio.append(b)
-        self.samples_written += len(data)
-        self.audio_seconds_written += seconds
-
-        n_frames = int(self.audio_seconds_written * config.fps) - self.frames_written
-        # assert n_frames > 0
-        # if n_frames == 0:
-        # if n_frames < 100:
-        if n_frames < config.video_queue_item_size:
-            # if n_frames < 1:
-            # if n_frames < 300:
-            return
-        # n_frames = int(seconds * config.fps)# - frames_written
-        # print('fffffffffff', n_frames)
-
-        # self.vbuff.truncate(0)
-        # assert self.vbuff.getvalue() == b''
-        # progress_color = 0, 255, 0, 100
-
+    def make_frames(self, n_frames, chunk_width):
         start_px = int(config.frame_height * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
-        chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
 
         frame_dy = chunk_width // n_frames
 
         y = start_px
 
         meta = self.track.meta
+
+        frames = []
 
         for frame in range(n_frames):
             y += frame_dy
@@ -323,7 +301,40 @@ class Video(Stream):
             cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
             cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=(0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
 
-            self.q_video.put(im.tobytes(), block=True)
+            frames.append(im.tobytes())
+        return frames
+
+
+    def write(self, data: np.ndarray):
+        seconds = len(data) / config.sample_rate
+        b = float32_to_int16(data).tobytes()
+
+        real_seconds = time.time() - self.t_start
+        if real_seconds < self.audio_seconds_written:
+            time.sleep(self.audio_seconds_written - real_seconds)
+
+        self.q_audio.put(b, block=True)
+        # self.q_audio.append(b)
+        self.samples_written += len(data)
+        self.audio_seconds_written += seconds
+
+        n_frames = int(self.audio_seconds_written * config.fps) - self.frames_written
+        # assert n_frames > 0
+        # if n_frames == 0:
+        # if n_frames < 100:
+        if n_frames < config.video_queue_item_size:
+            # if n_frames < 1:
+            # if n_frames < 300:
+            return
+
+        chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
+        frames = self.make_frames(n_frames, chunk_width)
+        # n_frames = int(seconds * config.fps)# - frames_written
+        # print('fffffffffff', n_frames)
+
+
+        for frame in frames:
+            self.q_video.put(frame, block=True)
 
         # q_video.put(self.vbuff.getvalue(), block=True)
         self.frames_written += n_frames
