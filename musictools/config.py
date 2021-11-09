@@ -50,7 +50,8 @@ chord_colors = {
 
 default_octave = 5
 # DEFAULT_TUNING = 440  # default A hz tuning
-DEFAULT_TUNING = 520
+DEFAULT_TUNING = 500
+RANDOM_TUNING_RANGE = 430, 600
 tuning = DEFAULT_TUNING
 
 
