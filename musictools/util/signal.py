@@ -20,3 +20,12 @@ def float32_to_int16(signal: np.ndarray, dtype='int16'):
     abs_max = 2 ** (i.bits - 1)
     offset = i.min + abs_max
     return (signal * abs_max + offset).clip(i.min, i.max).astype(dtype)
+
+
+def normalize(signal: np.ndarray, a: float = -1, b: float = 1):
+    # solving system of linear equations one can find the coefficients
+    A = np.min(signal)
+    B = np.max(signal)
+    C = (a - b) / (A - B)
+    k = (C * A - a) / C
+    return (signal - k) * C

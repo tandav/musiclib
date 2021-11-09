@@ -89,7 +89,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack)
             'dist': f'dist{dist}',
             'scale': scale,
         },
-    ))
+    ), normalize=False)
 
 
 def main() -> int:

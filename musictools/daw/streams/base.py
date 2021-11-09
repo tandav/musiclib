@@ -6,6 +6,7 @@ import numpy as np
 from musictools import config
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.midi.parse import State
+from musictools.util.signal import normalize as normalize_
 
 
 class Stream(abc.ABC):
@@ -13,16 +14,19 @@ class Stream(abc.ABC):
         self.master = np.zeros(config.chunk_size, dtype='float32')
         self.track: Optional[ParsedMidi] = None
 
-    def render_single(self, track: ParsedMidi):
+    def render_single(self, track: ParsedMidi, normalize=False):
         self.track = track
         master = np.zeros(track.n_samples, dtype='float32')
         for note in track.notes:
             note.render(master)
-        assert np.all(np.abs(master) <= 1)
-        self.write(master)
+        # assert np.all(np.abs(master) <= 1)
+        if normalize:
+            self.write(normalize_(master))
+        else:
+            self.write(master)
         track.reset()
 
-    def render_chunked(self, track: ParsedMidi):
+    def render_chunked(self, track: ParsedMidi, normalize=False):
         self.track = track
         notes = set(track.notes)
         n = 0
@@ -43,8 +47,12 @@ class Stream(abc.ABC):
 
             playing_notes -= stopped_notes
             notes -= stopped_notes
-            assert np.all(np.abs(self.master[:chunk_size]) <= 1)
-            self.write(self.master[:chunk_size])
+            # assert np.all(np.abs(self.master[:chunk_size]) <= 1)
+            if normalize:
+                self.write(normalize_(self.master[:chunk_size]))
+            else:
+                self.write(self.master[:chunk_size])
+            # self.write(self.master[:chunk_size])
             n += chunk_size
         track.reset()
 
