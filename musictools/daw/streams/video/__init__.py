@@ -277,7 +277,6 @@ class Video(Stream):
             if extra_note.is_black:  # if it white there is nothing extra to do
                 self.extra_note_space = extra_note, extra_space
 
-        # self.log = open(config.log_path, 'w')
         self.t_start = time.time()
         return self
 
@@ -294,7 +293,6 @@ class Video(Stream):
 
         assert self.frames_written == int(self.audio_seconds_written * config.fps)
         print(self.frames_written, self.audio_seconds_written, int(self.audio_seconds_written * config.fps))
-        # self.log.close()
 
     def make_frames(self, n_frames, chunk_width):
 
@@ -357,16 +355,3 @@ class Video(Stream):
         self.video_seconds_written += n_frames / config.fps
 
         # print('eeeeeeeeeeeeeeeeee', f'QA{self.q_audio.qsize()} QV{self.q_video.qsize()} {len(data)=} {seconds=} {n_frames=} {self.samples_written:} {self.frames_written=} ASW{self.audio_seconds_written:.2f} VSW{self.video_seconds_written:.2f} {real_seconds=}')
-        # print('eeeeeeeeeeeeeeeeee', f'QA{self.q_audio.__len__()} QV{self.q_video.__len__()} {len(data)=} {seconds=} {n_frames=} {self.samples_written:} {self.frames_written=} ASW{self.audio_seconds_written:.2f} VSW{self.video_seconds_written:.2f} {real_seconds=}')
-        # info = {
-        #     'timestamp': time.monotonic(),
-        #     'qa': q_audio.qsize(),
-        #     'qv': q_video.qsize(),
-        #     'seconds': seconds,
-        #     'n_frames': n_frames,
-        #     'frames_written': frames_written,
-        #     'samples_written': samples_written,
-        #     'audio_seconds_written': audio_seconds_written,
-        #     'video_seconds_written': video_seconds_written,
-        # }
-        # print(json.dumps(info), file=self.log)
