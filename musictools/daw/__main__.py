@@ -45,7 +45,7 @@ def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages):
     progression, dist, scale = random.choice(progressions)
-    #rhythm = random.choice(rhythms)
+    # rhythm = random.choice(rhythms)
 
     bass_midi = []
     chord_midi = []
@@ -105,6 +105,13 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
         [drum_midi, bass_midi, chord_midi],
         [drumrack, bass, synth],
         meta={
+            'muted': {
+                'kick': drumrack.note_mute[SpecificNote('C', 3)],
+                'clap': drumrack.note_mute[SpecificNote('e', 3)],
+                'open_hat': drumrack.note_mute[SpecificNote('b', 3)],
+                'closed_hat': drumrack.note_mute[SpecificNote('f', 3)],
+                'bassline': bass.mute,
+            },
             'message': f'{sha} | {ago} | {message}',
             # 'bassline': f'bassline {rhythm.bits}',
             'bassline': bassline_str,

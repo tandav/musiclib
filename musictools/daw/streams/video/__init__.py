@@ -93,8 +93,10 @@ def make_frame(args):
 
     cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    for _ in range(2):
-        cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=config.WHITE, thickness=1, lineType=cv2.LINE_AA)
+
+    if not meta['muted']['closed_hat']:
+        for _ in range(2):
+            cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=config.WHITE, thickness=1, lineType=cv2.LINE_AA)
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0.8, 0.07), font, fontScale=2, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0.802, 0.072), font, fontScale=2, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     return im.tobytes()
