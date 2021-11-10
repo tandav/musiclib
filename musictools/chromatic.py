@@ -3,9 +3,9 @@ from collections.abc import Sequence
 from typing import Optional
 from typing import Union
 
-from . import config
-from .note import Note
-from .note import SpecificNote
+from musictools import config
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 
 def iterate(

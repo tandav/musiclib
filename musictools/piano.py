@@ -5,13 +5,13 @@ import typing
 from typing import Optional
 from typing import Union
 
-from . import config
-from .note import Note
-from .note import SpecificNote
+from musictools import config
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 if typing.TYPE_CHECKING:
-    from .scale import ComparedScales
-    from .scale import Scale
+    from musictools.scale import ComparedScales
+    from musictools.scale import Scale
 
 
 class Piano:

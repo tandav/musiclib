@@ -3,8 +3,8 @@ import functools
 from numbers import Number
 from typing import Union  # TODO: python3.10 just use X | Y
 
-from . import config
-from .daw.midi import player
+from musictools import config
+from musictools.daw.midi import player
 
 
 class Note:  # Note(str) ??

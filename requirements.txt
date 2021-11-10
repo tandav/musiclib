@@ -3,6 +3,7 @@ hypothesis
 numpy
 mido
 pipe21
+force_absolute_imports
 isort
 hypothesis
 flake8

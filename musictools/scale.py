@@ -4,12 +4,12 @@ from collections import defaultdict
 from collections import deque
 from typing import Union
 
-from . import chromatic
-from . import config
-from . import util
-from .chord import Chord
-from .note import Note
-from .piano import Piano
+from musictools import chromatic
+from musictools import config
+from musictools import util
+from musictools.chord import Chord
+from musictools.note import Note
+from musictools.piano import Piano
 
 bits_2_name = {
     '101011010101': 'major',

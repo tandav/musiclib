@@ -10,6 +10,7 @@ run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 lint:
+	$(python) -m force_absolute_imports musictools tests
 	$(python) -m isort --force-single-line-imports musictools tests
 	$(python) -m autoflake --recursive --in-place musictools tests
 	$(python) -m autopep8 --in-place --recursive --aggressive --ignore=E221,E401,E402,E501,W503,E701,E704,E721,E741,I100,I201,W504 --exclude=musictools/util/wavfile.py musictools tests

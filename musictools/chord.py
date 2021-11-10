@@ -5,10 +5,10 @@ from numbers import Number
 from typing import Optional
 from typing import Union
 
-from . import chromatic
-from . import config
-from .note import Note
-from .note import SpecificNote
+from musictools import chromatic
+from musictools import config
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 intervals_to_name = {
     frozenset({4, 7}): 'major',

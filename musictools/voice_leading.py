@@ -5,13 +5,13 @@ from collections.abc import Iterable
 
 import pipe21 as P
 
-from . import config
-from . import util
-from .chord import Chord
-from .chord import SpecificChord
-from .chord import name_to_intervals
-from .note import SpecificNote
-from .scale import Scale
+from musictools import config
+from musictools import util
+from musictools.chord import Chord
+from musictools.chord import SpecificChord
+from musictools.chord import name_to_intervals
+from musictools.note import SpecificNote
+from musictools.scale import Scale
 
 
 def all_triads(octaves=(4, 5, 6)):
