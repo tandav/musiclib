@@ -45,7 +45,7 @@ def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages):
     progression, dist, scale = random.choice(progressions)
-    rhythm = random.choice(rhythms)
+    #rhythm = random.choice(rhythms)
 
     bass_midi = []
     chord_midi = []
@@ -59,12 +59,29 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
         SpecificNote('f', 3): random.random() < 0.5,
     }
 
+    bass.mute = random.random() < 0.03
+
+    bass_rhythm0 = random.choice(rhythms)
+    bassline_str = f'bassline {bass_rhythm0.bits}'
+    rhythm_score_str = f'score {bass_rhythm0.score:.2f}'
+
+    if random.random() < 0.05:
+        bass_rhythm1 = random.choice(rhythms)
+        bassline_str += f' {bass_rhythm1.bits}'
+        rhythm_score_str += f' {bass_rhythm1.score:.2f}'
+    else:
+        bass_rhythm1 = bass_rhythm0
+
     for chord_i, chord in enumerate(progression):
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + 12)
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0] + -12)
 
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
-        bass_midi.append(rhythm.to_midi(note_=chord.notes_ascending[0]))
+        # bass_midi.append(rhythm.to_midi(note_=chord.notes_ascending[0]))
+        if chord_i % 2 == 0:
+            bass_midi.append(bass_rhythm0.to_midi(note_=chord.notes_ascending[0]))
+        else:
+            bass_midi.append(bass_rhythm1.to_midi(note_=chord.notes_ascending[0]))
 
         # chord_midi = rhythm.to_midi(chord=chord)
         # chord_midi = chord.to_midi(n_bars=1)
@@ -89,8 +106,10 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
         [drumrack, bass, synth],
         meta={
             'message': f'{sha} | {ago} | {message}',
-            'bassline': f'bassline {rhythm.bits}',
-            'rhythm_score': f'score{rhythm.score:.2f}',
+            # 'bassline': f'bassline {rhythm.bits}',
+            'bassline': bassline_str,
+            # 'rhythm_score': f'score{rhythm.score:.2f}',
+            'rhythm_score': rhythm_score_str,
             'bass_decay': f'bass_decay{bass._adsr.decay:.2f}',
             'tuning': f'tuning{config.tuning}Hz',
             'root_scale': f'root scale: {scale.root.name} {scale.name}',
