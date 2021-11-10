@@ -107,6 +107,7 @@ frame_width, frame_height = 1920, 1080  # 1080p
 audio_bitrate = '128k'
 video_bitrate = '12M'
 # video_bitrate = '24M'
+keyframe_seconds = 3
 
 
 # video_queue_item_size = 20
