@@ -89,6 +89,8 @@ def make_frame(args):
     cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(config.WHITE), thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'fps {config.fps}', util.rel_to_abs(0, 0.34), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+
     cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     for _ in range(2):
