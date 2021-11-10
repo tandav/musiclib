@@ -4,8 +4,8 @@ from typing import Optional
 import numpy as np
 
 from musictools import config
+from musictools.daw.midi.notesound import State
 from musictools.daw.midi.parse import ParsedMidi
-from musictools.daw.midi.parse import State
 from musictools.util.signal import normalize as normalize_
 
 
