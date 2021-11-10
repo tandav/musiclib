@@ -39,6 +39,8 @@ class NoteSound:
         absolute_i: int,
         sample_on: int,
         sample_off: int,
+        frame_on: int,
+        frame_off: int,
         vst: VST,
     ):
         """
@@ -54,6 +56,8 @@ class NoteSound:
         self.sample_on = sample_on
         self.sample_off = sample_off
         self.ns = sample_off - sample_on
+        self.frame_on = frame_on
+        self.frame_off = frame_off
 
         self.ns_release = int(vst.adsr(self.note).release * config.sample_rate)
         self.stop_release = sample_off + self.ns_release  # actual sample when note is off (including release)
@@ -132,8 +136,9 @@ class ParsedMidi:
             vst = [vst]
 
         for i, (track, vst_) in enumerate(zip(midi.tracks, vst)):
-            ticks, seconds, n_samples = 0, 0., 0
-            note_buffer = dict()
+            ticks, seconds, n_samples, n_frames = 0, 0., 0, 0
+            note_buffer_samples = dict()
+            note_buffer_frames = dict()
             for message in track:
                 # print(track, message)
                 if message.type == 'time_signature':
@@ -146,18 +151,26 @@ class ParsedMidi:
                 d_seconds = mido.tick2second(message.time, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
                 seconds += d_seconds
                 n_samples += int(config.sample_rate * d_seconds)
+                n_frames += int(config.fps * d_seconds)
                 if message.type == 'note_on':
-                    note_buffer[message.note] = n_samples
+                    note_buffer_samples[message.note] = n_samples
+                    note_buffer_frames[message.note] = n_frames
                 elif message.type == 'note_off':
-                    # print(n_samples)
-                    notes.append(NoteSound(message.note, note_buffer.pop(message.note), n_samples, vst=vst_))
+                    notes.append(NoteSound(
+                        message.note,
+                        note_buffer_samples.pop(message.note), n_samples,
+                        note_buffer_frames.pop(message.note), n_samples,
+                        vst=vst_,
+                    ))
             ticks_info[i] = self.round_ticks_to_bar(ticks, ticks_per_bar)
 
         if not len(set(ticks_info.values())) == 1:
             raise ValueError(f'number of ticks rounded to bar should be equal for all midi tracks/channels {ticks_info}')
         ticks = next(iter(ticks_info.values()))
 
-        self.n_samples = int(config.sample_rate * mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
+        self.seconds = mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
+        self.n_frames = int(config.fps * self.seconds)
+        self.n_samples = int(config.sample_rate * self.seconds)
         self.numerator = numerator
         self.notes = notes
         self.meta = meta
