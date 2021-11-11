@@ -4,6 +4,7 @@ import queue
 import subprocess
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 import cv2
@@ -61,10 +62,15 @@ def make_frame(args):
     # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
     # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
+    note_count = Counter()
     for note_sound in track.playing_notes:
-        w = 8
-        x1 = note_to_x[note_sound.note]
-        x0 = x1 - w  # add some offset for debug
+        note_count[note_sound.note] += 1
+        w_space = 2
+        w_bar = 8
+        w = (w_bar + w_space) * note_count[note_sound.note]
+
+        x0 = note_to_x[note_sound.note] - w
+        x1 = x0 + w_bar
         y0 = config.frame_height * note_sound.sample_on // track.n_samples
         cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y), color=config.WHITE, thickness=cv2.FILLED)
         cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
