@@ -229,9 +229,7 @@ class Video(Stream):
         # with concurrent.futures.ThreadPoolExecutor() as pool:
 
         # with concurrent.futures.ProcessPoolExecutor() as pool:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-            # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
-            # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=config.draw_threads) as pool:
             # return tuple(pool.map(self.make_frame, Y))
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             args = ((y, self.track.meta, self.bg, self.bg_bright, self.note_to_x, self.key_width) for y in Y)

@@ -109,6 +109,7 @@ video_bitrate = '12M'
 # video_bitrate = '24M'
 keyframe_seconds = 3
 
+draw_threads = 2
 
 # video_queue_item_size = 20
 video_queue_item_size = 1
