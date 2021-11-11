@@ -28,14 +28,18 @@ class TestRender:
     https://stackoverflow.com/a/51747430/4204843
     """
 
-    def test_n_samples(self, midi_file, vst):
-        """
-        render 1 bar and check number of samples in the output
-        """
+    def is_invalid(self, midi_file, vst):
         if (
             (midi_file == 'drumloop.mid' and not isinstance(vst, Sampler)) or
             (midi_file != 'drumloop.mid' and isinstance(vst, Sampler))
         ):
+            pytest.skip('Invalid case')
+
+    def test_n_samples(self, midi_file, vst):
+        """
+        render 1 bar and check number of samples in the output
+        """
+        if self.is_invalid(midi_file, vst):
             pytest.skip('Invalid case')
         track = ParsedMidi.from_file(midi_file, vst)
 
@@ -44,10 +48,7 @@ class TestRender:
         assert len(stream.to_numpy()) == track.n_samples
 
     def test_chunks(self, midi_file, vst):
-        if (
-            (midi_file == 'drumloop.mid' and not isinstance(vst, Sampler)) or
-            (midi_file != 'drumloop.mid' and isinstance(vst, Sampler))
-        ):
+        if self.is_invalid(midi_file, vst):
             pytest.skip('Invalid case')
 
         track = ParsedMidi.from_file(midi_file, vst)
@@ -62,6 +63,10 @@ class TestRender:
         chunked = chunked.to_numpy()
 
         assert np.allclose(single, chunked, atol=1e-7)
+
+    # def test_no_overlapping_notes(self, midi_file, vst):
+    #     if self.is_invalid(midi_file, vst):
+    #         pytest.skip('Invalid case')
 
 
 def test_main():

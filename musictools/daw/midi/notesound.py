@@ -18,10 +18,10 @@ class NoteSound:
     def __init__(
         self,
         absolute_i: int,
-        sample_on: int,
-        sample_off: int,
-        frame_on: int,
-        frame_off: int,
+        sample_on: int, sample_off: int,
+        second_on: float, second_off: float,
+        frame_on: int, frame_off: int,
+        px_on: int, px_off: int,
         vst: VST,
     ):
         """
@@ -34,11 +34,12 @@ class NoteSound:
         stop_xxx means sample where xxx is no more playing
         """
         self.note = SpecificNote.from_absolute_i(absolute_i)
-        self.sample_on = sample_on
-        self.sample_off = sample_off
+        self.sample_on, self.sample_off = sample_on, sample_off
+        self.second_on, self.second_off = second_on, second_off
+        self.frame_on, self.frame_off = frame_on, frame_off
+        self.px_on, self.px_off = px_on, px_off
+
         self.ns = sample_off - sample_on
-        self.frame_on = frame_on
-        self.frame_off = frame_off
 
         self.ns_release = int(vst.adsr(self.note).release * config.sample_rate)
         self.stop_release = sample_off + self.ns_release  # actual sample when note is off (including release)

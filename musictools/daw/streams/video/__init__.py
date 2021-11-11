@@ -1,6 +1,7 @@
 import concurrent.futures
 import os
 import queue
+import random
 import subprocess
 import sys
 import time
@@ -12,6 +13,7 @@ import numpy as np
 
 from musictools import config
 from musictools import util
+from musictools.note import SpecificNote
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.base import Stream
 from musictools.daw.streams.video import ffmpeg
@@ -40,7 +42,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # bg = np.full(shape=(config.frame_height, config.frame_width, 4), fill_value=255, dtype=np.uint8)
 bg = np.zeros((config.frame_height, config.frame_width, 4), dtype=np.uint8)
 bg[:, :, -1] = 255
-chord_length = config.frame_height / 4
+
 
 
 # def make_frame(y, meta, bg, bg_bright):
@@ -48,8 +50,8 @@ def make_frame(args):
     y, n, track, bg, bg_bright, note_to_x, key_width, is_last_in_chunk = args
     # print('zed')
 
-    chord_i = int(y / chord_length)
-    chord_start_px = int(chord_i * chord_length)
+    chord_i = int(y / config.chord_px)
+    chord_start_px = int(chord_i * config.chord_px)
 
     chord = track.meta['progression'][chord_i]
     background_color = track.meta['scale'].note_colors[chord.root]
@@ -64,15 +66,20 @@ def make_frame(args):
 
     note_count = Counter()
     for note_sound in track.playing_notes:
-        note_count[note_sound.note] += 1
+        note_count[note_sound.note]  += 1
         w_space = 2
         w_bar = 8
         w = (w_bar + w_space) * note_count[note_sound.note]
 
         x0 = note_to_x[note_sound.note] - w
         x1 = x0 + w_bar
-        y0 = config.frame_height * note_sound.sample_on // track.n_samples
-        cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y), color=config.WHITE, thickness=cv2.FILLED)
+        # y0 = config.frame_height * note_sound.sample_on // track.n_samples
+        y0 = note_sound.px_on
+
+        if note_sound.note == SpecificNote('f', 3):
+            print(note_sound.px_on, note_sound.px_off)
+
+        cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, min(y, note_sound.px_off)), color=config.WHITE, thickness=cv2.FILLED)
         cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
 
     for note in chord.notes_ascending:
@@ -107,6 +114,10 @@ def make_frame(args):
     cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'fps {config.fps}', util.rel_to_abs(0, 0.34), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'draw_threads {config.draw_threads}', util.rel_to_abs(0, 0.37), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'chunk_size {config.chunk_size}', util.rel_to_abs(0, 0.4), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'GOP {config.gop}', util.rel_to_abs(0, 0.43), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f'keyframe_seconds {config.keyframe_seconds}', util.rel_to_abs(0, 0.46), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
     cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
@@ -134,10 +145,10 @@ class Video(Stream):
 
         # self.bg = bg.copy()
         # overlay = bg.copy()
-        chord_length_int = int(chord_length)
-        for y, chord in zip(range(0, config.frame_height, chord_length_int), track.meta['progression']):
+        chord_px_int = int(config.chord_px)
+        for y, chord in zip(range(0, config.frame_height, chord_px_int), track.meta['progression']):
             background_color = track.meta['scale'].note_colors[chord.root]
-            cv2.rectangle(chord_rects, pt1=(0, y), pt2=(config.frame_width, y + chord_length_int), color=background_color, thickness=cv2.FILLED)
+            cv2.rectangle(chord_rects, pt1=(0, y), pt2=(config.frame_width, y + chord_px_int), color=background_color, thickness=cv2.FILLED)
             cv2.putText(chord_rects, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), (y + util.rel_to_abs_h(0.01))), font, fontScale=1, color=(210, 210, 210), thickness=2, lineType=cv2.LINE_AA, bottomLeftOrigin=True)
 
         self.bg = imageutil.overlay_image(bg, chord_rects, alpha=0.3)
@@ -220,6 +231,7 @@ class Video(Stream):
             if extra_note.is_black:  # if it white there is nothing extra to do
                 self.extra_note_space = extra_note, extra_space
 
+        self.dt_hist = []
         self.t_start = time.time()
         return self
 
@@ -249,6 +261,8 @@ class Video(Stream):
         # with concurrent.futures.ThreadPoolExecutor() as pool:
 
         # with concurrent.futures.ProcessPoolExecutor() as pool:
+
+        # t0 = time.time()
         with concurrent.futures.ThreadPoolExecutor(max_workers=config.draw_threads) as pool:
             # return tuple(pool.map(self.make_frame, Y))
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
@@ -256,7 +270,13 @@ class Video(Stream):
             args[-1][-1] = True  # is_last_in_chunk
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             return tuple(pool.map(make_frame, args))
-
+            # out = tuple(pool.map(make_frame, args))
+        # dt = time.time() - t0
+        # self.dt_hist.append(dt)
+        # if random.random() < 0.05:
+        #     print(np.array(self.dt_hist).mean())
+        # print('dt', dt)
+        # return out
         # frames = []
         # for frame in range(n_frames):
         #     y += frame_dy
@@ -284,7 +304,7 @@ class Video(Stream):
             # if n_frames < 1:
             # if n_frames < 300:
             return
-        print(n_frames)
+        # print(n_frames)
         chunk_width = int(config.frame_height * len(data) / self.track.n_samples)  # width of data in pixels
         frames = self.make_frames(n_frames, chunk_width, data)
         # n_frames = int(seconds * config.fps)# - frames_written

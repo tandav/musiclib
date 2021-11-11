@@ -58,6 +58,9 @@ tuning = DEFAULT_TUNING
 # piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
 beats_per_minute = 120
+beats_per_second = beats_per_minute / 60
+beats_per_bar = 4
+bar_seconds = beats_per_bar / beats_per_second
 
 
 # daw
@@ -72,8 +75,8 @@ midi_folder = 'static/midi/'
 # midi_file = 'drumloop.mid'
 # midi_file = '4-4-8.mid'
 # chunk_size = 1024 * 32
-# chunk_size = 1024
-chunk_size = 1024 * 2
+chunk_size = 1024
+# chunk_size = 1024 * 2
 # chunk_size = 1024 * 128
 # chunk_size = 1024 * 4
 chunk_seconds = chunk_size / sample_rate
@@ -92,7 +95,7 @@ video_pipe = 'video.fifo'
 # fps = 24
 # fps = 30
 # fps = 48
-fps = 40
+fps = 30
 # fps = 60
 
 # frame_width, frame_height = 2560, 1440
@@ -108,8 +111,15 @@ audio_bitrate = '128k'
 video_bitrate = '12M'
 # video_bitrate = '24M'
 keyframe_seconds = 3
-
+gop = keyframe_seconds * fps
 draw_threads = 2
+
+bars_per_screen = 4
+screen_seconds = bars_per_screen * bar_seconds
+
+chord_px = frame_height / bars_per_screen
+# pxps = frame_height // screen_seconds  # pixels per second
+pxps = frame_height / screen_seconds  # pixels per second
 
 # video_queue_item_size = 20
 video_queue_item_size = 1

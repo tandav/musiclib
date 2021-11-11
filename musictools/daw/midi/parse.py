@@ -41,9 +41,11 @@ class ParsedMidi:
             vst = [vst]
 
         for i, (track, vst_) in enumerate(zip(midi.tracks, vst)):
-            ticks, seconds, n_samples, n_frames = 0, 0., 0, 0
+            ticks, seconds, n_samples, n_frames, n_pixels = 0, 0., 0, 0, 0
             note_buffer_samples = dict()
+            note_buffer_seconds = dict()
             note_buffer_frames = dict()
+            note_buffer_px = dict()
             for message in track:
                 # print(track, message)
                 if message.type == 'time_signature':
@@ -57,24 +59,49 @@ class ParsedMidi:
                 seconds += d_seconds
                 n_samples += int(config.sample_rate * d_seconds)
                 n_frames += int(config.fps * d_seconds)
+                n_pixels += int(config.pxps * d_seconds)
                 if message.type == 'note_on':
                     note_buffer_samples[message.note] = n_samples
+                    note_buffer_seconds[message.note] = seconds
                     note_buffer_frames[message.note] = n_frames
+                    note_buffer_px[message.note] = n_pixels
                 elif message.type == 'note_off':
                     notes.append(NoteSound(
                         message.note,
                         note_buffer_samples.pop(message.note), n_samples,
-                        note_buffer_frames.pop(message.note), n_samples,
+                        note_buffer_seconds.pop(message.note), seconds,
+                        note_buffer_frames.pop(message.note), n_frames,
+                        note_buffer_px.pop(message.note), n_pixels,
                         vst=vst_,
                     ))
+            # rounded = self.round_ticks_to_bar(ticks, ticks_per_bar)
+            # if rounded < ticks:
+            #     raise OverflowError('midi ticks are bigger than 1 bar')
+            # assert ticks <= rounded
+            # print('------->', ticks, rounded)
+            # ticks_info[i] = rounded
             ticks_info[i] = self.round_ticks_to_bar(ticks, ticks_per_bar)
 
         if not len(set(ticks_info.values())) == 1:
             raise ValueError(f'number of ticks rounded to bar should be equal for all midi tracks/channels {ticks_info}')
         ticks = next(iter(ticks_info.values()))
+        self.n_bars = ticks // ticks_per_bar
 
+
+        # assert abs(seconds - mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))) < 0.1
+        # print(seconds, mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
+        # print('n_frames', seconds, n_frames, int(config.fps * seconds))
+        # print('n_samples', seconds, n_samples, int(config.sample_rate * seconds))
+
+
+        # you should round also seconds, frames, samples etc
+        # assert seconds == mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
+        # assert n_frames == int(config.fps * seconds)
+        # assert n_samples == int(config.sample_rate * seconds)
+        # assert n_pixels == int(config.pxps * seconds), (seconds, n_pixels, int(config.pxps * seconds), config.pxps)
         self.seconds = mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
         self.n_frames = int(config.fps * self.seconds)
+        # print(self.n_frames)
         self.n_samples = int(config.sample_rate * self.seconds)
         self.numerator = numerator
         self.notes = notes
@@ -84,7 +111,7 @@ class ParsedMidi:
         self.stopped_notes = set()
 
     def round_ticks_to_bar(self, ticks, ticks_per_bar):
-        div, mod = divmod(ticks, ticks_per_bar)
+        full_bars, mod = divmod(ticks, ticks_per_bar)
         if mod:
             ticks += ticks_per_bar - mod
         return ticks
@@ -92,6 +119,8 @@ class ParsedMidi:
     def reset(self):
         for note in self.notes:
             note.reset()
+        self.playing_notes = set()
+        self.stopped_notes = set()
 
     # @classmethod
     # @functools.singledispatchmethod # TODO

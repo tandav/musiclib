@@ -183,7 +183,9 @@ def main() -> int:
     #     make_rhythms(SpecificNote('F', 3)),
     # ]
 
-    config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 6))
+    # config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 6))
+    # config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 5))  # bass !
+    config.note_range = note_range(SpecificNote('C', 3), SpecificNote('C', 6))
 
     rhythms = make_rhythms()
     progressions = make_progressions(config.note_range)
@@ -192,7 +194,7 @@ def main() -> int:
 
     # drum_midi = mido.MidiFile(config.midi_folder + 'drumloop.mid')
     # drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop.mid')] * 4)
-    drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop-with-closed-hat.mid')] * 4)
+    drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop-with-closed-hat.mid')] * config.bars_per_screen)
 
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
     bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05)

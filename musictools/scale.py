@@ -4,10 +4,10 @@ from collections import defaultdict
 from collections import deque
 from typing import Union
 
-from musictools import chromatic
+from . import chromatic
 from musictools import config
 from musictools import util
-from musictools.chord import Chord
+from .chord import Chord
 from musictools.note import Note
 from musictools.piano import Piano
 

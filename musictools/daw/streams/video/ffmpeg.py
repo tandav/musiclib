@@ -50,7 +50,7 @@ cmd = ('ffmpeg',
        # '-tune', 'zerolatency',
 
        # '-g', '150',  #  GOP: group of pictures
-       '-g', str(config.keyframe_seconds * config.fps),  # GOP: group of pictures
+       '-g', str(config.gop),  # GOP: group of pictures
        # '-g', str(config.fps // 2),  # GOP: group of pictures
        # '-x264opts', 'no-scenecut',
        # '-x264-params', f'keyint={keyframe_seconds * config.fps}:scenecut=0',
