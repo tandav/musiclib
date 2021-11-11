@@ -95,6 +95,7 @@ class NoteSound:
 
     def reset(self):
         self.ns_rendered = 0
+        self.state = State.TODO
 
     def __hash__(self): return hash(self.key)
     def __eq__(self, other): return self.key == other.key

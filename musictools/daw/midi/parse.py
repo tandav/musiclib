@@ -80,6 +80,9 @@ class ParsedMidi:
         self.notes = notes
         self.meta = meta
 
+        self.playing_notes = set()
+        self.stopped_notes = set()
+
     def round_ticks_to_bar(self, ticks, ticks_per_bar):
         div, mod = divmod(ticks, ticks_per_bar)
         if mod:

@@ -30,23 +30,23 @@ class Stream(abc.ABC):
         self.track = track
         notes = set(track.notes)
         n = 0
-        playing_notes = set()
+        # playing_notes = set()
         self.master[:] = 0
         while n < track.n_samples:
             self.n = n
             chunk_size = min(config.chunk_size, track.n_samples - n)
             samples = np.arange(n, n + chunk_size)
             self.master[:chunk_size] = 0.
-            playing_notes |= set(note for note in notes if n <= note.sample_on < n + config.chunk_size)
-            stopped_notes = set()
-            for note in playing_notes:
+            track.playing_notes |= set(note for note in notes if n <= note.sample_on < n + config.chunk_size)
+            track.stopped_notes = set()
+            for note in track.playing_notes:
                 note.render(self.master[:chunk_size], samples)
 
                 if note.state == State.DONE:
-                    stopped_notes.add(note)
+                    track.stopped_notes.add(note)
 
-            playing_notes -= stopped_notes
-            notes -= stopped_notes
+            track.playing_notes -= track.stopped_notes
+            notes -= track.stopped_notes
             assert np.all(np.abs(self.master[:chunk_size]) <= 1)
             if normalize:
                 self.write(normalize_(self.master[:chunk_size]))

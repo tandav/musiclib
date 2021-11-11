@@ -44,14 +44,14 @@ chord_length = config.frame_height / 4
 
 # def make_frame(y, meta, bg, bg_bright):
 def make_frame(args):
-    y, meta, bg, bg_bright, note_to_x, key_width = args
+    y, n, track, bg, bg_bright, note_to_x, key_width, is_last_in_chunk = args
     # print('zed')
 
     chord_i = int(y / chord_length)
     chord_start_px = int(chord_i * chord_length)
 
-    chord = meta['progression'][chord_i]
-    background_color = meta['scale'].note_colors[chord.root]
+    chord = track.meta['progression'][chord_i]
+    background_color = track.meta['scale'].note_colors[chord.root]
 
     # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
     # self.background_draw = self.background_draw.draw_rect(background_color, chord_start_px, 0, x + frame_dx - chord_start_px, config.frame_height, fill=True)
@@ -61,8 +61,19 @@ def make_frame(args):
     # cv2.rectangle(im, pt1=(chord_start_px, 0), pt2=(x, config.frame_height), color=background_color, thickness=cv2.FILLED)
     # cv2.rectangle(self.progress, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
+    for note_sound in track.playing_notes:
+        w = 8
+        x1 = note_to_x[note_sound.note]
+        x0 = x1 - w  # add some offset for debug
+        y0 = config.frame_height * note_sound.sample_on // track.n_samples
+        cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y), color=config.WHITE, thickness=cv2.FILLED)
+        cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
+
     for note in chord.notes_ascending:
         cv2.rectangle(bg_bright, pt1=(note_to_x[note], chord_start_px), pt2=(note_to_x[note] + key_width, y), color=background_color, thickness=cv2.FILLED)
+
+    # if is_last_in_chunk:
+    #     cv2.line(bg_bright, (0, y), (config.frame_width, y), config.WHITE, thickness=1)
 
     # cv2.rectangle(bg_bright, pt1=(0, chord_start_px), pt2=(config.frame_width, y), color=background_color, thickness=cv2.FILLED)
 
@@ -79,26 +90,27 @@ def make_frame(args):
     # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=util.random_color(), thickness=1)
     # cv2.rectangle(im, pt1=util.random_xy(), pt2=util.random_xy(), color=(0,0,0), thickness=1)
 
-    cv2.putText(im, meta['message'], util.rel_to_abs(0, 0.03), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['bassline'], util.rel_to_abs(0, 0.07), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(im, meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['message'], util.rel_to_abs(0, 0.03), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['bassline'], util.rel_to_abs(0, 0.07), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['rhythm_score'], util.rel_to_abs(0, 0.1), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['bass_decay'], util.rel_to_abs(0, 0.13), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['tuning'], util.rel_to_abs(0, 0.16), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['dist'], util.rel_to_abs(0, 0.19), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, track.meta['root_scale'], util.rel_to_abs(0, 0.22), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'sys.platform {sys.platform}', util.rel_to_abs(0, 0.25), font, fontScale=1, color=(config.WHITE), thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'bpm {config.beats_per_minute}', util.rel_to_abs(0, 0.28), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'sample_rate {config.sample_rate}', util.rel_to_abs(0, 0.31), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, f'fps {config.fps}', util.rel_to_abs(0, 0.34), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
-    cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+    cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
     # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
-    if not meta['muted']['closed_hat']:
+    if not track.meta['muted']['closed_hat']:
         for _ in range(2):
             cv2.putText(im, '*', util.random_xy(), font, fontScale=1, color=config.WHITE, thickness=1, lineType=cv2.LINE_AA)
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0.8, 0.07), font, fontScale=2, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
     cv2.putText(im, 'tandav.me', util.rel_to_abs(0.802, 0.072), font, fontScale=2, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+
     return im.tobytes()
 
 
@@ -219,25 +231,27 @@ class Video(Stream):
         assert self.frames_written == int(self.audio_seconds_written * config.fps)
         print(self.frames_written, self.audio_seconds_written, int(self.audio_seconds_written * config.fps))
 
-    def make_frames(self, n_frames, chunk_width):
+    def make_frames(self, n_frames, chunk_width, data):
 
         start_px = int(config.frame_height * self.n / self.track.n_samples)  # like n is for audio (progress on track), px is for video (progress on frame)
         frame_dy = chunk_width // n_frames
+        frame_dn = len(data) // n_frames
         # y = start_px
 
         Y = range(start_px, start_px + frame_dy * n_frames, frame_dy)
+        N = range(self.n, self.n + len(data), frame_dn)
         # with concurrent.futures.ThreadPoolExecutor() as pool:
 
         # with concurrent.futures.ProcessPoolExecutor() as pool:
         with concurrent.futures.ThreadPoolExecutor(max_workers=config.draw_threads) as pool:
             # return tuple(pool.map(self.make_frame, Y))
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
-            args = ((y, self.track.meta, self.bg, self.bg_bright, self.note_to_x, self.key_width) for y in Y)
+            args = [[y, n, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, False] for y, n in zip(Y, N)]
+            args[-1][-1] = True  # is_last_in_chunk
             # return tuple(pool.map(partial(make_frame, meta=self.track.meta, bg=self.bg, bg_bright=self.bg_bright), Y))
             return tuple(pool.map(make_frame, args))
 
         # frames = []
-        #
         # for frame in range(n_frames):
         #     y += frame_dy
         #     frames.append()
@@ -265,8 +279,8 @@ class Video(Stream):
             # if n_frames < 300:
             return
         print(n_frames)
-        chunk_width = int(config.frame_height * len(data) / self.track.n_samples)
-        frames = self.make_frames(n_frames, chunk_width)
+        chunk_width = int(config.frame_height * len(data) / self.track.n_samples)  # width of data in pixels
+        frames = self.make_frames(n_frames, chunk_width, data)
         # n_frames = int(seconds * config.fps)# - frames_written
         # print('fffffffffff', n_frames)
 
