@@ -7,9 +7,10 @@ from musictools import config
 from musictools.daw.midi.notesound import State
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.util.signal import normalize as normalize_
+from contextlib import AbstractContextManager
 
 
-class Stream(abc.ABC):
+class Stream(AbstractContextManager):
     def __init__(self):
         self.master = np.zeros(config.chunk_size, dtype='float32')
         self.track: Optional[ParsedMidi] = None
