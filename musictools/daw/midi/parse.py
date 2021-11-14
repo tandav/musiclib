@@ -6,6 +6,7 @@ from typing import get_args
 
 import mido
 
+from musictools import util
 from musictools import config
 from musictools.daw.midi.notesound import NoteSound
 from musictools.daw.vst.base import VST
@@ -59,7 +60,7 @@ class ParsedMidi:
                 seconds += d_seconds
                 n_samples += int(config.sample_rate * d_seconds)
                 n_frames += int(config.fps * d_seconds)
-                n_pixels += int(config.pxps * d_seconds)
+                n_pixels += config.pxps * d_seconds
                 if message.type == 'note_on':
                     note_buffer_samples[message.note] = n_samples
                     note_buffer_seconds[message.note] = seconds
@@ -107,8 +108,12 @@ class ParsedMidi:
         self.notes = notes
         self.meta = meta
 
-        self.playing_notes = set()
-        self.stopped_notes = set()
+        self.note_colors = {note: util.random_rgba() for note in self.notes}
+        self.reset(reset_notes=False)
+        # self.playing_notes = set()
+        # self.releasing_notes = set()
+        # self.done_notes = set()
+        # self.drawn_notes = set()
 
     def round_ticks_to_bar(self, ticks, ticks_per_bar):
         full_bars, mod = divmod(ticks, ticks_per_bar)
@@ -116,11 +121,14 @@ class ParsedMidi:
             ticks += ticks_per_bar - mod
         return ticks
 
-    def reset(self):
-        for note in self.notes:
-            note.reset()
+    def reset(self, reset_notes=True):
+        if reset_notes:
+            for note in self.notes:
+                note.reset()
         self.playing_notes = set()
-        self.stopped_notes = set()
+        self.releasing_notes = set()
+        self.done_notes = set()
+        self.drawn_not_complete_notes = set()
 
     # @classmethod
     # @functools.singledispatchmethod # TODO

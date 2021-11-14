@@ -95,7 +95,8 @@ video_pipe = 'video.fifo'
 # fps = 24
 # fps = 30
 # fps = 48
-fps = 30
+fps = 42
+# fps = 30
 # fps = 60
 
 # frame_width, frame_height = 2560, 1440
@@ -112,7 +113,8 @@ video_bitrate = '12M'
 # video_bitrate = '24M'
 keyframe_seconds = 3
 gop = keyframe_seconds * fps
-draw_threads = 2
+draw_threads = 1
+assert draw_threads == 1
 
 bars_per_screen = 4
 screen_seconds = bars_per_screen * bar_seconds

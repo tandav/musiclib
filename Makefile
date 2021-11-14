@@ -10,6 +10,7 @@ run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 lint:
+	$(python) -m no_init musictools tests
 	$(python) -m force_absolute_imports musictools tests
 	$(python) -m isort --force-single-line-imports musictools tests
 	$(python) -m autoflake --recursive --in-place musictools tests
@@ -21,7 +22,6 @@ clean:
 	rm -f logs/*
 
 test:
-	rm -f logs/*
 	$(python) -m pytest -v --cov=musictools tests
 
 test_video:
@@ -46,7 +46,7 @@ file:
 	$(python) -m musictools.daw video_file 4
 
 run_streaming:
-	docker run --rm -it tandav/musictools-stream
+	docker run --pull=always --rm -it tandav/musictools-stream
 
 build_push_streaming:
 	git log --pretty='%ad %h %s' --date=unix > static/messages.txt

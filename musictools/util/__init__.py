@@ -126,8 +126,12 @@ def random_text(words=tuple(''.join(random.choices(string.ascii_letters, k=rando
     return random.choice(words)
 
 
-def random_color():
+def random_rgb():
     return random.randrange(255), random.randrange(255), random.randrange(255)
+
+
+def random_rgba():
+    return random.randrange(255), random.randrange(255), random.randrange(255), 255
 
 
 def ago(e):

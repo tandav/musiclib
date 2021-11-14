@@ -10,7 +10,8 @@ from musictools.note import SpecificNote
 
 class State(Enum):
     TODO = auto()
-    IN_PROGRESS = auto()
+    PLAYING = auto()
+    RELEASE = auto()
     DONE = auto()
 
 
@@ -38,6 +39,7 @@ class NoteSound:
         self.second_on, self.second_off = second_on, second_off
         self.frame_on, self.frame_off = frame_on, frame_off
         self.px_on, self.px_off = px_on, px_off
+        self.n_px = int(px_off - px_on)
 
         self.ns = sample_off - sample_on
 
@@ -65,15 +67,14 @@ class NoteSound:
         self.decay_envelope = np.linspace(1, se, self.ns_decay, endpoint=False, dtype='float32')
         self.release_envelope = np.linspace(se, 0, self.ns_release, endpoint=False, dtype='float32')
 
-        self.ns_rendered = 0
-        self.vst = vst
         self.key = self.note, self.sample_on, self.stop_release
-        self.state = State.TODO
+        self.vst = vst
+        self.reset()
 
-    def render(self, chunk, samples=None):
-        self.state = State.IN_PROGRESS
-        if samples is None:
-            samples = np.arange(len(chunk))
+    def render(self, chunk, samples):
+        self.state = State.PLAYING
+        # if samples is None:
+        #     samples = np.arange(len(chunk))
         mask = (self.sample_on <= samples) & (samples < self.stop_release)
         ns_to_render = np.count_nonzero(mask)
 
@@ -84,18 +85,35 @@ class NoteSound:
 
         wave = self.vst(self.ns_rendered, ns_to_render, self.note)
 
-        wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
-        wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
-        wave[mask_sustain[mask]] *= self.vst.adsr(self.note).sustain
-        wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
-        chunk[mask] += wave
+        # more readable ??
+        out = np.zeros_like(chunk)
+        out[mask] = wave
+        out[mask_attack] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
+        out[mask_decay] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
+        out[mask_sustain] *= self.vst.adsr(self.note).sustain
+        out[mask_release] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
+        chunk += out
+
+        # same as above but kinda less readable (because of double masking)
+        # wave[mask_attack[mask]] *= self.attack_envelope[(samples[0] <= self.range_attack) & (self.range_attack <= samples[-1])]
+        # wave[mask_decay[mask]] *= self.decay_envelope[(samples[0] <= self.range_decay) & (self.range_decay <= samples[-1])]
+        # wave[mask_sustain[mask]] *= self.vst.adsr(self.note).sustain
+        # wave[mask_release[mask]] *= self.release_envelope[(samples[0] <= self.range_release) & (self.range_release <= samples[-1])]
+        # chunk[mask] += wave
+
         self.ns_rendered += ns_to_render
 
-        if samples is None or self.stop_release + self.ns_release <= samples[-1]:
-            self.state = State.DONE
+        if self.sample_off <= samples[-1]:
+            self.state = State.RELEASE
+            if self.stop_release <= samples[-1]:
+                self.state = State.DONE
+
+        # if samples is None or self.stop_release + self.ns_release <= samples[-1]:
+        #     self.state = State.DONE
 
     def reset(self):
         self.ns_rendered = 0
+        self.px_rendered = 0
         self.state = State.TODO
 
     def __hash__(self): return hash(self.key)

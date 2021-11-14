@@ -19,7 +19,8 @@ class Stream(AbstractContextManager):
         self.track = track
         master = np.zeros(track.n_samples, dtype='float32')
         for note in track.notes:
-            note.render(master)
+            # note.render(master)
+            note.render(master, samples=np.arange(len(master)))
         assert np.all(np.abs(master) <= 1)
         if normalize:
             self.write(normalize_(master))
@@ -36,18 +37,25 @@ class Stream(AbstractContextManager):
         while n < track.n_samples:
             self.n = n
             chunk_size = min(config.chunk_size, track.n_samples - n)
-            samples = np.arange(n, n + chunk_size)
             self.master[:chunk_size] = 0.
             track.playing_notes |= set(note for note in notes if n <= note.sample_on < n + config.chunk_size)
-            track.stopped_notes = set()
-            for note in track.playing_notes:
-                note.render(self.master[:chunk_size], samples)
+            track.done_notes = set()
+            for note in track.playing_notes | track.releasing_notes:
+                note.render(self.master[:chunk_size], samples=np.arange(n, n + chunk_size))
 
-                if note.state == State.DONE:
-                    track.stopped_notes.add(note)
+                if note.state == State.RELEASE or note.state == State.DONE:
+                    if note.state == State.RELEASE:
+                        track.releasing_notes.add(note)
 
-            track.playing_notes -= track.stopped_notes
-            notes -= track.stopped_notes
+                    if note.state == State.DONE:
+                        track.done_notes.add(note)
+
+                    if note.px_rendered < note.n_px:
+                        track.drawn_not_complete_notes.add(note)
+
+            track.playing_notes -= track.done_notes | track.releasing_notes
+            track.releasing_notes -= track.done_notes
+            notes -= track.done_notes
             assert np.all(np.abs(self.master[:chunk_size]) <= 1)
             if normalize:
                 self.write(normalize_(self.master[:chunk_size]))
@@ -55,6 +63,7 @@ class Stream(AbstractContextManager):
                 self.write(self.master[:chunk_size])
             n += chunk_size
         track.reset()
+        self.px_written = 0  # todo: move somewhere?
 
     @abc.abstractmethod
     def write(self, data: np.ndarray):

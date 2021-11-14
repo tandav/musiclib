@@ -11,12 +11,14 @@ def overlay_rect(
 ) -> np.ndarray:
     x1, y1 = pt1
     x2, y2 = pt2
-    sub_im = im[y1:y2, x1:x2]
-    rect = np.full_like(sub_im, fill_value=255)
-    rect[:, :, 0] = color[0]
-    rect[:, :, 1] = color[1]
-    rect[:, :, 2] = color[2]
-    im[y1:y2, x1:x2] = cv2.addWeighted(rect, alpha, sub_im, 1 - alpha, gamma=0)
+    if y2 - y1 > 0 and x2 - x1 > 0:
+        sub_im = im[y1:y2, x1:x2]
+        rect = np.full_like(sub_im, fill_value=255)
+        rect[:, :, 0] = color[0]
+        rect[:, :, 1] = color[1]
+        rect[:, :, 2] = color[2]
+        # print('*********>', x1,x2,y1,y2,alpha, sub_im.shape, rect.shape)
+        im[y1:y2, x1:x2] = cv2.addWeighted(rect, alpha, sub_im, 1 - alpha, gamma=0)
     return im
 
 
