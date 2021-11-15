@@ -12,7 +12,7 @@ class PipeWriter(Thread):
         self.stream_finished = Event()
         # self.log = open(f'logs/{self.pipe}_log.jsonl', 'w')
 
-    def run(self):
+    def run(self) -> None:
         with open(self.pipe, 'wb') as pipe:
             while not self.stream_finished.is_set() or not self.q.empty():
                 # while not self.stream_finished.is_set() or len(self.q):

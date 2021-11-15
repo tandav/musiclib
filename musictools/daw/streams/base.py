@@ -16,7 +16,7 @@ class Stream(AbstractContextManager):
         self.track: Optional[ParsedMidi] = None
 
     def render_single(self, track: ParsedMidi, normalize=False):
-        self.track = track
+        # self.track = track
         master = np.zeros(track.n_samples, dtype='float32')
         for note in track.notes:
             # note.render(master)
@@ -29,7 +29,7 @@ class Stream(AbstractContextManager):
         track.reset()
 
     def render_chunked(self, track: ParsedMidi, normalize=False):
-        self.track = track
+        # self.track = track
         notes = set(track.notes)
         n = 0
         # playing_notes = set()
