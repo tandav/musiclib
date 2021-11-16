@@ -60,7 +60,7 @@ cmd = ('ffmpeg',
        # '-async', '1',
        # '-tag:v', 'hvc1', '-profile:v', 'main10',
        '-b:a', config.audio_bitrate,
-       '-b:v', config.video_bitrate,
+       # '-b:v', config.video_bitrate,
        '-deinterlace',
        # '-r', str(config.fps),
 

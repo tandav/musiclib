@@ -102,7 +102,7 @@ video_pipe = 'video.fifo'
 fps = 60
 
 # frame_width, frame_height = 2560, 1440
-frame_width, frame_height = 1920, 1080  # 1080p
+frame_width, frame_height = 1920, 1080  # 1080p, recommended bitrate 4.5M
 # frame_width, frame_height = 1280, 720  # 720p
 # frame_width, frame_height = 854, 480  # 480p
 # frame_width, frame_height = 640, 360 # 360p
@@ -111,9 +111,10 @@ frame_width, frame_height = 1920, 1080  # 1080p
 # video_bitrate = '3000k'
 # video_bitrate = '3m'
 audio_bitrate = '128k'
-video_bitrate = '12M'
+# video_bitrate = '12M'
 # video_bitrate = '24M'
-keyframe_seconds = 0.05  # drastically changes bitrate
+# keyframe_seconds = 0.05  # drastically changes bitrate
+keyframe_seconds = 0.25  # drastically changes bitrate
 gop = int(keyframe_seconds * fps)
 draw_threads = 1
 # assert draw_threads == 1
