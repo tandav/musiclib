@@ -6,6 +6,10 @@ from musictools.daw.streams.base import Stream
 
 class Speakers(Stream):
     def __enter__(self):
+        raise DeprecationWarning('''
+        Speakers requires pyaudio which is not updated to python3.10
+        pyaudio -> ffplay is in backlog and not implemented
+        ''')
         import pyaudio
         self.pa = pyaudio.PyAudio()
         self.stream = self.pa.open(format=pyaudio.paFloat32, channels=1, rate=config.sample_rate, output=True)
