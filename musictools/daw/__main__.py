@@ -79,9 +79,9 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
         # bass_midi = rhythm.to_midi(note_=chord.notes_ascending[0])
         # bass_midi.append(rhythm.to_midi(note_=chord.notes_ascending[0]))
         if chord_i % 2 == 0:
-            bass_midi.append(bass_rhythm0.to_midi(note_=chord.notes_ascending[0]))
+            bass_midi.append(bass_rhythm0.to_midi(note_=chord.notes_ascending[0] + -12))
         else:
-            bass_midi.append(bass_rhythm1.to_midi(note_=chord.notes_ascending[0]))
+            bass_midi.append(bass_rhythm1.to_midi(note_=chord.notes_ascending[0] + -12))
 
         # chord_midi = rhythm.to_midi(chord=chord)
         # chord_midi = chord.to_midi(n_bars=1)
@@ -186,10 +186,12 @@ def main() -> int:
 
     # config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 6))
     # config.note_range = note_range(SpecificNote('C', 3), SpecificNote('G', 5))  # bass !
-    config.note_range = note_range(SpecificNote('C', 3), SpecificNote('C', 6))
-
+    # config.note_range = note_range(SpecificNote('C', 3), SpecificNote('C', 6))
+    # config.note_range = note_range(SpecificNote('C', 4), SpecificNote('C', 7))
+    config.note_range = note_range(SpecificNote('C', 5), SpecificNote('C', 8))
     rhythms = make_rhythms()
     progressions = make_progressions(config.note_range)
+    config.note_range = note_range(config.note_range[0] + -24, config.note_range[-1])
 
     # n = len(notes_rhythms[0])
 
@@ -198,10 +200,10 @@ def main() -> int:
     drum_midi = ParsedMidi.hstack([mido.MidiFile(config.midi_folder + 'drumloop-with-closed-hat.mid')] * config.bars_per_screen)
 
     # m1 = mido.MidiFile(config.midi_folder + '153_0101000101010010.mid')
-    bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05)
+    bass = Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1), amplitude=0.05, transpose=-12)
     drumrack = Sampler()
     # synth = Sine(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.025)
-    synth = Sine8(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.003)
+    synth = Sine8(adsr=ADSR(attack=0.05, decay=0.1, sustain=1, release=0.1), amplitude=0.003, transpose=-24)
     # midi = ParsedMidi.from_files(['153_0101000101010010.mid'z, '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', '153_0101000101010010.mid'], vst=(
     # midi = ParsedMidi.from_files(['drumloop.mid', 'bassline.mid'], vst=(

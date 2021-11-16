@@ -225,7 +225,8 @@ class ParsedMidi:
 
     @classmethod
     def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
-        return cls(mido.MidiFile(config.midi_folder + midi_file, type=1), vst, meta)
+        track_midi = mido.MidiFile(config.midi_folder + midi_file, type=1)
+        return cls(track_midi, vst, [Path(track_midi.filename).stem], meta)
 
     @staticmethod
     def hstack(midi_objects: Iterable[mido.MidiFile]) -> mido.MidiFile:

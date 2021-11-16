@@ -22,7 +22,7 @@ from musictools.daw.streams.video.pipewriter import PipeWriter
 from musictools.util import image as imageutil
 from musictools.util.signal import float32_to_int16
 
-lock = threading.Lock()
+# lock = threading.Lock()
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
@@ -50,12 +50,13 @@ bg[:, :, -1] = 255
 
 
 class VideoRender(threading.Thread):
-    def __init__(self, track, q_video, n_frames: int):
+    def __init__(self, track, q_video, n_frames: int, render_pool):
         super().__init__()
         self.track = track
         self.n_frames = n_frames
         self.key_width = config.frame_width // len(config.note_range)
         self.q_video = q_video
+        self.render_pool = render_pool
 
 
     def run(self) -> None:
@@ -78,6 +79,7 @@ class VideoRender(threading.Thread):
 
         Y = np.arange(0, config.frame_height, frame_dy)
 
+        args = []
         for y in Y:
             done = set()
             notes_to_render = set()
@@ -87,8 +89,11 @@ class VideoRender(threading.Thread):
                 if note.px_off <= y: # maybe should be <
                     done.add(note)
             self.notes_draw_done |= done
-            self.q_video.put(self.make_frame(y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render), block=True)
+            args.append((y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render))
+            # self.q_video.put(self.make_frame(y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render), block=True)
 
+        for frame in self.render_pool.map(self.make_frame, args):
+            self.q_video.put(frame)
             # self.q_video.put(frame, block=True)
             # self.frames_written += n_frames
             # self.px_written += px_width
@@ -154,7 +159,10 @@ class VideoRender(threading.Thread):
         # self.background_draw = self.background_draw.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
 
 
-    def make_frame(self, y, track, bg, bg_bright, note_to_x, key_width, notes_to_render):
+    # def make_frame(self, y, track, bg, bg_bright, note_to_x, key_width, notes_to_render):
+
+    def make_frame(self, args):
+        y, track, bg, bg_bright, note_to_x, key_width, notes_to_render = args
     # def make_frame(args):
     #     y, n, track, bg, bg_bright, note_to_x, key_width, is_last_in_chunk = args
         # print('zed')
@@ -274,6 +282,7 @@ class VideoRender(threading.Thread):
         cv2.putText(im, f'chunk_size {config.chunk_size}', util.rel_to_abs(0, 0.4), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
         cv2.putText(im, f'GOP {config.gop}', util.rel_to_abs(0, 0.43), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
         cv2.putText(im, f'keyframe_seconds {config.keyframe_seconds}', util.rel_to_abs(0, 0.46), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+        cv2.putText(im, f'quality {config.frame_height}p', util.rel_to_abs(0, 0.49), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
         cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
@@ -293,7 +302,7 @@ class Video(Stream):
         self.track = track
         n_frames = int((self.audio_seconds_written + track.seconds) * config.fps) - self.frames_written
         print(f'{n_frames=}')
-        self.video_render = VideoRender(track, self.q_video, n_frames)
+        self.video_render = VideoRender(track, self.q_video, n_frames, self.render_pool)
         self.video_render.start()
         super().render_chunked(track, normalize)
         self.video_render.join()
@@ -333,6 +342,8 @@ class Video(Stream):
         self.audio_thread.start()
         self.video_thread.start()
 
+        self.render_pool = concurrent.futures.ThreadPoolExecutor(max_workers=config.draw_threads)
+        # self.render_pool = concurrent.futures.ProcessPoolExecutor(max_workers=config.draw_threads)
         # self.dt_hist = []
         self.t_start = time.time()
         return self
@@ -344,6 +355,7 @@ class Video(Stream):
 
         self.audio_thread.join()
         self.video_thread.join()
+        self.render_pool.shutdown()
         self.ffmpeg.wait()
 
         os.unlink(config.audio_pipe)
