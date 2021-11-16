@@ -141,12 +141,19 @@ class VideoRender(threading.Thread):
             if note.is_black:
                 self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + self.key_width, config.frame_height), color=(0, 0, 0), alpha=0.5)
             else:
-                cv2.line(self.bg, (x + self.key_width, 0), (x + self.key_width, config.frame_height), (0, 0, 0, 255), thickness=1)
+                thickness = 2 if note.abstract == 'B' else 1
+                cv2.line(self.bg, (x + self.key_width, 0), (x + self.key_width, config.frame_height), (0, 0, 0, 255), thickness=thickness)
 
         if self.extra_note_space:
             extra_note, extra_space = self.extra_note_space
             x += self.key_width
             self.bg = imageutil.overlay_rect(self.bg, pt1=(x, 0), pt2=(x + extra_space, config.frame_height), color=(0, 0, 0), alpha=0.5)
+
+
+        # vertical 16th grid
+        for i, y in enumerate(np.arange(0, config.frame_height, config.frame_height / (16 * config.bars_per_screen)).astype(int)):
+            thickness = 2 if i % 16 == 0 else 1
+            cv2.line(self.bg, (0, y), (config.frame_width, y), (0, 0, 0, 50), thickness=thickness)
 
         # alpha = 0.3
         # self.bg = cv2.addWeighted(overlay, alpha, self.bg, 1 - alpha, 0)

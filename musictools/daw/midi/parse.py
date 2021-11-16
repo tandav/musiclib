@@ -126,7 +126,7 @@ class ParsedMidi:
             note.px_off = int(config.frame_height * note.sample_off / self.n_samples)
             if note.trackname == 'bass' or note.trackname == 'drumrack':
                 note.smooth_rendering = False
-            if note.trackname == 'drumrack':
+            if note.trackname == 'drumrack' or note.trackname == 'bass':
                 note.color = util.random_rgb()
 
         # self.note_colors = {note: util.random_rgba() for note in self.notes}
