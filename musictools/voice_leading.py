@@ -6,12 +6,13 @@ from collections.abc import Iterable
 import pipe21 as P
 
 from musictools import config
-from musictools import util
 from musictools.chord import Chord
 from musictools.chord import SpecificChord
 from musictools.chord import name_to_intervals
 from musictools.note import SpecificNote
 from musictools.scale import Scale
+from musictools.util.iteration import iter_cycles
+from musictools.util.iteration import unique
 
 
 def all_triads(octaves=(4, 5, 6)):
@@ -204,14 +205,14 @@ def make_progressions(
     n=4,
 ):
     return (
-        util.iter_cycles(
+        iter_cycles(
             n,
             options=possible_chords(scale, note_range),
             curr_prev_constraint=no_bad_checks,
             first_constraint=lambda chord: chord.root == scale.root,
             unique_key=lambda chord: chord.root,
         )
-        | P.Pipe(lambda it: util.unique(it, key=transpose_uniqiue_key))
+        | P.Pipe(lambda it: unique(it, key=transpose_uniqiue_key))
         | P.KeyBy(progression_dist)
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)

@@ -1,4 +1,5 @@
 import abc
+from contextlib import AbstractContextManager
 from typing import Optional
 
 import numpy as np
@@ -7,7 +8,6 @@ from musictools import config
 from musictools.daw.midi.notesound import State
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.util.signal import normalize as normalize_
-from contextlib import AbstractContextManager
 
 
 class Stream(AbstractContextManager):

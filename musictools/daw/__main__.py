@@ -7,12 +7,11 @@ import joblib
 import mido
 
 from musictools import config
-from musictools import util
 from musictools import voice_leading
 from musictools.daw.midi.parse import ParsedMidi
 from musictools.daw.streams.pcmfile import PCM16File
 from musictools.daw.streams.speakers import Speakers
-from musictools.daw.streams.video import Video
+from musictools.daw.streams.video.stream import Video
 from musictools.daw.streams.wavfile import WavFile
 from musictools.daw.vst.adsr import ADSR
 from musictools.daw.vst.organ import Organ
@@ -22,6 +21,7 @@ from musictools.note import SpecificNote
 from musictools.note import note_range
 from musictools.rhythm import Rhythm
 from musictools.scale import Scale
+from musictools.util.text import ago
 
 memory = joblib.Memory('static/cache', verbose=0)
 
@@ -98,7 +98,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
 
     timestamp, rest = random.choice(messages).split(maxsplit=1)
     timestamp = int(timestamp)
-    ago = util.ago(datetime.datetime.now().timestamp() - timestamp)
+    ago_ = ago(datetime.datetime.now().timestamp() - timestamp)
     sha, message = rest.split(maxsplit=1)
 
     stream.render_chunked(ParsedMidi.vstack(
@@ -113,7 +113,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
                 'closed_hat': drumrack.note_mute[SpecificNote('f', 3)],
                 'bassline': bass.mute,
             },
-            'message': f'{sha} | {ago} | {message}',
+            'message': f'{sha} | {ago_} | {message}',
             # 'bassline': f'bassline {rhythm.bits}',
             'bassline': bassline_str,
             # 'rhythm_score': f'score{rhythm.score:.2f}',

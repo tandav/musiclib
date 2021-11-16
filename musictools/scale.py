@@ -4,12 +4,14 @@ from collections import defaultdict
 from collections import deque
 from typing import Union
 
-from . import chromatic
+from musictools import chromatic
 from musictools import config
-from musictools import util
-from .chord import Chord
+from musictools.chord import Chord
 from musictools.note import Note
 from musictools.piano import Piano
+from musictools.util.image import hex_to_rgb
+from musictools.util.iteration import iter_scales
+from musictools.util.text import cprint
 
 bits_2_name = {
     '101011010101': 'major',
@@ -77,8 +79,8 @@ class Scale:
         self.note_colors = {}
         self.note_scales = {}
 
-        for note, scale in zip(self.notes, util.iter_scales(self.kind, start=self.name)):
-            self.note_colors[note] = util.hex_to_rgb(config.scale_colors[scale])
+        for note, scale in zip(self.notes, iter_scales(self.kind, start=self.name)):
+            self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
             self.note_scales[note] = scale
 
         self.html_classes = ('card', self.name)
@@ -173,7 +175,7 @@ class ComparedScales:
             red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
             notes_squares={
                 chord.root: (
-                    util.hex_to_rgb(config.chord_colors[chord.name]),
+                    hex_to_rgb(config.chord_colors[chord.name]),
                     config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                     config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
                     chord.str_chord,
@@ -218,11 +220,11 @@ def print_neighbors(s: Scale):
             if n.name != 'major': continue
             print(repr(n).ljust(32), '|', end=' ')
             for note in n.chromatic_mask:
-                if note in s.chromatic_mask: print(util.cprint(note, color='BLUE'), end='')
+                if note in s.chromatic_mask: print(cprint(note, color='BLUE'), end='')
                 else: print(note, end='')
             print(' |', end=' ')
             for chord in n.chords:
-                if chord in n.shared_chords: print(util.cprint(chord, color='BLUE'), end=' ')
+                if chord in n.shared_chords: print(cprint(chord, color='BLUE'), end=' ')
                 else: print(chord, end=' ')
             print()
         print('=' * 100)

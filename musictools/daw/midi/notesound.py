@@ -5,7 +5,6 @@ from typing import Optional
 import numpy as np
 
 from musictools import config
-from musictools import util
 from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
 
@@ -26,7 +25,7 @@ class NoteSound:
         frame_on: int, frame_off: int,
         vst: VST,
         px_on: Optional[int] = None, px_off: Optional[int] = None,
-        color = None,
+        color=None,
         trackname: Optional[str] = None,
         # context_chord_root = None,
         # frac_on: float, frac_off: float,

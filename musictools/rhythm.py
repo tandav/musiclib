@@ -9,7 +9,7 @@ import mido
 import pipe21 as P
 
 from musictools import config
-from musictools import util
+from musictools.util.iteration import iter_cycles
 
 
 class Rhythm:
@@ -68,7 +68,7 @@ class Rhythm:
 
     @staticmethod
     def all_rhythms(n_notes: Optional[int] = None, bar_notes: int = 16, sort_by_score=False):
-        rhythms = util.iter_cycles(
+        rhythms = iter_cycles(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint=Rhythm.no_contiguous_ones,

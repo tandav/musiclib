@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from musictools.util import iter_cycles
+from musictools.util.iteration import iter_cycles
 
 
 @pytest.fixture

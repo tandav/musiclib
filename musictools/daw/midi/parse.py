@@ -1,15 +1,17 @@
 from collections.abc import Iterable
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional
+from typing import Union
 from typing import get_args
 
 import mido
 
-from musictools import util
 from musictools import config
 from musictools.daw.midi.notesound import NoteSound
 from musictools.daw.vst.base import VST
+from musictools.util import image as imageutil
+
 
 def print_midi(midi: mido.MidiFile):
     print('n_tracks:', len(midi.tracks))
@@ -56,7 +58,6 @@ class ParsedMidi:
             note_buffer_samples = dict()
             note_buffer_seconds = dict()
             note_buffer_frames = dict()
-            note_buffer_px = dict()
             for message in track:
                 # print(track, message)
                 if message.type == 'time_signature':
@@ -81,11 +82,11 @@ class ParsedMidi:
                         note_buffer_seconds.pop(message.note), seconds,
                         note_buffer_frames.pop(message.note), n_frames,
                         vst=vst_,
-                        color = color,
-                        trackname = trackname,
+                        color=color,
+                        trackname=trackname,
                     ))
                 elif message.type == 'marker' and meta is not None:
-                    color = meta['scale'].note_colors[message.text] # chord root
+                    color = meta['scale'].note_colors[message.text]  # chord root
                 elif message.type == 'track_name':
                     trackname = message.name
             # rounded = self.round_ticks_to_bar(ticks, ticks_per_bar)
@@ -100,12 +101,10 @@ class ParsedMidi:
         ticks = next(iter(ticks_info.values()))
         self.n_bars = ticks // ticks_per_bar
 
-
         # assert abs(seconds - mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))) < 0.1
         # print(seconds, mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute)))
         # print('n_frames', seconds, n_frames, int(config.fps * seconds))
         # print('n_samples', seconds, n_samples, int(config.sample_rate * seconds))
-
 
         # you should round also seconds, frames, samples etc
         # assert seconds == mido.tick2second(ticks, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
@@ -127,7 +126,7 @@ class ParsedMidi:
             if note.trackname == 'bass' or note.trackname == 'drumrack':
                 note.smooth_rendering = False
             if note.trackname == 'drumrack' or note.trackname == 'bass':
-                note.color = util.random_rgb()
+                note.color = imageutil.random_rgb()
 
         # self.note_colors = {note: util.random_rgba() for note in self.notes}
         self.reset(reset_notes=False)
