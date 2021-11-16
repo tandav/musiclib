@@ -95,7 +95,8 @@ video_pipe = 'video.fifo'
 # fps = 24
 # fps = 30
 # fps = 48
-fps = 42
+# fps = 50
+fps = 44
 # fps = 30
 # fps = 60
 

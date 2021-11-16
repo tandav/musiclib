@@ -158,9 +158,9 @@ class VideoRender(threading.Thread):
     # def make_frame(args):
     #     y, n, track, bg, bg_bright, note_to_x, key_width, is_last_in_chunk = args
         # print('zed')
-        # chord_i = int(y / config.chord_px)
-        # chord_start_px = int(chord_i * config.chord_px)
-
+        chord_i = int(y / config.chord_px)
+        chord_start_px = int(chord_i * config.chord_px)
+        chord = track.meta['progression'][chord_i]
 
         for note in notes_to_render:
             x0 = note_to_x[note.note]
@@ -171,7 +171,6 @@ class VideoRender(threading.Thread):
             cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
 
 
-    # chord = track.meta['progression'][chord_i]
         # background_color = track.meta['scale'].note_colors[chord.root]
 
         # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
@@ -249,11 +248,11 @@ class VideoRender(threading.Thread):
 
         im = imageutil.overlay_image(bg, bg_bright, alpha=1.0)
         im = cv2.flip(im, 0)
-        # for note in chord.notes_ascending:
-        #     cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - chord_start_px), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+        for note in chord.notes_ascending:
+            cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - chord_start_px), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
 
-        # for note in chord.root_specific:
-        #     cv2.putText(im, 'r', (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.03))), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+        for note in chord.root_specific:
+            cv2.putText(im, 'r', (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.03))), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
 
         # print('kek')
         # for _ in range(1):
@@ -276,8 +275,7 @@ class VideoRender(threading.Thread):
         cv2.putText(im, f'GOP {config.gop}', util.rel_to_abs(0, 0.43), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
         cv2.putText(im, f'keyframe_seconds {config.keyframe_seconds}', util.rel_to_abs(0, 0.46), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
-        # cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-        # cv2.putText(im, str(chord), (util.rel_to_abs_w(0.6), config.frame_height - chord_start_px), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+        cv2.putText(im, f"{chord.root.name} {chord.abstract.name} | {track.meta['scale'].note_scales[chord.root]}", (util.rel_to_abs_w(0.82), config.frame_height - (chord_start_px + util.rel_to_abs_h(0.01))), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
         if not track.meta['muted']['closed_hat']:
             for _ in range(2):
