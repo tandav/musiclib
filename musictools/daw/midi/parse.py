@@ -122,13 +122,11 @@ class ParsedMidi:
         self.meta = meta
 
         for note in self.notes:
-            if note.trackname != 'synth':
-                note.color = util.random_rgb()
-            # if color is not None else util.random_rgb()
-            # if note.vst
-            # note.color = util.random_rgb()
             note.px_on = int(config.frame_height * note.sample_on / self.n_samples)
             note.px_off = int(config.frame_height * note.sample_off / self.n_samples)
+            if note.trackname == 'synth' or note.trackname == 'bass':
+                continue
+            note.color = util.random_rgb()
 
         # self.note_colors = {note: util.random_rgba() for note in self.notes}
         self.reset(reset_notes=False)
