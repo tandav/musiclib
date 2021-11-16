@@ -38,15 +38,15 @@ class ParsedMidi:
         :param meta: extra meta information to store
         :return:
         """
-        if tracknames is None:
-            tracknames = [f'track_{i}' for i in range(len(vst))]
-
         ticks_info = dict()
         notes = []
         numerator = None
 
         if len(midi.tracks) == 1:
             vst = [vst]
+
+        if tracknames is None:
+            tracknames = [f'track_{i}' for i in range(len(vst))]
 
         color = None
         trackname = None
