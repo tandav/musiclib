@@ -50,8 +50,8 @@ class Stream(AbstractContextManager):
                     if note.state == State.DONE:
                         track.done_notes.add(note)
 
-                    if note.px_rendered < note.n_px:
-                        track.drawn_not_complete_notes.add(note)
+                    # if note.px_rendered < note.n_px:
+                    #     track.drawn_not_complete_notes.add(note)
 
             track.playing_notes -= track.done_notes | track.releasing_notes
             track.releasing_notes -= track.done_notes

@@ -69,15 +69,25 @@ class VideoRender(threading.Thread):
         self.make_background(self.track)
         frame_dy = config.frame_height / self.n_frames
 
-        self.playing_notes = set()
-        self.releasing_notes = set()
-        self.done_notes = set()
-        self.drawn_not_complete_notes = set()
+        # self.playing_notes = set()
+        # self.releasing_notes = set()
+        # self.done_notes = set()
+        # self.drawn_not_complete_notes = set()
+
+        self.notes_draw_done = set()
 
         Y = np.arange(0, config.frame_height, frame_dy)
 
         for y in Y:
-            self.q_video.put(self.make_frame(y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width), block=True)
+            done = set()
+            notes_to_render = set()
+            for note in self.track.notes - self.notes_draw_done:
+                if note.px_on < y:
+                    notes_to_render.add(note)
+                if note.px_off <= y: # maybe should be <
+                    done.add(note)
+            self.notes_draw_done |= done
+            self.q_video.put(self.make_frame(y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render), block=True)
 
             # self.q_video.put(frame, block=True)
             # self.frames_written += n_frames
@@ -143,15 +153,25 @@ class VideoRender(threading.Thread):
         # self.background_draw.rectangle((0, 0, config.frame_width, config.frame_height), fill=(200, 200, 200))
         # self.background_draw = self.background_draw.draw_rect((200, 200, 200), 0, 0, config.frame_width, config.frame_height, fill=True)
 
-    def make_frame(self, y, track, bg, bg_bright, note_to_x, key_width):
+
+    def make_frame(self, y, track, bg, bg_bright, note_to_x, key_width, notes_to_render):
     # def make_frame(args):
     #     y, n, track, bg, bg_bright, note_to_x, key_width, is_last_in_chunk = args
         # print('zed')
+        # chord_i = int(y / config.chord_px)
+        # chord_start_px = int(chord_i * config.chord_px)
 
-        chord_i = int(y / config.chord_px)
-        chord_start_px = int(chord_i * config.chord_px)
 
-        # chord = track.meta['progression'][chord_i]
+        for note in notes_to_render:
+            x0 = note_to_x[note.note]
+            x1 = x0 + key_width
+            y0 = note.px_on
+            y1 = min(note.px_off - 1, int(y))
+            cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=note.color, thickness=cv2.FILLED)
+            cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
+
+
+    # chord = track.meta['progression'][chord_i]
         # background_color = track.meta['scale'].note_colors[chord.root]
 
         # self.background_draw.rectangle((chord_start_px, 0, x + frame_dx, config.frame_height), fill=background_color)
@@ -164,60 +184,60 @@ class VideoRender(threading.Thread):
 
 
         # print(f'{len(track.drawn_not_complete_notes)=}')
-        w_space, w_bar = 2, 2
+        # w_space, w_bar = 2, 2
 
-        for note_sound in self.drawn_not_complete_notes:
-            #y0 = int(note_sound.n_px - note_sound.px_rendered)
-            y0 = int(note_sound.px_on)
-            y1 = int(note_sound.px_off - 1)
-
-            # print(f'completing {note_sound.px_on=} {note_sound.px_off=} {note_sound.n_px=} {note_sound.px_rendered=} {y0=} {y1=}')
-
-            # x0 = note_to_x[note_sound.note]
-            # x1 = x0 + key_width
-
-            x0 = note_to_x[note_sound.note]
-            x1 = x0 + key_width
-            bg_bright = imageutil.overlay_rect(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], alpha=0.5)
-            # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], thickness=cv2.FILLED)
-            cv2.line(bg_bright, (x0 - 1, y0), (x0 + 1, y0), (0, 255, 0, 255), thickness=1)
-            note_sound.px_rendered = int(note_sound.px_off - note_sound.px_on)
-
-        self.drawn_not_complete_notes.clear()
-        # with lock:
-        #     track.drawn_not_complete_notes.clear() # if many threads: can lead to  RuntimeError: Set changed size during iteration
-
-        note_count = Counter()
-        for note_sound in self.playing_notes:
-            y0 = int(note_sound.px_on)
-            if y < y0:
-                continue
-            y1 = int(min(note_sound.px_off - 1, y))
-            # print(y, y1)
-            note_count[note_sound.note]  += 1
-            w_space = 2
-            w_bar = 2
-            w = (w_bar + w_space) * note_count[note_sound.note]
-
-            # x0 = note_to_x[note_sound.note] - w
-            # x1 = x0 + w_bar
-            x0 = note_to_x[note_sound.note]
-            x1 = x0 + key_width
-
-
-            # y0 = config.frame_height * note_sound.sample_on // track.n_samples
-            # y0 = note_sound.px_on
-
-            # if note_sound.note == SpecificNote('f', 3):
-            #     print(note_sound.px_on, note_sound.px_off)
-            # print(x0, y0, y0, y1, track.note_colors[note_sound])
-
-            # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, min(y, note_sound.px_off)), color=config.WHITE, thickness=cv2.FILLED)
-            # cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
-            bg_bright = imageutil.overlay_rect(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], alpha=0.5)
-            # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], thickness=cv2.FILLED)
-            cv2.line(bg_bright, (x0 - 1, y0), (x0 + 1, y0), (0, 255, 0, 255), thickness=1)
-            note_sound.px_rendered += y1 - y0
+        # for note_sound in self.drawn_not_complete_notes:
+        #     #y0 = int(note_sound.n_px - note_sound.px_rendered)
+        #     y0 = int(note_sound.px_on)
+        #     y1 = int(note_sound.px_off - 1)
+        #
+        #     # print(f'completing {note_sound.px_on=} {note_sound.px_off=} {note_sound.n_px=} {note_sound.px_rendered=} {y0=} {y1=}')
+        #
+        #     # x0 = note_to_x[note_sound.note]
+        #     # x1 = x0 + key_width
+        #
+        #     x0 = note_to_x[note_sound.note]
+        #     x1 = x0 + key_width
+        #     bg_bright = imageutil.overlay_rect(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=note_sound.color, alpha=0.5)
+        #     # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], thickness=cv2.FILLED)
+        #     cv2.line(bg_bright, (x0 - 1, y0), (x0 + 1, y0), (0, 255, 0, 255), thickness=1)
+        #     note_sound.px_rendered = int(note_sound.px_off - note_sound.px_on)
+        #
+        # self.drawn_not_complete_notes.clear()
+        # # with lock:
+        # #     track.drawn_not_complete_notes.clear() # if many threads: can lead to  RuntimeError: Set changed size during iteration
+        #
+        # note_count = Counter()
+        # for note_sound in self.playing_notes:
+        #     y0 = int(note_sound.px_on)
+        #     if y < y0:
+        #         continue
+        #     y1 = int(min(note_sound.px_off - 1, y))
+        #     # print(y, y1)
+        #     note_count[note_sound.note]  += 1
+        #     w_space = 2
+        #     w_bar = 2
+        #     w = (w_bar + w_space) * note_count[note_sound.note]
+        #
+        #     # x0 = note_to_x[note_sound.note] - w
+        #     # x1 = x0 + w_bar
+        #     x0 = note_to_x[note_sound.note]
+        #     x1 = x0 + key_width
+        #
+        #
+        #     # y0 = config.frame_height * note_sound.sample_on // track.n_samples
+        #     # y0 = note_sound.px_on
+        #
+        #     # if note_sound.note == SpecificNote('f', 3):
+        #     #     print(note_sound.px_on, note_sound.px_off)
+        #     # print(x0, y0, y0, y1, track.note_colors[note_sound])
+        #
+        #     # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, min(y, note_sound.px_off)), color=config.WHITE, thickness=cv2.FILLED)
+        #     # cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
+        #     bg_bright = imageutil.overlay_rect(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=note_sound.color, alpha=0.5)
+        #     # cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=track.note_colors[note_sound], thickness=cv2.FILLED)
+        #     cv2.line(bg_bright, (x0 - 1, y0), (x0 + 1, y0), (0, 255, 0, 255), thickness=1)
+        #     note_sound.px_rendered += y1 - y0
 
         # for note in chord.notes_ascending:
         #     cv2.rectangle(bg_bright, pt1=(note_to_x[note], chord_start_px), pt2=(note_to_x[note] + key_width, y), color=background_color, thickness=cv2.FILLED)

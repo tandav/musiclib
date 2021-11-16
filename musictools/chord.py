@@ -209,6 +209,8 @@ class SpecificChord:
         track = mido.MidiTrack()
         track.append(mido.MetaMessage(type='track_name', name='test_name'))
         track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+        track.append(mido.MetaMessage(type='marker', text=self.root.name))
 
         stop_time = int(n_bars * mid.ticks_per_beat * 4)
 
@@ -218,6 +220,7 @@ class SpecificChord:
             track.append(mido.Message('note_off', note=note.absolute_i, velocity=100, time=stop_time if i == 0 else 0))
 
         mid.tracks.append(track)
+        mid.meta = {'chord': self}
         if path is None:
             return mid
         mid.save(path)

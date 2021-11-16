@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 from typing import get_args
 
 import mido
@@ -10,7 +10,6 @@ from musictools import util
 from musictools import config
 from musictools.daw.midi.notesound import NoteSound
 from musictools.daw.vst.base import VST
-
 
 def print_midi(midi: mido.MidiFile):
     print('n_tracks:', len(midi.tracks))
@@ -26,13 +25,21 @@ PathLike = Union[str, Path]
 
 
 class ParsedMidi:
-    def __init__(self, midi: mido.MidiFile, vst: Union[VST, Sequence[VST]], meta: Union[dict, None] = None):
+    def __init__(
+        self,
+        midi: mido.MidiFile,
+        vst: Union[VST, Sequence[VST]],
+        tracknames: Optional[Sequence[str]] = None,
+        meta: Optional[dict] = None,
+    ):
         """
         :param midi: Midi with one or many channels
         :param vst:
         :param meta: extra meta information to store
         :return:
         """
+        if tracknames is None:
+            tracknames = [f'track_{i}' for i in range(len(vst))]
 
         ticks_info = dict()
         notes = []
@@ -41,8 +48,11 @@ class ParsedMidi:
         if len(midi.tracks) == 1:
             vst = [vst]
 
-        for i, (track, vst_) in enumerate(zip(midi.tracks, vst)):
-            ticks, seconds, n_samples, n_frames, n_pixels = 0, 0., 0, 0, 0
+        color = None
+        trackname = None
+
+        for i, (track, vst_, name) in enumerate(zip(midi.tracks, vst, tracknames)):
+            ticks, seconds, n_samples, n_frames = 0, 0., 0, 0
             note_buffer_samples = dict()
             note_buffer_seconds = dict()
             note_buffer_frames = dict()
@@ -60,21 +70,24 @@ class ParsedMidi:
                 seconds += d_seconds
                 n_samples += int(config.sample_rate * d_seconds)
                 n_frames += int(config.fps * d_seconds)
-                n_pixels += config.pxps * d_seconds
                 if message.type == 'note_on':
                     note_buffer_samples[message.note] = n_samples
                     note_buffer_seconds[message.note] = seconds
                     note_buffer_frames[message.note] = n_frames
-                    note_buffer_px[message.note] = n_pixels
                 elif message.type == 'note_off':
                     notes.append(NoteSound(
                         message.note,
                         note_buffer_samples.pop(message.note), n_samples,
                         note_buffer_seconds.pop(message.note), seconds,
                         note_buffer_frames.pop(message.note), n_frames,
-                        note_buffer_px.pop(message.note), n_pixels,
                         vst=vst_,
+                        color = color,
+                        trackname = trackname,
                     ))
+                elif message.type == 'marker' and meta is not None:
+                    color = meta['scale'].note_colors[message.text] # chord root
+                elif message.type == 'track_name':
+                    trackname = message.name
             # rounded = self.round_ticks_to_bar(ticks, ticks_per_bar)
             # if rounded < ticks:
             #     raise OverflowError('midi ticks are bigger than 1 bar')
@@ -82,7 +95,6 @@ class ParsedMidi:
             # print('------->', ticks, rounded)
             # ticks_info[i] = rounded
             ticks_info[i] = self.round_ticks_to_bar(ticks, ticks_per_bar)
-
         if not len(set(ticks_info.values())) == 1:
             raise ValueError(f'number of ticks rounded to bar should be equal for all midi tracks/channels {ticks_info}')
         ticks = next(iter(ticks_info.values()))
@@ -105,10 +117,20 @@ class ParsedMidi:
         # print(self.n_frames)
         self.n_samples = int(config.sample_rate * self.seconds)
         self.numerator = numerator
-        self.notes = notes
+        # self.notes = notes
+        self.notes = set(notes)
         self.meta = meta
 
-        self.note_colors = {note: util.random_rgba() for note in self.notes}
+        for note in self.notes:
+            if note.trackname != 'synth':
+                note.color = util.random_rgb()
+            # if color is not None else util.random_rgb()
+            # if note.vst
+            # note.color = util.random_rgb()
+            note.px_on = int(config.frame_height * note.sample_on / self.n_samples)
+            note.px_off = int(config.frame_height * note.sample_off / self.n_samples)
+
+        # self.note_colors = {note: util.random_rgba() for note in self.notes}
         self.reset(reset_notes=False)
         # self.playing_notes = set()
         # self.releasing_notes = set()
@@ -144,17 +166,32 @@ class ParsedMidi:
         return cls.vstack([mido.MidiFile(config.midi_folder + f, type=0) for f in midi_files], vst, meta)
 
     @classmethod
-    def vstack(cls, midi_objects: Sequence[mido.MidiFile], vst: Sequence[VST], meta: Union[dict, None] = None):
+    def vstack(
+        cls,
+        midi_objects: Sequence[mido.MidiFile],
+        vst: Sequence[VST],
+        tracknames: Optional[Sequence[str]] = None,
+        meta: Union[dict, None] = None,
+    ):
         """
         convert many midi objects into one with multiple channels (vertical stacking)
         """
         assert len(midi_objects) == len(vst)
+
+        if tracknames is not None:
+            assert len(tracknames) == len(midi_objects)
+        else:
+            tracknames = [
+                Path(track_midi.filename).stem if track_midi.filename is not None else f'track_{i}'
+                for i, track_midi in enumerate(midi_objects)
+            ]
+
         midi = mido.MidiFile(type=1)
 
         numerators, denominators = set(), set()
         ticks_per_beat_s = dict()
 
-        for i, track_midi in enumerate(midi_objects):
+        for i, (track_midi, trackname) in enumerate(zip(midi_objects, tracknames)):
             # print(f)
             track = mido.MidiTrack()
             time_signature_parsed = False
@@ -163,7 +200,7 @@ class ParsedMidi:
             for message in track_midi.tracks[0]:
                 # print(message)
                 if message.type == 'track_name':
-                    message.name = Path(track_midi.filename).stem if track_midi.filename is not None else f'track_{i}'
+                    message.name = trackname
                 elif message.type == 'time_signature':
                     numerators.add(message.numerator)
                     denominators.add(message.denominator)
@@ -186,8 +223,7 @@ class ParsedMidi:
 
         if not (len(numerators) == len(denominators) == 1):
             raise NotImplementedError(f'cant merge midi files with different or without time_signatures (numerator {numerators} and denominator {denominators})')
-
-        return cls(midi, vst, meta)
+        return cls(midi, vst, tracknames, meta)
 
     @classmethod
     def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
@@ -232,7 +268,7 @@ class ParsedMidi:
                     numerator = message.numerator
                     ticks_per_bar = numerator * midi.ticks_per_beat
 
-                if message.type == 'note_on' or message.type == 'note_off':
+                if message.type == 'note_on' or message.type == 'note_off' or message.type == 'marker':
                     # m = message.copy()
                     # m.time =
                     track.append(message)

@@ -1,9 +1,11 @@
 from enum import Enum
 from enum import auto
+from typing import Optional
 
 import numpy as np
 
 from musictools import config
+from musictools import util
 from musictools.daw.vst.base import VST
 from musictools.note import SpecificNote
 
@@ -22,8 +24,12 @@ class NoteSound:
         sample_on: int, sample_off: int,
         second_on: float, second_off: float,
         frame_on: int, frame_off: int,
-        px_on: int, px_off: int,
         vst: VST,
+        px_on: Optional[int] = None, px_off: Optional[int] = None,
+        color = None,
+        trackname: Optional[str] = None,
+        # context_chord_root = None,
+        # frac_on: float, frac_off: float,
     ):
         """
         TODO:
@@ -37,9 +43,15 @@ class NoteSound:
         self.note = SpecificNote.from_absolute_i(absolute_i)
         self.sample_on, self.sample_off = sample_on, sample_off
         self.second_on, self.second_off = second_on, second_off
-        self.frame_on, self.frame_off = frame_on, frame_off
+
         self.px_on, self.px_off = px_on, px_off
-        self.n_px = int(px_off - px_on)
+
+        self.color = color
+        self.trackname = trackname
+        # self.frac_on = frac_on
+        # self.frac_off = frac_off
+
+        self.frame_on, self.frame_off = frame_on, frame_off
 
         self.ns = sample_off - sample_on
 

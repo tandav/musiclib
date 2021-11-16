@@ -104,6 +104,7 @@ def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack,
     stream.render_chunked(ParsedMidi.vstack(
         [drum_midi, bass_midi, chord_midi],
         [drumrack, bass, synth],
+        ['drumrack', 'bass', 'synth'],
         meta={
             'muted': {
                 'kick': drumrack.note_mute[SpecificNote('C', 3)],
