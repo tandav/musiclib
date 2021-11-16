@@ -272,10 +272,10 @@ class VideoRender(threading.Thread):
         im = imageutil.overlay_image(bg, bg_bright, alpha=1.0)
         im = cv2.flip(im, 0)
         for note in chord.notes_ascending:
-            cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - chord_start_px), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, repr(note), (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.007))), font, fontScale=0.75, color=config.BLACK, thickness=1, lineType=cv2.LINE_AA)
 
         for note in chord.root_specific:
-            cv2.putText(im, 'r', (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.03))), font, fontScale=1, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(im, 'r', (note_to_x[note], config.frame_height - (chord_start_px + util.rel_to_abs_h(0.03))), font, fontScale=0.75, color=config.BLACK, thickness=1, lineType=cv2.LINE_AA)
 
         # print('kek')
         # for _ in range(1):
