@@ -4,6 +4,7 @@ numpy
 mido
 pipe21
 force_absolute_imports
+no_init
 isort
 hypothesis
 flake8
