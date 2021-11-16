@@ -124,9 +124,10 @@ class ParsedMidi:
         for note in self.notes:
             note.px_on = int(config.frame_height * note.sample_on / self.n_samples)
             note.px_off = int(config.frame_height * note.sample_off / self.n_samples)
-            if note.trackname == 'synth' or note.trackname == 'bass':
-                continue
-            note.color = util.random_rgb()
+            if note.trackname == 'bass' or note.trackname == 'drumrack':
+                note.smooth_rendering = False
+            if note.trackname == 'drumrack':
+                note.color = util.random_rgb()
 
         # self.note_colors = {note: util.random_rgba() for note in self.notes}
         self.reset(reset_notes=False)

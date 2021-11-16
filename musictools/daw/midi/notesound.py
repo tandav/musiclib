@@ -48,6 +48,7 @@ class NoteSound:
 
         self.color = color
         self.trackname = trackname
+        self.smooth_rendering = True
         # self.frac_on = frac_on
         # self.frac_off = frac_off
 

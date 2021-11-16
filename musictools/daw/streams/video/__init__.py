@@ -84,10 +84,16 @@ class VideoRender(threading.Thread):
             done = set()
             notes_to_render = set()
             for note in self.track.notes - self.notes_draw_done:
+                # if note.trackname == 'bass':
+                    # print('------>', note.trackname, note.sample_on)
                 if note.px_on < y:
                     notes_to_render.add(note)
+                    if not note.smooth_rendering:
+                        done.add(note)
                 if note.px_off <= y: # maybe should be <
                     done.add(note)
+            # print([(note.trackname, note.px_on) for note in done])
+            # print([(note.trackname, note.px_on) for note in notes_to_render])
             self.notes_draw_done |= done
             args.append((y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render))
             # self.q_video.put(self.make_frame(y, self.track, self.bg, self.bg_bright, self.note_to_x, self.key_width, notes_to_render), block=True)
@@ -174,7 +180,9 @@ class VideoRender(threading.Thread):
             x0 = note_to_x[note.note]
             x1 = x0 + key_width
             y0 = note.px_on
-            y1 = min(note.px_off - 1, int(y))
+            y1 = note.px_off - 1
+            if note.smooth_rendering:
+                y1 = min(y1, int(y))
             cv2.rectangle(bg_bright, pt1=(x0, y0), pt2=(x1, y1), color=note.color, thickness=cv2.FILLED)
             cv2.line(bg_bright, (x0, y0), (x1, y0), config.BLACK, thickness=1)
 
