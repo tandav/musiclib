@@ -45,8 +45,11 @@ daw:
 file:
 	$(python) -m musictools.daw video_file 4
 
-run_streaming:
-	docker run --pull=always --rm -it tandav/musictools-stream
+docker_stream:
+	docker run --pull=always --rm -it -v $PWD:/app tandav/musictools-stream
+
+upload_creds_makefile:
+	scp credentials.py Makefile cn2:~/musictools
 
 messages:
 	git log --pretty='%ad %h %s' --date=unix > static/messages.txt

@@ -133,7 +133,7 @@ assert video_queue_item_size < fps
 
 # OUTPUT_VIDEO = '/tmp/output.flv'
 # OUTPUT_VIDEO = '/dev/null'
-OUTPUT_VIDEO = 'rtmp://a.rtmp.youtube.com/live2/u0x7-vxkq-6ym4-s4qk-0acg'
+OUTPUT_VIDEO = None
 
 log_path = 'logs/log.jsonl'
 

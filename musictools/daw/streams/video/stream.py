@@ -1,7 +1,6 @@
 import concurrent.futures
 import os
 import queue
-import subprocess
 import time
 from pathlib import Path
 
@@ -54,7 +53,7 @@ class Video(Stream):
         recreate(config.audio_pipe)
         recreate(config.video_pipe)
 
-        self.ffmpeg = subprocess.Popen(ffmpeg.cmd)
+        self.ffmpeg = ffmpeg.make_process(config.OUTPUT_VIDEO)
 
         self.audio_seconds_written = 0.
         self.video_seconds_written = 0.
