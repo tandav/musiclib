@@ -9,7 +9,7 @@ from musictools import config
 from musictools.chord import Chord
 from musictools.note import Note
 from musictools.piano import Piano
-from musictools.util.image import hex_to_rgb
+from musictools.util.color import hex_to_rgb
 from musictools.util.iteration import iter_scales
 from musictools.util.text import cprint
 

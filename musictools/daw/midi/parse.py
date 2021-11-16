@@ -10,7 +10,7 @@ import mido
 from musictools import config
 from musictools.daw.midi.notesound import NoteSound
 from musictools.daw.vst.base import VST
-from musictools.util import image as imageutil
+from musictools.util import color as colorutil
 
 
 def print_midi(midi: mido.MidiFile):
@@ -126,7 +126,7 @@ class ParsedMidi:
             if note.trackname == 'bass' or note.trackname == 'drumrack':
                 note.smooth_rendering = False
             if note.trackname == 'drumrack' or note.trackname == 'bass':
-                note.color = imageutil.random_rgb()
+                note.color = colorutil.random_rgb()
 
         # self.note_colors = {note: util.random_rgba() for note in self.notes}
         self.reset(reset_notes=False)
