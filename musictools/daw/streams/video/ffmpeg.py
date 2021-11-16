@@ -40,7 +40,7 @@ cmd = ('ffmpeg',
        # '-c:v', 'libx264rgb',
        '-pix_fmt', 'yuv420p',
        # '-pix_fmt', 'rgba',
-       # '-tune', 'animation',
+       '-tune', 'animation',
 
        # ultrafast or zerolatency kinda makes audio and video out of sync when save to file (but stream to yt is kinda OK)
        # '-preset', 'ultrafast',

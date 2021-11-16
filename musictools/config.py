@@ -113,8 +113,8 @@ frame_width, frame_height = 1920, 1080  # 1080p
 audio_bitrate = '128k'
 video_bitrate = '12M'
 # video_bitrate = '24M'
-keyframe_seconds = 3
-gop = keyframe_seconds * fps
+keyframe_seconds = 0.05  # drastically changes bitrate
+gop = int(keyframe_seconds * fps)
 draw_threads = 1
 # assert draw_threads == 1
 
