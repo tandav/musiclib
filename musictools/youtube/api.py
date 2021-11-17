@@ -1,19 +1,25 @@
-# from PIL import Image
+import io
 
+import numpy as np
 import requests
+from PIL import Image
 
 
-def get_liveChatId(videoId, api_key, url='https://www.googleapis.com/youtube/v3/videos'):
+def get_liveChatId(video_id, api_key, url='https://www.googleapis.com/youtube/v3/videos'):
     payload = dict(
         part='liveStreamingDetails',
         key=api_key,
-        id=videoId,
+        id=video_id,
     )
     return (
         requests
         .get(url, params=payload)
         .json()['items'][0]['liveStreamingDetails']['activeLiveChatId']
     )
+
+
+def get_profileImage(url):
+    return np.array(Image.open(io.BytesIO(requests.get(url).content)).convert('RGBA'))
 
 
 def get_chat_messages(liveChatId, api_key, url='https://www.googleapis.com/youtube/v3/liveChat/messages'):
@@ -30,12 +36,9 @@ def get_chat_messages(liveChatId, api_key, url='https://www.googleapis.com/youtu
             'id': message['id'],
             'text': message['snippet']['textMessageDetails']['messageText'],
             'displayName': message['authorDetails']['displayName'],
-            'profileImageUrl': message['authorDetails']['profileImageUrl'],
+            # 'profileImageUrl': message['authorDetails']['profileImageUrl'],
+            'profileImage': get_profileImage(message['authorDetails']['profileImageUrl']),
         }
         for message in r['items']
     ]
     return messages, r['pollingIntervalMillis']
-
-
-# def get_profileImage(url):
-#     return Image.open(io.BytesIO(requests.get(url).content))

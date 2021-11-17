@@ -115,6 +115,8 @@ audio_bitrate = '128k'
 # video_bitrate = '24M'
 # keyframe_seconds = 0.05  # drastically changes bitrate
 keyframe_seconds = 0.25  # drastically changes bitrate
+# keyframe_seconds = 0.3  # drastically changes bitrate
+
 gop = int(keyframe_seconds * fps)
 draw_threads = 1
 # assert draw_threads == 1

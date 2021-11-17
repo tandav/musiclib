@@ -8,6 +8,7 @@ FROM python:3.9
 #RUN pip install numpy Pillow mido pipe21 && apt update && apt install --yes ffmpeg
 RUN pip install numpy opencv-python mido joblib pipe21 && apt update && apt install --yes ffmpeg vim
 RUN pip install requests
+RUN pip install Pillow
 
 RUN mkdir -p /app/musictools && mkdir -p /app/static && touch /app/credentials.py
 WORKDIR /app
