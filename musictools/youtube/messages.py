@@ -20,6 +20,7 @@ class YoutubeMessages(Thread):
         self.api = api
         self.api_key = credentials.api_key
         self.video_id = credentials.video_id
+        self.liveChatId = self.api.get_liveChatId(self.video_id, self.api_key)
         print('YoutubeMessages')
         config.messages = deque(maxlen=5)
         self.stream_finished = Event()
@@ -28,15 +29,12 @@ class YoutubeMessages(Thread):
 
     def run(self) -> None:
         while not self.stream_finished.is_set():
-            liveChatId = self.api.get_liveChatId(self.video_id, self.api_key)
-            messages, pollingIntervalMillis = self.api.get_chat_messages(liveChatId, self.api_key)
-
+            messages, pollingIntervalMillis = self.api.get_chat_messages(self.liveChatId, self.api_key)
             todo = []
             for message in messages:
                 if message['id'] not in self.seen:
                     todo.append(message)
                     self.seen.add(message['id'])
-            # print(messages, pollingIntervalMillis)
             print(todo)
             config.messages.extend(todo)
             # time.sleep(pollingIntervalMillis / 1e3)
