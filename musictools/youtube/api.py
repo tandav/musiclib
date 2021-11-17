@@ -1,3 +1,4 @@
+import functools
 import io
 
 import numpy as np
@@ -18,6 +19,7 @@ def get_liveChatId(video_id, api_key, url='https://www.googleapis.com/youtube/v3
     )
 
 
+@functools.cache
 def get_profileImage(url):
     return np.array(Image.open(io.BytesIO(requests.get(url).content)).convert('RGBA'))
 
