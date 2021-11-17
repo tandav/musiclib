@@ -139,3 +139,4 @@ log_path = 'logs/log.jsonl'
 
 
 note_range = None
+messages = []

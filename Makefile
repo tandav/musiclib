@@ -46,7 +46,7 @@ file:
 	$(python) -m musictools.daw video_file 4
 
 docker_stream:
-	docker run --pull=always --rm -it -v $PWD:/app tandav/musictools-stream
+	docker run --pull=always --rm -it -v $$PWD/credentials.py:/app/credentials.py tandav/musictools-stream
 
 upload_creds_makefile:
 	scp credentials.py Makefile cn2:~/musictools

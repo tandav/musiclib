@@ -6,7 +6,6 @@ import sys
 import joblib
 import mido
 
-import credentials
 from musictools import config
 from musictools import voice_leading
 from musictools.daw.midi.parse import ParsedMidi
@@ -169,6 +168,7 @@ def main() -> int:
             is_test = True
             n_loops = int(sys.argv[2]) if len(sys.argv) == 3 else 4
         elif sys.argv[1] == 'video':
+            import credentials
             config.OUTPUT_VIDEO = credentials.stream_url
             output = Video
         else:

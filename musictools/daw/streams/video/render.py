@@ -267,4 +267,11 @@ class VideoRender(threading.Thread):
         cv2.putText(im, 'tandav.me', imageutil.rel_to_abs(0.8, 0.07), font, fontScale=2, color=config.BLACK, thickness=2, lineType=cv2.LINE_AA)
         cv2.putText(im, 'tandav.me', imageutil.rel_to_abs(0.802, 0.072), font, fontScale=2, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
 
+        h = 0.6
+        for message in list(config.messages):
+            cv2.putText(im, message['displayName'], imageutil.rel_to_abs(0, h), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+            h += 0.03
+            cv2.putText(im, message['text'], imageutil.rel_to_abs(0, h), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
+            h += 0.03
+
         return im.tobytes()
