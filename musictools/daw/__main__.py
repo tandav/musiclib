@@ -2,6 +2,7 @@ import datetime
 import itertools
 import random
 import sys
+from collections import deque
 
 import joblib
 import mido
@@ -44,7 +45,10 @@ def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
 
 
 def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages):
-    progression, dist, scale = random.choice(progressions)
+    if config.progressions_queue:
+        progression, dist, scale = config.progressions_queue.popleft()
+    else:
+        progression, dist, scale = random.choice(progressions)
     # rhythm = random.choice(rhythms)
 
     bass_midi = []
@@ -193,7 +197,8 @@ def main() -> int:
     # config.note_range = note_range(SpecificNote('C', 4), SpecificNote('C', 7))
     config.note_range = note_range(SpecificNote('C', 5), SpecificNote('C', 8))
     rhythms = make_rhythms()
-    progressions = make_progressions(config.note_range)
+    config.progressions = make_progressions(config.note_range)
+    config.progressions_queue = deque()
     config.note_range = note_range(config.note_range[0] + -24, config.note_range[-1])
 
     # n = len(notes_rhythms[0])
@@ -233,10 +238,10 @@ def main() -> int:
 
         if is_test:
             for _ in range(n_loops):
-                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages)
+                render_loop(stream, rhythms, config.progressions, bass, synth, drum_midi, drumrack, messages)
         else:
             while True:
-                render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages)
+                render_loop(stream, rhythms, config.progressions, bass, synth, drum_midi, drumrack, messages)
 
         # for _ in range(1):
         #     i = random.randrange(0, n)

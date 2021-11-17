@@ -142,3 +142,6 @@ log_path = 'logs/log.jsonl'
 
 note_range = None
 messages = []
+
+progressions = None
+progressions_queue = None
