@@ -272,6 +272,6 @@ class VideoRender(threading.Thread):
             cv2.putText(im, message['displayName'], imageutil.rel_to_abs(0, h), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
             h += 0.03
             cv2.putText(im, message['text'], imageutil.rel_to_abs(0, h), font, fontScale=1, color=config.WHITE, thickness=2, lineType=cv2.LINE_AA)
-            h += 0.03
+            h += 0.04
 
         return im.tobytes()
