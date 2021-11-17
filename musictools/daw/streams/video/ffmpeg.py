@@ -7,7 +7,7 @@ def make_process(output):
     cmd = (
         'ffmpeg',
         # '-loglevel', 'trace',
-        # '-threads', '2',
+        '-threads', '6',
         # '-threads', '7',
         # '-y', '-r', '60', # overwrite, 60fps
         # '-re',

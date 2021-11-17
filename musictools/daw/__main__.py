@@ -27,20 +27,22 @@ from musictools.util.text import ago
 memory = joblib.Memory('static/cache', verbose=0)
 
 
-@memory.cache
+# @memory.cache
 def make_rhythms():
     _ = (Rhythm.all_rhythms(n_notes) for n_notes in range(5, 8 + 1))
     _ = itertools.chain.from_iterable(_)
     return tuple(_)
 
 
-@memory.cache
+# @memory.cache
 def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
     progressions = []
     scales = [Scale(note, name) for note, name in scale.note_scales.items()]
     for scale in scales:
         for dist, p in voice_leading.make_progressions(scale, note_range_):
-            progressions.append((p, dist, scale))
+            P = p, dist, scale
+            progressions.append(P)
+            config.progressions_search_cache[''.join(c.root.name for c in p)].append(P)
     return progressions
 
 
@@ -197,7 +199,7 @@ def main() -> int:
     # config.note_range = note_range(SpecificNote('C', 4), SpecificNote('C', 7))
     config.note_range = note_range(SpecificNote('C', 5), SpecificNote('C', 8))
     rhythms = make_rhythms()
-    config.progressions = make_progressions(config.note_range)
+    config.progressions = make_progressions(config.note_range, scale=Scale('C', 'major'))
     config.progressions_queue = deque()
     config.note_range = note_range(config.note_range[0] + -24, config.note_range[-1])
 

@@ -29,10 +29,11 @@ def parse_chords(message_text: str):
 
 @functools.cache
 def find_progression(chords: str):
-    options = [
-        p for p in config.progressions
-        if all(a == b.root for a, b in zip(chords, p[0]))
-    ]
+    options = config.progressions_search_cache[chords]
+    # options = [
+    #     p for p in config.progressions
+    #     if all(a == b.root for a, b in zip(chords, p[0]))
+    # ]
     if len(options) == 0:
         return
     return random.choice(options)
@@ -66,8 +67,9 @@ class YoutubeMessages(Thread):
                         else:
                             message['text'] += ' chords not found!'
                     todo.append(message)
+                    print(message['displayName'], message['text'])
                     self.seen.add(message['id'])
-            print(todo)
-            config.messages.extend(todo)
+            if todo:
+                config.messages.extend(todo)
             # time.sleep(pollingIntervalMillis / 1e3)
             time.sleep(API_TIME_LAG)

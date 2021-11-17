@@ -151,9 +151,10 @@ class Video(Stream):
         seconds = len_data / config.sample_rate
         b = float32_to_int16(data).tobytes()
 
-        real_seconds = time.time() - self.t_start
-        if real_seconds < self.audio_seconds_written:
-            time.sleep(self.audio_seconds_written - real_seconds)
+        # real_seconds = time.time() - self.t_start
+
+        # if real_seconds < self.audio_seconds_written:
+        # time.sleep(self.audio_seconds_written - real_seconds)
 
         self.q_audio.put(b, block=True)
         # self.q_audio.append(b)

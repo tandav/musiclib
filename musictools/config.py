@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010')}
@@ -99,6 +101,7 @@ video_pipe = 'video.fifo'
 # fps = 44
 # fps = 40
 # fps = 30
+# fps = 55
 fps = 60
 
 # frame_width, frame_height = 2560, 1440
@@ -115,7 +118,7 @@ audio_bitrate = '128k'
 # video_bitrate = '24M'
 # keyframe_seconds = 0.05  # drastically changes bitrate
 keyframe_seconds = 0.25  # drastically changes bitrate
-# keyframe_seconds = 0.3  # drastically changes bitrate
+# keyframe_seconds = 0.5  # drastically changes bitrate
 
 gop = int(keyframe_seconds * fps)
 draw_threads = 1
@@ -145,3 +148,6 @@ messages = []
 
 progressions = None
 progressions_queue = None
+
+
+progressions_search_cache = defaultdict(list)
