@@ -78,10 +78,10 @@ class ParsedMidi:
                 elif message.type == 'note_off':
                     notes.append(NoteSound(
                         message.note,
+                        vst_,
                         note_buffer_samples.pop(message.note), n_samples,
                         note_buffer_seconds.pop(message.note), seconds,
                         note_buffer_frames.pop(message.note), n_frames,
-                        vst=vst_,
                         color=color,
                         trackname=trackname,
                     ))

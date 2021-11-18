@@ -20,10 +20,10 @@ class NoteSound:
     def __init__(
         self,
         absolute_i: int,
-        sample_on: int, sample_off: int,
-        second_on: float, second_off: float,
-        frame_on: int, frame_off: int,
         vst: VST,
+        sample_on: int, sample_off: int,
+        second_on: Optional[float] = None, second_off: Optional[float] = None,
+        frame_on: Optional[int] = None, frame_off: Optional[int] = None,
         px_on: Optional[int] = None, px_off: Optional[int] = None,
         color=None,
         trackname: Optional[str] = None,
