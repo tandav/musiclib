@@ -79,49 +79,39 @@ def test_main():
 
 
 def test_concat():
-    # todo: use smallest possible release values on all synths to make this work
-    # maybe turn off sustain and small decay
     a = SpecificChord.random().to_midi(n_bars=1)
     b = SpecificChord.random().to_midi(n_bars=1)
     c = SpecificChord.random().to_midi(n_bars=1)
     d = SpecificChord.random().to_midi(n_bars=1)
-    vst_short_release = Sine(adsr=ADSR(attack=0.05, decay=0.2, sustain=0, release=1e-3), amplitude=0.02)
-    vst_long_release = Sine(adsr=ADSR(attack=0.05, decay=0.2, sustain=0, release=2), amplitude=0.02)
-
-    with Bytes() as stream:
-        stream.render_chunked(ParsedMidi(a, vst_short_release))
-        stream.render_chunked(ParsedMidi(b, vst_short_release))
-        stream.render_chunked(ParsedMidi(c, vst_short_release))
-        stream.render_chunked(ParsedMidi(d, vst_short_release))
-    s = stream.to_numpy()
-
-    with Bytes() as stream:
-        stream.render_chunked(ParsedMidi(a, vst_long_release))
-        stream.render_chunked(ParsedMidi(b, vst_long_release))
-        stream.render_chunked(ParsedMidi(c, vst_long_release))
-        stream.render_chunked(ParsedMidi(d, vst_long_release))
-    l = stream.to_numpy()
+    vst_short_decay = Sine(adsr=ADSR(attack=0.05, decay=0.2, sustain=0, release=1e-3), amplitude=0.02)
+    vst_long_decay = Sine(adsr=ADSR(attack=0.05, decay=2, sustain=0, release=1e-3), amplitude=0.02)
 
     with Bytes() as stream_concat:
-        stream_concat.render_chunked(ParsedMidi(ParsedMidi.hstack((a, b, c, d)), vst_short_release))
+        stream_concat.render_chunked(ParsedMidi(ParsedMidi.hstack((a, b, c, d)), vst_short_decay))
     z = stream_concat.to_numpy()
 
-    assert np.allclose(s, z, atol=1e-8)
-    assert np.allclose(l, z, atol=1e-8)
+    with Bytes() as stream:
+        stream.render_chunked(ParsedMidi(a, vst_short_decay))
+        stream.render_chunked(ParsedMidi(b, vst_short_decay))
+        stream.render_chunked(ParsedMidi(c, vst_short_decay))
+        stream.render_chunked(ParsedMidi(d, vst_short_decay))
+    assert np.allclose(z, stream.to_numpy())
 
-    with Bytes() as sa: sa.render_chunked(ParsedMidi(a, vst_short_release))
-    with Bytes() as sb: sb.render_chunked(ParsedMidi(b, vst_short_release))
-    with Bytes() as sc: sc.render_chunked(ParsedMidi(c, vst_short_release))
-    with Bytes() as sd: sd.render_chunked(ParsedMidi(d, vst_short_release))
-    l0 = np.concatenate((sa.to_numpy(), sb.to_numpy(), sc.to_numpy(), sd.to_numpy()))
-    assert np.allclose(l0, z, atol=1e-7)
+    with Bytes() as stream:
+        stream.render_chunked(ParsedMidi(a, vst_long_decay))
+        stream.render_chunked(ParsedMidi(b, vst_long_decay))
+        stream.render_chunked(ParsedMidi(c, vst_long_decay))
+        stream.render_chunked(ParsedMidi(d, vst_long_decay))
+    assert not np.allclose(z, stream.to_numpy())
 
-    with Bytes() as sa: sa.render_chunked(ParsedMidi(a, vst_long_release))
-    with Bytes() as sb: sb.render_chunked(ParsedMidi(b, vst_long_release))
-    with Bytes() as sc: sc.render_chunked(ParsedMidi(c, vst_long_release))
-    with Bytes() as sd: sd.render_chunked(ParsedMidi(d, vst_long_release))
-    print(sa.to_numpy().shape)
-    l1 = np.concatenate((sa.to_numpy(), sb.to_numpy(), sc.to_numpy(), sd.to_numpy()))
+    with Bytes() as sa: sa.render_chunked(ParsedMidi(a, vst_short_decay))
+    with Bytes() as sb: sb.render_chunked(ParsedMidi(b, vst_short_decay))
+    with Bytes() as sc: sc.render_chunked(ParsedMidi(c, vst_short_decay))
+    with Bytes() as sd: sd.render_chunked(ParsedMidi(d, vst_short_decay))
+    assert np.allclose(z, np.concatenate((sa.to_numpy(), sb.to_numpy(), sc.to_numpy(), sd.to_numpy())))
 
-    with pytest.xfail(reason='TODO, long release vst should not equal when concatenating bars'):
-        assert not np.allclose(l1, z, atol=1e-7)
+    with Bytes() as sa: sa.render_chunked(ParsedMidi(a, vst_long_decay))
+    with Bytes() as sb: sb.render_chunked(ParsedMidi(b, vst_long_decay))
+    with Bytes() as sc: sc.render_chunked(ParsedMidi(c, vst_long_decay))
+    with Bytes() as sd: sd.render_chunked(ParsedMidi(d, vst_long_decay))
+    assert not np.allclose(z, np.concatenate((sa.to_numpy(), sb.to_numpy(), sc.to_numpy(), sd.to_numpy())))
