@@ -10,4 +10,5 @@ COPY musictools /app/musictools
 COPY static /app/static
 COPY server.py /app/
 WORKDIR /app
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001", "--ssl-certfile", "fullchain.pem", "--ssl-keyfile", "privkey.pem"]
+# CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001", "--ssl-certfile", "fullchain.pem", "--ssl-keyfile", "privkey.pem"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001"]
