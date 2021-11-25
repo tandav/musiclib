@@ -17,7 +17,6 @@ def to_html_ul(l: list) -> str:
     </ul>
     '''
 
-
 def main():
     file = sys.argv[1]
     midi_dir = Path('logs') / Path(file).stem
@@ -26,9 +25,9 @@ def main():
     midi_dir.mkdir()
     m = mido.MidiFile(file)
 
-    template = string.Template(Path('static/midi-template.html').read_text())
 
     index_list = []
+    tracks = []
 
     for i, track in enumerate(m.tracks):
         trackname = f'{i}-{track.name}'
@@ -39,13 +38,46 @@ def main():
             t += message.time
             d = {'is_meta': message.is_meta, **message.dict()}
             d['time'] = t
-            track_list.append(f'<code>{d}</code>')
+            track_list.append(f"<code class='message'>{d}</code>")
 
-        with open(midi_dir / f'{trackname}.html', 'w') as f:
-            f.write(template.substitute(heading=trackname, list=to_html_ul(track_list)))
+        tracks.append(f'''
+        <div class='track'>
+        <h1><code>{trackname}</code></h1>
+        {to_html_ul(track_list)}
+        </div>
+        ''')
 
-    with open(midi_dir / 'index.html', 'w') as index:
-        index.write(template.substitute(heading=file, list=to_html_ul(index_list)))
+    tracks = '\n'.join(tracks)
+    html = f'''
+    <h1><code>{file}</code></h1>
+    <div class='tracks'>
+    {tracks}
+    </div>
+    '''
+    css = '''
+    <style>
+    body {
+        background-color: rgba(0,0,0, 0.04);
+    }
+    .tracks {
+        display: flex;
+    }
+    .track {
+        background-color: white;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 3px;
+        box-shadow: 2px 2px;
+        border: 1px solid rgba(0,0,0,0.5);
+    }
+    .message {
+        white-space: nowrap;
+    }
+
+    </style>
+    '''
+    html += css
+    with open(midi_dir / 'index.html', 'w') as index: index.write(html)
 
 
 if __name__ == '__main__':
