@@ -36,9 +36,21 @@ def main():
         t = 0
         for message in track:
             t += message.time
-            d = {'is_meta': message.is_meta, **message.dict()}
+
+            if message.type == 'control_change':
+                continue
+
+            d = message.dict()
+            d.pop('channel', None) # delete if exists
             d['time'] = t
-            track_list.append(f"<code class='message'>{d}</code>")
+            ismeta = '<span class="meta_message">meta</span>' if message.is_meta else ''
+
+
+            if message.type == 'note_on' and message.velocity == 0: # https://stackoverflow.com/a/43322203/4204843
+                message_type = 'note_off'
+            else:
+                message_type = message.type
+            track_list.append(f"<code class='message'>{ismeta}</code> <code class='message_type_{message_type}'>{d}</code>")
 
         tracks.append(f'''
         <div class='track'>
@@ -70,10 +82,16 @@ def main():
         box-shadow: 2px 2px;
         border: 1px solid rgba(0,0,0,0.5);
     }
-    .message {
+    li {
         white-space: nowrap;
+        font-size: 8pt;
     }
-
+    .meta_message {
+        background-color: #99CCFF;
+    }
+    .message_type_note_on {background-color: #76FF03;}
+    .message_type_note_off {background-color: #FF5252;}
+    /**code { font-family: Menlo, monospaced; }**/
     </style>
     '''
     html += css
