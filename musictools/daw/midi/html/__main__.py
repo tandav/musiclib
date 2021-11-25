@@ -1,7 +1,7 @@
 import mido
 import shutil
 import sys
-import string
+from musictools.note import SpecificNote
 from pathlib import Path
 
 
@@ -43,6 +43,9 @@ def main():
             d = message.dict()
             d.pop('channel', None) # delete if exists
             d['time'] = t
+            if note_i := d.get('note'):
+                d['note'] = str(SpecificNote.from_absolute_i(note_i))
+
             ismeta = '<span class="meta_message">meta</span>' if message.is_meta else ''
 
 
