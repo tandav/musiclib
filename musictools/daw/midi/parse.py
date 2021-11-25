@@ -59,6 +59,8 @@ class ParsedMidi:
             note_buffer_seconds = dict()
             note_buffer_frames = dict()
             for message in track:
+                ticks += message.time
+
                 # print(track, message)
                 if message.type == 'time_signature':
                     if message.denominator != 4:
@@ -66,7 +68,6 @@ class ParsedMidi:
                     numerator = message.numerator
                     ticks_per_bar = numerator * midi.ticks_per_beat
 
-                ticks += message.time
                 d_seconds = mido.tick2second(message.time, midi.ticks_per_beat, mido.bpm2tempo(config.beats_per_minute))
                 seconds += d_seconds
                 n_samples += int(config.sample_rate * d_seconds)
