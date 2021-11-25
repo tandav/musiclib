@@ -62,3 +62,8 @@ build_push_streaming:
 #profile:
 # 	$(python) -m cProfile -o logs/profile.txt -m musictools.daw video
 #	$(python) -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
+
+midi_html:
+	$(python) -m musictools.daw.midi.html static/midi/vespers-04.mid
+	open logs/vespers-04
+	open logs/vespers-04/index.html
