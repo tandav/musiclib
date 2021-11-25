@@ -34,8 +34,11 @@ def main():
         trackname = f'{i}-{track.name}'
         index_list.append(f"<a href='{trackname}.html'>{trackname}</a>")
         track_list = []
+        t = 0
         for message in track:
+            t += message.time
             d = {'is_meta': message.is_meta, **message.dict()}
+            d['time'] = t
             track_list.append(f'<code>{d}</code>')
 
         with open(midi_dir / f'{trackname}.html', 'w') as f:
