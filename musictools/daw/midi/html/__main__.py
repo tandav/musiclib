@@ -42,7 +42,7 @@ def main():
             track_list.append(f'<code>{d}</code>')
 
         with open(midi_dir / f'{trackname}.html', 'w') as f:
-            f.write(template.substitute(heading=f'{0} {track.name}', list=to_html_ul(track_list)))
+            f.write(template.substitute(heading=trackname, list=to_html_ul(track_list)))
 
     with open(midi_dir / 'index.html', 'w') as index:
         index.write(template.substitute(heading=file, list=to_html_ul(index_list)))
