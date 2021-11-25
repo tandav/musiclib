@@ -42,6 +42,7 @@ def main():
 
             d = message.dict()
             d.pop('channel', None) # delete if exists
+            d.pop('velocity', None)
             d['time'] = t
             if note_i := d.get('note'):
                 d['note'] = str(SpecificNote.from_absolute_i(note_i))
