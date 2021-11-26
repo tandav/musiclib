@@ -65,5 +65,5 @@ build_push_streaming:
 
 midi_html:
 	$(python) -m musictools.daw.midi.html static/midi/vespers-04.mid
-	open logs/vespers-04
+	#open logs/vespers-04
 	open logs/vespers-04/index.html
