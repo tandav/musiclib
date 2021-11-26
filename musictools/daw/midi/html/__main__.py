@@ -1,10 +1,13 @@
 import collections
+import itertools
 
 import mido
 import shutil
 import sys
 import heapq
 from musictools.note import SpecificNote
+from musictools.chord import SpecificChord, Chord
+from musictools import config
 from pathlib import Path
 import dataclasses
 import functools
@@ -148,10 +151,10 @@ def main2():
         shutil.rmtree(midi_dir)
     midi_dir.mkdir()
     m = mido.MidiFile(file)
-
+    all_chords = [Chord.from_name(note, name) for note, name in itertools.product(config.chromatic_notes, ['major', 'minor'])]
     notes = parse_notes(m)
     tracks = [[] for track in m.tracks]
-
+    harmony = []
     # prev = set()
     row = set()
     t = 0
@@ -161,6 +164,16 @@ def main2():
 
             # kinda printing
             print(len(row), row)
+
+            abstract_notes = frozenset(n.note.abstract for n in row)
+            harm = ''.join(n.name for n in abstract_notes)
+            print(harm)
+            for c in all_chords:
+                # print(abstract_notes, c.notes)
+                if c.notes == abstract_notes:
+                    harm += f' | {c} {c.name}'
+            harmony.append(f"<code>{harm}</code>")
+
             _tn = collections.defaultdict(list)
             for n in row:
                 _tn[n.track].append(n)
@@ -177,6 +190,13 @@ def main2():
         row.add(note)
 
     tracks2 = []
+    tracks2.append(f'''
+    <div class='track'>
+    <h1 class='track_heading'><code>Harmony</code></h1>
+    {to_html_ul(harmony)}
+    </div>
+    ''')
+
     for track_i, track in enumerate(tracks):
         tracks2.append(f'''
         <div class='track'>
