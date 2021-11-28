@@ -234,3 +234,14 @@ def print_neighbors(s: Scale):
 #     _ = scale.to_piano_image(as_base64=True)
 #     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
 #         _ = neighbor.to_piano_image(as_base64=True)
+
+
+def parallel(s: Scale):
+    return Scale(s.root, {'major': 'minor', 'minor': 'major'}[s.name])
+
+
+def relative(s: Scale):
+    relative_name = {'major': 'minor', 'minor': 'major'}[s.name]
+    for note, name in s.note_scales.items():
+        if name == relative_name:
+            return Scale(note, name)

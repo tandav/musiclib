@@ -3,6 +3,8 @@ import pytest
 from musictools.note import Note
 from musictools.scale import ComparedScales
 from musictools.scale import Scale
+from musictools.scale import relative
+from musictools.scale import parallel
 
 
 def test_kind():
@@ -39,3 +41,22 @@ def test_compared():
     c = ComparedScales(left, right)
     assert c.new_notes == frozenset({Note('b')})
     assert c.del_notes == frozenset({Note('B')})
+
+
+def test_parallel():
+    a = Scale('C', 'major')
+    b = Scale('C', 'minor')
+    assert parallel(a) is b
+    assert parallel(b) is a
+    assert parallel(Scale('f', 'minor')) is Scale('f', 'major')
+
+
+def test_relative():
+    a = Scale('C', 'major')
+    b = Scale('A', 'minor')
+    c = Scale('f', 'minor')
+    d = Scale('A', 'major')
+    assert relative(a) is b
+    assert relative(b) is a
+    assert relative(c) is d
+    assert relative(d) is c
