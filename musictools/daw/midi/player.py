@@ -2,7 +2,7 @@ import os
 
 import mido
 
-if (midi_device := os.environ.get('MIDI_DEVICE')):
+if midi_device := os.environ.get('MIDI_DEVICE'):
     port = mido.open_output(midi_device)
 
     def send_message(*args, **kwargs):

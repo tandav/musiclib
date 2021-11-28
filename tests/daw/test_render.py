@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from musictools.chord import SpecificChord
-from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.midi.parse.sounds import ParsedMidi
 from musictools.daw.streams.bytes import Bytes
 from musictools.daw.vst.adsr import ADSR
 from musictools.daw.vst.sampler import Sampler

@@ -9,7 +9,7 @@ import mido
 
 from musictools import config
 from musictools import voice_leading
-from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.midi.parse.sounds import ParsedMidi
 from musictools.daw.streams.pcmfile import PCM16File
 from musictools.daw.streams.speakers import Speakers
 from musictools.daw.streams.video.stream import Video

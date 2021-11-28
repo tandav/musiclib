@@ -9,15 +9,11 @@ import mido
 from musictools import config
 from musictools.chord import Chord
 from musictools.chord import name_to_intervals
-from musictools.daw.midi.parse import parse_notes
+from musictools.daw.midi.parse.notes import parse_notes
 
 
 def midi_table_html():
     file = config.MIDI_UI_FILE
-    midi_dir = Path('logs') / Path(file).stem
-    if midi_dir.exists():
-        shutil.rmtree(midi_dir)
-    midi_dir.mkdir()
     m = mido.MidiFile(file)
     m.tracks = m.tracks[::-1]  # specific for only test midi file (left -> right low -> high)
     all_chords = [Chord.from_name(note, name) for note, name in
@@ -73,6 +69,7 @@ def midi_table_html():
 
     html = f'''
     <table>
+    <caption><code>{file}</code></caption>
     <thead><tr>{tracks_head}</tr></thead>
     <tbody>
     {tracks}

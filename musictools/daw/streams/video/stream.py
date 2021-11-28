@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from musictools import config
-from musictools.daw.midi.parse import ParsedMidi
+from musictools.daw.midi.parse.sounds import ParsedMidi
 from musictools.daw.streams.base import Stream
 from musictools.daw.streams.video import ffmpeg
 from musictools.daw.streams.video.pipewriter import PipeWriter
