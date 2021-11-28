@@ -126,6 +126,14 @@ def main():
       border: 1px solid #dddddd;
       border-collapse: collapse;
     }
+    
+    th {
+        writing-mode: vertical-lr;
+        max-height: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .track {
         background-color: white;
