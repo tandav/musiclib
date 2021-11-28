@@ -12,6 +12,8 @@ from musictools.note import SpecificNote
 from musictools.scale import ComparedScales
 from musictools.scale import all_scales
 from musictools.scale import majors
+from musictools.daw.midi.html.piano import midi_piano_html
+from musictools.daw.midi.html.table import midi_table_html
 
 chromatic_notes_set = set(config.chromatic_notes)
 
@@ -96,9 +98,17 @@ async def circle_selected(kind: str, selected_major: str):
     <div class='container'>{html}</div>
     '''
 
+
 @app.get("/circle")
 async def circle(): return RedirectResponse('/circle/diatonic')
 
+
+@app.get("/midi_piano", response_class=HTMLResponse)
+async def midi_piano(): return midi_piano_html()
+
+
+@app.get("/midi_table", response_class=HTMLResponse)
+async def midi_table(): return midi_table_html()
 
 
 # @app.get("/{kind}", response_class=HTMLResponse)

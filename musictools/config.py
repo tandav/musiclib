@@ -151,3 +151,10 @@ progressions_queue = None
 
 
 progressions_search_cache = defaultdict(list)
+
+ui_thread = None
+
+
+# midi explorer ui
+
+MIDI_UI_FILE = 'static/midi/vespers-04.mid'
