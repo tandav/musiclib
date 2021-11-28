@@ -58,8 +58,8 @@ def main():
     all_chords = [Chord.from_name(note, name) for note, name in itertools.product(config.chromatic_notes, name_to_intervals)]
     notes = parse_notes(m)
     tracks = [[] for track in m.tracks]
+    unique_notes = []
     harmony = []
-    # prev = set()
     row = set()
     t = 0
     for i in range(len(notes)):
@@ -71,13 +71,8 @@ def main():
             print(len(row), row)
 
             abstract_notes = frozenset(n.note.abstract for n in row)
-            harm = ''.join(n.name for n in abstract_notes)
-            print(harm)
-            for c in all_chords:
-                # print(abstract_notes, c.notes)
-                if c.notes == abstract_notes:
-                    harm += f' | {c} {c.name}'
-            harmony.append(f'<code>{harm}</code>')
+            unique_notes.append(f"<code>{''.join(n.name for n in abstract_notes)}</code>")
+            harmony.append(f"<code>{' | '.join(f'{c} {c.name}' for c in all_chords if c.notes == abstract_notes)}</code>")
 
             _tn = collections.defaultdict(list)
             for n in row:
@@ -99,13 +94,16 @@ def main():
 
     tracks2 = []
 
-    for row in zip(harmony, *tracks):
+    for row in zip(unique_notes, harmony, *tracks):
         row_line = '\n'.join(f'<td>{col}</td>' for col in row)
         tracks2.append(f"<tr>{row_line}</tr>")
 
     tracks = '\n'.join(tracks2)
     tracks_head = '\n'.join(f'<th><code>{i}-{track.name}</code></th>' for i, track in enumerate(m.tracks))
-    tracks_head = '<th><code>Harmony</code></th>' + tracks_head
+    tracks_head = '''
+    <th><code>Unique Notes</code></th>
+    <th><code>Harmony</code></th>
+    ''' + tracks_head
 
     html = f'''
     <table>
