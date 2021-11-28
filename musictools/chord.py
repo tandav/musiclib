@@ -11,9 +11,24 @@ from musictools.note import Note
 from musictools.note import SpecificNote
 
 intervals_to_name = {
+    # triads
     frozenset({4, 7}): 'major',
     frozenset({3, 7}): 'minor',
     frozenset({3, 6}): 'diminished',
+    # 7th
+    frozenset({4, 7, 11}): 'maj7',
+    frozenset({4, 7, 10}): '7',
+    frozenset({3, 7, 10}): 'min7',
+    frozenset({3, 6, 10}): 'half-dim-7',
+    frozenset({3, 6, 9}): 'dim-7',
+    # 6th
+    frozenset({4, 7, 9}): '6',
+    frozenset({3, 7, 9}): 'm6',
+    # etc
+    frozenset({4, 8}): 'aug',
+    frozenset({2, 7}): 'sus2',
+    frozenset({5, 7}): 'sus4',
+
 }
 name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
