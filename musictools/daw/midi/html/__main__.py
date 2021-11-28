@@ -1,16 +1,20 @@
 import collections
-import itertools
-
-import mido
-import shutil
-import sys
-import heapq
-from musictools.note import SpecificNote
-from musictools.chord import SpecificChord, Chord
-from musictools import config
-from pathlib import Path
 import dataclasses
 import functools
+import heapq
+import itertools
+import shutil
+import sys
+from pathlib import Path
+
+import mido
+
+from musictools import config
+from musictools.chord import Chord
+from musictools.chord import name_to_intervals
+from musictools.chord import SpecificChord
+from musictools.note import SpecificNote
+
 
 def to_html():
     pass
@@ -62,7 +66,7 @@ def main():
                 continue
 
             d = message.dict()
-            d.pop('channel', None) # delete if exists
+            d.pop('channel', None)  # delete if exists
             d.pop('velocity', None)
             d['time'] = t
             if note_i := d.get('note'):
@@ -71,8 +75,7 @@ def main():
 
             ismeta = '<span class="meta_message">meta</span>' if message.is_meta else ''
 
-
-            if message.type == 'note_on' and message.velocity == 0: # https://stackoverflow.com/a/43322203/4204843
+            if message.type == 'note_on' and message.velocity == 0:  # https://stackoverflow.com/a/43322203/4204843
                 message_type = 'note_off'
             else:
                 message_type = message.type
@@ -136,13 +139,14 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
             if message.type == 'note_on' and message.velocity != 0:
                 t_buffer[message.note] = t
 
-            elif message.type == 'note_off' or (message.type == 'note_on' and message.velocity == 0): # https://stackoverflow.com/a/43322203/4204843
+            elif message.type == 'note_off' or (message.type == 'note_on' and message.velocity == 0):  # https://stackoverflow.com/a/43322203/4204843
                 heapq.heappush(notes, MidiNote(
-                    note = SpecificNote.from_absolute_i(message.note),
-                    on = t_buffer.pop(message.note), off=t,
+                    note=SpecificNote.from_absolute_i(message.note),
+                    on=t_buffer.pop(message.note), off=t,
                     track=track_i,
                 ))
     return notes
+
 
 def main2():
     file = sys.argv[1]
@@ -172,7 +176,7 @@ def main2():
                 # print(abstract_notes, c.notes)
                 if c.notes == abstract_notes:
                     harm += f' | {c} {c.name}'
-            harmony.append(f"<code>{harm}</code>")
+            harmony.append(f'<code>{harm}</code>')
 
             _tn = collections.defaultdict(list)
             for n in row:
@@ -207,7 +211,6 @@ def main2():
 
     tracks = '\n'.join(tracks2)
 
-
     html = f'''
     <h1><code>{file}</code></h1>
     <div class='tracks'>
@@ -233,6 +236,7 @@ def main2():
     .track_heading {
         font-size: 8pt;
     }
+    /**ul { list-style-type: none; }**/
     li {
         white-space: nowrap;
         font-size: 8pt;
