@@ -155,7 +155,7 @@ def main2():
         shutil.rmtree(midi_dir)
     midi_dir.mkdir()
     m = mido.MidiFile(file)
-    all_chords = [Chord.from_name(note, name) for note, name in itertools.product(config.chromatic_notes, ['major', 'minor'])]
+    all_chords = [Chord.from_name(note, name) for note, name in itertools.product(config.chromatic_notes, name_to_intervals)]
     notes = parse_notes(m)
     tracks = [[] for track in m.tracks]
     harmony = []
