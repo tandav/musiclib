@@ -22,8 +22,10 @@ class Piano:
         red_notes: frozenset[Note] = frozenset(),
         green_notes: frozenset[Note] = frozenset(),
         blue_notes: frozenset[Note] = frozenset(),
-        notes_squares: dict[Note: str] = dict(),
+        notes_squares: Optional[dict[Note: str]] = None,
     ):
+        if notes_squares is None:
+            notes_squares = dict()
         self.size = size
         ww = self.size[0] // 14  # white key width
         bw = int(ww * 0.6)  # black key width
