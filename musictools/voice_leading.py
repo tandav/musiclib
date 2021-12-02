@@ -226,6 +226,7 @@ def all_chords(chord: Chord, note_range):
         itertools.combinations(chord_notes, 3)
         | P.Filter(lambda notes: frozenset(n.abstract for n in notes) == chord.notes)
         | P.Map(lambda notes: SpecificChord(notes, root=chord.root))
+        | P.Filter(no_large_spacing)
         | P.Pipe(tuple)
     )
 
