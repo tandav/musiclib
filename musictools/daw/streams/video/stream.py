@@ -13,7 +13,8 @@ from musictools.daw.streams.video import ffmpeg
 from musictools.daw.streams.video.pipewriter import PipeWriter
 from musictools.daw.streams.video.render import VideoRender
 from musictools.util.signal import float32_to_int16
-from musictools.youtube.messages import YoutubeMessages
+
+# from musictools.youtube.messages import YoutubeMessages
 
 # https://support.google.com/youtube/answer/6375112
 # https://support.google.com/youtube/answer/1722171
@@ -78,8 +79,9 @@ class Video(Stream):
         self.video_thread.start()
 
         if config.OUTPUT_VIDEO.startswith('rtmp://'):
-            self.yt_messages = YoutubeMessages()
-            self.yt_messages.start()
+            # self.yt_messages = YoutubeMessages()
+            # self.yt_messages.start()
+            pass
 
         self.render_pool = concurrent.futures.ThreadPoolExecutor(max_workers=config.draw_threads)
         # self.render_pool = concurrent.futures.ProcessPoolExecutor(max_workers=config.draw_threads)
@@ -91,9 +93,9 @@ class Video(Stream):
         self.audio_thread.stream_finished.set()
         self.video_thread.stream_finished.set()
 
-        if config.OUTPUT_VIDEO.startswith('rtmp://'):
-            self.yt_messages.stream_finished.set()
-            self.yt_messages.join()
+        # if config.OUTPUT_VIDEO.startswith('rtmp://'):
+        #     self.yt_messages.stream_finished.set()
+        #     self.yt_messages.join()
 
         self.audio_thread.join()
         self.video_thread.join()
