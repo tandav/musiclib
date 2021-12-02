@@ -4,7 +4,7 @@
 #RUN apk add --no-cache freetype-dev jpeg-dev zlib-dev && apk add --no-cache --virtual .build-deps build-base linux-headers && pip install opencv-python
 #RUN pip install mido pipe21
 
-FROM python:3.9
+FROM python:3.10
 #RUN pip install numpy Pillow mido pipe21 && apt update && apt install --yes ffmpeg
 RUN pip install numpy opencv-python mido joblib pipe21 && apt update && apt install --yes ffmpeg vim
 RUN pip install requests
