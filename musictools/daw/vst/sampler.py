@@ -1,6 +1,5 @@
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 
@@ -38,8 +37,8 @@ class Sampler(VST):
 
     def __init__(
         self,
-        note_to_sample_path: Iterable[tuple[SpecificNote, Union[str, Path]]] = DEFAULT_NOTE_TO_SAMPLE_PATH,
-        adsr: Union[ADSR, dict[SpecificNote, ADSR]] = DEFAULT_NOTE_TO_ADSR
+        note_to_sample_path: Iterable[tuple[SpecificNote, str | Path]] = DEFAULT_NOTE_TO_SAMPLE_PATH,
+        adsr: ADSR | dict[SpecificNote, ADSR] = DEFAULT_NOTE_TO_ADSR
     ):
         super().__init__(adsr)
         self.note_to_sample = dict()
@@ -54,7 +53,7 @@ class Sampler(VST):
             SpecificNote('f', 3): False,
         }
 
-    def load_sample(self, sample_path: Union[str, Path]):
+    def load_sample(self, sample_path: str | Path):
         sample_rate, sample = wavfile.read(sample_path)
         if sample.dtype != 'float32':
             raise ValueError(f'Sample {sample_path} should be in float32 format')

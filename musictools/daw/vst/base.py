@@ -1,5 +1,4 @@
 import abc
-from typing import Union
 
 import numpy as np
 
@@ -9,7 +8,7 @@ from musictools.note import SpecificNote
 
 
 class VST(abc.ABC):
-    def __init__(self, adsr: Union[ADSR, dict[SpecificNote, ADSR]] = ADSR(), amplitude=0.1, transpose: int = 0):
+    def __init__(self, adsr: ADSR | dict[SpecificNote, ADSR] = ADSR(), amplitude=0.1, transpose: int = 0):
         self._adsr = adsr
         self.amplitude = amplitude
         self.mute = False

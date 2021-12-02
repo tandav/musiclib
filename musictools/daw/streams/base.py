@@ -1,6 +1,5 @@
 import abc
 from contextlib import AbstractContextManager
-from typing import Optional
 
 import numpy as np
 
@@ -13,7 +12,7 @@ from musictools.util.signal import normalize as normalize_
 class Stream(AbstractContextManager):
     def __init__(self):
         self.master = np.zeros(config.chunk_size, dtype='float32')
-        self.track: Optional[ParsedMidi] = None
+        self.track: ParsedMidi | None = None
 
     def render_single(self, track: ParsedMidi, normalize=False):
         # self.track = track

@@ -2,8 +2,6 @@ import asyncio
 import itertools
 import random
 from numbers import Number
-from typing import Optional
-from typing import Union
 
 from musictools import chromatic
 from musictools import config
@@ -36,8 +34,8 @@ name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 class Chord:
     def __init__(
         self,
-        notes: frozenset[Union[str, Note]],
-        root: Optional[Union[str, Note]] = None,
+        notes: frozenset[str | Note],
+        root: str | Note | None = None,
     ):
         """
         chord is an unordered set of notes
@@ -78,7 +76,7 @@ class Chord:
     def rootless(self): return Chord(self.notes)
 
     @classmethod
-    def from_name(cls, root: Union[str, Note], name: str):
+    def from_name(cls, root: str | Note, name: str):
         if isinstance(root, str):
             root = Note(root)
         intervals = name_to_intervals[name]
@@ -87,7 +85,7 @@ class Chord:
         return cls(frozenset(notes), root)
 
     @classmethod
-    def from_intervals(cls, root: Union[str, Note], intervals: frozenset):
+    def from_intervals(cls, root: str | Note, intervals: frozenset):
         """
         if you're creating chord from interval, you must specify root note
         from which intervals are calculated
@@ -95,7 +93,7 @@ class Chord:
         # instance = cls()
         # instance.intervals
         # instanse.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
-        # # name: Optional[str] = None,
+        # # name: str | None = None,
 
         raise NotImplementedError
 
@@ -161,7 +159,7 @@ class SpecificChord:
     def __init__(
         self,
         notes: frozenset[SpecificNote],
-        root: Optional[Note] = None,
+        root: Note | None = None,
     ):
         self.notes = notes
         self.root = root

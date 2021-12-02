@@ -2,7 +2,6 @@ import functools
 import itertools
 from collections import defaultdict
 from collections import deque
-from typing import Union
 
 from musictools import chromatic
 from musictools import config
@@ -42,7 +41,7 @@ name_2_bits = {v: k for k, v in bits_2_name.items()}
 class Scale:
     _cache = {}
 
-    def __new__(cls, root: Union[str, Note], name: str):
+    def __new__(cls, root: str | Note, name: str):
         key = root, name
         if instance := cls._cache.get(key):
             return instance
@@ -58,7 +57,7 @@ class Scale:
         """
         return self.root, self.name
 
-    def _long_init(self, root: Union[str, Note], name: str):
+    def _long_init(self, root: str | Note, name: str):
         if isinstance(root, str):
             root = Note(root)
         self.root = root

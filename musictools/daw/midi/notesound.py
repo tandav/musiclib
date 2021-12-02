@@ -1,6 +1,5 @@
 from enum import Enum
 from enum import auto
-from typing import Optional
 
 import numpy as np
 
@@ -22,11 +21,11 @@ class NoteSound:
         absolute_i: int,
         vst: VST,
         sample_on: int, sample_off: int,
-        second_on: Optional[float] = None, second_off: Optional[float] = None,
-        frame_on: Optional[int] = None, frame_off: Optional[int] = None,
-        px_on: Optional[int] = None, px_off: Optional[int] = None,
+        second_on: float | None = None, second_off: float | None = None,
+        frame_on: int | None = None, frame_off: int | None = None,
+        px_on: int | None = None, px_off: int | None = None,
         color=None,
-        trackname: Optional[str] = None,
+        trackname: str | None = None,
         # context_chord_root = None,
         # frac_on: float, frac_off: float,
     ):

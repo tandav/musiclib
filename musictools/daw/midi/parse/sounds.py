@@ -1,8 +1,6 @@
 from collections.abc import Iterable
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional
-from typing import Union
 from typing import get_args
 
 import mido
@@ -12,16 +10,16 @@ from musictools.daw.midi.notesound import NoteSound
 from musictools.daw.vst.base import VST
 from musictools.util import color as colorutil
 
-PathLike = Union[str, Path]
+PathLike = str | Path
 
 
 class ParsedMidi:
     def __init__(
         self,
         midi: mido.MidiFile,
-        vst: Union[VST, Sequence[VST]],
-        tracknames: Optional[Sequence[str]] = None,
-        meta: Optional[dict] = None,
+        vst: VST | Sequence[VST],
+        tracknames: Sequence[str] | None = None,
+        meta: dict | None = None,
     ):
         """
         :param midi: Midi with one or many channels
@@ -142,11 +140,11 @@ class ParsedMidi:
 
     # @classmethod
     # @functools.singledispatchmethod # TODO
-    # def vstack(cls, midis: Union[Sequence[PathLike], Sequence[mido.MidiFile]], vst: Sequence[VST]):
+    # def vstack(cls, midis: Sequence[PathLike] | Sequence[mido.MidiFile], vst: Sequence[VST]):
     #     if isinstance(Sequence)
 
     @classmethod
-    def from_files(cls, midi_files: Union[PathLike, Sequence[PathLike]], vst: Union[VST, Sequence[VST]], meta: Union[dict, None] = None):
+    def from_files(cls, midi_files: PathLike | Sequence[PathLike], vst: VST | Sequence[VST], meta: dict | None = None):
         if isinstance(midi_files, get_args(PathLike)):  # get_args is shitty but works
             assert isinstance(vst, VST)
             midi = mido.MidiFile(config.midi_folder + midi_files, type=0)
@@ -158,8 +156,8 @@ class ParsedMidi:
         cls,
         midi_objects: Sequence[mido.MidiFile],
         vst: Sequence[VST],
-        tracknames: Optional[Sequence[str]] = None,
-        meta: Union[dict, None] = None,
+        tracknames: Sequence[str] | None = None,
+        meta: dict | None = None,
     ):
         """
         convert many midi objects into one with multiple channels (vertical stacking)
@@ -214,7 +212,7 @@ class ParsedMidi:
         return cls(midi, vst, tracknames, meta)
 
     @classmethod
-    def from_file(cls, midi_file, vst: VST, meta: Union[dict, None] = None):
+    def from_file(cls, midi_file, vst: VST, meta: dict | None = None):
         track_midi = mido.MidiFile(config.midi_folder + midi_file, type=1)
         return cls(track_midi, vst, [Path(track_midi.filename).stem], meta)
 

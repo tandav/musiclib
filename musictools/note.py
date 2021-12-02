@@ -1,7 +1,6 @@
 import asyncio
 import functools
 from numbers import Number
-from typing import Union  # TODO: python3.10 just use X | Y
 
 from musictools import config
 from musictools.daw.midi import player
@@ -51,7 +50,7 @@ class Note:  # Note(str) ??
 
 @functools.total_ordering
 class SpecificNote(Note):
-    def __init__(self, abstract: Union[Note, str], octave: int = config.default_octave):
+    def __init__(self, abstract: Note | str, octave: int = config.default_octave):
         """
         :param octave: in midi format (C5-midi == C3-ableton)
         """
