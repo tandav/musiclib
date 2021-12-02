@@ -1,4 +1,4 @@
-python = python3.9
+python = python3.10
 
 stream:
 	$(python) -m musictools.daw video
