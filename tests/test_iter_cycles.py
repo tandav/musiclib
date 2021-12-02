@@ -21,11 +21,11 @@ def options():
 
 
 def test_length(options, is_even):
-    assert all(len(cycle) == 5 for cycle in iter_cycles(5, options, first_constraint=is_even))
+    assert all(len(cycle) == 5 for cycle in iter_cycles(5, options, i_constraints={0: is_even}))
 
 
 def test_first_constraint(options, is_even):
-    assert all(is_even(cycle[0]) for cycle in iter_cycles(5, options, first_constraint=is_even))
+    assert all(is_even(cycle[0]) for cycle in iter_cycles(5, options, i_constraints={0: is_even}))
 
 
 def test_prev_curr(options, even_odd_interchange):

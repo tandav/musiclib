@@ -209,8 +209,37 @@ def make_progressions(
             n,
             options=possible_chords(scale, note_range),
             curr_prev_constraint=no_bad_checks,
-            first_constraint=lambda chord: chord.root == scale.root,
+            i_constraints={0: lambda chord: chord.root == scale.root},
             unique_key=lambda chord: chord.root,
+        )
+        | P.Pipe(lambda it: unique(it, key=transpose_uniqiue_key))
+        | P.KeyBy(progression_dist)
+        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
+        | P.Pipe(tuple)
+    )
+
+
+@functools.cache
+def all_chords(chord: Chord, note_range):
+    chord_notes = tuple(n for n in note_range if n.abstract in chord.notes)
+    return (
+        itertools.combinations(chord_notes, 3)
+        | P.Filter(lambda notes: frozenset(n.abstract for n in notes) == chord.notes)
+        | P.Map(lambda notes: SpecificChord(notes, root=chord.root))
+        | P.Pipe(tuple)
+    )
+
+
+def make_progressions_v2(
+    abstract_progression: tuple[Chord],
+):
+    chord_2_all_chords = tuple(all_chords(chord, config.note_range) for chord in abstract_progression)
+    return (
+        iter_cycles(
+            n=len(abstract_progression),
+            options=chord_2_all_chords,
+            options_separated=True,
+            curr_prev_constraint=no_bad_checks,
         )
         | P.Pipe(lambda it: unique(it, key=transpose_uniqiue_key))
         | P.KeyBy(progression_dist)
