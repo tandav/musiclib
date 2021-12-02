@@ -1,6 +1,7 @@
 import functools
 import itertools
 import operator
+import random
 from collections.abc import Iterable
 
 import pipe21 as P
@@ -11,6 +12,8 @@ from musictools.chord import SpecificChord
 from musictools.chord import name_to_intervals
 from musictools.note import SpecificNote
 from musictools.scale import Scale
+from musictools.scale import parallel
+from musictools.scale import relative
 from musictools.util.iteration import iter_cycles
 from musictools.util.iteration import unique
 
@@ -247,3 +250,28 @@ def make_progressions_v2(
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
     )
+
+
+def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
+    assert s.kind == 'diatonic'
+    parallel_ = parallel(s)
+    relative_ = relative(s)
+    print('scale', 'parallel', 'relative')
+    print(s, parallel_, relative_)
+    print('=' * 100)
+    chords = []
+    chords.append(s.chords[0])
+
+    steps = {'major': (0, 1, 2, 3, 4, 5), 'minor': (0, 2, 3, 4, 5, 6)}[s.name]  # disable diminished
+
+    for _ in range(n - 1):
+        step = random.choice(steps)
+        s_ = s if random.random() > parallel_prob else parallel_
+        c = s_.chords[step]
+        print(s_, c)
+        chords.append(c)
+    return chords
+
+
+def str_to_chord_progression(s: Scale, progression: str):
+    return tuple(s.chords[s.notes.index(c)] for c in progression)
