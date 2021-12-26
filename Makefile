@@ -4,7 +4,7 @@ stream:
 	$(python) -m musictools.daw video
 
 run:
-	uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+	$(python) -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
@@ -56,8 +56,9 @@ messages:
 
 build_push_streaming:
 	make messages
-	docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
-	docker push tandav/musictools-stream
+	docker buildx build --platform linux/arm64/v8,linux/amd64 --tag tandav/musictools-stream -f ./Dockerfile-stream --push .
+	#docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
+	#docker push tandav/musictools-stream
 
 #profile:
 # 	$(python) -m cProfile -o logs/profile.txt -m musictools.daw video
