@@ -7,6 +7,7 @@ from musictools import chromatic
 from musictools import config
 from musictools.chord import Chord
 from musictools.note import Note
+from musictools.note import SpecificNote
 from musictools.piano import Piano
 from musictools.util.color import hex_to_rgb
 from musictools.util.iteration import iter_scales
@@ -122,6 +123,15 @@ class Scale:
         {self.to_piano_image()}
         </div>
         '''
+
+    def add_note(self, note: Note | SpecificNote, steps: int):
+        if type(note) is Note:
+            return self.notes[(self.notes.index(note) + steps) % len(self.notes)]
+        elif type(note) is SpecificNote:
+            octave, i = divmod(self.notes.index(note.abstract) + steps, len(self.notes))
+            return SpecificNote(self.notes[i], note.octave + octave)
+        else:
+            raise TypeError
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)

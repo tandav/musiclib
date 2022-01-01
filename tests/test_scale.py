@@ -1,10 +1,11 @@
 import pytest
 
 from musictools.note import Note
+from musictools.note import SpecificNote
 from musictools.scale import ComparedScales
 from musictools.scale import Scale
-from musictools.scale import relative
 from musictools.scale import parallel
+from musictools.scale import relative
 
 
 def test_kind():
@@ -60,3 +61,20 @@ def test_relative():
     assert relative(b) is a
     assert relative(c) is d
     assert relative(d) is c
+
+
+@pytest.mark.parametrize(
+    ('scale', 'note', 'steps', 'result'), (
+        (Scale('C', 'major'), Note('C'), 3, Note('F')),
+        (Scale('C', 'major'), Note('C'), -2, Note('A')),
+        (Scale('D', 'minor'), Note('A'), 1, Note('b')),
+        (Scale('D', 'minor'), Note('A'), 0, Note('A')),
+        (Scale('C', 'major'), SpecificNote('C', 1), 3, SpecificNote('F', 1)),
+        (Scale('C', 'major'), SpecificNote('C', 1), -2, SpecificNote('A', 0)),
+        (Scale('C', 'minor'), SpecificNote('G', 5), -22, SpecificNote('F', 2)),
+        (Scale('D', 'minor'), SpecificNote('A', 1), 8, SpecificNote('b', 2)),
+        (Scale('D', 'minor'), SpecificNote('A', 1), 0, SpecificNote('A', 1)),
+        (Scale('D', 'minor'), SpecificNote('A', 2), -7, SpecificNote('A', 1)),
+    ))
+def test_add_note(scale, note, steps, result):
+    assert scale.add_note(note, steps) == result
