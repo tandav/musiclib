@@ -65,7 +65,8 @@ class TestRender:
         # assert np.allclose(single, chunked, atol=1e-7)
         # assert np.allclose(single, chunked, atol=4e-8)
         # assert np.allclose(single, chunked, atol=5e-8)
-        assert np.allclose(single, chunked, atol=6e-8)
+        # assert np.allclose(single, chunked, atol=6e-8)
+        assert np.allclose(single, chunked, atol=7e-8)
 
     # def test_no_overlapping_notes(self, midi_file, vst):
     #     if self.is_invalid(midi_file, vst):
