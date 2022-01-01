@@ -80,7 +80,7 @@ class Chord:
         if isinstance(root, str):
             root = Note(root)
         intervals = name_to_intervals[name]
-        notes = set(chromatic.nth(root, interval) for interval in intervals)
+        notes = set(root + interval for interval in intervals)
         notes.add(root)
         return cls(frozenset(notes), root)
 

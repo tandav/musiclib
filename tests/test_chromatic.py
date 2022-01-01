@@ -14,11 +14,6 @@ def test_specific_take():
     assert tuple(chromatic.iterate(start_note=SpecificNote('B', octave=8), take_n=2)) == (SpecificNote('B', octave=8), SpecificNote('C', octave=9))
 
 
-def test_nth():
-    assert chromatic.nth('C', 7) == Note('G')
-    assert chromatic.nth(SpecificNote('G', octave=8), 7) == SpecificNote('D', octave=9)
-
-
 def test_sort():
     assert ''.join(chromatic.sort_notes('bAGDCfFedBaE')) == 'CdDeEFfGaAbB'
     assert ''.join(chromatic.sort_notes('BCfGFFBDDGfbAEBeeEEf')) == 'CDDeeEEEFFfffGGAbBBB'

@@ -31,10 +31,6 @@ def iterate(
     yield from notes
 
 
-def nth(start_note: str | Note | SpecificNote, n: int):
-    return next(itertools.islice(iterate(start_note), n, None))
-
-
 def sort_notes(it: Sequence[str | Note]):
     """
     todo: sort Sequence[SpecificNote]

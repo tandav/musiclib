@@ -19,8 +19,8 @@ class Note:  # Note(str) ??
         self.is_black = config.is_black[name]
 
     @classmethod
-    def from_i(cls, i):
-        return cls(config.chromatic_notes[i])
+    def from_i(cls, i: int):
+        return cls(config.chromatic_notes[i % 12])
 
     async def play(self, seconds: Number = 1):
         await SpecificNote(self).play(seconds)
@@ -35,6 +35,9 @@ class Note:  # Note(str) ??
             return self.name == other.name
 
     def __hash__(self): return hash(self.name)
+
+    def __add__(self, other: int):
+        return Note.from_i(self.i + other)
 
     def __sub__(self, other):
         """
