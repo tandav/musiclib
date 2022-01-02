@@ -223,10 +223,10 @@ def make_progressions(
 
 
 @functools.cache
-def all_chords(chord: Chord, note_range):
+def all_chords(chord: Chord, note_range, n_notes: int = 3):
     chord_notes = tuple(n for n in note_range if n.abstract in chord.notes)
     return (
-        itertools.combinations(chord_notes, 3)
+        itertools.combinations(chord_notes, n_notes)
         | P.Filter(lambda notes: frozenset(n.abstract for n in notes) == chord.notes)
         | P.Map(lambda notes: SpecificChord(notes, root=chord.root))
         | P.Filter(no_large_spacing)
@@ -236,8 +236,9 @@ def all_chords(chord: Chord, note_range):
 
 def make_progressions_v2(
     abstract_progression: tuple[Chord],
+    n_notes: int = 3,
 ):
-    chord_2_all_chords = tuple(all_chords(chord, config.note_range) for chord in abstract_progression)
+    chord_2_all_chords = tuple(all_chords(chord, config.note_range, n_notes) for chord in abstract_progression)
     return (
         iter_cycles(
             n=len(abstract_progression),
@@ -275,3 +276,8 @@ def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
 
 def str_to_chord_progression(s: Scale, progression: str):
     return tuple(s.chords[s.notes.index(c)] for c in progression)
+
+
+def transition_tree():
+    raise NotImplementedError
+
