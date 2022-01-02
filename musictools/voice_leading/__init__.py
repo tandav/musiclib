@@ -1,3 +1,4 @@
+import collections
 import functools
 import itertools
 import operator
@@ -293,3 +294,19 @@ def chord_transitons(chord: SpecificChord, note_range: tuple[SpecificNote]) -> f
             out.add(SpecificChord(notes))
     return frozenset(out)
 
+
+def transition_graph(start_chord: SpecificChord, note_range: tuple[SpecificNote]) -> dict[SpecificChord, frozenset[SpecificChord]]:
+    graph = collections.defaultdict(set)
+
+    def _graph(chord: SpecificChord):
+        if chord in graph:
+            return
+        childs = chord_transitons(chord, note_range)
+        for child in childs:
+            graph[chord].add(child)
+        for child in childs:
+            _graph(child)
+
+    _graph(start_chord)
+    graph = dict(graph)
+    return graph

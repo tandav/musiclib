@@ -70,3 +70,12 @@ def test_chord_transitons(scale, chord_str, transitions):
     octaves = range(3)
     note_range = tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes))[5:-5]
     assert set(map(str, voice_leading.chord_transitons(chord, note_range))) == transitions
+
+
+def test_transition_graph():
+    scale = Scale('C', 'major')
+    octaves = range(3)
+    note_range = tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes))[5:-5]
+    graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range)
+    assert len(graph) == 120
+    assert sum(map(len, graph.values())) == 504
