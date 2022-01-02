@@ -1,5 +1,6 @@
 import itertools
 from collections.abc import Sequence
+from collections.abc import Iterable
 
 from musictools import config
 from musictools.note import Note
@@ -9,7 +10,7 @@ from musictools.note import SpecificNote
 def iterate(
     start_note: str | Note | SpecificNote = config.chromatic_notes[0],
     take_n: int | None = None,
-):
+) -> Iterable[Note | SpecificNote]:
     names = itertools.cycle(config.chromatic_notes)
 
     if isinstance(start_note, SpecificNote):
