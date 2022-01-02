@@ -16,6 +16,7 @@ def test_specific_take():
 
 def test_sort():
     assert ''.join(chromatic.sort_notes('bAGDCfFedBaE')) == 'CdDeEFfGaAbB'
+    assert ''.join(chromatic.sort_notes(set('bAGDCfFedBaE'))) == 'CdDeEFfGaAbB'
     assert ''.join(chromatic.sort_notes('BCfGFFBDDGfbAEBeeEEf')) == 'CDDeeEEEFFfffGGAbBBB'
     assert chromatic.sort_notes((Note('A'), Note('C'), Note('b'))) == [Note('C'), Note('A'), Note('b')]
     assert chromatic.sort_notes((SpecificNote('A', 5), SpecificNote('C', 2), SpecificNote('b', 9))) == [SpecificNote('C', octave=2), SpecificNote('A', 5), SpecificNote('b', 9)]
