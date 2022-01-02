@@ -114,6 +114,13 @@ class Chord:
     def inversions(self):
         raise NotImplementedError
 
+    def add_note(self, note: Note, steps: int):
+        notes = self.notes_ascending
+        if type(note) is Note:
+            return notes[(notes.index(note) + steps) % len(notes)]
+        else:
+            raise TypeError
+
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
     def __len__(self): return len(self.notes)

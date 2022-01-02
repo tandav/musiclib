@@ -68,3 +68,20 @@ def test_find_intervals():
     assert SpecificChord(frozenset({a, b, c})).find_intervals(7) == ((a, c),)
     assert SpecificChord(frozenset({a, b, c, e})).find_intervals(7) == ((a, c), (c, e))
     assert SpecificChord(frozenset({a, d})).find_intervals(12) == ((a, d),)
+
+
+@pytest.mark.parametrize(
+    ('chord', 'note', 'steps', 'result'), (
+    (Chord.from_str('CEG'), Note('C'), 1, Note('E')),
+    (Chord.from_str('CEG'), Note('C'), 2, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), 3, Note('C')),
+    (Chord.from_str('CeGb'), Note('e'), 2, Note('b')),
+    (Chord.from_str('CeGb'), Note('e'), 25, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), -1, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), -2, Note('E')),
+    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CeGb'), Note('e'), -15, Note('G')),
+))
+def test_add_note(chord, note, steps, result):
+    assert chord.add_note(note, steps) == result
