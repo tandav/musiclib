@@ -38,6 +38,7 @@ def test_from_name():
 
 
 def test_from_str():
+    assert SpecificChord.from_str('C1_E1_G1/C') == SpecificChord(frozenset({SpecificNote('C', 1), SpecificNote('E', 1), SpecificNote('G', 1)}), root=Note('C'))
     for _ in range(10):
         chord = SpecificChord.random()
         assert SpecificChord.from_str(str(chord)) == chord

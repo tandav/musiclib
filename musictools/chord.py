@@ -204,7 +204,7 @@ class SpecificChord:
         _ = self.str_chord
         if self.root is not None:
             #_ = f'{self.root.name}__{_}'
-            _ = f'{self.root.name}/{_}'
+            _ = f'{_}/{self.root.name}'
         return _
 
     def __eq__(self, other): return self.key == other.key
