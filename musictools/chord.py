@@ -97,6 +97,20 @@ class Chord:
 
         raise NotImplementedError
 
+    @classmethod
+    def random(cls, n_notes=None):
+        if n_notes is None:
+            n_notes = random.randint(2, 5)
+        notes = frozenset(random.sample(config.chromatic_notes, n_notes))
+        return cls(notes)
+
+    @classmethod
+    def from_str(cls, string: str):
+        notes, _, root = string.partition('/')
+        root = Note(root) if root else None
+        notes = frozenset(Note(note) for note in notes)
+        return cls(notes, root)
+
     def inversions(self):
         raise NotImplementedError
 
