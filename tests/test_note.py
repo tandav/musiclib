@@ -23,6 +23,14 @@ def test_specific_note_from_absolute_i(absolute_i):
     assert SpecificNote.from_absolute_i(absolute_i).absolute_i == absolute_i
 
 
+@pytest.mark.parametrize(('string', 'expected'), (
+    ('F1', SpecificNote('F', 1)),
+    ('C4', SpecificNote('C', 4)),
+))
+def test_from_str(string, expected):
+    assert SpecificNote.from_str(string) == expected
+
+
 @pytest.mark.asyncio
 async def test_play(capsys):
     note = SpecificNote.from_absolute_i(60)

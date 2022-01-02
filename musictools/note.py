@@ -70,6 +70,11 @@ class SpecificNote(Note):
         div, mod = divmod(absolute_i, 12)
         return cls(Note(config.chromatic_notes[mod]), octave=div)
 
+    @classmethod
+    def from_str(cls, string: str):
+        note, octave = string
+        return cls(Note(note), int(octave))
+
     async def play(self, seconds: Number = 1):
         player.send_message('note_on', note=self.absolute_i, channel=0)
         await asyncio.sleep(seconds)
