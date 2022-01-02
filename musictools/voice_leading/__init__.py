@@ -278,6 +278,18 @@ def str_to_chord_progression(s: Scale, progression: str):
     return tuple(s.chords[s.notes.index(c)] for c in progression)
 
 
-def transition_tree():
-    raise NotImplementedError
+def chord_transitons(chord: SpecificChord, note_range: tuple[SpecificNote]) -> frozenset[SpecificChord]:
+    out = set()
+    note_to_i = {note: i for i, note in enumerate(note_range)}
+
+    for note in chord.notes_ascending:
+        for add in (-1, 1):
+            i = note_to_i[note] + add
+            if i == 0 or i == len(note_range):
+                continue
+            notes = chord.notes - {note} | {note_range[i]}
+            if len(notes) != 3:
+                continue
+            out.add(SpecificChord(notes))
+    return frozenset(out)
 
