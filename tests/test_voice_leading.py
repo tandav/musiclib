@@ -59,17 +59,19 @@ def test_have_voice_overlap():
     assert voice_leading.have_voice_overlap(a, b)
 
 
-@pytest.mark.parametrize(('scale', 'chord_str', 'transitions'), (
-    (Scale('C', 'major'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}),
-    (Scale('C', 'major'), 'C1_D1_E1', {'B0_D1_E1', 'C1_D1_F1'}),
-    (Scale('C', 'major'), 'B0_C1_D1', {'B0_C1_E1'}),
-    (Scale('C', 'major'), 'F1_G1_A1', {'E1_G1_A1', 'F1_G1_B1'}),
+@pytest.mark.parametrize(('scale', 'chord_str', 'transitions', 'unique_abstract'), (
+    (Scale('C', 'major'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False),
+    (Scale('C', 'major'), 'C1_D1_E1', {'B0_D1_E1', 'C1_D1_F1'}, False),
+    (Scale('C', 'major'), 'B0_C1_D1', {'B0_C1_E1'}, False),
+    (Scale('C', 'major'), 'F1_G1_A1', {'E1_G1_A1', 'F1_G1_B1'}, False),
+    (Scale('C', 'major'), 'D1_E1_C2', {'C1_E1_C2', 'D1_E1_B1', 'D1_E1_D2', 'D1_F1_C2'}, False),
+    (Scale('C', 'major'), 'D1_E1_C2', {'D1_E1_B1', 'D1_F1_C2'}, True),
 ))
-def test_chord_transitons(scale, chord_str, transitions):
+def test_chord_transitons(scale, chord_str, transitions, unique_abstract):
     chord = SpecificChord.from_str(chord_str)
     octaves = range(3)
     note_range = tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes))[5:-5]
-    assert set(map(str, voice_leading.chord_transitons(chord, note_range))) == transitions
+    assert set(map(str, voice_leading.chord_transitons(chord, note_range, unique_abstract))) == transitions
 
 
 def test_transition_graph():
@@ -77,5 +79,5 @@ def test_transition_graph():
     octaves = range(3)
     note_range = tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes))[5:-5]
     graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range)
-    assert len(graph) == 120
-    assert sum(map(len, graph.values())) == 504
+    assert len(graph) == 80
+    assert sum(map(len, graph.values())) == 300

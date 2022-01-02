@@ -279,7 +279,11 @@ def str_to_chord_progression(s: Scale, progression: str):
     return tuple(s.chords[s.notes.index(c)] for c in progression)
 
 
-def chord_transitons(chord: SpecificChord, note_range: tuple[SpecificNote]) -> frozenset[SpecificChord]:
+def chord_transitons(
+    chord: SpecificChord,
+    note_range: tuple[SpecificNote],
+    unique_abstract: bool = True,
+) -> frozenset[SpecificChord]:
     out = set()
     note_to_i = {note: i for i, note in enumerate(note_range)}
 
@@ -290,6 +294,8 @@ def chord_transitons(chord: SpecificChord, note_range: tuple[SpecificNote]) -> f
                 continue
             notes = chord.notes - {note} | {note_range[i]}
             if len(notes) != 3:
+                continue
+            if unique_abstract and len(notes) > len({n.abstract for n in notes}):
                 continue
             out.add(SpecificChord(notes))
     return frozenset(out)
