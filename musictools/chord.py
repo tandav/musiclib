@@ -241,8 +241,12 @@ class SpecificChord:
     def __sub__(left, right):
         return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left.notes_ascending, right.notes_ascending))
 
-    async def play(self, seconds: Number = 1):
+    async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]
+        if bass_octave:
+            if self.root is None:
+                raise ValueError('cannot play bass when root is None')
+            tasks.append(SpecificNote(self.root, bass_octave).play(seconds))
         await asyncio.gather(*tasks)
 
     def to_midi(self, path=None, n_bars=1):
