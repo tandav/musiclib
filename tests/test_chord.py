@@ -37,6 +37,12 @@ def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
 
 
+def test_from_str():
+    for _ in range(10):
+        chord = SpecificChord.random()
+        assert SpecificChord.from_str(str(chord)) == chord
+
+
 def test_root_validation():
     with pytest.raises(ValueError):
         SpecificChord(frozenset({SpecificNote('A'), SpecificNote('B')}), root=Note('E'))

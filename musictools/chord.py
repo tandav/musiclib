@@ -184,6 +184,13 @@ class SpecificChord:
         notes = frozenset(random.sample(notes_space, n_notes))
         return cls(notes)
 
+    @classmethod
+    def from_str(cls, string: str):
+        notes, _, root = string.partition('/')
+        root = Note(root) if root else None
+        notes = frozenset(SpecificNote.from_str(note) for note in notes.split('_'))
+        return cls(notes, root)
+
     def notes_combinations(self, ids=False):
         if ids: yield from itertools.combinations(range(len(self.notes_ascending)), 2)
         else: yield from itertools.combinations(self.notes_ascending, 2)
@@ -196,7 +203,8 @@ class SpecificChord:
     def __repr__(self):
         _ = self.str_chord
         if self.root is not None:
-            _ = f'{self.root.name}__{_}'
+            #_ = f'{self.root.name}__{_}'
+            _ = f'{self.root.name}/{_}'
         return _
 
     def __eq__(self, other): return self.key == other.key
