@@ -54,15 +54,15 @@ def test_cache():
     assert Scale.from_name('C', 'major') is Scale.from_name(Note('C'), 'major')
 
 
-# def test_compared():
-#     left = Scale('C', 'major')
-#     right = Scale('A', 'minor')
-#     assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
-#
-#     right = Scale('C', 'mixolydian')
-#     c = ComparedScales(left, right)
-#     assert c.new_notes == frozenset({Note('b')})
-#     assert c.del_notes == frozenset({Note('B')})
+def test_compared():
+    left = Scale.from_name('C', 'major')
+    right = Scale.from_name('A', 'minor')
+    assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
+
+    right = Scale.from_name('C', 'mixolydian')
+    c = ComparedScales(left, right)
+    assert c.new_notes == frozenset({Note('b')})
+    assert c.del_notes == frozenset({Note('B')})
 
 
 def test_parallel():

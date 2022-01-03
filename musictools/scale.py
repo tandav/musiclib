@@ -216,7 +216,7 @@ class ComparedScales:
         self.new_notes = frozenset(right.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
         if right.kind == 'diatonic':
-            self.shared_chords = frozenset(left.chords) & frozenset(right.chords)
+            self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
         self.html_classes = ('card',)
 
     def with_html_classes(self, classes: tuple):
