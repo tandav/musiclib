@@ -10,13 +10,15 @@ from musictools.scale import relative
 
 
 
-@pytest.mark.parametrize(('notes', 'root', 'name'), (
-    (frozenset('CDEFGAB'), 'C', 'major'),
-    (frozenset('CdeFGab'), 'C', 'phrygian'),
-    (frozenset('DEFGAbC'), 'D', 'minor'),
-    (frozenset('bdefa'), 'b', 'p_phrygian'),
+@pytest.mark.parametrize(('notes', 'name'), (
+    ('CDEFGAB', 'major'),
+    ('CdeFGab', 'phrygian'),
+    ('DEFGAbC', 'minor'),
+    ('bdefa', 'p_phrygian'),
 ))
-def test_name(notes, root, name):
+def test_name(notes, name):
+    root = notes[0]
+    notes = frozenset(notes)
     assert Scale(notes, root).name == name
     assert Scale.from_name(root, name).notes == notes
 
@@ -32,12 +34,12 @@ def test_equal():
     assert Scale.from_name(Note('C'), 'major') != Scale.from_name(Note('E'), 'major')
 
 
-@pytest.mark.parametrize(('notes', 'root', 'triads'), (
-    (frozenset('CDEFGAB'), 'C', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
-    (frozenset('DEFGAbC'), 'D', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
+@pytest.mark.parametrize(('notes', 'triads'), (
+    ('CDEFGAB', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
+    ('DEFGAbC', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
 ))
-def test_scale_triads(notes, root, triads):
-    assert Scale(notes, root).triads == tuple(Chord.from_str(s) for s in triads.split())
+def test_scale_triads(notes, triads):
+    assert Scale(frozenset(notes), notes[0]).triads == tuple(Chord.from_str(s) for s in triads.split())
 
 
 def test_cache():
