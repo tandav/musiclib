@@ -309,11 +309,13 @@ def print_neighbors(s: Scale):
 
 
 def parallel(s: Scale):
-    return Scale(s.root, {'major': 'minor', 'minor': 'major'}[s.name])
+    """same root, convert major to minor and vice versa"""
+    return Scale.from_name(s.root, {'major': 'minor', 'minor': 'major'}[s.name])
 
 
 def relative(s: Scale):
+    """same set of notes, changes root, convert major to minor and vice versa"""
     relative_name = {'major': 'minor', 'minor': 'major'}[s.name]
     for note, name in s.note_scales.items():
         if name == relative_name:
-            return Scale(note, name)
+            return Scale.from_name(note, name)

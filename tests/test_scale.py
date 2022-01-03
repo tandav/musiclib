@@ -63,22 +63,22 @@ def test_cache():
 #     c = ComparedScales(left, right)
 #     assert c.new_notes == frozenset({Note('b')})
 #     assert c.del_notes == frozenset({Note('B')})
-#
-#
-# def test_parallel():
-#     a = Scale('C', 'major')
-#     b = Scale('C', 'minor')
-#     assert parallel(a) is b
-#     assert parallel(b) is a
-#     assert parallel(Scale('f', 'minor')) is Scale('f', 'major')
-#
-#
-# def test_relative():
-#     a = Scale('C', 'major')
-#     b = Scale('A', 'minor')
-#     c = Scale('f', 'minor')
-#     d = Scale('A', 'major')
-#     assert relative(a) is b
-#     assert relative(b) is a
-#     assert relative(c) is d
-#     assert relative(d) is c
+
+
+def test_parallel():
+    a = Scale.from_name('C', 'major')
+    b = Scale.from_name('C', 'minor')
+    assert parallel(a) is b
+    assert parallel(b) is a
+    assert parallel(Scale.from_name('f', 'minor')) is Scale.from_name('f', 'major')
+
+
+def test_relative():
+    a = Scale.from_name('C', 'major')
+    b = Scale.from_name('A', 'minor')
+    c = Scale.from_name('f', 'minor')
+    d = Scale.from_name('A', 'major')
+    assert relative(a) is b
+    assert relative(b) is a
+    assert relative(c) is d
+    assert relative(d) is c
