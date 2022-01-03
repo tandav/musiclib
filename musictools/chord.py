@@ -84,16 +84,9 @@ class Chord:
 
     @classmethod
     def from_intervals(cls, root: str | Note, intervals: frozenset):
-        """
-        if you're creating chord from interval, you must specify root note
-        from which intervals are calculated
-        """
-        # instance = cls()
-        # instance.intervals
-        # instanse.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
-        # # name: str | None = None,
-
-        raise NotImplementedError
+        if isinstance(root, str):
+            root = Note(root)
+        return cls(frozenset(root + interval for interval in intervals) | {root}, root)
 
     @classmethod
     def random(cls, n_notes=None):

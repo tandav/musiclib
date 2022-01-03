@@ -33,6 +33,12 @@ def test_intervals():
     assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({4, 7})
 
 
+def test_from_intervals():
+    assert Chord.from_intervals('C', frozenset({4, 7})) == Chord(frozenset('CEG'), root='C')
+    assert Chord.from_intervals('E', frozenset({1, 3, 5, 7, 8, 10})) == Chord(frozenset('CDEFGAB'), root='E')
+    assert Chord.from_intervals('f', frozenset({2, 3, 5, 7, 9, 10})) == Chord(frozenset('faABdeE'), root='f')
+
+
 def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
     assert str(Chord.from_name('d', '7')) == 'dFaB/d'
