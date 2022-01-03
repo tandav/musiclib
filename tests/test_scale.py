@@ -87,3 +87,14 @@ def test_relative():
 def test_name(notes, root, name):
     assert Scale(notes, root).name == name
     assert Scale.from_name(root, name).notes == notes
+
+
+def test_kind():
+    assert Scale.from_name('C', 'major').kind == 'diatonic'
+
+
+def test_equal():
+    assert Scale.from_name('C', 'major') == Scale.from_name('C', 'major')
+    assert Scale.from_name('C', 'major') == Scale.from_name(Note('C'), 'major')
+    assert Scale.from_name(Note('C'), 'major') == Scale.from_name(Note('C'), 'major')
+    assert Scale.from_name(Note('C'), 'major') != Scale.from_name(Note('E'), 'major')
