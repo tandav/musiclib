@@ -27,3 +27,11 @@ def test_bits(notes, root, bits):
 def test_empty():
     with pytest.raises(ValueError):
         Notes(frozenset())
+
+
+def test_childs_names_unreachable():
+    with pytest.raises(KeyError): # test that Scale names are unreachable
+        Notes.from_name('C', 'major')
+
+    with pytest.raises(KeyError): # test that Chord names are unreachable
+        Notes.from_name('e', 'aug')
