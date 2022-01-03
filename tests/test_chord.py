@@ -11,26 +11,26 @@ def test_creation_from_notes():
 
 
 def test_creation_from_str():
-    assert str(Chord(frozenset({'C', 'E', 'G'}), root=Note('C'))) == 'CEG/C'
+    assert str(Chord(frozenset('CEG'), root=Note('C'))) == 'CEG/C'
 
 
 def test_notes():
-    assert Chord(frozenset({'C', 'E', 'G'}), root=Note('C')).notes == frozenset({Note('C'), Note('E'), Note('G')})
+    assert Chord(frozenset('CEG'), root=Note('C')).notes == frozenset({Note('C'), Note('E'), Note('G')})
     assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
 
 
 def test_str_sort_2_octaves():
-    assert str(Chord(frozenset({'B', 'D', 'F'}), root='B')) == 'BDF/B'
+    assert str(Chord(frozenset('BDF'), root='B')) == 'BDF/B'
     assert str(Chord(frozenset('DGBFCEA'), root='B')) == 'BCDEFGA/B'
 
 
 def test_name():
-    assert Chord(frozenset({'C', 'E', 'G'}), root=Note('C')).name == 'major'
-    assert Chord(frozenset({'B', 'D', 'F'}), root=Note('B')).name == 'diminished'
+    assert Chord(frozenset('CEG'), root=Note('C')).name == 'major'
+    assert Chord(frozenset('BDF'), root=Note('B')).name == 'diminished'
 
 
 def test_intervals():
-    assert Chord(frozenset({'C', 'E', 'G'}), root=Note('C')).intervals == frozenset({4, 7})
+    assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({4, 7})
 
 
 def test_from_name():
