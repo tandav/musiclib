@@ -1,14 +1,14 @@
 import itertools
-from collections.abc import Sequence
 from collections.abc import Iterable
 
 from musictools import config
 from musictools.note import Note
 from musictools.note import SpecificNote
+from musictools.note import AnyNote
 
 
 def iterate(
-    start_note: str | Note | SpecificNote = config.chromatic_notes[0],
+    start_note: AnyNote = config.chromatic_notes[0],
     take_n: int | None = None,
 ) -> Iterable[Note | SpecificNote]:
     names = itertools.cycle(config.chromatic_notes)
@@ -32,7 +32,7 @@ def iterate(
     yield from notes
 
 
-def sort_notes(it: Iterable[str | Note | SpecificNote]):
+def sort_notes(it: Iterable[AnyNote]):
     first = next(iter(it))
     if isinstance(first, str): return sorted(it, key=config.note_i.__getitem__)
     elif type(first) is Note: return sorted(it, key=lambda note: note.i)
