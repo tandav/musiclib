@@ -8,10 +8,12 @@ from musictools import config
 from musictools.chord import Chord
 from musictools.note import Note
 from musictools.note import SpecificNote
+from musictools.notes import Notes
 from musictools.piano import Piano
 from musictools.util.color import hex_to_rgb
 from musictools.util.iteration import iter_scales
 from musictools.util.text import cprint
+
 
 bits_2_name = {
     '101011010101': 'major',
@@ -39,7 +41,44 @@ bits_2_name = {
 name_2_bits = {v: k for k, v in bits_2_name.items()}
 
 
-class Scale:
+class Scale(Notes):
+    intervals_to_name = {
+        # diatonic
+        frozenset({2, 4, 5, 7, 9, 11}): 'major',
+        frozenset({2, 3, 5, 7, 9, 10}): 'dorian',
+        frozenset({1, 3, 5, 7, 8, 10}): 'phrygian',
+        frozenset({2, 4, 6, 7, 9, 11}): 'lydian',
+        frozenset({2, 4, 5, 7, 9, 10}): 'mixolydian',
+        frozenset({2, 3, 5, 7, 8, 10}): 'minor',
+        frozenset({1, 3, 5, 6, 8, 10}): 'locrian',
+        # pentatonic
+        frozenset({2, 4, 7, 9}): 'p_major',
+        frozenset({2, 5, 7, 10}): 'p_dorian',
+        frozenset({3, 5, 8, 10}): 'p_phrygian',
+        frozenset({2, 5, 7, 9}): 'p_mixolydian',
+        frozenset({3, 5, 7, 10}): 'p_minor',
+        # sudu
+        frozenset({2, 4, 5, 7, 9}): 's_major',
+        frozenset({2, 3, 5, 7, 10}): 's_dorian',
+        frozenset({1, 3, 5, 8, 10}): 's_phrygian',
+        frozenset({2, 4, 7, 9, 11}): 's_lydian',
+        frozenset({2, 5, 7, 9, 10}): 's_mixolydian',
+        frozenset({3, 5, 7, 8, 10}): 's_minor',
+    }
+    name_to_intervals = {v: k for k, v in intervals_to_name.items()}
+
+    def __init__(
+        self,
+        notes: frozenset[str | Note],
+        root: str | Note,
+    ):
+        super().__init__(notes, root)
+
+
+
+
+
+class ScaleOld:
     _cache = {}
 
     def __new__(cls, root: str | Note, name: str):
@@ -198,17 +237,17 @@ class ComparedScales:
     def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
-pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
-sudu = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
-all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
-
-# circle of fifths clockwise
-majors = dict(
-    diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
-    pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
-    sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
-)
+# diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
+# pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
+# sudu = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
+# all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
+#
+# # circle of fifths clockwise
+# majors = dict(
+#     diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
+#     pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
+#     sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
+# )
 
 
 @functools.cache

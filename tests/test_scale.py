@@ -78,3 +78,11 @@ def test_relative():
     assert relative(b) is a
     assert relative(c) is d
     assert relative(d) is c
+@pytest.mark.parametrize(('notes', 'root', 'name'), (
+    (frozenset('CDEFGAB'), 'C', 'major'),
+    (frozenset('CdeFGab'), 'C', 'phrygian'),
+    (frozenset('DEFGAbC'), 'D', 'minor'),
+    (frozenset('bdefa'), 'b', 'p_phrygian'),
+))
+def test_name(notes, root, name):
+    assert Scale(notes, root).name == name
