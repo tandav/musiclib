@@ -74,6 +74,17 @@ class Scale(Notes):
     ):
         super().__init__(notes, root)
         self.kind = config.kinds.get(self.name)
+        if self.kind == 'diatonic':
+            self.triads = self._make_triads()
+
+    def _make_triads(self):
+        notes_deque = deque(self.notes_ascending)
+        triads = []
+        for _ in range(len(notes_deque)):
+            chord = Chord(frozenset({notes_deque[0], notes_deque[2], notes_deque[4]}), root=notes_deque[0])
+            triads.append(chord)
+            notes_deque.rotate(-1)
+        return tuple(triads)
 
 
 class ScaleOld:
