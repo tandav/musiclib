@@ -4,8 +4,10 @@ import itertools
 import pipe21 as P
 
 from musictools.note import Note
+from musictools.note import SpecificNote
 from musictools import chromatic
 from musictools import config
+from musictools.note import AnyNote
 
 
 '''
@@ -106,10 +108,23 @@ class Notes:
         notes = frozenset(Note(note) for note in notes)
         return cls(notes, root)
 
-    def add_note(self, note: Note, steps: int):
+    def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
         notes = self.notes_ascending
+
+        if type(note) is str:
+            if len(note) == 1:
+                note = Note(note)
+            elif len(note) == 2:
+                note = SpecificNote.from_str(note)
+            else:
+                raise ValueError('invalid note string representation')
+
         if type(note) is Note:
             return notes[(notes.index(note) + steps) % len(notes)]
+        elif type(note) is SpecificNote:
+            # raise NotImplementedError
+            octave, i = divmod(notes.index(note.abstract) + steps, len(notes))
+            return SpecificNote(notes[i], note.octave + octave)
         else:
             raise TypeError
 
