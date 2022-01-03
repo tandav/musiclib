@@ -10,7 +10,6 @@ import pipe21 as P
 from musictools import config
 from musictools.chord import Chord
 from musictools.chord import SpecificChord
-from musictools.chord import name_to_intervals
 from musictools.note import SpecificNote
 from musictools.scale import Scale
 from musictools.scale import parallel
@@ -27,7 +26,7 @@ def all_triads(octaves=(4, 5, 6)):
     n3 = tuple(itertools.combinations(all_notes, 3))  # all 3-notes subsets
     all_chords = frozenset(
         Chord.from_name(root, name)
-        for root, name in itertools.product(config.chromatic_notes, name_to_intervals)
+        for root, name in itertools.product(config.chromatic_notes, Chord.name_to_intervals)
     )
 
     rootless_2_rootfull = {chord.rootless: chord for chord in all_chords}
