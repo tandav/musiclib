@@ -35,6 +35,7 @@ def test_intervals():
 
 def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
+    assert str(Chord.from_name('d', '7')) == 'dFaB/d'
 
 
 def test_from_str():

@@ -79,10 +79,8 @@ class Chord:
     def from_name(cls, root: str | Note, name: str):
         if isinstance(root, str):
             root = Note(root)
-        intervals = name_to_intervals[name]
-        notes = set(root + interval for interval in intervals)
-        notes.add(root)
-        return cls(frozenset(notes), root)
+        notes = frozenset(root + interval for interval in name_to_intervals[name]) | {root}
+        return cls(notes, root)
 
     @classmethod
     def from_intervals(cls, root: str | Note, intervals: frozenset):
