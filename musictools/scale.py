@@ -248,11 +248,11 @@ class ComparedScales:
             notes_squares={
                 chord.root: (
                     hex_to_rgb(config.chord_colors[chord.name]),
-                    config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
-                    config.BLUE_COLOR if chord in self.shared_chords else config.BLACK_COLOR,
+                    config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
+                    config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
                     chord.str_chord,
                 )
-                for chord in self.right.chords
+                for chord in self.right.triads
             } if self.right.kind == 'diatonic' else dict(),
         )._repr_svg_()
 

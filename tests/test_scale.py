@@ -82,3 +82,16 @@ def test_relative():
     assert relative(b) is a
     assert relative(c) is d
     assert relative(d) is c
+
+
+@pytest.fixture(params=(Scale.from_name('C', 'major'), Scale.from_name('A', 'major')))
+def scale(request):
+    yield request.param
+
+
+def test_svg_scale(scale):
+    scale.to_piano_image()
+
+
+def test_svg_compared_scale(scale):
+    ComparedScales(scale, Scale.from_name('f', 'phrygian')).to_piano_image()
