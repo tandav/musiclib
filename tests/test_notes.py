@@ -22,3 +22,8 @@ def test_bits_intervals(bits, intervals):
 ))
 def test_bits(notes, root, bits):
     assert Notes(notes, root).bits == bits
+
+
+def test_empty():
+    with pytest.raises(ValueError):
+        Notes(frozenset())

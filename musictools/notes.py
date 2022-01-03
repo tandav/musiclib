@@ -53,6 +53,9 @@ class Notes:
             chord w/o root has no intervals
         """
 
+        if len(notes) == 0:
+            raise ValueError('notes should be not empty')
+
         if isinstance(next(iter(notes)), str):
             notes = frozenset(Note(note) for note in notes)
 
