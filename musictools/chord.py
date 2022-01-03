@@ -64,14 +64,6 @@ class Chord:
             self.intervals = frozenset(note - root for note in notes - {root})
             self.name = intervals_to_name.get(self.intervals)
 
-        # self.str_chord = ''.join(note.name for note in self.notes)
-        # self.intervals = tuple(n - self.specific_notes[0] for n in self.specific_notes[1:])
-        # self.name = {(3, 7): 'minor', (4, 7): 'major', (3, 6): 'diminished'}.get(self.intervals)
-        # self.root = str_chord[0]
-        # self.root_octave = root_octave
-        # self.notes = tuple(Note(note, root_octave) for note in self.str_chord)
-        # self.add_notes_no_inverse()
-
     @property
     def rootless(self): return Chord(self.notes)
 
@@ -102,9 +94,6 @@ class Chord:
         notes = frozenset(Note(note) for note in notes)
         return cls(notes, root)
 
-    def inversions(self):
-        raise NotImplementedError
-
     def add_note(self, note: Note, steps: int):
         notes = self.notes_ascending
         if type(note) is Note:
@@ -122,8 +111,6 @@ class Chord:
     #     return Piano(chord=self)._repr_svg_()
 
     def __repr__(self):
-        # _ = '{' + ' '.join(f'{note.name}' for note in self.notes) + '}'
-        # return f"Chord({self.str_chord} / {self.root.name if self.root is not None else self.root})"
         _ = self.str_chord
         if self.root is not None:
             _ += f'/{self.root.name}'
