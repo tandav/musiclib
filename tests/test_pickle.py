@@ -23,7 +23,7 @@ def test_chord(chord):
 
 
 @pytest.mark.parametrize('scale', (
-    Scale('C', 'major'),
+    Scale.from_name('C', 'major'),
 ))
 def test_scale(scale):
     pickle.dumps(scale)
