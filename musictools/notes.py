@@ -1,5 +1,7 @@
 import random
 
+import pipe21 as P
+
 from musictools.note import Note
 from musictools import chromatic
 from musictools import config
@@ -141,3 +143,21 @@ class Notes:
     #     '''
 
 # class SpecificNotes: pass
+
+
+def bits_to_intervals(bits: str) -> frozenset:
+    return (
+        bits
+        | P.Map(int)
+        | P.Pipe(enumerate)
+        | P.FilterValues()
+        | P.Keys()
+        | P.Pipe(frozenset)
+    )
+
+
+def intervals_to_bits(intervals: frozenset) -> str:
+    bits = ['0'] * 12
+    for i in intervals:
+        bits[i] = '1'
+    return ''.join(bits)
