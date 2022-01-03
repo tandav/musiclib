@@ -32,9 +32,15 @@ def iterate(
     yield from notes
 
 
-def sort_notes(it: Iterable[AnyNote]):
+def sort_notes(it: Iterable[AnyNote], start: AnyNote | None = None):
     first = next(iter(it))
-    if isinstance(first, str): return sorted(it, key=config.note_i.__getitem__)
-    elif type(first) is Note: return sorted(it, key=lambda note: note.i)
-    elif type(first) is SpecificNote: return sorted(it, key=lambda note: note.absolute_i)
+    if isinstance(first, str): out = sorted(it, key=config.note_i.__getitem__)
+    elif type(first) is Note: out = sorted(it, key=lambda note: note.i)
+    elif type(first) is SpecificNote: out = sorted(it, key=lambda note: note.absolute_i)
     else: raise TypeError
+
+    if start is None:
+        return out
+
+    i = out.index(start)
+    return out[i:] + out[:i]

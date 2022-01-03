@@ -19,9 +19,9 @@ def test_notes():
     assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
 
 
-@pytest.mark.xfail(reason='todo: sort chromatically even for abstract notes when chord is in 2 octaves')
 def test_str_sort_2_octaves():
     assert str(Chord(frozenset({'B', 'D', 'F'}), root='B')) == 'BDF/B'
+    assert str(Chord(frozenset('DGBFCEA'), root='B')) == 'BCDEFGA/B'
 
 
 def test_name():

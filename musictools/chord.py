@@ -54,7 +54,7 @@ class Chord:
         self.notes = notes
         self.root = root
         self.key = self.notes, self.root
-        self.notes_ascending = chromatic.sort_notes(self.notes)
+        self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
         self.str_chord = ''.join(note.name for note in self.notes_ascending)
 
         if root is not None:
