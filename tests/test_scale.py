@@ -1,5 +1,6 @@
 import pytest
 
+from musictools import config
 from musictools.note import Note
 from musictools.note import SpecificNote
 from musictools.scale import ComparedScales
@@ -40,6 +41,11 @@ def test_equal():
 ))
 def test_scale_triads(notes, triads):
     assert Scale(frozenset(notes), notes[0]).triads == tuple(Chord.from_str(s) for s in triads.split())
+
+
+@pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))
+def test_note_scales(notes):
+    assert Scale(frozenset(notes), notes[0]).note_scales == dict(zip(notes, config.diatonic))
 
 
 def test_cache():

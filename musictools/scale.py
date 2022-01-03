@@ -66,7 +66,7 @@ class Scale(Notes):
         self.note_colors = {}
         self.note_scales = {}
 
-        for note, scale in zip(self.notes, iter_scales(self.kind, start=self.name)):
+        for note, scale in zip(self.notes_ascending, iter_scales(self.kind, start=self.name)):
             self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
             self.note_scales[note] = scale
 
