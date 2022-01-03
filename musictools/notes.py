@@ -1,4 +1,5 @@
 import random
+import itertools
 
 import pipe21 as P
 
@@ -15,6 +16,24 @@ Notes
 '''
 
 
+def bits_to_intervals(bits: str) -> frozenset:
+    return (
+        bits
+        | P.Map(int)
+        | P.Pipe(enumerate)
+        | P.Pipe(lambda it: itertools.islice(it, 1, None))
+        | P.FilterValues()
+        | P.Keys()
+        | P.Pipe(frozenset)
+    )
+
+
+def intervals_to_bits(intervals: frozenset) -> str:
+    bits = ['0'] * 12
+    bits[0] = '1'
+    for i in intervals:
+        bits[i] = '1'
+    return ''.join(bits)
 
 
 class Notes:
@@ -143,25 +162,3 @@ class Notes:
     #     '''
 
 # class SpecificNotes: pass
-
-
-def bits_to_intervals(bits: str) -> frozenset:
-    return (
-        bits
-        | P.Map(int)
-        | P.Pipe(enumerate)
-        | P.FilterValues()
-        | P.Keys()
-        | P.Pipe(frozenset)
-    )
-
-
-def intervals_to_bits(intervals: frozenset) -> str:
-    bits = ['0'] * 12
-    for i in intervals:
-        bits[i] = '1'
-    return ''.join(bits)
-
-
-def notes_to_intervals(notes: frozenset[str | Note]) -> frozenset[int]:
-    return frozenset(config.chromatic_notes.index(note) for note in notes)
