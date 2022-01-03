@@ -16,10 +16,9 @@ def test_bits_intervals(bits, intervals):
     assert intervals_to_bits(intervals) == bits
 
 
-@pytest.mark.parametrize(('notes', 'intervals'), (
-    (frozenset('CDEFGAB'), frozenset({0, 2, 4, 5, 7, 9, 11})),
-    (frozenset('CdeFGab'), frozenset({0, 1, 3, 5, 7, 8, 10})),
+@pytest.mark.parametrize(('notes', 'root', 'bits'), (
+    (frozenset('CDEFGAB'), 'C', '101011010101'),
+    (frozenset('dfb'), 'd', '100001000100'),
 ))
-def test_notes_to_intervals(notes, intervals):
-    assert notes_to_intervals(notes) == intervals
-
+def test_bits(notes, root, bits):
+    assert Notes(notes, root).bits == bits

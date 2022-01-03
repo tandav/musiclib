@@ -70,6 +70,7 @@ class Notes:
                 raise ValueError('root note should be one of the chord notes')
 
             self.intervals = frozenset(note - root for note in notes - {root})
+            self.bits = intervals_to_bits(self.intervals)
             self.name = self.__class__.intervals_to_name.get(self.intervals)
 
     @property
