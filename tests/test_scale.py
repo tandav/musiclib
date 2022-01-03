@@ -86,3 +86,4 @@ def test_relative():
 ))
 def test_name(notes, root, name):
     assert Scale(notes, root).name == name
+    assert Scale.from_name(root, name).notes == notes
