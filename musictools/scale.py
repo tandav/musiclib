@@ -73,9 +73,7 @@ class Scale(Notes):
         root: str | Note,
     ):
         super().__init__(notes, root)
-
-
-
+        self.kind = config.kinds.get(self.name)
 
 
 class ScaleOld:
