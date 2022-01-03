@@ -15,32 +15,6 @@ from musictools.util.iteration import iter_scales
 from musictools.util.text import cprint
 
 
-bits_2_name = {
-    '101011010101': 'major',
-    '101101010110': 'dorian',
-    '110101011010': 'phrygian',
-    '101010110101': 'lydian',
-    '101011010110': 'mixolydian',
-    '101101011010': 'minor',
-    '110101101010': 'locrian',
-
-    '101010010100': 'p_major',
-    '101001010010': 'p_dorian',
-    '100101001010': 'p_phrygian',
-    '101001010100': 'p_mixolydian',
-    '100101010010': 'p_minor',
-
-    '101011010100': 's_major',
-    '101101010010': 's_dorian',
-    '110101001010': 's_phrygian',
-    '101010010101': 's_lydian',
-    '101001010110': 's_mixolydian',
-    '100101011010': 's_minor',
-}
-
-name_2_bits = {v: k for k, v in bits_2_name.items()}
-
-
 class Scale(Notes):
     intervals_to_name = {
         # diatonic
@@ -89,6 +63,15 @@ class Scale(Notes):
         if self.kind == 'diatonic':
             self.triads = self._make_triads()
 
+        self.note_colors = {}
+        self.note_scales = {}
+
+        for note, scale in zip(self.notes, iter_scales(self.kind, start=self.name)):
+            self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
+            self.note_scales[note] = scale
+
+        self.html_classes = ('card', self.name)
+
     def _make_triads(self):
         notes_deque = deque(self.notes_ascending)
         triads = []
@@ -98,6 +81,26 @@ class Scale(Notes):
             notes_deque.rotate(-1)
         return tuple(triads)
 
+    def to_piano_image(self):
+        return Piano(scale=self)._repr_svg_()
+
+    def with_html_classes(self, classes: tuple):
+        prev = self.html_classes
+        self.html_classes = prev + classes
+        r = self._repr_html_()
+        self.html_classes = prev
+        return r
+
+    def _repr_html_(self):
+        # <code>bits: {self.bits}</code><br>
+        # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
+        chords_hover = ''
+        return f'''
+        <div class='{' '.join(self.html_classes)}' {chords_hover}>
+        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}</h3></span></a>
+        {self.to_piano_image()}
+        </div>
+        '''
 
 class ScaleOld:
     _cache = {}
