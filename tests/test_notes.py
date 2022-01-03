@@ -2,6 +2,7 @@ import pytest
 
 from musictools.notes import bits_to_intervals
 from musictools.notes import intervals_to_bits
+from musictools.notes import notes_to_intervals
 
 
 @pytest.mark.parametrize(('bits', 'intervals'), (
@@ -13,4 +14,12 @@ from musictools.notes import intervals_to_bits
 def test_bits_intervals(bits, intervals):
     assert bits_to_intervals(bits) == intervals
     assert intervals_to_bits(intervals) == bits
+
+
+@pytest.mark.parametrize(('notes', 'intervals'), (
+    (frozenset('CDEFGAB'), frozenset({0, 2, 4, 5, 7, 9, 11})),
+    (frozenset('CdeFGab'), frozenset({0, 1, 3, 5, 7, 8, 10})),
+))
+def test_notes_to_intervals(notes, intervals):
+    assert notes_to_intervals(notes) == intervals
 

@@ -161,3 +161,7 @@ def intervals_to_bits(intervals: frozenset) -> str:
     for i in intervals:
         bits[i] = '1'
     return ''.join(bits)
+
+
+def notes_to_intervals(notes: frozenset[str | Note]) -> frozenset[int]:
+    return frozenset(config.chromatic_notes.index(note) for note in notes)
