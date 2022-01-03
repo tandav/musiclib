@@ -67,7 +67,19 @@ class Scale(Notes):
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
-    def __init__(
+    _cache = {}
+
+    def __new__(cls, root: str | Note, name: str):
+        key = root, name
+        if instance := cls._cache.get(key):
+            return instance
+        instance = super().__new__(cls)
+        instance._long_init(root, name)
+        cls._cache[key] = instance
+        return instance
+
+    # def __init__(
+    def _long_init(
         self,
         notes: frozenset[str | Note],
         root: str | Note,

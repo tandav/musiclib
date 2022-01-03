@@ -40,7 +40,6 @@ def test_scale_triads(notes, root, triads):
     assert Scale(notes, root).triads == tuple(Chord.from_str(s) for s in triads.split())
 
 
-@pytest.mark.xfail(reason='TODO')
 def test_cache():
     assert Scale.from_name('C', 'major') is Scale.from_name('C', 'major')
     assert Scale.from_name('C', 'major') is not Scale.from_name('D', 'major')
