@@ -1,3 +1,4 @@
+
 import pytest
 
 from musictools.chord import Chord
@@ -101,3 +102,13 @@ def test_find_intervals():
     ))
 def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
+
+
+@pytest.mark.asyncio
+async def test_play(capsys):
+    await SpecificChord.from_str('C1_E1_G2').play(seconds=0.0001)
+    stdout, stderr = capsys.readouterr()
+    stdout = stdout.splitlines()
+    on, off = set(stdout[:3]), set(stdout[3:])
+    assert on == {'note_on note=12, channel=0', 'note_on note=16, channel=0', 'note_on note=31, channel=0'}
+    assert off == {'note_off note=12, channel=0', 'note_off note=16, channel=0', 'note_off note=31, channel=0'}
