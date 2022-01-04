@@ -74,6 +74,10 @@ jobs:
     needs: test
 
     steps:
+      - uses: actions/checkout@v2
+
+      - name: save commit messages
+        run: make messages
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
