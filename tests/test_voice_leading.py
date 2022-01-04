@@ -1,12 +1,14 @@
 import itertools
+
 import pytest
 
 from musictools import voice_leading
 from musictools.chord import SpecificChord
 from musictools.note import SpecificNote
-from musictools.scale import Scale
-from musictools.scale import Notes
 from musictools.notes import note_range
+from musictools.scale import Notes
+from musictools.scale import Scale
+
 
 @pytest.mark.xfail(reason='deprecated')
 def test_count_all_triads():

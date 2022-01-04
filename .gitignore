@@ -1,0 +1,11 @@
+.hypothesis
+htmlcov
+logs
+*.pkl
+*.ipynb
+*.asd
+static/cache
+static/messages.txt
+.coverage
+archive
+credentials.py

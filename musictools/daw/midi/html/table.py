@@ -1,8 +1,6 @@
 import collections
 import heapq
 import itertools
-import shutil
-from pathlib import Path
 
 import mido
 
@@ -16,8 +14,7 @@ def midi_table_html():
     file = config.MIDI_UI_FILE
     m = mido.MidiFile(file)
     m.tracks = m.tracks[::-1]  # specific for only test midi file (left -> right low -> high)
-    all_chords = [Chord.from_name(note, name) for note, name in
-                  itertools.product(config.chromatic_notes, name_to_intervals)]
+    all_chords = [Chord.from_name(note, name) for note, name in itertools.product(config.chromatic_notes, name_to_intervals)]
     notes = parse_notes(m)
     tracks = [[] for track in m.tracks]
     unique_notes = []

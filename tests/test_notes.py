@@ -1,14 +1,13 @@
 import pytest
 
-from musictools.notes import bits_to_intervals
-from musictools.notes import intervals_to_bits
-from musictools.notes import Notes
-from musictools.notes import note_range
+from musictools.chord import Chord
 from musictools.note import Note
 from musictools.note import SpecificNote
+from musictools.notes import Notes
+from musictools.notes import bits_to_intervals
+from musictools.notes import intervals_to_bits
+from musictools.notes import note_range
 from musictools.scale import Scale
-from musictools.chord import Chord
-from musictools.chord import SpecificChord
 
 
 @pytest.mark.parametrize('bits, intervals', (
@@ -36,10 +35,10 @@ def test_empty():
 
 
 def test_childs_names_unreachable():
-    with pytest.raises(KeyError): # test that Scale names are unreachable
+    with pytest.raises(KeyError):  # test that Scale names are unreachable
         Notes.from_name('C', 'major')
 
-    with pytest.raises(KeyError): # test that Chord names are unreachable
+    with pytest.raises(KeyError):  # test that Chord names are unreachable
         Notes.from_name('e', 'aug')
 
 

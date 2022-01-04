@@ -32,6 +32,7 @@ class Chord(Notes):
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
+
 class SpecificChord:
     def __init__(
         self,
@@ -87,7 +88,6 @@ class SpecificChord:
     def __repr__(self):
         _ = self.str_chord
         if self.root is not None:
-            #_ = f'{self.root.name}__{_}'
             _ = f'{_}/{self.root.name}'
         return _
 

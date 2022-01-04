@@ -106,6 +106,8 @@ class Scale(Notes):
         </div>
         '''
 
+# flake8: noqa
+
 
 class ScaleOld:
     _cache = {}

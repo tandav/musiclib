@@ -1,14 +1,13 @@
-import random
 import itertools
+import random
 
 import pipe21 as P
 
-from musictools.note import Note
-from musictools.note import SpecificNote
 from musictools import chromatic
 from musictools import config
 from musictools.note import AnyNote
-
+from musictools.note import Note
+from musictools.note import SpecificNote
 
 '''
 Notes

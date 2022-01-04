@@ -2,9 +2,9 @@ import itertools
 from collections.abc import Iterable
 
 from musictools import config
+from musictools.note import AnyNote
 from musictools.note import Note
 from musictools.note import SpecificNote
-from musictools.note import AnyNote
 
 
 def iterate(
