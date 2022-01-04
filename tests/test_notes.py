@@ -34,6 +34,11 @@ def test_empty():
         Notes(frozenset())
 
 
+def test_root_validation():
+    with pytest.raises(KeyError):
+        Notes(frozenset('AB'), root='E')
+
+
 def test_childs_names_unreachable():
     with pytest.raises(KeyError):  # test that Scale names are unreachable
         Notes.from_name('C', 'major')

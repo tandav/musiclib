@@ -55,11 +55,6 @@ def test_from_str():
         assert Chord.from_str(str(chord)) == chord
 
 
-def test_root_validation():
-    with pytest.raises(ValueError):
-        SpecificChord(frozenset({SpecificNote('A'), SpecificNote('B')}), root=Note('E'))
-
-
 def test_combinations_order():
     for _ in range(10):
         for n, m in SpecificChord.random().notes_combinations():

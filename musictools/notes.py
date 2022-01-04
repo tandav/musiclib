@@ -63,6 +63,9 @@ class Notes:
         if isinstance(root, str):
             root = Note(root)
 
+        if root is not None and root not in notes:
+            raise KeyError('root should be one of notes')
+
         self.notes = notes
         self.root = root
         self.key = self.notes, self.root
