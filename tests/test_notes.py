@@ -3,8 +3,12 @@ import pytest
 from musictools.notes import bits_to_intervals
 from musictools.notes import intervals_to_bits
 from musictools.notes import Notes
+from musictools.notes import note_range
 from musictools.note import Note
 from musictools.note import SpecificNote
+from musictools.scale import Scale
+from musictools.chord import Chord
+from musictools.chord import SpecificChord
 
 
 @pytest.mark.parametrize('bits, intervals', (
@@ -54,3 +58,15 @@ def test_childs_names_unreachable():
 ))
 def test_add_note(notes, note, steps, result):
     assert Notes(frozenset(notes)).add_note(note, steps) == result
+
+
+@pytest.mark.parametrize('start, stop, scale, expected', (
+    ('C0', 'C1', None, 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
+    ('b3', 'E4', None, 'b3 B3 C4 d4 D4 e4 E4'),
+    ('C0', 'C1', Notes(frozenset('CDEFGAB')), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+    ('C0', 'C1', Scale(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+    ('C0', 'C1', Chord(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+    ('a3', 'f4', Notes(frozenset('dEfaB')), 'a3 B3 d4 E4 f4'),
+))
+def test_note_range(start, stop, scale, expected):
+    assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop)) == tuple(SpecificNote.from_str(s) for s in expected.split())

@@ -181,3 +181,22 @@ class Notes:
     #     '''
 
 # class SpecificNotes: pass
+
+
+def note_range(
+    start: SpecificNote,
+    stop: SpecificNote,
+    notes: Notes = Notes(config.chromatic_notes),
+) -> tuple[SpecificNote]:
+    """returned range is including both ends (start, stop)"""
+    # if scale is None:
+    #     scale = Notes(config.chromatic_notes)
+        #return tuple(SpecificNote.from_absolute_i(i) for i in range(start.absolute_i, stop.absolute_i + 1))
+    # return note_range(tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes))[5:-5])
+
+    out = []
+    note = start
+    while note != stop:
+        out.append(note)
+        note = notes.add_note(note, 1)
+    return tuple(out)
