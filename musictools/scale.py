@@ -106,6 +106,7 @@ class Scale(Notes):
         </div>
         '''
 
+
 class ScaleOld:
     _cache = {}
 
@@ -265,17 +266,17 @@ class ComparedScales:
     def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-# diatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
-# pentatonic = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
-# sudu = {(root, name): Scale(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
-# all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
-#
-# # circle of fifths clockwise
-# majors = dict(
-#     diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
-#     pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
-#     sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
-# )
+diatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
+pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
+sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
+all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
+
+# circle of fifths clockwise
+majors = dict(
+    diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
+    pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
+    sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
+)
 
 
 @functools.cache
@@ -299,8 +300,8 @@ def print_neighbors(s: Scale):
                 if note in s.chromatic_mask: print(cprint(note, color='BLUE'), end='')
                 else: print(note, end='')
             print(' |', end=' ')
-            for chord in n.chords:
-                if chord in n.shared_chords: print(cprint(chord, color='BLUE'), end=' ')
+            for chord in n.triads:
+                if chord in n.shared_triads: print(cprint(chord, color='BLUE'), end=' ')
                 else: print(chord, end=' ')
             print()
         print('=' * 100)

@@ -19,7 +19,7 @@ from musictools.daw.vst.organ import Organ
 from musictools.daw.vst.sampler import Sampler
 from musictools.daw.vst.sine import Sine8
 from musictools.note import SpecificNote
-from musictools.note import note_range
+from musictools.notes import note_range
 from musictools.rhythm import Rhythm
 from musictools.scale import Scale
 from musictools.util.text import ago
@@ -35,9 +35,9 @@ def make_rhythms():
 
 
 # @memory.cache
-def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
+def make_progressions(note_range_, scale=Scale.from_name('C', 'phrygian')):
     progressions = []
-    scales = [Scale(note, name) for note, name in scale.note_scales.items()]
+    scales = [Scale.from_name(note, name) for note, name in scale.note_scales.items()]
     for scale in scales:
         for dist, p in voice_leading.make_progressions(scale, note_range_):
             P = p, dist, scale
@@ -46,11 +46,9 @@ def make_progressions(note_range_, scale=Scale('C', 'phrygian')):
     return progressions
 
 
-def render_loop(stream, rhythms, progressions, bass, synth, drum_midi, drumrack, messages):
-    if config.progressions_queue:
-        progression, dist, scale = config.progressions_queue.popleft()
-    else:
-        progression, dist, scale = random.choice(progressions)
+def render_loop(stream, rhythms, progression, bass, synth, drum_midi, drumrack, messages):
+
+    progression, dist, scale = progression
     # rhythm = random.choice(rhythms)
 
     bass_midi = []
@@ -146,14 +144,6 @@ def main() -> int:
     # print(args, args.output_stream)
     # print(args)
     # raise
-    # synth = vst.Sampler(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    # synth = vst.Sine(adsr=ADSR(attack=0.001, decay=0.05, sustain=1, release=1))
-    # synth = vst.Organ(adsr=ADSR(attack=0.001, decay=0.15, sustain=0, release=0.1))
-    # midi = ParsedMidi.from_file(config.midi_file, vst=synth)
-    # midi = ParsedMidi.from_file('drumloop.mid', vst=synth)
-    # midi = ParsedMidi.from_file('bassline.mid', vst=synth)
-    # midi = ParsedMidi.from_file('4-4-8.mid', vst=synth)
-    # midi = ParsedMidi.from_files(['4-4-8.mid', '4-4-8-offbeat.mid'], vst=(
 
     is_test = False
     if len(sys.argv) == 1:
@@ -174,6 +164,8 @@ def main() -> int:
             is_test = True
             n_loops = int(sys.argv[2]) if len(sys.argv) == 3 else 4
         elif sys.argv[1] == 'video':
+            # from musictools.ui.server import start_ui
+            # start_ui()
             import credentials
             config.OUTPUT_VIDEO = credentials.stream_url
             output = Video
@@ -199,7 +191,7 @@ def main() -> int:
     # config.note_range = note_range(SpecificNote('C', 4), SpecificNote('C', 7))
     config.note_range = note_range(SpecificNote('C', 5), SpecificNote('C', 8))
     rhythms = make_rhythms()
-    config.progressions = make_progressions(config.note_range, scale=Scale('C', 'major'))
+    config.progressions = make_progressions(config.note_range, scale=Scale.from_name('C', 'major'))
     config.progressions_queue = deque()
     config.note_range = note_range(config.note_range[0] + -24, config.note_range[-1])
 
@@ -240,10 +232,12 @@ def main() -> int:
 
         if is_test:
             for _ in range(n_loops):
-                render_loop(stream, rhythms, config.progressions, bass, synth, drum_midi, drumrack, messages)
+                render_loop(stream, rhythms, random.choice(config.progressions), bass, synth, drum_midi, drumrack, messages)
         else:
             while True:
-                render_loop(stream, rhythms, config.progressions, bass, synth, drum_midi, drumrack, messages)
+                if len(config.progressions_queue) < 4:
+                    config.progressions_queue.append(random.choice(config.progressions))
+                render_loop(stream, rhythms, config.progressions_queue.popleft(), bass, synth, drum_midi, drumrack, messages)
 
         # for _ in range(1):
         #     i = random.randrange(0, n)

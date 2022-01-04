@@ -94,5 +94,4 @@ class SpecificNote(Note):
         return SpecificNote.from_absolute_i(self.absolute_i + other)
 
 
-
 AnyNote = str | Note | SpecificNote

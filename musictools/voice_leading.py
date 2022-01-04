@@ -162,7 +162,7 @@ def possible_chords(scale: Scale, note_range: tuple[SpecificNote]) -> tuple[Spec
         note_range
         | P.Filter(lambda note: note.abstract in set(scale.notes))
         | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
-        | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.chords if chord.name != 'diminished')))
+        | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.triads if chord.name != 'diminished')))
         | P.Filter(no_large_spacing)
         | P.Pipe(tuple)
     )
@@ -261,21 +261,21 @@ def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
     print(s, parallel_, relative_)
     print('=' * 100)
     chords = []
-    chords.append(s.chords[0])
+    chords.append(s.triads[0])
 
     steps = {'major': (0, 1, 2, 3, 4, 5), 'minor': (0, 2, 3, 4, 5, 6)}[s.name]  # disable diminished
 
     for _ in range(n - 1):
         step = random.choice(steps)
         s_ = s if random.random() > parallel_prob else parallel_
-        c = s_.chords[step]
+        c = s_.triads[step]
         print(s_, c)
         chords.append(c)
     return chords
 
 
 def str_to_chord_progression(s: Scale, progression: str):
-    return tuple(s.chords[s.notes.index(c)] for c in progression)
+    return tuple(s.triads[s.notes.index(c)] for c in progression)
 
 
 def chord_transitons(
