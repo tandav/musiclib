@@ -22,9 +22,6 @@ class Note:  # Note(str) ??
     def from_i(cls, i: int):
         return cls(config.chromatic_notes[i % 12])
 
-    async def play(self, seconds: Number = 1):
-        await SpecificNote(self).play(seconds)
-
     def short_repr(self): return self.name
     def __repr__(self): return f'Note(name={self.name})'
 
