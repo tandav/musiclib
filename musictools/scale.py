@@ -43,12 +43,16 @@ class Scale(Notes):
 
     _cache = {}
 
-    def __new__(cls, root: str | Note, name: str):
-        key = root, name
+    def __new__(
+        cls,
+        notes: frozenset[str | Note],
+        root: str | Note,
+    ):
+        key = notes, root
         if instance := cls._cache.get(key):
             return instance
         instance = super().__new__(cls)
-        instance._long_init(root, name)
+        instance._long_init(notes, root)
         cls._cache[key] = instance
         return instance
 
