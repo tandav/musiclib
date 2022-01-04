@@ -69,5 +69,5 @@ def test_sub(absolute_i, to_sub):
 def test_color():
     assert not Note('C').is_black
     assert Note('d').is_black
-    assert not SpecificNote('D').is_black
-    assert SpecificNote('f').is_black
+    assert not SpecificNote('D', 1).is_black
+    assert SpecificNote('f', -35).is_black

@@ -50,7 +50,7 @@ class Note:  # Note(str) ??
 
 @functools.total_ordering
 class SpecificNote(Note):
-    def __init__(self, abstract: Note | str, octave: int = config.default_octave):
+    def __init__(self, abstract: Note | str, octave: int):
         """
         :param octave: in midi format (C5-midi == C3-ableton)
         """
