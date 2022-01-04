@@ -6,7 +6,7 @@ from musictools.note import Note
 from musictools.note import SpecificNote
 
 
-@pytest.mark.parametrize(('i', 'expected'), (
+@pytest.mark.parametrize('i, expected', (
     (0, 'C'),
     (12, 'C'),
     (1, 'd'),
@@ -23,7 +23,7 @@ def test_specific_note_from_absolute_i(absolute_i):
     assert SpecificNote.from_absolute_i(absolute_i).absolute_i == absolute_i
 
 
-@pytest.mark.parametrize(('string', 'expected'), (
+@pytest.mark.parametrize('string, expected', (
     ('F1', SpecificNote('F', 1)),
     ('C4', SpecificNote('C', 4)),
 ))
@@ -39,7 +39,7 @@ async def test_play(capsys):
     assert stdout == f'note_on note={note.absolute_i}, channel=0\nnote_off note={note.absolute_i}, channel=0\n'
 
 
-@pytest.mark.parametrize(('note', 'steps', 'expected'), (
+@pytest.mark.parametrize('note, steps, expected', (
     (Note('C'), 4, Note('E')),
     (Note('C'), 15, Note('e')),
     (Note('B'), 2, Note('d')),

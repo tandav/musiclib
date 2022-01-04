@@ -11,7 +11,7 @@ from musictools.scale import relative
 
 
 
-@pytest.mark.parametrize(('notes', 'name'), (
+@pytest.mark.parametrize('notes, name', (
     ('CDEFGAB', 'major'),
     ('CdeFGab', 'phrygian'),
     ('DEFGAbC', 'minor'),
@@ -35,7 +35,7 @@ def test_equal():
     assert Scale.from_name(Note('C'), 'major') != Scale.from_name(Note('E'), 'major')
 
 
-@pytest.mark.parametrize(('notes', 'triads'), (
+@pytest.mark.parametrize('notes, triads', (
     ('CDEFGAB', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
     ('DEFGAbC', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
 ))

@@ -78,7 +78,7 @@ def test_find_intervals():
 
 
 @pytest.mark.parametrize(
-    ('chord', 'note', 'steps', 'result'), (
+    'chord, note, steps, result', (
     (Chord.from_str('CEG'), Note('C'), 1, Note('E')),
     (Chord.from_str('CEG'), Note('C'), 2, Note('G')),
     (Chord.from_str('CEG'), Note('C'), 3, Note('C')),

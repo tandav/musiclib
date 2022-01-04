@@ -7,7 +7,7 @@ from musictools.note import Note
 from musictools.note import SpecificNote
 
 
-@pytest.mark.parametrize(('bits', 'intervals'), (
+@pytest.mark.parametrize('bits, intervals', (
     ('101011010101', frozenset({2, 4, 5, 7, 9, 11})),
     ('110101101010', frozenset({1, 3, 5, 6, 8, 10})),
     ('101001010100', frozenset({2, 5, 7, 9})),
@@ -18,7 +18,7 @@ def test_bits_intervals(bits, intervals):
     assert intervals_to_bits(intervals) == bits
 
 
-@pytest.mark.parametrize(('notes', 'root', 'bits'), (
+@pytest.mark.parametrize('notes, root, bits', (
     (frozenset('CDEFGAB'), 'C', '101011010101'),
     (frozenset('dfb'), 'd', '100001000100'),
 ))
@@ -39,7 +39,7 @@ def test_childs_names_unreachable():
         Notes.from_name('e', 'aug')
 
 
-@pytest.mark.parametrize(('notes', 'note', 'steps', 'result'), (
+@pytest.mark.parametrize('notes, note, steps, result', (
     ('CDEFGAB', Note('C'), 3, 'F'),
     ('CDEFGAB', 'C', 3, 'F'),
     ('CDEFGAB', 'C', -2, 'A'),
