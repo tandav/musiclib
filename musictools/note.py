@@ -72,8 +72,7 @@ class SpecificNote(Note):
 
     @classmethod
     def from_str(cls, string: str):
-        note, octave = string
-        return cls(Note(note), int(octave))
+        return cls(Note(string[0]), int(string[1:]))
 
     async def play(self, seconds: Number = 1):
         player.send_message('note_on', note=self.absolute_i, channel=0)

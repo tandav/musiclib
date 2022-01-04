@@ -26,6 +26,9 @@ def test_specific_note_from_absolute_i(absolute_i):
 @pytest.mark.parametrize('string, expected', (
     ('F1', SpecificNote('F', 1)),
     ('C4', SpecificNote('C', 4)),
+    ('C10', SpecificNote('C', 10)),
+    ('d456', SpecificNote('d', 456)),
+    ('d-456', SpecificNote('d', -456)),
 ))
 def test_from_str(string, expected):
     assert SpecificNote.from_str(string) == expected
