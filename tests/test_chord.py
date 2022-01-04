@@ -65,6 +65,15 @@ def test_combinations_order():
             assert n < m
 
 
+@pytest.mark.parametrize('specific, abstract', (
+    ('C1_E1_G2/C', 'CEG/C'),
+    ('C1_E1_G2', 'CEG'),
+    ('C1_E1_G2', 'CEG'),
+))
+def test_abstract(specific, abstract):
+    assert SpecificChord.from_str(specific).abstract == Chord.from_str(abstract)
+
+
 def test_find_intervals():
     a = SpecificNote('C', 5)
     b = SpecificNote('E', 5)
