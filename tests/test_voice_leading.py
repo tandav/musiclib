@@ -1,5 +1,3 @@
-import itertools
-
 import pytest
 
 from musictools import voice_leading
@@ -79,9 +77,7 @@ def test_chord_transitons(notes, chord_str, transitions, unique_abstract):
 
 
 def test_transition_graph():
-    scale = Scale.from_name('C', 'major')
-    octaves = range(3)
-    note_range = tuple(SpecificNote(note, octave) for octave, note in itertools.product(octaves, scale.notes_ascending))[5:-5]
-    graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range)
+    note_range_ = note_range(SpecificNote('A', 0), SpecificNote('D', 2), Notes(frozenset('CDEFGAB')))
+    graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range_)
     assert len(graph) == 80
     assert sum(map(len, graph.values())) == 300
