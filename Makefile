@@ -70,12 +70,12 @@ upload_creds_makefile:
 messages:
 	git log --pretty='%ad %h %s' --date=unix > static/messages.txt
 
-.PHONY: build_push_streaming
-build_push_streaming:
+.PHONY: build_push_stream
+build_push_stream: messages
 	make messages
-	docker buildx build --platform linux/arm64/v8,linux/amd64 --tag tandav/musictools-stream -f ./Dockerfile-stream --push .
-	#docker build -t tandav/musictools-stream -f ./Dockerfile-stream .
-	#docker push tandav/musictools-stream
+	#docker buildx build --platform linux/arm64/v8,linux/amd64 --tag tandav/musictools-stream -f ./Dockerfile-stream --push .
+	docker build --tag tandav/musictools-stream -f ./Dockerfile-stream .
+	docker push tandav/musictools-stream
 
 .PHONY: midi_html
 midi_html:
