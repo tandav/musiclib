@@ -3,7 +3,7 @@ import functools
 from numbers import Number
 
 from musictool import config
-from musictool.daw.midi import player
+from musictool.midi import player
 
 
 class Note:  # Note(str) ??
