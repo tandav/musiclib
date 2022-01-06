@@ -4,9 +4,9 @@ RUN pip install fastapi uvicorn aiofiles tqdm mido pipe21
 
 EXPOSE 8001
 
-RUN mkdir -p /app/musictools
+RUN mkdir -p /app/musictool
 RUN mkdir -p /app/static
-COPY musictools /app/musictools
+COPY musictool /app/musictool
 COPY static /app/static
 COPY server.py /app/
 WORKDIR /app

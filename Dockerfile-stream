@@ -11,8 +11,8 @@ FROM python:3.10
 #RUN pip install requests
 #RUN pip install Pillow
 
-RUN mkdir -p /app/musictools && mkdir -p /app/static && touch /app/credentials.py
+RUN mkdir -p /app/musictool && mkdir -p /app/static && touch /app/credentials.py
 WORKDIR /app
 COPY static /app/static
-COPY musictools /app/musictools
-CMD ["python", "-m", "musictools.daw", "video"]
+COPY musictool /app/musictool
+CMD ["python", "-m", "musictool.daw", "video"]

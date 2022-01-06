@@ -57,7 +57,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64/v8
           push: true
-          tags: tandav/musictools
+          tags: tandav/musictool
 
   deploy:
     name: deploy to server
@@ -113,4 +113,4 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           file: Dockerfile-stream
-          tags: tandav/musictools-stream
+          tags: tandav/musictool-stream

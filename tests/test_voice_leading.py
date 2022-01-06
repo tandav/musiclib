@@ -1,11 +1,11 @@
 import pytest
 
-from musictools import voice_leading
-from musictools.chord import SpecificChord
-from musictools.note import SpecificNote
-from musictools.notes import note_range
-from musictools.scale import Notes
-from musictools.scale import Scale
+from musictool import voice_leading
+from musictool.chord import SpecificChord
+from musictool.note import SpecificNote
+from musictool.notes import note_range
+from musictool.scale import Notes
+from musictool.scale import Scale
 
 
 @pytest.mark.xfail(reason='deprecated')

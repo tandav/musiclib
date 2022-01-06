@@ -1,13 +1,13 @@
 import pytest
 
-from musictools.chord import Chord
-from musictools.note import Note
-from musictools.note import SpecificNote
-from musictools.notes import Notes
-from musictools.notes import bits_to_intervals
-from musictools.notes import intervals_to_bits
-from musictools.notes import note_range
-from musictools.scale import Scale
+from musictool.chord import Chord
+from musictool.note import Note
+from musictool.note import SpecificNote
+from musictool.notes import Notes
+from musictool.notes import bits_to_intervals
+from musictool.notes import intervals_to_bits
+from musictool.notes import note_range
+from musictool.scale import Scale
 
 
 @pytest.mark.parametrize('bits, intervals', (

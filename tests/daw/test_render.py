@@ -4,12 +4,12 @@ import sys
 import numpy as np
 import pytest
 
-from musictools.chord import SpecificChord
-from musictools.daw.midi.parse.sounds import ParsedMidi
-from musictools.daw.streams.bytes import Bytes
-from musictools.daw.vst.adsr import ADSR
-from musictools.daw.vst.sampler import Sampler
-from musictools.daw.vst.sine import Sine
+from musictool.chord import SpecificChord
+from musictool.daw.midi.parse.sounds import ParsedMidi
+from musictool.daw.streams.bytes import Bytes
+from musictool.daw.vst.adsr import ADSR
+from musictool.daw.vst.sampler import Sampler
+from musictool.daw.vst.sine import Sine
 
 
 @pytest.mark.parametrize('midi_file', (
@@ -74,7 +74,7 @@ class TestRender:
 
 
 def test_main():
-    cmd = sys.executable, '-m', 'musictools.daw', 'video_test'
+    cmd = sys.executable, '-m', 'musictool.daw', 'video_test'
     subprocess.check_call(cmd)
     # TODO: test result with ffprobe/ffplay
 

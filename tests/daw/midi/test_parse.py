@@ -1,8 +1,8 @@
 import mido
 import pytest
 
-from musictools import config
-from musictools.daw.midi.parse.sounds import ParsedMidi
+from musictool import config
+from musictool.daw.midi.parse.sounds import ParsedMidi
 
 
 @pytest.mark.parametrize('midi_file', (

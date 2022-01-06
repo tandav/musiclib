@@ -4,8 +4,8 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from musictools.note import Note
-from musictools.note import SpecificNote
+from musictool.note import Note
+from musictool.note import SpecificNote
 
 
 @pytest.mark.parametrize('i, expected', (

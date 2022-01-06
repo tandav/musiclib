@@ -6,14 +6,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from musictools import config
-from musictools.chord import SpecificChord
-from musictools.note import SpecificNote
-from musictools.scale import ComparedScales
-from musictools.scale import all_scales
-from musictools.scale import majors
-from musictools.daw.midi.html.piano import midi_piano_html
-from musictools.daw.midi.html.table import midi_table_html
+from musictool import config
+from musictool.chord import SpecificChord
+from musictool.note import SpecificNote
+from musictool.scale import ComparedScales
+from musictool.scale import all_scales
+from musictool.scale import majors
+from musictool.daw.midi.html.piano import midi_piano_html
+from musictool.daw.midi.html.table import midi_table_html
 
 chromatic_notes_set = set(config.chromatic_notes)
 

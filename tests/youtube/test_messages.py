@@ -1,4 +1,4 @@
-from musictools.youtube.messages import parse_chords
+from musictool.youtube.messages import parse_chords
 
 
 def test_parse_chords():

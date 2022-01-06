@@ -1,12 +1,12 @@
 import pytest
 
-from musictools import config
-from musictools.chord import Chord
-from musictools.note import Note
-from musictools.scale import ComparedScales
-from musictools.scale import Scale
-from musictools.scale import parallel
-from musictools.scale import relative
+from musictool import config
+from musictool.chord import Chord
+from musictool.note import Note
+from musictool.scale import ComparedScales
+from musictool.scale import Scale
+from musictool.scale import parallel
+from musictool.scale import relative
 
 
 @pytest.mark.parametrize('notes, name', (

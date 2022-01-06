@@ -1,8 +1,8 @@
 import pytest
 
-from musictools import chromatic
-from musictools.note import Note
-from musictools.note import SpecificNote
+from musictool import chromatic
+from musictool.note import Note
+from musictool.note import SpecificNote
 
 
 def test_abstract_take():

@@ -2,11 +2,11 @@ import pickle
 
 import pytest
 
-from musictools.chord import Chord
-from musictools.chord import SpecificChord
-from musictools.note import Note
-from musictools.note import SpecificNote
-from musictools.scale import Scale
+from musictool.chord import Chord
+from musictool.chord import SpecificChord
+from musictool.note import Note
+from musictool.note import SpecificNote
+from musictool.scale import Scale
 
 
 @pytest.mark.parametrize('note', (Note('C'), SpecificNote('C', 3)))
