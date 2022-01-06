@@ -12,5 +12,4 @@ autoflake
 pytest
 pytest-cov
 pytest-asyncio
-pipe21
 unify
