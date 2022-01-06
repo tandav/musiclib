@@ -12,6 +12,10 @@ run:
 run_with_midi:
 	MIDI_DEVICE='IAC Driver Bus 1' uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
+#[flake8]
+#ignore = E221,E501,W503,E701,E704,E741,I100,I201,W504
+#exclude = musictool/util/wavfile.py
+
 .PHONY: lint
 lint:
 	$(python) -m no_init musictool tests
@@ -20,7 +24,7 @@ lint:
 	$(python) -m autoflake --recursive --in-place musictool tests
 	$(python) -m autopep8 --in-place --recursive --aggressive --ignore=E221,E401,E402,E501,W503,E701,E704,E721,E741,I100,I201,W504 --exclude=musictool/util/wavfile.py musictool tests
 	$(python) -m unify --recursive --in-place musictool tests
-	$(python) -m flake8 musictool tests
+	$(python) -m flake8 --ignore=E221,E501,W503,E701,E704,E741,I100,I201,W504 --exclude=musictool/util/wavfile.py musictool tests
 
 .PHONY: clean
 clean:
