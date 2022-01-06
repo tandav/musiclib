@@ -6,6 +6,5 @@ logs
 *.asd
 static/cache
 static/messages.txt
-.coverage
 archive
 credentials.py
