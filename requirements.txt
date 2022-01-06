@@ -14,5 +14,3 @@ pytest-cov
 pytest-asyncio
 pipe21
 unify
-opencv-python
-joblib

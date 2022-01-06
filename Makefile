@@ -32,7 +32,7 @@ clean:
 
 .PHONY: test
 test:
-	$(python) -m pytest -v --cov=musictool tests
+	$(python) -m pytest -vv --cov=musictool tests
 
 .PHONY: test_video
 test_video:
@@ -69,17 +69,6 @@ docker_stream:
 upload_creds_makefile:
 	#scp credentials.py Makefile cn2:~/musictool
 	scp credentials.py Makefile or3:~/musictool
-
-.PHONY: messages
-messages:
-	git log --pretty='%ad %h %s' --date=unix > static/messages.txt
-
-.PHONY: build_push_stream
-build_push_stream: messages
-	make messages
-	#docker buildx build --platform linux/arm64/v8,linux/amd64 --tag tandav/musictool-stream -f ./Dockerfile-stream --push .
-	docker build --tag tandav/musictool-stream -f ./Dockerfile-stream .
-	docker push tandav/musictool-stream
 
 .PHONY: midi_html
 midi_html:
