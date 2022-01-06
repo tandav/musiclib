@@ -4,46 +4,48 @@ on:
   push:
     branches:
       - master
+    tags:
+      - 'v*'
 
 jobs:
-#  test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: actions/setup-python@v2
-#        with:
-#          python-version: '3.10'
-#
-#      - name: pwd ls
-#        run: |
-#          pwd
-#          ls -Al
-#
-#      - name: install ffmpeg
-#        run: sudo apt update && sudo  apt install --yes ffmpeg libvips
-#
-#      - name: install python dependencies
-#        run: python3 -m pip install -r requirements.txt
-#
-#      - name: lint
-#        run: make lint
-#
-#      - name: git log messages.txt
-#        run: make messages
-#
-#      - name: test
-#        run: make test
-
-  build-linux:
+  test:
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
-#    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: pwd ls
+        run: |
+          pwd
+          ls -Al
+
+      - name: install ffmpeg
+        run: sudo apt update && sudo  apt install --yes ffmpeg libvips
+
+      - name: install python dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: lint
+        run: make lint
+
+      - name: git log messages.txt
+        run: make messages
+
+      - name: test
+        run: make test
+
+  build-and-publish-to-pypi:
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags')"
+    needs: test
     steps:
       - uses: actions/checkout@master
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
       - name: Install pypa/build
         run: python -m pip install build --user
@@ -51,11 +53,17 @@ jobs:
       - name: Build a source tarball
         run: python -m build --sdist --outdir dist/ .
 
-      - name: Store the binary wheel
-        uses: actions/upload-artifact@v2
+      # - name: Publish distribution 📦 to Test PyPI
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #    password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      #    repository_url: https://test.pypi.org/legacy/
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
         with:
-          name: python-package-distributions
-          path: dist
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
 
 #  publish:
 #    name: push to dockerhub
