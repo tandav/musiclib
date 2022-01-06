@@ -1,3 +1,5 @@
+import os
+
 import hypothesis.strategies as st
 import pytest
 from hypothesis import given
@@ -39,7 +41,16 @@ async def test_play(capsys):
     note = SpecificNote.from_absolute_i(60)
     await note.play(seconds=0.0001)
     stdout, stderr = capsys.readouterr()
-    assert stdout == f'note_on note={note.absolute_i}, channel=0\nnote_off note={note.absolute_i}, channel=0\n'
+
+    lines = [
+        f'note_on note={note.absolute_i}, channel=0\n',
+        f'note_off note={note.absolute_i}, channel=0\n',
+    ]
+
+    if 'MIDI_DEVICE' not in os.environ:
+        lines = ['MIDI_DEVICE not found | ' + line for line in lines]
+
+    assert stdout == ''.join(lines)
 
 
 @pytest.mark.parametrize('note, steps, expected', (

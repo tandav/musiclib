@@ -103,7 +103,11 @@ def test_add_note(chord, note, steps, result):
 async def test_play(capsys):
     await SpecificChord.from_str('C1_E1_G2').play(seconds=0.0001)
     stdout, stderr = capsys.readouterr()
-    stdout = stdout.splitlines()
-    on, off = set(stdout[:3]), set(stdout[3:])
+    stdout_ = []
+    prefix = 'MIDI_DEVICE not found | '
+    for line in stdout.splitlines():
+        assert line.startswith(prefix)
+        stdout_.append(line.removeprefix(prefix))
+    on, off = set(stdout_[:3]), set(stdout_[3:])
     assert on == {'note_on note=12, channel=0', 'note_on note=16, channel=0', 'note_on note=31, channel=0'}
     assert off == {'note_off note=12, channel=0', 'note_off note=16, channel=0', 'note_off note=31, channel=0'}
