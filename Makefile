@@ -61,15 +61,6 @@ daw:
 file:
 	$(python) -m musictool.daw video_file 4
 
-.PHONY: docker_stream
-docker_stream:
-	docker run --pull=always --rm -it -v $$PWD/credentials.py:/app/credentials.py tandav/musictool-stream
-
-.PHONY: upload_creds_makefile
-upload_creds_makefile:
-	#scp credentials.py Makefile cn2:~/musictool
-	scp credentials.py Makefile or3:~/musictool
-
 .PHONY: midi_html
 midi_html:
 	#$(python) -m musictool.daw.midi.html static/midi/vespers-04.mid
