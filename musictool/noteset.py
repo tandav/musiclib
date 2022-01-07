@@ -10,7 +10,7 @@ from musictool.note import Note
 from musictool.note import SpecificNote
 
 '''
-Notes
+NoteSet
     NotesWithRoot
         Scale
         Chord
@@ -37,7 +37,7 @@ def intervals_to_bits(intervals: frozenset) -> str:
     return ''.join(bits)
 
 
-class Notes:
+class NoteSet:
     intervals_to_name: dict = {}
     name_to_intervals: dict = {}
 
@@ -47,11 +47,10 @@ class Notes:
         root: str | Note | None = None,
     ):
         """
-        chord is an unordered set of notes
+        an unordered set of notes
         root:
-            root note of a chord (to distinguish between inversions_
-            root note is optional, some chord can has no root
-            chord w/o root has no intervals
+            root note is optional
+            notes w/o root has no intervals
         """
 
         if len(notes) == 0:
@@ -81,7 +80,7 @@ class Notes:
             self.name = self.__class__.intervals_to_name.get(self.intervals)
 
     @property
-    def rootless(self): return Notes(self.notes)
+    def rootless(self): return NoteSet(self.notes)
 
     @classmethod
     def from_name(cls, root: str | Note, name: str):
@@ -188,11 +187,11 @@ class Notes:
 def note_range(
     start: SpecificNote,
     stop: SpecificNote,
-    notes: Notes | None = None,
+    notes: NoteSet | None = None,
 ) -> tuple[SpecificNote]:
     """returned range is including both ends (start, stop)"""
     if notes is None:
-        notes = Notes(config.chromatic_notes)
+        notes = NoteSet(config.chromatic_notes)
     out = []
     note = start
     while True:

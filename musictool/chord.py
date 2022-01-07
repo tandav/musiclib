@@ -6,10 +6,10 @@ from numbers import Number
 from musictool import config
 from musictool.note import Note
 from musictool.note import SpecificNote
-from musictool.notes import Notes
+from musictool.noteset import NoteSet
 
 
-class Chord(Notes):
+class Chord(NoteSet):
     intervals_to_name = {
         # triads
         frozenset({4, 7}): 'major',

@@ -8,14 +8,14 @@ from musictool import config
 from musictool.chord import Chord
 from musictool.note import Note
 from musictool.note import SpecificNote
-from musictool.notes import Notes
+from musictool.noteset import NoteSet
 from musictool.piano import Piano
 from musictool.util.color import hex_to_rgb
 from musictool.util.iteration import iter_scales
 from musictool.util.text import cprint
 
 
-class Scale(Notes):
+class Scale(NoteSet):
     intervals_to_name = {
         # diatonic
         frozenset({2, 4, 5, 7, 9, 11}): 'major',
