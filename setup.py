@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='musictool',
-    version='1.1.5',
+    version='1.1.6',
     description='set of tools to help learning scales, modes, modulations, chord progressions, voice leading, rhythm',
     long_description_content_type="text/markdown",
     url='https://github.com/tandav/musictool',
