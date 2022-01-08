@@ -193,7 +193,7 @@ def no_bad_checks(a: SpecificChord, b: SpecificChord):
     return all(not check(a, b) for check in checks)
 
 
-def transpose_uniqiue_key(progression):
+def transpose_uniqiue_key(progression: tuple[SpecificChord]):
     origin = progression[0].notes_ascending[0]
 
     return (

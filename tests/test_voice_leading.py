@@ -81,3 +81,21 @@ def test_transition_graph():
     graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range_)
     assert len(graph) == 80
     assert sum(map(len, graph.values())) == 300
+
+
+def test_transpose_uniqiue_key():
+    a = SpecificChord.random()
+    b = SpecificChord.random()
+    c = SpecificChord.random()
+    d = SpecificChord.random()
+
+    d_ = SpecificChord(frozenset((d.notes_ascending[0] + 12,) + d.notes_ascending[1:]))
+
+    p0 = a, b, c, d
+    p1 = a, b, c, d_
+    p2 = tuple(SpecificChord(frozenset(n + 12 for n in chord.notes)) for chord in p0)
+    p3 = tuple(SpecificChord(frozenset(n + 1 for n in chord.notes)) for chord in p0)
+
+    assert voice_leading.transpose_uniqiue_key(p0) != voice_leading.transpose_uniqiue_key(p1)
+    assert voice_leading.transpose_uniqiue_key(p0) == voice_leading.transpose_uniqiue_key(p2)
+    assert voice_leading.transpose_uniqiue_key(p0) != voice_leading.transpose_uniqiue_key(p3)
