@@ -14,7 +14,7 @@ from musictool.note import SpecificNote
 from musictool.scale import Scale
 from musictool.scale import parallel
 from musictool.scale import relative
-from musictool.util.iteration import iter_cycles
+from musictool.util.iteration import sequence_builder
 from musictool.util.iteration import unique
 
 
@@ -121,11 +121,6 @@ def progression_dist(p):
     return sum(abs(p[i] - p[(i + 1) % n]) for i in range(n))
 
 
-def progression_key(progression):
-    '''invariant to transposition'''
-    return tuple(chord.intervals for chord in progression)
-
-
 @functools.cache
 def check_all_transitions_not(p, f, *args):
     n = len(p)
@@ -208,7 +203,7 @@ def make_progressions(
     n=4,
 ):
     return (
-        iter_cycles(
+        sequence_builder(
             n,
             options=possible_chords(scale, note_range),
             curr_prev_constraint=no_bad_checks,
@@ -240,7 +235,7 @@ def make_progressions_v2(
 ):
     chord_2_all_chords = tuple(all_chords(chord, config.note_range, n_notes) for chord in abstract_progression)
     return (
-        iter_cycles(
+        sequence_builder(
             n=len(abstract_progression),
             options=chord_2_all_chords,
             options_separated=True,
