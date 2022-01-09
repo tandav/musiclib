@@ -64,7 +64,7 @@ def test_add_note(notes, note, steps, result):
     assert NoteSet(frozenset(notes)).add_note(note, steps) == result
 
 
-@pytest.mark.parametrize('start, stop, notes, expected', (
+@pytest.mark.parametrize('start, stop, noteset, expected', (
     ('C0', 'C1', None, 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
     ('b3', 'E4', None, 'b3 B3 C4 d4 D4 e4 E4'),
     ('C0', 'C1', NoteSet(frozenset('CDEFGAB')), 'C0 D0 E0 F0 G0 A0 B0 C1'),
@@ -73,5 +73,5 @@ def test_add_note(notes, note, steps, result):
     ('a3', 'f4', NoteSet(frozenset('dEfaB')), 'a3 B3 d4 E4 f4'),
     ('A0', 'D2', NoteSet(frozenset('CDEFGAB')), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
 ))
-def test_note_range(start, stop, notes, expected):
-    assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop), notes) == tuple(SpecificNote.from_str(s) for s in expected.split())
+def test_note_range(start, stop, noteset, expected):
+    assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset) == tuple(SpecificNote.from_str(s) for s in expected.split())

@@ -187,16 +187,16 @@ class NoteSet:
 def note_range(
     start: SpecificNote,
     stop: SpecificNote,
-    notes: NoteSet | None = None,
+    noteset: NoteSet | None = None,
 ) -> tuple[SpecificNote]:
     """returned range is including both ends (start, stop)"""
-    if notes is None:
-        notes = NoteSet(config.chromatic_notes)
+    if noteset is None:
+        noteset = NoteSet(config.chromatic_notes)
     out = []
     note = start
     while True:
         out.append(note)
         if note == stop:
             break
-        note = notes.add_note(note, 1)
+        note = noteset.add_note(note, 1)
     return tuple(out)
