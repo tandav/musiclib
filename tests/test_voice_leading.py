@@ -1,16 +1,17 @@
 import pytest
 
-from musictool import voice_leading
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
 from musictool.noteset import note_range
 from musictool.scale import NoteSet
 from musictool.scale import Scale
+from musictool.voice_leading import checks
+from musictool.voice_leading import progression
 
 
 @pytest.mark.xfail(reason='deprecated')
 def test_count_all_triads():
-    assert len(voice_leading.all_triads()) == 972
+    assert len(progression.all_triads()) == 972
 
 
 def test_have_parallel_interval():
@@ -23,18 +24,18 @@ def test_have_parallel_interval():
     i = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 6)}))
     j = SpecificChord(frozenset({SpecificNote('F', 5), SpecificNote('A', 5), SpecificNote('C', 7)}))
 
-    assert voice_leading.have_parallel_interval(a, b, 7)
-    assert voice_leading.have_parallel_interval(a, h, 7)
-    assert voice_leading.have_parallel_interval(i, j, 7)
-    assert not voice_leading.have_parallel_interval(a, c, 7)
-    assert not voice_leading.have_parallel_interval(a, d, 7)
+    assert checks.have_parallel_interval(a, b, 7)
+    assert checks.have_parallel_interval(a, h, 7)
+    assert checks.have_parallel_interval(i, j, 7)
+    assert not checks.have_parallel_interval(a, c, 7)
+    assert not checks.have_parallel_interval(a, d, 7)
 
     # octaves
     e = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('C', 6)}))
     f = SpecificChord(frozenset({SpecificNote('D', 5), SpecificNote('F', 5), SpecificNote('D', 6)}))
     g = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('E', 6)}))
-    assert voice_leading.have_parallel_interval(e, f, 0)
-    assert not voice_leading.have_parallel_interval(g, f, 0)
+    assert checks.have_parallel_interval(e, f, 0)
+    assert not checks.have_parallel_interval(g, f, 0)
 
 
 def test_have_hidden_parallel():
@@ -47,18 +48,18 @@ def test_have_hidden_parallel():
     g = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('F', 5)}))
     h = SpecificChord(frozenset({SpecificNote('D', 5), SpecificNote('F', 5), SpecificNote('A', 5)}))
     i = SpecificChord(frozenset({SpecificNote('D', 5), SpecificNote('F', 5), SpecificNote('A', 6)}))
-    assert voice_leading.have_hidden_parallel(a, b, 0)
-    assert voice_leading.have_hidden_parallel(e, f, 0)
-    assert voice_leading.have_hidden_parallel(g, h, 7)
-    assert voice_leading.have_hidden_parallel(g, i, 7)
-    assert not voice_leading.have_hidden_parallel(c, b, 0)
-    assert not voice_leading.have_hidden_parallel(c, d, 0)
+    assert checks.have_hidden_parallel(a, b, 0)
+    assert checks.have_hidden_parallel(e, f, 0)
+    assert checks.have_hidden_parallel(g, h, 7)
+    assert checks.have_hidden_parallel(g, i, 7)
+    assert not checks.have_hidden_parallel(c, b, 0)
+    assert not checks.have_hidden_parallel(c, d, 0)
 
 
 def test_have_voice_overlap():
     a = SpecificChord(frozenset({SpecificNote('E', 3), SpecificNote('E', 5), SpecificNote('G', 5), SpecificNote('B', 5)}))
     b = SpecificChord(frozenset({SpecificNote('A', 3), SpecificNote('C', 4), SpecificNote('E', 4), SpecificNote('A', 4)}))
-    assert voice_leading.have_voice_overlap(a, b)
+    assert checks.have_voice_overlap(a, b)
 
 
 @pytest.mark.parametrize('notes, chord_str, transitions, unique_abstract', (
@@ -73,12 +74,12 @@ def test_have_voice_overlap():
 def test_chord_transitons(notes, chord_str, transitions, unique_abstract):
     chord = SpecificChord.from_str(chord_str)
     note_range_ = note_range(SpecificNote('A', 0), SpecificNote('D', 2), notes)
-    assert set(map(str, voice_leading.chord_transitons(chord, note_range_, unique_abstract))) == transitions
+    assert set(map(str, progression.chord_transitons(chord, note_range_, unique_abstract))) == transitions
 
 
 def test_transition_graph():
     note_range_ = note_range(SpecificNote('A', 0), SpecificNote('D', 2), NoteSet(frozenset('CDEFGAB')))
-    graph = voice_leading.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range_)
+    graph = progression.transition_graph(SpecificChord.from_str('C1_E1_G1'), note_range_)
     assert len(graph) == 80
     assert sum(map(len, graph.values())) == 300
 
@@ -96,6 +97,6 @@ def test_transpose_uniqiue_key():
     p2 = tuple(SpecificChord(frozenset(n + 12 for n in chord.notes)) for chord in p0)
     p3 = tuple(SpecificChord(frozenset(n + 1 for n in chord.notes)) for chord in p0)
 
-    assert voice_leading.transpose_uniqiue_key(p0) != voice_leading.transpose_uniqiue_key(p1)
-    assert voice_leading.transpose_uniqiue_key(p0) == voice_leading.transpose_uniqiue_key(p2)
-    assert voice_leading.transpose_uniqiue_key(p0) != voice_leading.transpose_uniqiue_key(p3)
+    assert progression.transpose_uniqiue_key(p0) != progression.transpose_uniqiue_key(p1)
+    assert progression.transpose_uniqiue_key(p0) == progression.transpose_uniqiue_key(p2)
+    assert progression.transpose_uniqiue_key(p0) != progression.transpose_uniqiue_key(p3)
