@@ -70,6 +70,12 @@ def test_have_voice_overlap():
     (NoteSet(frozenset('CDEFGAB')), 'F1_G1_A1', {'E1_G1_A1', 'F1_G1_B1'}, False),
     (NoteSet(frozenset('CDEFGAB')), 'D1_E1_C2', {'C1_E1_C2', 'D1_E1_B1', 'D1_E1_D2', 'D1_F1_C2'}, False),
     (NoteSet(frozenset('CDEFGAB')), 'D1_E1_C2', {'D1_E1_B1', 'D1_F1_C2'}, True),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_E1', {'B0_E1', 'C1_D1', 'C1_F1', 'D1_E1'}, False),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_D1', {'B0_D1', 'C1_E1'}, False),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_D1_E1_F1', {'B0_D1_E1_F1', 'C1_D1_E1_G1'}, False),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_D1_E1_F1', {'B0_D1_E1_F1', 'C1_D1_E1_G1'}, False),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_E1_G1_B1', {'B0_E1_G1_B1', 'D1_E1_G1_B1', 'C1_E1_F1_B1', 'C1_E1_A1_B1', 'C1_E1_G1_C2', 'C1_F1_G1_B1', 'C1_D1_G1_B1', 'C1_E1_G1_A1'}, False),
+    (NoteSet(frozenset('CDEFGAB')), 'C1_E1_G1_B1', {'D1_E1_G1_B1', 'C1_D1_G1_B1', 'C1_E1_F1_B1', 'C1_E1_A1_B1', 'C1_E1_G1_A1', 'C1_F1_G1_B1'}, True),
 ))
 def test_chord_transitons(noteset, chord_str, transitions, unique_abstract):
     chord = SpecificChord.from_str(chord_str)

@@ -225,7 +225,7 @@ def chord_transitons(
             if i == 0 or i == len(note_range):
                 continue
             notes = chord.notes - {note} | {note_range[i]}
-            if len(notes) != 3:
+            if len(notes) != len(chord.notes):
                 continue
             if unique_abstract and len(notes) > len({n.abstract for n in notes}):
                 continue
