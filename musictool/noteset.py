@@ -192,6 +192,10 @@ def note_range(
     """returned range is including both ends (start, stop)"""
     if noteset is None:
         noteset = NoteSet(config.chromatic_notes)
+
+    if not {start.abstract, stop.abstract} <= noteset.notes:
+        raise KeyError('start and stop notes should be in the noteset')
+
     out = []
     note = start
     while True:
