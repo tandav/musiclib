@@ -61,6 +61,12 @@ def test_magic_methods():
     assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
 
 
+def test_sub():
+    a = SpecificChord.from_str('C1_E1_G1')
+    b = SpecificChord.from_str('B0_D1_G1')
+    assert a - b == b - a == 3
+
+
 def test_combinations_order():
     for _ in range(10):
         for n, m in SpecificChord.random().notes_combinations():

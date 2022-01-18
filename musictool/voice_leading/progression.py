@@ -20,7 +20,27 @@ from musictool.voice_leading import checks
 
 
 class Progression(list):
-    pass
+    def __init__(self, iterable=(), /):
+        iterable = list(iterable)
+        if not all(isinstance(x, SpecificChord) for x in iterable):
+            raise TypeError('only SpecificChord items allowed')
+        super().__init__(iterable)
+
+    def all(self, checks__):
+        return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
+
+    def all_not(self, checks__):
+        return all(not check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
+
+    @property
+    def distance(self):
+        n = len(self)
+        return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
+
+    @property
+    def transpose_unique_key(self):
+        origin = self[0].notes_ascending[0]
+        return origin.abstract.i, tuple(frozenset(note - origin for note in chord.notes) for chord in self)
 
 
 def all_triads(octaves=(4, 5, 6)):
@@ -124,23 +144,9 @@ checks_ = (
 )
 
 
-def progression_dist(p):
-    n = len(p)
-    return sum(abs(p[i] - p[(i + 1) % n]) for i in range(n))
-
-
 @functools.cache
 def no_bad_checks(a: SpecificChord, b: SpecificChord):
     return all(not check(a, b) for check in checks_)
-
-
-def transpose_uniqiue_key(progression: tuple[SpecificChord]):
-    origin = progression[0].notes_ascending[0]
-
-    return (
-        origin.abstract.i,
-        tuple(frozenset(note - origin for note in chord.notes) for chord in progression)
-    )
 
 
 def make_progressions(
@@ -156,8 +162,9 @@ def make_progressions(
             i_constraints={0: lambda chord: chord.root == scale.root},
             unique_key=lambda chord: chord.root,
         )
-        | P.Pipe(lambda it: unique(it, key=transpose_uniqiue_key))
-        | P.KeyBy(progression_dist)
+        | P.Map(Progression)
+        | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
+        | P.KeyBy(operator.attrgetter('distance'))
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
     )
@@ -187,8 +194,8 @@ def make_progressions_v2(
             options_separated=True,
             curr_prev_constraint=no_bad_checks,
         )
-        | P.Pipe(lambda it: unique(it, key=transpose_uniqiue_key))
-        | P.KeyBy(progression_dist)
+        | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
+        | P.KeyBy(operator.attrgetter('distance'))
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
         | P.Pipe(tuple)
     )
