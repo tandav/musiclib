@@ -1,4 +1,4 @@
-python = python3.10
+python := python3.10
 
 .PHONY: lint
 lint:

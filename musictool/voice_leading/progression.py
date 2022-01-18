@@ -19,6 +19,10 @@ from musictool.util.iteration import unique
 from musictool.voice_leading import checks
 
 
+class Progression(list):
+    pass
+
+
 def all_triads(octaves=(4, 5, 6)):
     all_notes = tuple(
         SpecificNote(note, octave)
