@@ -55,6 +55,12 @@ def test_from_str():
         assert Chord.from_str(str(chord)) == chord
 
 
+def test_magic_methods():
+    chord = SpecificChord.from_str('C1_E1_G1')
+    assert len(chord) == len(chord.notes)
+    assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
+
+
 def test_combinations_order():
     for _ in range(10):
         for n, m in SpecificChord.random().notes_combinations():

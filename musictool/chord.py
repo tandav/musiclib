@@ -85,6 +85,9 @@ class SpecificChord:
     #     else:
     #         raise TypeError
 
+    def __len__(self): return len(self.notes)
+    def __getitem__(self, item): return self.notes_ascending[item]
+
     def __repr__(self):
         _ = self.str_chord
         if self.root is not None:
