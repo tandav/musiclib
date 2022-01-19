@@ -60,8 +60,8 @@ def have_large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
 
 
 @functools.cache
-def no_large_spacing(c: SpecificChord, max_interval=12):
-    return all(c.notes_ascending[i] - c.notes_ascending[i - 1] <= max_interval for i in range(1, len(c.notes_ascending)))
+def large_spacing(c: SpecificChord, max_interval=12):
+    return any(c[i] - c[i - 1] > max_interval for i in range(1, len(c)))
 
 
 def make_major_scale_leading_tone_resolving_semitone_up(

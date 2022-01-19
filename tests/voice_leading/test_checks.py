@@ -1,3 +1,5 @@
+import pytest
+
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
 from musictool.voice_leading import checks
@@ -49,3 +51,16 @@ def test_have_voice_overlap():
     a = SpecificChord(frozenset({SpecificNote('E', 3), SpecificNote('E', 5), SpecificNote('G', 5), SpecificNote('B', 5)}))
     b = SpecificChord(frozenset({SpecificNote('A', 3), SpecificNote('C', 4), SpecificNote('E', 4), SpecificNote('A', 4)}))
     assert checks.have_voice_overlap(a, b)
+
+
+@pytest.mark.parametrize('chord_str, max_interval, expected', (
+    ('C1_d2', 12, True),
+    ('C1_C2', 12, False),
+    ('C1_d1', 1, False),
+    ('C1_D1', 1, True),
+    ('B0_C1', 2, False),
+    ('B0_d1', 2, False),
+    ('B0_D1', 2, True),
+))
+def test_large_spacing(chord_str, max_interval, expected):
+    assert checks.large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected

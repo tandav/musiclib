@@ -129,7 +129,7 @@ def possible_chords(scale: Scale, note_range: tuple[SpecificNote]) -> tuple[Spec
         | P.Filter(lambda note: note.abstract in scale.notes)
         | P.Pipe(lambda it: itertools.combinations(it, 4))  # 4 voice chords
         | P.FlatMap(lambda notes: notes_are_chord(notes, frozenset(chord for chord in scale.triads if chord.name != 'diminished')))
-        | P.Filter(checks.no_large_spacing)
+        | P.FilterFalse(checks.large_spacing)
         | P.Pipe(tuple)
     )
 
@@ -177,7 +177,7 @@ def all_chords(chord: Chord, note_range, n_notes: int = 3):
         itertools.combinations(chord_notes, n_notes)
         | P.Filter(lambda notes: frozenset(n.abstract for n in notes) == chord.notes)
         | P.Map(lambda notes: SpecificChord(notes, root=chord.root))
-        | P.Filter(checks.no_large_spacing)
+        | P.FilterFalse(checks.large_spacing)
         | P.Pipe(tuple)
     )
 
@@ -194,6 +194,7 @@ def make_progressions_v2(
             options_separated=True,
             curr_prev_constraint=no_bad_checks,
         )
+        | P.Map(Progression)
         | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
         | P.KeyBy(operator.attrgetter('distance'))
         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))

@@ -16,11 +16,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: pwd ls
-        run: |
-          pwd
-          ls -Al
-
       - name: install python dependencies
         run: python3 -m pip install -r requirements.txt
 
