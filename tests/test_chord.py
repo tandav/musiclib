@@ -53,6 +53,10 @@ def test_from_str():
         assert SpecificChord.from_str(str(chord)) == chord
         chord = Chord.random()
         assert Chord.from_str(str(chord)) == chord
+    with pytest.raises(NotImplementedError):
+        SpecificChord.from_str('C1_C1')
+    with pytest.raises(NotImplementedError):
+        SpecificChord.from_str('C1_E1_E1')
 
 
 def test_magic_methods():

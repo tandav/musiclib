@@ -66,7 +66,10 @@ class SpecificChord:
     def from_str(cls, string: str):
         notes, _, root = string.partition('/')
         root = Note(root) if root else None
-        notes = frozenset(SpecificNote.from_str(note) for note in notes.split('_'))
+        notes_ = notes.split('_')
+        if len(notes_) != len(set(notes_)):
+            raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
+        notes = frozenset(SpecificNote.from_str(note) for note in notes_)
         return cls(notes, root)
 
     def notes_combinations(self, ids=False):
