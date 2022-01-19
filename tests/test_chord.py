@@ -63,6 +63,9 @@ def test_magic_methods():
     chord = SpecificChord.from_str('C1_E1_G1')
     assert len(chord) == len(chord.notes)
     assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
+    assert tuple(iter(chord)) == chord.notes_ascending
+    chord2 = SpecificChord.from_str('d3_f8')
+    assert tuple(zip(chord, chord2)) == (('C1', 'd3'), ('E1', 'f8'))
 
 
 def test_sub():

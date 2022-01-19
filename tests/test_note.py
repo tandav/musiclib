@@ -20,6 +20,11 @@ def test_from_i(i, expected):
     assert Note.from_i(i) == expected
 
 
+def test_str_equals():
+    assert Note('C') == 'C'
+    assert SpecificNote.from_str('C1') == 'C1'
+
+
 @given(st.integers())
 def test_specific_note_from_absolute_i(absolute_i):
     assert SpecificNote.from_absolute_i(absolute_i).absolute_i == absolute_i

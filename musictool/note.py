@@ -77,7 +77,13 @@ class SpecificNote(Note):
         player.send_message('note_off', note=self.absolute_i, channel=0)
 
     def __repr__(self): return f'{self.abstract.name}{self.octave}'
-    def __eq__(self, other): return self.key == other.key
+
+    def __eq__(self, other):
+        if isinstance(other, SpecificNote):
+            return self.key == other.key
+        elif isinstance(other, str):
+            return self.key == SpecificNote.from_str(other).key
+
     def __hash__(self): return hash(self.key)
     def __lt__(self, other): return self.absolute_i < other.absolute_i
 
