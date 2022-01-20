@@ -44,7 +44,7 @@ class SpecificChord:
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)
         self.root_specific = frozenset(note for note in notes if note.abstract == root)
 
-        self.notes_ascending = tuple(sorted(notes, key=lambda note: note.absolute_i))
+        self.notes_ascending = tuple(sorted(notes))
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note
         self.key = self.notes, self.root
         self.str_chord = '_'.join(repr(note) for note in self.notes_ascending)

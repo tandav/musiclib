@@ -53,6 +53,18 @@ def test_have_voice_overlap():
     assert checks.have_voice_overlap(a, b)
 
 
+@pytest.mark.parametrize('a, b, interval, expected', (
+    ('C1_E1', 'C2_E2', 5, True),
+    ('C1_E1', 'E1_G1', 5, False),
+    ('C1_E1', 'F1_G1', 5, False),
+    ('C1_E1', 'f1_G1', 5, True),
+    ('C1', 'F1', 5, False),
+    ('C1', 'f1', 5, True),
+))
+def test_have_large_leaps(a, b, interval, expected):
+    assert checks.have_large_leaps(SpecificChord.from_str(a), SpecificChord.from_str(b), interval) == expected
+
+
 @pytest.mark.parametrize('chord_str, max_interval, expected', (
     ('C1_d2', 12, True),
     ('C1_C2', 12, False),

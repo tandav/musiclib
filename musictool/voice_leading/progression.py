@@ -118,7 +118,7 @@ def notes_are_chord(notes: tuple, scale_chords: frozenset[Chord]):
     else:
         return
     chord = SpecificChord(frozenset(notes), root)
-    if chord.notes_ascending[0].abstract != root:
+    if chord[0].abstract != root:
         return
     yield chord
 
