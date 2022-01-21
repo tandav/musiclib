@@ -133,6 +133,8 @@ class NoteSet:
     def __hash__(self): return hash(self.key)
     def __len__(self): return len(self.notes)
     def __contains__(self, item): return item in self.notes
+    def __le__(self, other): return self.notes <= other
+    def __ge__(self, other): return other <= self.notes
     # def __str__(self): return ''.join(note.name for note in self.notes)
 
     # def to_piano_image(self, base64=False):

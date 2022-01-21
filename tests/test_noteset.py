@@ -34,6 +34,17 @@ def test_empty():
         NoteSet(frozenset())
 
 
+def test_contains():
+    assert 'C' in NoteSet(frozenset('C'))
+    assert 'C' not in NoteSet(frozenset('D'))
+    assert frozenset('CD') <= NoteSet(frozenset('CDE'))
+    assert frozenset('CDE') <= NoteSet(frozenset('CDE'))
+    assert not frozenset('CDEF') <= NoteSet(frozenset('CDE'))
+    assert NoteSet(frozenset('CD')) <= frozenset('CDE')
+    assert NoteSet(frozenset('CDE')) <= frozenset('CDE')
+    assert not NoteSet(frozenset('CDEF')) <= frozenset('CDE')
+
+
 def test_root_validation():
     with pytest.raises(KeyError):
         NoteSet(frozenset('AB'), root='E')
