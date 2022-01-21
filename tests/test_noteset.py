@@ -34,6 +34,17 @@ def test_empty():
         NoteSet(frozenset())
 
 
+def test_notes_type_is_frozenset():
+    with pytest.raises(TypeError):
+        NoteSet('CDE')
+    with pytest.raises(TypeError):
+        NoteSet(set('CDE'))
+    with pytest.raises(TypeError):
+        NoteSet(tuple('CDE'))
+    with pytest.raises(TypeError):
+        NoteSet(list('CDE'))
+
+
 def test_contains():
     assert 'C' in NoteSet(frozenset('C'))
     assert 'C' not in NoteSet(frozenset('D'))

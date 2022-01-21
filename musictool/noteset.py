@@ -52,6 +52,8 @@ class NoteSet:
             root note is optional
             notes w/o root has no intervals
         """
+        if not isinstance(notes, frozenset):
+            raise TypeError(f'expected frozenset, got {type(notes)}')
 
         if len(notes) == 0:
             raise ValueError('notes should be not empty')
@@ -193,7 +195,7 @@ def note_range(
 ) -> tuple[SpecificNote]:
     """returned range is including both ends (start, stop)"""
     if noteset is None:
-        noteset = NoteSet(config.chromatic_notes)
+        noteset = NoteSet(frozenset(config.chromatic_notes))
 
     if not {start.abstract, stop.abstract} <= noteset.notes:
         raise KeyError('start and stop notes should be in the noteset')
