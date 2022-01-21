@@ -20,6 +20,13 @@ def test_from_i(i, expected):
     assert Note.from_i(i) == expected
 
 
+def test_note_exists():
+    with pytest.raises(KeyError):
+        Note('Q')
+    with pytest.raises(KeyError):
+        Note('1')
+
+
 def test_str_equals():
     assert Note('C') == 'C'
     assert SpecificNote.from_str('C1') == 'C1'
