@@ -71,6 +71,7 @@ class NoteSet:
         self.root = root
         self.key = self.notes, self.root
         self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
+        self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self.str_chord = ''.join(note.name for note in self.notes_ascending)
 
         if root is not None:

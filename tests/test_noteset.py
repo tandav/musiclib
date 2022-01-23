@@ -61,6 +61,16 @@ def test_root_validation():
         NoteSet(frozenset('AB'), root='E')
 
 
+def test_note_i():
+    fs = frozenset('CDEfGaB')
+    noteset = NoteSet(fs)
+    assert fs == noteset.note_i.keys()
+    assert noteset.note_i['C'] == 0
+    assert noteset.note_i['B'] == 6
+    assert noteset.note_i['f'] == 3
+    assert noteset.note_i['G'] == 4
+
+
 def test_childs_names_unreachable():
     with pytest.raises(KeyError):  # test that Scale names are unreachable
         NoteSet.from_name('C', 'major')
