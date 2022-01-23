@@ -241,17 +241,21 @@ class NoteRange:
 
     def __contains__(self, item): return self.start <= item <= self.stop
 
-    def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
+    def _getitem_int(self, item: int) -> SpecificNote:
+        if 0 <= item < len(self):
+            return self.noteset.add_note(self.start, item)
+        elif -len(self) <= item < 0:
+            return self.noteset.add_note(self.stop, item + 1)
+        else:
+            raise IndexError('index out of range')
 
-        if isinstance(item, int):  # -> SpecificNote
-            if 0 <= item < len(self):
-                return self.noteset.add_note(self.start, item)
-            elif -len(self) <= item < 0:
-                return self.noteset.add_note(self.stop, item + 1)
-            else:
-                raise IndexError('index out of range')
-        elif isinstance(item, slice):  # -> NoteRange
-            raise NotImplementedError
+    def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
+        if isinstance(item, int):
+            return self._getitem_int(item)
+        elif isinstance(item, slice):
+            if not 0 <= item.start <= item.stop <= len(self):
+                raise IndexError('NoteRange slice is out of range')
+            return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
         else:
             raise TypeError('NoteRange indices must be integers or slices, not str')
 

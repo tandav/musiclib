@@ -100,6 +100,7 @@ def test_add_note(notes, note, steps, result):
 @pytest.mark.parametrize('start, stop, noteset, expected', (
     ('C0', 'C1', None, 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
     ('b3', 'E4', None, 'b3 B3 C4 d4 D4 e4 E4'),
+    ('C0', 'C0', None, 'C0'),
     ('C0', 'C1', NoteSet(frozenset('CDEFGAB')), 'C0 D0 E0 F0 G0 A0 B0 C1'),
     ('C0', 'C1', Scale(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
     ('C0', 'C1', Chord(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
@@ -237,23 +238,30 @@ def test_noterange_getitem():
     assert nr[2] == nr[-11] == SpecificNote('D', 1)
     assert nr[12] == nr[-1] == SpecificNote('C', 2)
     assert nr[11] == nr[-2] == SpecificNote('B', 1)
+    assert nr[0:0] == NoteRange(SpecificNote('C', 1), SpecificNote('C', 1))
+    assert nr[0:1] == NoteRange(SpecificNote('C', 1), SpecificNote('d', 1))
+    assert nr[0:2] == NoteRange(SpecificNote('C', 1), SpecificNote('D', 1))
+    assert nr[0:12] == NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
 
-    with pytest.raises(IndexError):
-        nr[13]
-    with pytest.raises(IndexError):
-        nr[-14]
+    with pytest.raises(IndexError): nr[13]
+    with pytest.raises(IndexError): nr[-14]
+    with pytest.raises(IndexError): nr[-3: 1]
+    with pytest.raises(IndexError): nr[5: 13]
 
-    nr = NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), noteset=NoteSet(frozenset('fa')))
+    ns = NoteSet(frozenset('fa'))
+    nr = NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
     assert nr[0] == nr[-10] == SpecificNote('f', -1)
     assert nr[1] == nr[-9] == SpecificNote('a', -1)
     assert nr[2] == nr[-8] == SpecificNote('f', 0)
     assert nr[9] == nr[-1] == SpecificNote('a', 3)
     assert nr[8] == nr[-2] == SpecificNote('f', 3)
+    assert nr[0:0] == NoteRange(SpecificNote('f', -1), SpecificNote('f', -1), ns)
+    assert nr[0:1] == NoteRange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
+    assert nr[0:2] == NoteRange(SpecificNote('f', -1), SpecificNote('f', 0), ns)
+    assert nr[0:9] == NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
 
-    with pytest.raises(IndexError):
-        nr[10]
-    with pytest.raises(IndexError):
-        nr[-11]
+    with pytest.raises(IndexError): nr[10]
+    with pytest.raises(IndexError): nr[-11]
 
 
 def test_noterange_list():
