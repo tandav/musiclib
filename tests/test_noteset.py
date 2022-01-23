@@ -3,6 +3,7 @@ import pytest
 from musictool.chord import Chord
 from musictool.note import Note
 from musictool.note import SpecificNote
+from musictool.noteset import NoteRange
 from musictool.noteset import NoteSet
 from musictool.noteset import bits_to_intervals
 from musictool.noteset import intervals_to_bits
@@ -107,6 +108,27 @@ def test_add_note(notes, note, steps, result):
 ))
 def test_note_range(start, stop, noteset, expected):
     assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset) == tuple(SpecificNote.from_str(s) for s in expected.split())
+
+
+def test_noterange_bounds():
+    with pytest.raises(ValueError):
+        NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
+
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dD')))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dDeE')))
+
+
+def test_noterange_contains():
+    assert SpecificNote('D', 1) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 1) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 2) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 3) not in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+
+
 @pytest.mark.parametrize('notes, left, right, distance', (
     ('CDEFGAB', 'E', 'C', 2),
     ('CDEFGAB', 'C', 'E', 5),
@@ -190,3 +212,18 @@ def test_subtract_types():
     with pytest.raises(TypeError): noteset.subtract('D1', 'C')
     with pytest.raises(TypeError): noteset.subtract('C', SpecificNote('D', 1))
     with pytest.raises(TypeError): noteset.subtract('D1', Note('C'))
+
+
+@pytest.mark.parametrize('start, stop, notes, length', (
+    (SpecificNote('C', 1), SpecificNote('G', 1), 'CdDeEFfGaAbB', 7),
+    (SpecificNote('D', 1), SpecificNote('G', 3), 'CdDeEFfGaAbB', 29),
+    (SpecificNote('D', 1), SpecificNote('D', 1), 'CdDeEFfGaAbB', 0),
+    (SpecificNote('E', 1), SpecificNote('b', 1), 'CDEFGAb', 4),
+    (SpecificNote('b', 1), SpecificNote('G', 3), 'CDEFGAb', 12),
+    (SpecificNote('f', 1), SpecificNote('a', 1), 'fa', 1),
+    (SpecificNote('f', 1), SpecificNote('f', 2), 'fa', 2),
+    (SpecificNote('f', 1), SpecificNote('a', 3), 'fa', 5),
+    (SpecificNote('f', 1), SpecificNote('f', 3), 'f', 2),
+))
+def test_noterange_len(start, stop, notes, length):
+    assert len(NoteRange(start, stop, NoteSet(frozenset(notes)))) == length

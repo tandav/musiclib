@@ -214,3 +214,28 @@ def note_range(
             break
         note = noteset.add_note(note, 1)
     return tuple(out)
+
+
+class NoteRange:
+    def __init__(
+        self,
+        start: SpecificNote,
+        stop: SpecificNote,
+        noteset: NoteSet | None = None,
+    ):
+        if start > stop:
+            raise ValueError('start should be less than stop')
+        self.start = start
+        self.stop = stop
+        if noteset is None:
+            noteset = NoteSet(frozenset(config.chromatic_notes))
+
+        if not {start.abstract, stop.abstract} <= noteset.notes:
+            raise KeyError('start and stop notes should be in the noteset')
+
+        self.noteset = noteset
+
+    def __contains__(self, item): return self.start <= item <= self.stop
+    def __iter__(self): raise NotImplementedError
+    def __repr__(self): f'{self.start} - {self.stop} noteset: {self.noteset}'
+    def __len__(self): return self.noteset.subtract(self.stop, self.start)
