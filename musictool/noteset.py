@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 import random
 
@@ -223,6 +225,7 @@ class NoteRange:
         stop: SpecificNote,
         noteset: NoteSet | None = None,
     ):
+        """both ends included"""
         if start > stop:
             raise ValueError('start should be less than stop')
         self.start = start
@@ -236,6 +239,21 @@ class NoteRange:
         self.noteset = noteset
 
     def __contains__(self, item): return self.start <= item <= self.stop
+
+    def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
+
+        if isinstance(item, int):  # -> SpecificNote
+            if 0 <= item < len(self):
+                return self.noteset.add_note(self.start, item)
+            elif -len(self) <= item < 0:
+                return self.noteset.add_note(self.stop, item + 1)
+            else:
+                raise IndexError('index out of range')
+        elif isinstance(item, slice):  # -> NoteRange
+            raise NotImplementedError
+        else:
+            raise TypeError('NoteRange indices must be integers or slices, not str')
+
     def __iter__(self): raise NotImplementedError
     def __repr__(self): f'{self.start} - {self.stop} noteset: {self.noteset}'
-    def __len__(self): return self.noteset.subtract(self.stop, self.start)
+    def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1

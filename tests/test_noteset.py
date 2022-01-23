@@ -215,15 +215,42 @@ def test_subtract_types():
 
 
 @pytest.mark.parametrize('start, stop, notes, length', (
-    (SpecificNote('C', 1), SpecificNote('G', 1), 'CdDeEFfGaAbB', 7),
-    (SpecificNote('D', 1), SpecificNote('G', 3), 'CdDeEFfGaAbB', 29),
-    (SpecificNote('D', 1), SpecificNote('D', 1), 'CdDeEFfGaAbB', 0),
-    (SpecificNote('E', 1), SpecificNote('b', 1), 'CDEFGAb', 4),
-    (SpecificNote('b', 1), SpecificNote('G', 3), 'CDEFGAb', 12),
-    (SpecificNote('f', 1), SpecificNote('a', 1), 'fa', 1),
-    (SpecificNote('f', 1), SpecificNote('f', 2), 'fa', 2),
-    (SpecificNote('f', 1), SpecificNote('a', 3), 'fa', 5),
-    (SpecificNote('f', 1), SpecificNote('f', 3), 'f', 2),
+    (SpecificNote('C', 1), SpecificNote('G', 1), 'CdDeEFfGaAbB', 8),
+    (SpecificNote('D', 1), SpecificNote('G', 3), 'CdDeEFfGaAbB', 30),
+    (SpecificNote('D', 1), SpecificNote('D', 1), 'CdDeEFfGaAbB', 1),
+    (SpecificNote('E', 1), SpecificNote('b', 1), 'CDEFGAb', 5),
+    (SpecificNote('b', 1), SpecificNote('G', 3), 'CDEFGAb', 13),
+    (SpecificNote('f', 1), SpecificNote('a', 1), 'fa', 2),
+    (SpecificNote('f', 1), SpecificNote('f', 2), 'fa', 3),
+    (SpecificNote('f', 1), SpecificNote('a', 3), 'fa', 6),
+    (SpecificNote('f', 1), SpecificNote('f', 3), 'f', 3),
 ))
 def test_noterange_len(start, stop, notes, length):
     assert len(NoteRange(start, stop, NoteSet(frozenset(notes)))) == length
+
+
+def test_noterange_getitem():
+    nr = NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+
+    assert nr[0] == nr[-13] == SpecificNote('C', 1)
+    assert nr[1] == nr[-12] == SpecificNote('d', 1)
+    assert nr[2] == nr[-11] == SpecificNote('D', 1)
+    assert nr[12] == nr[-1] == SpecificNote('C', 2)
+    assert nr[11] == nr[-2] == SpecificNote('B', 1)
+
+    with pytest.raises(IndexError):
+        nr[13]
+    with pytest.raises(IndexError):
+        nr[-14]
+
+    nr = NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), noteset=NoteSet(frozenset('fa')))
+    assert nr[0] == nr[-10] == SpecificNote('f', -1)
+    assert nr[1] == nr[-9] == SpecificNote('a', -1)
+    assert nr[2] == nr[-8] == SpecificNote('f', 0)
+    assert nr[9] == nr[-1] == SpecificNote('a', 3)
+    assert nr[8] == nr[-2] == SpecificNote('f', 3)
+
+    with pytest.raises(IndexError):
+        nr[10]
+    with pytest.raises(IndexError):
+        nr[-11]
