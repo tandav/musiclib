@@ -7,7 +7,6 @@ from musictool.noteset import NoteRange
 from musictool.noteset import NoteSet
 from musictool.noteset import bits_to_intervals
 from musictool.noteset import intervals_to_bits
-from musictool.noteset import note_range
 from musictool.scale import Scale
 
 
@@ -108,7 +107,7 @@ def test_add_note(notes, note, steps, result):
     ('A0', 'D2', NoteSet(frozenset('CDEFGAB')), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
 ))
 def test_note_range(start, stop, noteset, expected):
-    assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset) == tuple(SpecificNote.from_str(s) for s in expected.split())
+    assert list(NoteRange(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)) == expected.split()
 
 
 def test_noterange_bounds():
