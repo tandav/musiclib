@@ -254,3 +254,8 @@ def test_noterange_getitem():
         nr[10]
     with pytest.raises(IndexError):
         nr[-11]
+
+
+def test_noterange_list():
+    assert list(NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))) == 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'.split()
+    assert list(NoteRange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('AbBCdDe')))) == 'b1 B1 C2 d2 D2'.split()

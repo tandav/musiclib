@@ -254,6 +254,5 @@ class NoteRange:
         else:
             raise TypeError('NoteRange indices must be integers or slices, not str')
 
-    def __iter__(self): raise NotImplementedError
     def __repr__(self): f'{self.start} - {self.stop} noteset: {self.noteset}'
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
