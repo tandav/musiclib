@@ -223,42 +223,34 @@ class NoteRange:
         self,
         start: SpecificNote,
         stop: SpecificNote,
-        noteset: NoteSet | None = None,
+        noteset: NoteSet = NoteSet(frozenset(config.chromatic_notes)),
     ):
         """both ends included"""
         if start > stop:
             raise ValueError('start should be less than stop')
-        self.start = start
-        self.stop = stop
-        if noteset is None:
-            noteset = NoteSet(frozenset(config.chromatic_notes))
 
         if not {start.abstract, stop.abstract} <= noteset.notes:
             raise KeyError('start and stop notes should be in the noteset')
 
+        self.start = start
+        self.stop = stop
         self.noteset = noteset
         self._key = self.start, self.stop, self.noteset
 
-    def __contains__(self, item): return self.start <= item <= self.stop
-
     def _getitem_int(self, item: int) -> SpecificNote:
-        if 0 <= item < len(self):
-            return self.noteset.add_note(self.start, item)
-        elif -len(self) <= item < 0:
-            return self.noteset.add_note(self.stop, item + 1)
-        else:
-            raise IndexError('index out of range')
+        if 0 <= item < len(self): return self.noteset.add_note(self.start, item)
+        elif -len(self) <= item < 0: return self.noteset.add_note(self.stop, item + 1)
+        else: raise IndexError('index out of range')
 
     def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
-        if isinstance(item, int):
-            return self._getitem_int(item)
+        if isinstance(item, int): return self._getitem_int(item)
         elif isinstance(item, slice):
             if not 0 <= item.start <= item.stop <= len(self):
                 raise IndexError('NoteRange slice is out of range')
             return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
-        else:
-            raise TypeError('NoteRange indices must be integers or slices, not str')
+        else: raise TypeError('NoteRange indices must be integers or slices, not str')
 
+    def __contains__(self, item): return self.start <= item <= self.stop
     def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
     def __eq__(self, other): return self._key == other._key
