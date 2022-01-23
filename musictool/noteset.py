@@ -237,6 +237,7 @@ class NoteRange:
             raise KeyError('start and stop notes should be in the noteset')
 
         self.noteset = noteset
+        self._key = self.start, self.stop, self.noteset
 
     def __contains__(self, item): return self.start <= item <= self.stop
 
@@ -254,5 +255,7 @@ class NoteRange:
         else:
             raise TypeError('NoteRange indices must be integers or slices, not str')
 
-    def __repr__(self): f'{self.start} - {self.stop} noteset: {self.noteset}'
+    def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
+    def __eq__(self, other): return self._key == other._key
+    def __hash__(self): return hash(self._key)
