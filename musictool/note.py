@@ -98,3 +98,12 @@ class SpecificNote(Note):
 
 
 AnyNote = str | Note | SpecificNote
+
+
+def str_to_note(note: str) -> Note | SpecificNote:
+    if len(note) == 0:
+        raise ValueError('invalid note string representation')
+    elif len(note) == 1:
+        return Note(note)
+    elif len(note) > 1:
+        return SpecificNote.from_str(note)
