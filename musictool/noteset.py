@@ -8,6 +8,7 @@ from musictool import config
 from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
+from musictool.note import str_to_note
 
 '''
 NoteSet
@@ -114,15 +115,8 @@ class NoteSet:
 
     def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
         notes = self.notes_ascending
-
         if type(note) is str:
-            if len(note) == 1:
-                note = Note(note)
-            elif len(note) == 2:
-                note = SpecificNote.from_str(note)
-            else:
-                raise ValueError('invalid note string representation')
-
+            note = str_to_note(note)
         if type(note) is Note:
             return notes[(notes.index(note) + steps) % len(notes)]
         elif type(note) is SpecificNote:
@@ -131,6 +125,17 @@ class NoteSet:
             return SpecificNote(notes[i], note.octave + octave)
         else:
             raise TypeError
+
+    def subtract(self, left: AnyNote, right: AnyNote) -> int:
+        if type(left) is str: left = str_to_note(left)
+        if type(right) is str: right = str_to_note(right)
+
+        if type(left) is type(right) is Note:
+            return (self.note_i[left] - self.note_i[right]) % len(self)
+        elif type(left) is type(right) is SpecificNote:
+            return self.note_i[left.abstract] - self.note_i[right.abstract] + len(self) * (left.octave - right.octave)
+        else:
+            raise TypeError('left and right should be either Note or SpecificNote (or str representation)')
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)

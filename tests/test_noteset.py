@@ -107,3 +107,86 @@ def test_add_note(notes, note, steps, result):
 ))
 def test_note_range(start, stop, noteset, expected):
     assert note_range(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset) == tuple(SpecificNote.from_str(s) for s in expected.split())
+@pytest.mark.parametrize('notes, left, right, distance', (
+    ('CDEFGAB', 'E', 'C', 2),
+    ('CDEFGAB', 'C', 'E', 5),
+    ('CDEFGAB', 'B', 'C', 6),
+    ('CDEFGAB', 'C', 'C', 0),
+    ('CDEFGAB', 'E', 'A', 4),
+    ('CDE', 'D', 'D', 0),
+    ('CDE', 'E', 'D', 1),
+    ('CDE', 'E', 'C', 2),
+    ('CDE', 'C', 'D', 2),
+    ('CDE', 'C', 'E', 1),
+    ('ab', 'a', 'a', 0),
+    ('ab', 'a', 'b', 1),
+    ('ab', 'b', 'a', 1),
+    ('f', 'f', 'f', 0),
+    ('CdDeEFfGaAbB', 'b', 'b', 0),
+    ('CdDeEFfGaAbB', 'G', 'C', 7),
+    ('CdDeEFfGaAbB', 'C', 'd', 11),
+    ('CdDeEFfGaAbB', 'C', 'G', 5),
+
+    ('CDEFGAB', 'E1', 'C1', 2),
+    ('CDEFGAB', 'E3', 'C1', 16),
+    ('CDEFGAB', 'C1', 'E3', -16),
+    ('CDEFGAB', 'C2', 'E-1', 19),
+    ('CDEFGAB', 'E-1', 'C2', -19),
+    ('CDEFGAB', 'C2', 'E-3', 33),
+    ('CDEFGAB', 'E-3', 'C2', -33),
+    ('CDEFGAB', 'C-2', 'E-3', 5),
+    ('CDEFGAB', 'E-3', 'C-2', -5),
+    ('CDEFGAB', 'B1', 'C1', 6),
+    ('CDEFGAB', 'C1', 'B1', -6),
+    ('CDEFGAB', 'B10', 'C1', 69),
+    ('CDEFGAB', 'C1', 'B10', -69),
+    ('CDEFGAB', 'C0', 'C0', 0),
+    ('CDEFGAB', 'F34', 'F34', 0),
+    ('CDEFGAB', 'E4', 'A2', 11),
+    ('CDEFGAB', 'A2', 'E4', -11),
+    ('CDE', 'D2', 'D2', 0),
+    ('CDE', 'D2', 'D3', -3),
+    ('CDE', 'E5', 'D4', 4),
+    ('CDE', 'D4', 'E5', -4),
+    ('CDE', 'E5', 'C4', 5),
+    ('CDE', 'C4', 'E5', -5),
+    ('ab', 'a3', 'a3', 0),
+    ('ab', 'b3', 'a3', 1),
+    ('ab', 'a3', 'b3', -1),
+    ('ab', 'b4', 'a3', 3),
+    ('ab', 'a3', 'b4', -3),
+    ('f', 'f0', 'f0', 0),
+    ('f', 'f1', 'f0', 1),
+    ('f', 'f0', 'f1', -1),
+    ('f', 'f2', 'f0', 2),
+    ('f', 'f0', 'f2', -2),
+    ('f', 'f40', 'f1', 39),
+    ('f', 'f1', 'f40', -39),
+    ('f', 'f1', 'f-2', 3),
+    ('f', 'f-2', 'f1', -3),
+    ('f', 'f-4', 'f-7', 3),
+    ('f', 'f-7', 'f-4', -3),
+    ('CdDeEFfGaAbB', 'b2', 'b2', 0),
+    ('CdDeEFfGaAbB', 'G5', 'C3', 31),
+    ('CdDeEFfGaAbB', 'C3', 'G5', -31),
+    ('CdDeEFfGaAbB', 'C2', 'd-1', 35),
+    ('CdDeEFfGaAbB', 'd-1', 'C2', -35),
+    ('CdDeEFfGaAbB', 'C-2', 'C-3', 12),
+    ('CdDeEFfGaAbB', 'C-3', 'C-2', -12),
+    ('CdDeEFfGaAbB', 'C-3', 'C-8', 60),
+    ('CdDeEFfGaAbB', 'C-8', 'C-3', -60),
+    ('CdDeEFfGaAbB', 'd-3', 'G-8', 54),
+    ('CdDeEFfGaAbB', 'G-8', 'd-3', -54),
+))
+def test_subtract(notes, left, right, distance):
+    assert NoteSet(frozenset(notes)).subtract(left, right) == distance
+
+
+def test_subtract_types():
+    noteset = NoteSet(frozenset('CDEFGAB'))
+    with pytest.raises(TypeError): noteset.subtract(Note('C'), SpecificNote('D', 1))
+    with pytest.raises(TypeError): noteset.subtract(SpecificNote('D', 1), Note('C'))
+    with pytest.raises(TypeError): noteset.subtract('C', 'D1')
+    with pytest.raises(TypeError): noteset.subtract('D1', 'C')
+    with pytest.raises(TypeError): noteset.subtract('C', SpecificNote('D', 1))
+    with pytest.raises(TypeError): noteset.subtract('D1', Note('C'))
