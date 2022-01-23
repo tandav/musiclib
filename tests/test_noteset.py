@@ -31,19 +31,14 @@ def test_bits(notes, root, bits):
 
 
 def test_empty():
-    with pytest.raises(ValueError):
-        NoteSet(frozenset())
+    with pytest.raises(ValueError): NoteSet(frozenset())
 
 
 def test_notes_type_is_frozenset():
-    with pytest.raises(TypeError):
-        NoteSet('CDE')
-    with pytest.raises(TypeError):
-        NoteSet(set('CDE'))
-    with pytest.raises(TypeError):
-        NoteSet(tuple('CDE'))
-    with pytest.raises(TypeError):
-        NoteSet(list('CDE'))
+    with pytest.raises(TypeError): NoteSet('CDE')
+    with pytest.raises(TypeError): NoteSet(set('CDE'))
+    with pytest.raises(TypeError): NoteSet(tuple('CDE'))
+    with pytest.raises(TypeError): NoteSet(list('CDE'))
 
 
 def test_contains():
@@ -58,8 +53,7 @@ def test_contains():
 
 
 def test_root_validation():
-    with pytest.raises(KeyError):
-        NoteSet(frozenset('AB'), root='E')
+    with pytest.raises(KeyError): NoteSet(frozenset('AB'), root='E')
 
 
 def test_note_i():
@@ -73,11 +67,8 @@ def test_note_i():
 
 
 def test_childs_names_unreachable():
-    with pytest.raises(KeyError):  # test that Scale names are unreachable
-        NoteSet.from_name('C', 'major')
-
-    with pytest.raises(KeyError):  # test that Chord names are unreachable
-        NoteSet.from_name('e', 'aug')
+    with pytest.raises(KeyError): NoteSet.from_name('C', 'major') # test that Scale names are unreachable
+    with pytest.raises(KeyError): NoteSet.from_name('e', 'aug') # test that Chord names are unreachable
 
 
 @pytest.mark.parametrize('notes, note, steps, result', (
@@ -112,15 +103,10 @@ def test_note_range(start, stop, noteset, expected):
 
 
 def test_noterange_bounds():
-    with pytest.raises(ValueError):
-        NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
-
-    with pytest.raises(KeyError):
-        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))
-    with pytest.raises(KeyError):
-        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dD')))
-    with pytest.raises(KeyError):
-        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dDeE')))
+    with pytest.raises(ValueError): NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dD')))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dDeE')))
 
 
 def test_noterange_contains():
@@ -232,7 +218,6 @@ def test_noterange_len(start, stop, notes, length):
 
 def test_noterange_getitem():
     nr = NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
-
     assert nr[0] == nr[-13] == SpecificNote('C', 1)
     assert nr[1] == nr[-12] == SpecificNote('d', 1)
     assert nr[2] == nr[-11] == SpecificNote('D', 1)
@@ -242,7 +227,6 @@ def test_noterange_getitem():
     assert nr[0:1] == NoteRange(SpecificNote('C', 1), SpecificNote('d', 1))
     assert nr[0:2] == NoteRange(SpecificNote('C', 1), SpecificNote('D', 1))
     assert nr[0:12] == NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
-
     with pytest.raises(IndexError): nr[13]
     with pytest.raises(IndexError): nr[-14]
     with pytest.raises(IndexError): nr[-3: 1]
@@ -259,7 +243,6 @@ def test_noterange_getitem():
     assert nr[0:1] == NoteRange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
     assert nr[0:2] == NoteRange(SpecificNote('f', -1), SpecificNote('f', 0), ns)
     assert nr[0:9] == NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
-
     with pytest.raises(IndexError): nr[10]
     with pytest.raises(IndexError): nr[-11]
 
