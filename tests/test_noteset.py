@@ -67,8 +67,8 @@ def test_note_i():
 
 
 def test_childs_names_unreachable():
-    with pytest.raises(KeyError): NoteSet.from_name('C', 'major') # test that Scale names are unreachable
-    with pytest.raises(KeyError): NoteSet.from_name('e', 'aug') # test that Chord names are unreachable
+    with pytest.raises(KeyError): NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
+    with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
 
 
 @pytest.mark.parametrize('notes, note, steps, result', (

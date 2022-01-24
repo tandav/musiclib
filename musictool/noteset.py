@@ -196,28 +196,6 @@ class NoteSet:
 # class SpecificNotes: pass
 
 
-def note_range(
-    start: SpecificNote,
-    stop: SpecificNote,
-    noteset: NoteSet | None = None,
-) -> tuple[SpecificNote]:
-    """returned range is including both ends (start, stop)"""
-    if noteset is None:
-        noteset = NoteSet(frozenset(config.chromatic_notes))
-
-    if not {start.abstract, stop.abstract} <= noteset.notes:
-        raise KeyError('start and stop notes should be in the noteset')
-
-    out = []
-    note = start
-    while True:
-        out.append(note)
-        if note == stop:
-            break
-        note = noteset.add_note(note, 1)
-    return tuple(out)
-
-
 class NoteRange:
     def __init__(
         self,

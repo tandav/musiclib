@@ -11,6 +11,7 @@ from musictool import config
 from musictool.chord import Chord
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
+from musictool.noteset import NoteRange
 from musictool.scale import Scale
 from musictool.scale import parallel
 from musictool.scale import relative
@@ -225,18 +226,15 @@ def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
 
 def chord_transitons(
     chord: SpecificChord,
-    note_range: tuple[SpecificNote],
+    note_range: NoteRange,
     unique_abstract: bool = True,
 ) -> frozenset[SpecificChord]:
     out = set()
-    note_to_i = {note: i for i, note in enumerate(note_range)}
-
-    for note in chord.notes_ascending:
+    for note in chord:
         for add in (-1, 1):
-            i = note_to_i[note] + add
-            if i == 0 or i == len(note_range):
+            if (new_note := note_range.noteset.add_note(note, add)) not in note_range:
                 continue
-            notes = chord.notes - {note} | {note_range[i]}
+            notes = chord.notes - {note} | {new_note}
             if len(notes) != len(chord.notes):
                 continue
             if unique_abstract and len(notes) > len({n.abstract for n in notes}):
@@ -245,13 +243,13 @@ def chord_transitons(
     return frozenset(out)
 
 
-def transition_graph(start_chord: SpecificChord, note_range: tuple[SpecificNote]) -> dict[SpecificChord, frozenset[SpecificChord]]:
+def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[SpecificChord, frozenset[SpecificChord]]:
     graph = collections.defaultdict(set)
 
     def _graph(chord: SpecificChord):
         if chord in graph:
             return
-        childs = chord_transitons(chord, note_range)
+        childs = chord_transitons(chord, noterange)
         for child in childs:
             graph[chord].add(child)
         for child in childs:
