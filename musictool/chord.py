@@ -39,6 +39,9 @@ class SpecificChord:
         notes: frozenset[SpecificNote],
         root: Note | None = None,
     ):
+        if not isinstance(notes, frozenset):
+            raise TypeError(f'expected frozenset, got {type(notes)}')
+
         self.notes = notes
         self.root = root
         self.abstract = Chord(frozenset(note.abstract for note in notes), root)

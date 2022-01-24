@@ -11,6 +11,13 @@ def test_creation_from_notes():
     assert str(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))) == 'CEG/C'
 
 
+def test_specificchord_notes_type_is_frozenset():
+    with pytest.raises(TypeError): SpecificChord('C1_D1_E1')
+    with pytest.raises(TypeError): SpecificChord(set('C1_D1_E1'))
+    with pytest.raises(TypeError): SpecificChord(tuple('C1_D1_E1'))
+    with pytest.raises(TypeError): SpecificChord(list('C1_D1_E1'))
+
+
 def test_creation_from_str():
     assert str(Chord(frozenset('CEG'), root=Note('C'))) == 'CEG/C'
 
