@@ -114,6 +114,7 @@ def test_noterange_contains():
     assert SpecificNote('C', 1) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert SpecificNote('C', 2) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert SpecificNote('C', 3) not in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('D', 1) not in NoteRange(SpecificNote('C', 1), SpecificNote('F', 1), noteset=NoteSet(frozenset('CEF')))
 
 
 @pytest.mark.parametrize('notes, left, right, distance', (
