@@ -66,6 +66,7 @@ class Scale(NoteSet):
         self.kind = config.kinds.get(self.name)
         if self.kind == 'diatonic':
             self.triads = self._make_triads()
+            self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
 
         self.note_colors = {}
         self.note_scales = {}

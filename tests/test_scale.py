@@ -41,6 +41,10 @@ def test_scale_triads(notes, triads):
     assert Scale(frozenset(notes), notes[0]).triads == tuple(Chord.from_str(s) for s in triads.split())
 
 
+def test_notes_to_triad_root():
+    assert Scale(frozenset('DEFGAbC'), 'D').notes_to_triad_root[frozenset('GbD')] == 'G'
+
+
 @pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))
 def test_note_scales(notes):
     assert Scale(frozenset(notes), notes[0]).note_scales == dict(zip(notes, config.diatonic))
