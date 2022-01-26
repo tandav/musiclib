@@ -111,7 +111,7 @@ class SpecificChord:
     #     return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
 
     def __sub__(left, right):
-        return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left.notes_ascending, right.notes_ascending))
+        return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left, right))
 
     async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]
