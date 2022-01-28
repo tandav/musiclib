@@ -226,13 +226,13 @@ def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
 
 def chord_transitons(
     chord: SpecificChord,
-    note_range: NoteRange,
+    noterange: NoteRange,
     unique_abstract: bool = True,
 ) -> frozenset[SpecificChord]:
     out = set()
     for note in chord:
         for add in (-1, 1):
-            if (new_note := note_range.noteset.add_note(note, add)) not in note_range:
+            if (new_note := noterange.noteset.add_note(note, add)) not in noterange:
                 continue
             notes = chord.notes - {note} | {new_note}
             if len(notes) != len(chord.notes):
