@@ -227,7 +227,7 @@ def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):
 def chord_transitons(
     chord: SpecificChord,
     noterange: NoteRange,
-    unique_abstract: bool = True,
+    unique_abstract: bool = False,
 ) -> frozenset[SpecificChord]:
     out = set()
     for note in chord:

@@ -95,5 +95,5 @@ def test_chord_transitons(noterange, noteset, chord_str, transitions, unique_abs
 def test_transition_graph():
     noterange = NoteRange(SpecificNote('A', 0), SpecificNote('D', 2), NoteSet(frozenset('CDEFGAB')))
     graph = progression.transition_graph(SpecificChord.from_str('C1_E1_G1'), noterange)
-    assert len(graph) == 95
-    assert sum(map(len, graph.values())) == 360
+    assert len(graph) == 165
+    assert sum(map(len, graph.values())) == 720
