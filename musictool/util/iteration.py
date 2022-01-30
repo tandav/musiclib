@@ -2,6 +2,7 @@ import itertools
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
+from typing import Literal
 
 from musictool import config
 
@@ -25,15 +26,16 @@ def unique(iterable, key=lambda x: x):
         yield item
 
 
+# @functools.cache ?
 def sequence_builder(
     n: int,
-    options: Iterable | Sequence[Iterable],
-    options_separated: bool = False,
+    options: Iterable | Sequence[Iterable] | Callable,
+    options_kind: Literal['iterable', 'fixed_per_step', 'callable_from_curr'] = 'iterable',
     curr_prev_constraint: Callable | None = None,
     candidate_constraint: Callable | None = None,
     i_constraints: dict[int, Callable] = dict(),
     unique_key: Callable | None = None,
-    loop: bool = True,
+    loop: bool = False,
     prefix: Sequence = tuple(),
 ) -> Sequence:
     """build a sequence of elements from options
@@ -43,8 +45,10 @@ def sequence_builder(
         len of returned sequence
     options: Iterable
         on each build step use one of the `options`
-    options_separated : bool
-        if True options should be a Sequence of separate options for each step
+    options_kind : str
+        'iterable: - todo
+        'fixed_per_step: - todo
+        'callable_from_curr: - todo
     curr_prev_constraint
     candidate_constraint
     i_constraints
@@ -60,7 +64,15 @@ def sequence_builder(
     """
     seq = list(prefix) if prefix else list()
 
-    ops = options[len(seq)] if options_separated else options
+    if options_kind == 'iterable':
+        ops = options
+    elif options_kind == 'fixed_per_step':
+        ops = options[len(seq)]
+    elif options_kind == 'callable_from_curr':
+        assert prefix
+        ops = options(seq[-1])
+    else:
+        raise ValueError('unsupported options_kind')
 
     if i_constraint := i_constraints.get(len(seq)):
         ops = filter(i_constraint, ops)
@@ -81,4 +93,4 @@ def sequence_builder(
                 continue
             yield tuple(candidate)
         else:
-            yield from sequence_builder(n, options, options_separated, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix=candidate)
+            yield from sequence_builder(n, options, options_kind, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix=candidate)

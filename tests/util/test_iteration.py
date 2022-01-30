@@ -30,7 +30,7 @@ def test_first_constraint(options, is_even):
 
 
 def test_prev_curr(options, even_odd_interchange):
-    for cycle in sequence_builder(5, options, curr_prev_constraint=even_odd_interchange):
+    for cycle in sequence_builder(5, options, curr_prev_constraint=even_odd_interchange, loop=True):
         assert even_odd_interchange(cycle[-1], cycle[0])
         for prev, curr in itertools.pairwise(cycle):
             assert even_odd_interchange(prev, curr)
@@ -55,3 +55,8 @@ def test_candidate_constraint():
         candidate_constraint=candidate_constraint,
     ):
         assert candidate_constraint(seq)
+
+
+def test_options_kind_callable():
+    assert list(sequence_builder(3, options=lambda x: [x + 1], options_kind='callable_from_curr', prefix=[0])) == [(0, 1, 2)]
+    assert list(sequence_builder(3, options=lambda x: [x + 1, x * 10], options_kind='callable_from_curr', prefix=[0])) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
