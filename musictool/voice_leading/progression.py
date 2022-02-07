@@ -1,7 +1,6 @@
 import collections
 import functools
 import itertools
-import operator
 import random
 from collections.abc import Iterable
 
@@ -15,8 +14,7 @@ from musictool.noteset import NoteRange
 from musictool.scale import Scale
 from musictool.scale import parallel
 from musictool.scale import relative
-from musictool.util.iteration import sequence_builder
-from musictool.util.iteration import unique
+# from musictool.util.iteration import sequence_builder
 from musictool.voice_leading import checks
 
 
@@ -150,25 +148,25 @@ def no_bad_checks(a: SpecificChord, b: SpecificChord):
     return all(not check(a, b) for check in checks_)
 
 
-def make_progressions(
-    scale: Scale,
-    note_range: tuple[SpecificNote],
-    n=4,
-):
-    return (
-        sequence_builder(
-            n,
-            options=possible_chords(scale, note_range),
-            curr_prev_constraint=no_bad_checks,
-            i_constraints={0: lambda chord: chord.root == scale.root},
-            unique_key=lambda chord: chord.root,
-        )
-        | P.Map(Progression)
-        | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
-        | P.KeyBy(operator.attrgetter('distance'))
-        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
-        | P.Pipe(tuple)
-    )
+# def make_progressions(
+#     scale: Scale,
+#     note_range: tuple[SpecificNote],
+#     n=4,
+# ):
+#     return (
+#         sequence_builder(
+#             n,
+#             options=possible_chords(scale, note_range),
+#             curr_prev_constraint=no_bad_checks,
+#             i_constraints={0: lambda chord: chord.root == scale.root},
+#             unique_key=lambda chord: chord.root,
+#         )
+#         | P.Map(Progression)
+#         | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
+#         | P.KeyBy(operator.attrgetter('distance'))
+#         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
+#         | P.Pipe(tuple)
+#     )
 
 
 @functools.cache
@@ -183,24 +181,24 @@ def all_chords(chord: Chord, note_range, n_notes: int = 3):
     )
 
 
-def make_progressions_v2(
-    abstract_progression: tuple[Chord],
-    n_notes: int = 3,
-):
-    chord_2_all_chords = tuple(all_chords(chord, config.note_range, n_notes) for chord in abstract_progression)
-    return (
-        sequence_builder(
-            n=len(abstract_progression),
-            options=chord_2_all_chords,
-            options_separated=True,
-            curr_prev_constraint=no_bad_checks,
-        )
-        | P.Map(Progression)
-        | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
-        | P.KeyBy(operator.attrgetter('distance'))
-        | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
-        | P.Pipe(tuple)
-    )
+# def make_progressions_v2(
+#     abstract_progression: tuple[Chord],
+#     n_notes: int = 3,
+# ):
+#     chord_2_all_chords = tuple(all_chords(chord, config.note_range, n_notes) for chord in abstract_progression)
+#     return (
+#         sequence_builder(
+#             n=len(abstract_progression),
+#             options=chord_2_all_chords,
+#             options_separated=True,
+#             curr_prev_constraint=no_bad_checks,
+#         )
+#         | P.Map(Progression)
+#         | P.Pipe(lambda it: unique(it, key=operator.attrgetter('transpose_unique_key')))
+#         | P.KeyBy(operator.attrgetter('distance'))
+#         | P.Pipe(lambda x: sorted(x, key=operator.itemgetter(0)))
+#         | P.Pipe(tuple)
+#     )
 
 
 def random_progression(s: Scale, n: int = 8, parallel_prob=0.2):

@@ -16,16 +16,6 @@ def iter_scales(kind, start=None):
     return list(it)
 
 
-def unique(iterable, key=lambda x: x):
-    seen = set()
-    for item in iterable:
-        ki = key(item)
-        if ki in seen:
-            continue
-        seen.add(ki)
-        yield item
-
-
 # @functools.cache ?
 def sequence_builder(
     n: int,
