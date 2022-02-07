@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import asyncio
 import functools
+from collections.abc import Iterable
 from numbers import Number
 
 from musictool import config
@@ -95,6 +98,10 @@ class SpecificNote(Note):
     def __add__(self, other: int):
         """C + 7 = G"""
         return SpecificNote.from_absolute_i(self.absolute_i + other)
+
+    @staticmethod
+    def to_astract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
+        return frozenset(note.abstract for note in notes)
 
 
 AnyNote = str | Note | SpecificNote

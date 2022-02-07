@@ -109,3 +109,7 @@ def test_str_to_note():
 
     with pytest.raises(ValueError):
         str_to_note('CQ')
+
+
+def test_to_abstract():
+    assert SpecificNote.to_astract({SpecificNote('C', 2), SpecificNote('G', 3)}) == frozenset('CG')
