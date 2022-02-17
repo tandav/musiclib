@@ -33,12 +33,16 @@ def test_equal():
     assert Scale.from_name(Note('C'), 'major') != Scale.from_name(Note('E'), 'major')
 
 
-@pytest.mark.parametrize('notes, triads', (
-    ('CDEFGAB', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
-    ('DEFGAbC', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
+@pytest.mark.parametrize('notes, name, nths', (
+    ('CDEFGAB', 'triads', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
+    ('DEFGAbC', 'triads', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
+    ('CDEFGAB', 'sevenths', 'CEGB/C DFAC/D EGBD/E FACE/F GBDF/G ACEG/A BDFA/B'),
+    ('DEFGAbC', 'sevenths', 'DFAC/D EGbD/E FACE/F GbDF/G ACEG/A bDFA/b CEGb/C'),
+    ('CDEFGAB', 'ninths', 'CEGBD/C DFACE/D EGBDF/E FACEG/F GBDFA/G ACEGB/A BDFAC/B'),
+    ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
 ))
-def test_scale_triads(notes, triads):
-    assert Scale(frozenset(notes), notes[0]).triads == tuple(Chord.from_str(s) for s in triads.split())
+def test_nths(notes, name, nths):
+    assert getattr(Scale(frozenset(notes), notes[0]), name) == tuple(Chord.from_str(s) for s in nths.split())
 
 
 def test_notes_to_triad_root():

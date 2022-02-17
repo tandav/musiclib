@@ -65,8 +65,12 @@ class Scale(NoteSet):
         super().__init__(notes, root)
         self.kind = config.kinds.get(self.name)
         if self.kind == 'diatonic':
-            self.triads = self._make_triads()
+            self.triads = self._make_nths(frozenset({0, 2, 4}))
+            self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
+            self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
             self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
+            self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
+            self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
 
         self.note_colors = {}
         self.note_scales = {}
@@ -77,14 +81,11 @@ class Scale(NoteSet):
 
         self.html_classes = ('card', self.name)
 
-    def _make_triads(self):
-        notes_deque = deque(self.notes_ascending)
-        triads = []
-        for _ in range(len(notes_deque)):
-            chord = Chord(frozenset({notes_deque[0], notes_deque[2], notes_deque[4]}), root=notes_deque[0])
-            triads.append(chord)
-            notes_deque.rotate(-1)
-        return tuple(triads)
+    def _make_nths(self, ns: frozenset[int]) -> tuple[Chord]:
+        return tuple(
+            Chord(frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns), root=self.notes_ascending[i])
+            for i in range(len(self))
+        )
 
     def to_piano_image(self):
         return Piano(scale=self)._repr_svg_()
