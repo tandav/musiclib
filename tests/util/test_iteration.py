@@ -30,7 +30,7 @@ def test_first_constraint(options, is_even):
 
 
 def test_prev_curr(options, even_odd_interchange):
-    for cycle in sequence_builder(5, options, curr_prev_constraint=even_odd_interchange, loop=True):
+    for cycle in sequence_builder(5, options, curr_prev_constraint={-1: even_odd_interchange}, loop=True):
         assert even_odd_interchange(cycle[-1], cycle[0])
         for prev, curr in itertools.pairwise(cycle):
             assert even_odd_interchange(prev, curr)

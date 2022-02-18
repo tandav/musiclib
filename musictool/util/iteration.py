@@ -21,7 +21,7 @@ def sequence_builder(
     n: int,
     options: Iterable | Sequence[Iterable] | Callable,
     options_kind: Literal['iterable', 'fixed_per_step', 'callable_from_curr'] = 'iterable',
-    curr_prev_constraint: Callable | None = None,
+    curr_prev_constraint: dict[int, Callable] | None = None,
     candidate_constraint: Callable | None = None,
     i_constraints: dict[int, Callable] = dict(),
     unique_key: Callable | None = None,
@@ -71,16 +71,28 @@ def sequence_builder(
         prefix_keys = frozenset(unique_key(op) for op in prefix)
         ops = frozenset(op for op in ops if unique_key(op) not in prefix_keys)
 
-    if len(seq) > 0 and curr_prev_constraint is not None:
-        ops = (op for op in ops if curr_prev_constraint(seq[-1], op))
+    if curr_prev_constraint is not None:
+
+        if abs(max(curr_prev_constraint.keys())) >= n:
+            raise IndexError('max index to look back in curr_prev_constraint should be less than n')
+
+        for k, f in curr_prev_constraint.items():
+            if abs(k) > len(seq):
+                continue
+            ops = [op for op in ops if f(seq[k], op)]
 
     for op in ops:
         candidate = seq + [op]
         if candidate_constraint is not None and not candidate_constraint(candidate):
             continue
         if len(candidate) == n:
-            if curr_prev_constraint is not None and loop and not curr_prev_constraint(candidate[-1], candidate[0]):
-                continue
-            yield tuple(candidate)
+            if curr_prev_constraint is not None and loop:
+                for k, f in curr_prev_constraint.items():
+                    if not f(candidate[k], candidate[0]):
+                        break
+                else:
+                    yield tuple(candidate)
+            else:
+                yield tuple(candidate)
         else:
             yield from sequence_builder(n, options, options_kind, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix=candidate)
