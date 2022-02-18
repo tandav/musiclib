@@ -76,3 +76,16 @@ def test_have_large_leaps(a, b, interval, expected):
 ))
 def test_large_spacing(chord_str, max_interval, expected):
     assert checks.large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected
+
+
+@pytest.mark.parametrize('chord_str, min_interval, expected', (
+    ('C1_d2', 12, False),
+    ('C1_C2', 13, True),
+    ('C1_d1', 1, False),
+    ('C1_d1', 2, True),
+    ('C1_D1', 1, False),
+    ('C1_D1', 2, False),
+    ('C1_D1', 3, True),
+))
+def test_small_spacing(chord_str, min_interval, expected):
+    assert checks.small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected

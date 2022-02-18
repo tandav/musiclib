@@ -61,6 +61,11 @@ def large_spacing(c: SpecificChord, max_interval=12):
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
+@functools.cache
+def small_spacing(c: SpecificChord, min_interval=3):
+    return any(b - a < min_interval for a, b in itertools.pairwise(c))
+
+
 def make_major_scale_leading_tone_resolving_semitone_up(
     a: SpecificChord,
     b: SpecificChord,
