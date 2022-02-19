@@ -115,21 +115,38 @@ def test_find_intervals():
     assert SpecificChord(frozenset({a, d})).find_intervals(12) == ((a, d),)
 
 
-@pytest.mark.parametrize(
-    'chord, note, steps, result', (
-        (Chord.from_str('CEG'), Note('C'), 1, Note('E')),
-        (Chord.from_str('CEG'), Note('C'), 2, Note('G')),
-        (Chord.from_str('CEG'), Note('C'), 3, Note('C')),
-        (Chord.from_str('CeGb'), Note('e'), 2, Note('b')),
-        (Chord.from_str('CeGb'), Note('e'), 25, Note('G')),
-        (Chord.from_str('CEG'), Note('C'), -1, Note('G')),
-        (Chord.from_str('CEG'), Note('C'), -2, Note('E')),
-        (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
-        (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
-        (Chord.from_str('CeGb'), Note('e'), -15, Note('G')),
-    ))
+@pytest.mark.parametrize('chord, note, steps, result', (
+    (Chord.from_str('CEG'), Note('C'), 1, Note('E')),
+    (Chord.from_str('CEG'), Note('C'), 2, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), 3, Note('C')),
+    (Chord.from_str('CeGb'), Note('e'), 2, Note('b')),
+    (Chord.from_str('CeGb'), Note('e'), 25, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), -1, Note('G')),
+    (Chord.from_str('CEG'), Note('C'), -2, Note('E')),
+    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CeGb'), Note('e'), -15, Note('G')),
+))
 def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
+
+
+@pytest.mark.parametrize('chord, origin, expected', (
+    ('C3_E3_G3', None, 'C0_E0_G0'),
+    ('C3_E3_G3', SpecificNote('C', 1), 'C1_E1_G1'),
+    ('C3_E3_G3', SpecificNote('C', 3), 'C3_E3_G3'),
+    ('C3_E3_G3', SpecificNote('C', 4), 'C4_E4_G4'),
+    ('C3_E3_G3', SpecificNote('D', 0), 'D0_f0_A0'),
+    ('C3_E3_G3', SpecificNote('d', 4), 'd4_F4_a4'),
+    ('C3_E3_G3/C', None, 'C0_E0_G0/C'),
+    ('C3_E3_G3/C', SpecificNote('C', 1), 'C1_E1_G1/C'),
+    ('C3_E3_G3/C', SpecificNote('d', 4), 'd4_F4_a4/d'),
+    ('C3_E3_G3/E', SpecificNote('d', 4), 'd4_F4_a4/F'),
+))
+def test_transpose_to_origin(chord, origin, expected):
+    chord = SpecificChord.from_str(chord)
+    transposed = chord.transpose_to_origin() if origin is None else chord.transpose_to_origin(origin)
+    assert transposed == SpecificChord.from_str(expected)
 
 
 @pytest.mark.asyncio

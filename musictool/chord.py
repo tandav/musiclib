@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import itertools
 import random
@@ -121,6 +123,11 @@ class SpecificChord(Cached):
 
     def __sub__(left, right):
         return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left, right))
+
+    def transpose_to_origin(self, origin: SpecificNote = SpecificNote('C', 0)) -> SpecificChord:
+        diff = origin - self[0]
+        root = self.root + diff if self.root is not None else None
+        return SpecificChord(frozenset(note + diff for note in self), root=root)
 
     async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]
