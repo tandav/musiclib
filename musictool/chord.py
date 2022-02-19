@@ -124,10 +124,12 @@ class SpecificChord(Cached):
     def __sub__(left, right):
         return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left, right))
 
-    def transpose(self, origin: SpecificNote = SpecificNote('C', 0)) -> SpecificChord:
-        diff = origin - self[0]
-        root = self.root + diff if self.root is not None else None
-        return SpecificChord(frozenset(note + diff for note in self), root=root)
+    def __add__(self, other: int) -> SpecificChord:
+        """transpose"""
+        if not isinstance(other, int):
+            raise TypeError('only adding integers is allowed (transposition)')
+        root = self.root + other if self.root is not None else None
+        return SpecificChord(frozenset(note + other for note in self), root=root)
 
     async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]

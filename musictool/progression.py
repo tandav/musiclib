@@ -3,7 +3,6 @@ from __future__ import annotations
 import itertools
 
 from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
 
 
 class Progression(list):
@@ -31,5 +30,7 @@ class Progression(list):
             return origin.abstract.i, key
         return key
 
-    def transpose(self, origin: SpecificNote = SpecificNote('C', 0)) -> Progression:
-        return Progression(chord.transpose(origin) for chord in self)
+    def __add__(self, other: int) -> Progression:
+        if not isinstance(other, int):
+            raise TypeError('only adding integers is allowed (transposition)')
+        return Progression(chord + other for chord in self)

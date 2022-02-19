@@ -35,7 +35,6 @@ def test_list_like(four_chords):
     assert p[0] == a
     assert p == [a, b, c]
     e = [a, b, c, d]
-    assert p + [d] == e
     p.append(d)
     assert p == e
     assert Progression(x for x in [a, b, c, d]) == [a, b, c, d]
@@ -64,11 +63,18 @@ def test_transpose_unique_key(four_chords):
     assert p0.transpose_unique_key(origin_name=False) == p3.transpose_unique_key(origin_name=False)
 
 
-def test_transpose_to_origin(progression4):
-    p = Progression([
-        SpecificChord.from_str('C0_E0_G0'),
-        SpecificChord.from_str('C0_e0_G0'),
-        SpecificChord.from_str('C0_e0_G0'),
-        SpecificChord.from_str('C0_E0_G0'),
+def test_add():
+    p0 = Progression([
+        SpecificChord.from_str('G2_B2_e3'),
+        SpecificChord.from_str('A2_C3_E3'),
+        SpecificChord.from_str('B2_D3_f3'),
+        SpecificChord.from_str('C3_E3_G3'),
     ])
-    assert progression4.transpose() == p
+    p1 = Progression([
+        SpecificChord.from_str('C0_E0_a0'),
+        SpecificChord.from_str('D0_F0_A0'),
+        SpecificChord.from_str('E0_G0_B0'),
+        SpecificChord.from_str('F0_A0_C1'),
+    ])
+    assert p0 + -31 == p1
+    with pytest.raises(TypeError): p0 + [1]
