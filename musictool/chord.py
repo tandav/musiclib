@@ -37,10 +37,16 @@ class SpecificChord:
     def __init__(
         self,
         notes: frozenset[SpecificNote],
-        root: Note | None = None,
+        root: str | Note | None = None,
     ):
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
+
+        if isinstance(root, str):
+            root = Note(root)
+
+        if root is not None and root not in {note.abstract for note in notes}:
+            raise KeyError('root should be one of notes')
 
         self.notes = notes
         self.root = root
