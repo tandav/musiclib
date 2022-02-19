@@ -91,7 +91,7 @@ def sequence_builder(
         if len(candidate) == n:
             if curr_prev_constraint is not None and loop:
                 for k, f in curr_prev_constraint.items():
-                    if any(not f(candidate[(i - k) % n], candidate[i]) for i in range(n)):
+                    if any(not f(candidate[(i + k) % n], candidate[i]) for i in range(abs(k))):
                         break
                 else:
                     yield tuple(candidate)
