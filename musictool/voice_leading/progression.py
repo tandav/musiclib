@@ -41,8 +41,8 @@ class Progression(list):
         origin = self[0].notes_ascending[0]
         return origin.abstract.i, tuple(frozenset(note - origin for note in chord.notes) for chord in self)
 
-    def transpose_to_origin(self, origin: SpecificNote = SpecificNote('C', 0)) -> Progression:
-        return Progression(chord.transpose_to_origin(origin) for chord in self)
+    def transpose(self, origin: SpecificNote = SpecificNote('C', 0)) -> Progression:
+        return Progression(chord.transpose(origin) for chord in self)
 
 
 def all_triads(octaves=(4, 5, 6)):

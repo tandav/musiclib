@@ -145,7 +145,7 @@ def test_add_note(chord, note, steps, result):
 ))
 def test_transpose_to_origin(chord, origin, expected):
     chord = SpecificChord.from_str(chord)
-    transposed = chord.transpose_to_origin() if origin is None else chord.transpose_to_origin(origin)
+    transposed = chord.transpose() if origin is None else chord.transpose(origin)
     assert transposed == SpecificChord.from_str(expected)
 
 

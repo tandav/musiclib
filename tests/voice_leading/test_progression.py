@@ -75,7 +75,7 @@ def test_transpose_to_origin(progression4):
         SpecificChord.from_str('C0_e0_G0'),
         SpecificChord.from_str('C0_E0_G0'),
     ])
-    assert progression4.transpose_to_origin() == p
+    assert progression4.transpose() == p
 
 
 @pytest.mark.parametrize('noterange, noteset, chord_str, transitions, unique_abstract', (
