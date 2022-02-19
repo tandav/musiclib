@@ -53,8 +53,11 @@ def sequence_builder(
     Sequence
     """
     seq = list(prefix) if prefix else list()
-
     if options_kind == 'iterable':
+        options_seq = tuple(options)
+        options = frozenset(options_seq)
+        if len(options_seq) != len(options):
+            raise ValueError('options should be unique')
         ops = options
     elif options_kind == 'fixed_per_step':
         ops = options[len(seq)]

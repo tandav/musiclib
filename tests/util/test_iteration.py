@@ -29,6 +29,10 @@ def test_first_constraint(options, is_even):
     assert all(is_even(cycle[0]) for cycle in sequence_builder(5, options, i_constraints={0: is_even}))
 
 
+def test_input_validation():
+    with pytest.raises(ValueError): tuple(sequence_builder(5, (1, 1, 2)))
+
+
 def test_prev_curr(options, even_odd_interchange):
     for cycle in sequence_builder(5, options, curr_prev_constraint={-1: even_odd_interchange}, loop=True):
         assert even_odd_interchange(cycle[-1], cycle[0])
