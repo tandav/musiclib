@@ -1,13 +1,10 @@
 import functools
 import itertools
 from collections import defaultdict
-from collections import deque
 
-from musictool import chromatic
 from musictool import config
 from musictool.chord import Chord
 from musictool.note import Note
-from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
 from musictool.piano import Piano
 from musictool.util.color import hex_to_rgb
@@ -41,28 +38,13 @@ class Scale(NoteSet):
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
-    _cache = {}
-
-    def __new__(
-        cls,
-        notes: frozenset[str | Note],
-        root: str | Note,
-    ):
-        key = notes, root
-        if instance := cls._cache.get(key):
-            return instance
-        instance = super().__new__(cls)
-        instance._long_init(notes, root)
-        cls._cache[key] = instance
-        return instance
-
-    # def __init__(
-    def _long_init(
+    def __init__(
         self,
         notes: frozenset[str | Note],
+        *,
         root: str | Note,
     ):
-        super().__init__(notes, root)
+        super().__init__(notes, root=root)
         self.kind = config.kinds.get(self.name)
 
         if self.kind is not None:

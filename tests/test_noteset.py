@@ -27,7 +27,7 @@ def test_bits_intervals(bits, intervals):
     (frozenset('dfb'), 'd', '100001000100'),
 ))
 def test_bits(notes, root, bits):
-    assert NoteSet(notes, root).bits == bits
+    assert NoteSet(notes, root=root).bits == bits
 
 
 def test_empty():
@@ -93,8 +93,8 @@ def test_add_note(notes, note, steps, result):
     ('b3', 'E4', NoteSet(frozenset(config.chromatic_notes)), 'b3 B3 C4 d4 D4 e4 E4'),
     ('C0', 'C0', NoteSet(frozenset(config.chromatic_notes)), 'C0'),
     ('C0', 'C1', NoteSet(frozenset('CDEFGAB')), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-    ('C0', 'C1', Scale(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-    ('C0', 'C1', Chord(frozenset('CDEFGAB'), 'C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+    ('C0', 'C1', Scale(frozenset('CDEFGAB'), root='C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+    ('C0', 'C1', Chord(frozenset('CDEFGAB'), root='C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
     ('a3', 'f4', NoteSet(frozenset('dEfaB')), 'a3 B3 d4 E4 f4'),
     ('A0', 'D2', NoteSet(frozenset('CDEFGAB')), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
 ))

@@ -18,7 +18,7 @@ from musictool.scale import relative
 def test_name(notes, name):
     root = notes[0]
     notes = frozenset(notes)
-    assert Scale(notes, root).name == name
+    assert Scale(notes, root=root).name == name
     assert Scale.from_name(root, name).notes == notes
 
 
@@ -40,6 +40,7 @@ def test_kind():
         len({'note_colors', 'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
     )
 
+
 def test_equal():
     assert Scale.from_name('C', 'major') == Scale.from_name('C', 'major')
     assert Scale.from_name('C', 'major') == Scale.from_name(Note('C'), 'major')
@@ -56,22 +57,16 @@ def test_equal():
     ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
 ))
 def test_nths(notes, name, nths):
-    assert getattr(Scale(frozenset(notes), notes[0]), name) == tuple(Chord.from_str(s) for s in nths.split())
+    assert getattr(Scale(frozenset(notes), root=notes[0]), name) == tuple(Chord.from_str(s) for s in nths.split())
 
 
 def test_notes_to_triad_root():
-    assert Scale(frozenset('DEFGAbC'), 'D').notes_to_triad_root[frozenset('GbD')] == 'G'
+    assert Scale(frozenset('DEFGAbC'), root='D').notes_to_triad_root[frozenset('GbD')] == 'G'
 
 
 @pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))
 def test_note_scales(notes):
-    assert Scale(frozenset(notes), notes[0]).note_scales == dict(zip(notes, config.diatonic))
-
-
-def test_cache():
-    assert Scale.from_name('C', 'major') is Scale.from_name('C', 'major')
-    assert Scale.from_name('C', 'major') is not Scale.from_name('D', 'major')
-    assert Scale.from_name('C', 'major') is Scale.from_name(Note('C'), 'major')
+    assert Scale(frozenset(notes), root=notes[0]).note_scales == dict(zip(notes, config.diatonic))
 
 
 def test_compared():

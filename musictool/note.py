@@ -7,9 +7,10 @@ from numbers import Number
 
 from musictool import config
 from musictool.midi import player
+from musictool.util.cache import Cached
 
 
-class Note:  # Note(str) ??
+class Note(Cached):
     """
     abstract note, no octave/key
     kinda music theoretic pitch-class

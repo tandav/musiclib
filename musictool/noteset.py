@@ -11,6 +11,7 @@ from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.note import str_to_note
+from musictool.util.cache import Cached
 
 '''
 NoteSet
@@ -40,13 +41,14 @@ def intervals_to_bits(intervals: frozenset) -> str:
     return ''.join(bits)
 
 
-class NoteSet:
+class NoteSet(Cached):
     intervals_to_name: dict = {}
     name_to_intervals: dict = {}
 
     def __init__(
         self,
         notes: frozenset[str | Note],
+        *,
         root: str | Note | None = None,
     ):
         """
@@ -93,13 +95,13 @@ class NoteSet:
         if isinstance(root, str):
             root = Note(root)
         notes = frozenset(root + interval for interval in cls.name_to_intervals[name]) | {root}
-        return cls(notes, root)
+        return cls(notes, root=root)
 
     @classmethod
     def from_intervals(cls, root: str | Note, intervals: frozenset):
         if isinstance(root, str):
             root = Note(root)
-        return cls(frozenset(root + interval for interval in intervals) | {root}, root)
+        return cls(frozenset(root + interval for interval in intervals) | {root}, root=root)
 
     @classmethod
     def random(cls, n_notes=None):
@@ -113,7 +115,7 @@ class NoteSet:
         notes, _, root = string.partition('/')
         root = Note(root) if root else None
         notes = frozenset(Note(note) for note in notes)
-        return cls(notes, root)
+        return cls(notes, root=root)
 
     def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
         notes = self.notes_ascending

@@ -7,6 +7,7 @@ from musictool import config
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
+from musictool.util.cache import Cached
 
 
 class Chord(NoteSet):
@@ -33,10 +34,11 @@ class Chord(NoteSet):
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
 
 
-class SpecificChord:
+class SpecificChord(Cached):
     def __init__(
         self,
         notes: frozenset[SpecificNote],
+        *,
         root: str | Note | None = None,
     ):
         if not isinstance(notes, frozenset):
@@ -50,7 +52,7 @@ class SpecificChord:
 
         self.notes = notes
         self.root = root
-        self.abstract = Chord(frozenset(note.abstract for note in notes), root)
+        self.abstract = Chord(frozenset(note.abstract for note in notes), root=root)
         self.root_specific = frozenset(note for note in notes if note.abstract == root)
 
         self.notes_ascending = tuple(sorted(notes))
@@ -79,7 +81,7 @@ class SpecificChord:
         if len(notes_) != len(set(notes_)):
             raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
         notes = frozenset(SpecificNote.from_str(note) for note in notes_)
-        return cls(notes, root)
+        return cls(notes, root=root)
 
     def notes_combinations(self, ids=False):
         if ids: yield from itertools.combinations(range(len(self.notes_ascending)), 2)
