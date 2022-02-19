@@ -138,7 +138,7 @@ checks_ = (
     lambda a, b: checks.have_parallel_interval(a, b, 7),
     lambda a, b: checks.have_hidden_parallel(a, b, 0),
     lambda a, b: checks.have_hidden_parallel(a, b, 7),
-    lambda a, b: checks.have_voice_overlap(a, b),
+    lambda a, b: checks.have_voice_crossing(a, b),
     lambda a, b: checks.have_large_leaps(a, b, 5),
 )
 

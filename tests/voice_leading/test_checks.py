@@ -47,10 +47,8 @@ def test_have_hidden_parallel():
     assert not checks.have_hidden_parallel(c, d, 0)
 
 
-def test_have_voice_overlap():
-    a = SpecificChord(frozenset({SpecificNote('E', 3), SpecificNote('E', 5), SpecificNote('G', 5), SpecificNote('B', 5)}))
-    b = SpecificChord(frozenset({SpecificNote('A', 3), SpecificNote('C', 4), SpecificNote('E', 4), SpecificNote('A', 4)}))
-    assert checks.have_voice_overlap(a, b)
+def test_have_voice_crossing():
+    assert checks.have_voice_crossing(SpecificChord.from_str('E3_E5_G5_B5'), SpecificChord.from_str('A3_C4_E4_A4'))
 
 
 @pytest.mark.parametrize('a, b, interval, expected', (

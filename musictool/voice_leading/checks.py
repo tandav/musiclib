@@ -41,7 +41,7 @@ def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> b
 
 
 @functools.cache
-def have_voice_overlap(a: SpecificChord, b: SpecificChord) -> bool:
+def have_voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
     n = len(b)
     for i in range(n):
         upper = i < n - 1 and b[i] > a[i + 1]
