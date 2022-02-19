@@ -35,6 +35,8 @@ def test_str_sort_2_octaves():
 def test_name():
     assert Chord(frozenset('CEG'), root=Note('C')).name == 'major'
     assert Chord(frozenset('BDF'), root=Note('B')).name == 'diminished'
+    assert Chord(frozenset('CefA'), root=Note('C')).name == 'dim7'
+    assert Chord(frozenset('DFaC'), root=Note('D')).name == 'half-dim7'
 
 
 def test_intervals():
