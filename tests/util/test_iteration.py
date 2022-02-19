@@ -40,6 +40,22 @@ def test_prev_curr(options, even_odd_interchange):
             assert even_odd_interchange(prev, curr)
 
 
+def test_loop(options):
+    options = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
+
+    def different_startswith(a: int, b: int) -> bool:
+        return a[0] != b[0]
+
+    for seq in sequence_builder(
+        6,
+        options,
+        curr_prev_constraint={-1: different_startswith, -2: different_startswith},
+        loop=True,
+    ):
+        if not different_startswith(seq[1], seq[-1]):
+            raise AssertionError(seq)
+
+
 def test_prefix(options):
     prefix = options[:2]
     for cycle in sequence_builder(5, options, prefix=prefix):
