@@ -47,12 +47,13 @@ class SpecificChord(Cached):
         if isinstance(root, str):
             root = Note(root)
 
-        if root is not None and root not in {note.abstract for note in notes}:
+        notes_abstract = SpecificNote.to_astract(notes)
+        if root is not None and root not in notes_abstract:
             raise KeyError('root should be one of notes')
 
         self.notes = notes
         self.root = root
-        self.abstract = Chord(frozenset(note.abstract for note in notes), root=root)
+        self.abstract = Chord(notes_abstract, root=root)
         self.root_specific = frozenset(note for note in notes if note.abstract == root)
 
         self.notes_ascending = tuple(sorted(notes))
