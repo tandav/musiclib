@@ -23,8 +23,22 @@ def test_name(notes, name):
 
 
 def test_kind():
-    assert Scale.from_name('C', 'major').kind == 'diatonic'
-
+    s = Scale.from_name('C', 'major')
+    assert (
+        s.kind == 'diatonic' and
+        {'note_colors', 'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} <= vars(s).keys()
+    )
+    s = Scale.from_name('C', 'p_major')
+    assert (
+        s.kind == 'pentatonic' and
+        {'note_colors', 'note_scales'} <= vars(s).keys() and
+        len({'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
+    )
+    s = Scale(frozenset('Cde'), root='C')
+    assert (
+        s.kind is None and
+        len({'note_colors', 'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
+    )
 
 def test_equal():
     assert Scale.from_name('C', 'major') == Scale.from_name('C', 'major')

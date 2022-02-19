@@ -64,20 +64,22 @@ class Scale(NoteSet):
     ):
         super().__init__(notes, root)
         self.kind = config.kinds.get(self.name)
-        if self.kind == 'diatonic':
-            self.triads = self._make_nths(frozenset({0, 2, 4}))
-            self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
-            self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
-            self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
-            self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
-            self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
 
-        self.note_colors = {}
-        self.note_scales = {}
+        if self.kind is not None:
+            self.note_colors = {}
+            self.note_scales = {}
 
-        for note, scale in zip(self.notes_ascending, iter_scales(self.kind, start=self.name)):
-            self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
-            self.note_scales[note] = scale
+            for note, scale in zip(self.notes_ascending, iter_scales(self.kind, start=self.name)):
+                self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
+                self.note_scales[note] = scale
+
+            if self.kind == 'diatonic':
+                self.triads = self._make_nths(frozenset({0, 2, 4}))
+                self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
+                self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
+                self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
+                self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
+                self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
 
         self.html_classes = ('card', self.name)
 
