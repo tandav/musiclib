@@ -131,6 +131,24 @@ def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
 
 
+@pytest.mark.parametrize('chord, note, expected', (
+    ('C3_E3_G3', None, 'C0_E0_G0'),
+    ('C3_E3_G3', SpecificNote('C', 1), 'C1_E1_G1'),
+    ('C3_E3_G3', SpecificNote('C', 3), 'C3_E3_G3'),
+    ('C3_E3_G3', SpecificNote('C', 4), 'C4_E4_G4'),
+    ('C3_E3_G3', SpecificNote('D', 0), 'D0_f0_A0'),
+    ('C3_E3_G3', SpecificNote('d', 4), 'd4_F4_a4'),
+    ('C3_E3_G3/C', None, 'C0_E0_G0/C'),
+    ('C3_E3_G3/C', SpecificNote('C', 1), 'C1_E1_G1/C'),
+    ('C3_E3_G3/C', SpecificNote('d', 4), 'd4_F4_a4/d'),
+    ('C3_E3_G3/E', SpecificNote('d', 4), 'd4_F4_a4/F'),
+))
+def test_transpose_to_note(chord, note, expected):
+    chord = SpecificChord.from_str(chord)
+    transposed = chord.transpose_to_note() if note is None else chord.transpose_to_note(note)
+    assert transposed == SpecificChord.from_str(expected)
+
+
 @pytest.mark.parametrize('chord, add, expected', (
     ('C3_E3_G3', -36, 'C0_E0_G0'),
     ('C3_E3_G3', -24, 'C1_E1_G1'),

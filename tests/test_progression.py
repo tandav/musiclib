@@ -63,7 +63,7 @@ def test_transpose_unique_key(four_chords):
     assert p0.transpose_unique_key(origin_name=False) == p3.transpose_unique_key(origin_name=False)
 
 
-def test_add():
+def test_add_transpose():
     p0 = Progression([
         SpecificChord.from_str('G2_B2_e3'),
         SpecificChord.from_str('A2_C3_E3'),
@@ -78,3 +78,4 @@ def test_add():
     ])
     assert p0 + -31 == p1
     with pytest.raises(TypeError): p0 + [1]
+    assert p0.transpose_to_note() == p1

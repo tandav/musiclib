@@ -131,6 +131,9 @@ class SpecificChord(Cached):
         root = self.root + other if self.root is not None else None
         return SpecificChord(frozenset(note + other for note in self), root=root)
 
+    def transpose_to_note(self, note: SpecificNote = SpecificNote('C', 0)) -> SpecificChord:
+        return self + (note - self[0])
+
     async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]
         if bass_octave:
