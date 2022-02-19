@@ -1,7 +1,7 @@
 import pytest
 
 from musictool.chord import SpecificChord
-from musictool.voice_leading.progression import Progression
+from musictool.progression import Progression
 
 
 @pytest.fixture
@@ -58,9 +58,10 @@ def test_transpose_unique_key(four_chords):
     p1 = Progression([a, b, c, d_])
     p2 = Progression(SpecificChord(frozenset(n + 12 for n in chord.notes)) for chord in p0)
     p3 = Progression(SpecificChord(frozenset(n + 1 for n in chord.notes)) for chord in p0)
-    assert p0.transpose_unique_key != p1.transpose_unique_key
-    assert p0.transpose_unique_key == p2.transpose_unique_key
-    assert p0.transpose_unique_key != p3.transpose_unique_key
+    assert p0.transpose_unique_key() != p1.transpose_unique_key()
+    assert p0.transpose_unique_key() == p2.transpose_unique_key()
+    assert p0.transpose_unique_key() != p3.transpose_unique_key()
+    assert p0.transpose_unique_key(origin_name=False) == p3.transpose_unique_key(origin_name=False)
 
 
 def test_transpose_to_origin(progression4):

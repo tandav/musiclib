@@ -24,10 +24,12 @@ class Progression(list):
         n = len(self)
         return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
 
-    @property
-    def transpose_unique_key(self):
-        origin = self[0].notes_ascending[0]
-        return origin.abstract.i, tuple(frozenset(note - origin for note in chord.notes) for chord in self)
+    def transpose_unique_key(self, origin_name: bool = True):
+        origin = self[0][0]
+        key = tuple(frozenset(note - origin for note in chord.notes) for chord in self)
+        if origin_name:
+            return origin.abstract.i, key
+        return key
 
     def transpose(self, origin: SpecificNote = SpecificNote('C', 0)) -> Progression:
         return Progression(chord.transpose(origin) for chord in self)
