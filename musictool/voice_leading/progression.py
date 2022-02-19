@@ -1,3 +1,4 @@
+from __future__ import annotations
 import collections
 import functools
 import itertools
@@ -14,7 +15,6 @@ from musictool.noteset import NoteRange
 from musictool.scale import Scale
 from musictool.scale import parallel
 from musictool.scale import relative
-# from musictool.util.iteration import sequence_builder
 from musictool.voice_leading import checks
 
 
@@ -40,6 +40,9 @@ class Progression(list):
     def transpose_unique_key(self):
         origin = self[0].notes_ascending[0]
         return origin.abstract.i, tuple(frozenset(note - origin for note in chord.notes) for chord in self)
+
+    def transpose_to_origin(self, origin: SpecificNote = SpecificNote('C', 0)) -> Progression:
+        return Progression(chord.transpose_to_origin(origin) for chord in self)
 
 
 def all_triads(octaves=(4, 5, 6)):

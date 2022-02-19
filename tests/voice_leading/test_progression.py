@@ -68,6 +68,16 @@ def test_transpose_unique_key(four_chords):
     assert p0.transpose_unique_key != p3.transpose_unique_key
 
 
+def test_transpose_to_origin(progression4):
+    p = Progression([
+        SpecificChord.from_str('C0_E0_G0'),
+        SpecificChord.from_str('C0_e0_G0'),
+        SpecificChord.from_str('C0_e0_G0'),
+        SpecificChord.from_str('C0_E0_G0'),
+    ])
+    assert progression4.transpose_to_origin() == p
+
+
 @pytest.mark.parametrize('noterange, noteset, chord_str, transitions, unique_abstract', (
     (('A0', 'D2'), Scale.from_name('C', 'major'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False),
     (('A0', 'D2'), NoteSet(frozenset('CDEFGAB')), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False),
