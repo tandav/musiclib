@@ -1,17 +1,27 @@
 from __future__ import annotations
 
+import functools
 import itertools
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
+from musictool.util.cache import Cached
 
 
-class Progression(list):
-    def __init__(self, iterable=(), /):
-        iterable = list(iterable)
-        if not all(isinstance(x, SpecificChord) for x in iterable):
+class Progression(Cached):
+    def __init__(self, chords: tuple[SpecificChord, ...], /):
+        self.chords = chords
+        if not all(isinstance(x, SpecificChord) for x in chords):
             raise TypeError('only SpecificChord items allowed')
-        super().__init__(iterable)
+
+    def __getitem__(self, item):
+        return self.chords[item]
+
+    def __len__(self):
+        return len(self.chords)
+
+    def __repr__(self):
+        return f'Progression{self.chords})'
 
     def all(self, checks__):
         return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
@@ -34,7 +44,8 @@ class Progression(list):
     def __add__(self, other: int) -> Progression:
         if not isinstance(other, int):
             raise TypeError('only adding integers is allowed (transposition)')
-        return Progression(chord + other for chord in self)
+        return Progression(tuple(chord + other for chord in self))
 
-    def transpose_to_note(self, note: SpecificNote = SpecificNote('C', 0)) -> Progression:
-        return self + (note - self[0][0])
+    @functools.cached_property
+    def transposed_to_C0(self) -> Progression:
+        return self + (SpecificNote('C', 0) - self[0][0])

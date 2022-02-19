@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import functools
 import itertools
 import random
 from numbers import Number
@@ -64,7 +65,7 @@ class SpecificChord(Cached):
         self.str_chord = '_'.join(repr(note) for note in self.notes_ascending)
 
     @classmethod
-    def random(cls, n_notes=None, octaves=None):
+    def random(cls, n_notes=None, octaves=None) -> SpecificChord:
         if n_notes is None:
             n_notes = random.randint(2, 5)
         if octaves is None:
@@ -77,7 +78,7 @@ class SpecificChord(Cached):
         return cls(notes)
 
     @classmethod
-    def from_str(cls, string: str):
+    def from_str(cls, string: str) -> SpecificChord:
         notes, _, root = string.partition('/')
         root = Note(root) if root else None
         notes_ = notes.split('_')
@@ -131,8 +132,9 @@ class SpecificChord(Cached):
         root = self.root + other if self.root is not None else None
         return SpecificChord(frozenset(note + other for note in self), root=root)
 
-    def transpose_to_note(self, note: SpecificNote = SpecificNote('C', 0)) -> SpecificChord:
-        return self + (note - self[0])
+    @functools.cached_property
+    def transposed_to_C0(self) -> SpecificChord:
+        return self + (SpecificNote('C', 0) - self[0])
 
     async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]

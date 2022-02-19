@@ -3,6 +3,7 @@ from musictool.chord import SpecificChord
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
+from musictool.progression import Progression
 from musictool.scale import Scale
 
 
@@ -56,3 +57,26 @@ def test_specific_chord():
     assert SpecificChord.from_str('C1_E1_G1/C') is SpecificChord.from_str('C1_E1_G1/C')
     assert SpecificChord.from_str('C1_E1_G1/C') is not SpecificChord.from_str('C1_E1_G1/E')
     assert SpecificChord.from_str('C1_E1_G1/C') is not SpecificChord.from_str('C1_e1_G1/C')
+
+
+def test_progression():
+    p0 = Progression((
+        SpecificChord.from_str('G2_B2_e3'),
+        SpecificChord.from_str('A2_C3_E3'),
+        SpecificChord.from_str('B2_D3_f3'),
+        SpecificChord.from_str('C3_E3_G3'),
+    ))
+    p1 = Progression((
+        SpecificChord.from_str('G2_B2_e3'),
+        SpecificChord.from_str('A2_C3_E3'),
+        SpecificChord.from_str('B2_D3_f3'),
+        SpecificChord.from_str('C3_E3_G3'),
+    ))
+    p2 = Progression((
+        SpecificChord.from_str('C0_E0_a0'),
+        SpecificChord.from_str('D0_F0_A0'),
+        SpecificChord.from_str('E0_G0_B0'),
+        SpecificChord.from_str('F0_A0_C1'),
+    ))
+    assert p0 is p1
+    assert p0 is not p2

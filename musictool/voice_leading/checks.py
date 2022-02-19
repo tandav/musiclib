@@ -13,7 +13,7 @@ def chord_check_cache(f: Callable):
 
     @functools.wraps(f)
     def inner(a: SpecificChord, b: SpecificChord, *args) -> bool:
-        a, b = Progression((a, b)).transpose_to_note()
+        a, b = Progression((a, b)).transposed_to_C0
         key = a, b, *args
         cached = cache.get(key)
         if cached is not None:
