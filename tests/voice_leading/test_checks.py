@@ -4,6 +4,35 @@ from musictool.chord import SpecificChord
 from musictool.voice_leading import checks
 
 
+@pytest.mark.parametrize('f, extra_args', (
+    (checks.parallel_interval, (7,)),
+    (checks.hidden_parallel, (7,)),
+    (checks.voice_crossing, ()),
+    (checks.large_leaps, (4,)),
+))
+def test_cache(f, extra_args):
+    a = SpecificChord.from_str('C5653_E2895_G1111')
+    b = SpecificChord.from_str('F5384_A5559_C6893')
+    c = SpecificChord.from_str('d5653_F2895_a1111')
+    d = SpecificChord.from_str('f5384_b5559_d6893')
+
+    assert f._cache_info['hits'] == 0
+    assert f._cache_info['misses'] == 0
+    assert f._cache_info['currsize'] == 0
+    f(a, b, *extra_args)
+    assert f._cache_info['hits'] == 0
+    assert f._cache_info['misses'] == 1
+    assert f._cache_info['currsize'] == 1
+    f(a, b, *extra_args)
+    assert f._cache_info['hits'] == 1
+    assert f._cache_info['misses'] == 1
+    assert f._cache_info['currsize'] == 1
+    f(c, d, *extra_args)
+    assert f._cache_info['hits'] == 2
+    assert f._cache_info['misses'] == 1
+    assert f._cache_info['currsize'] == 1
+
+
 def test_parallel_interval():
     # fifths
     a = SpecificChord.from_str('C5_E5_G5')

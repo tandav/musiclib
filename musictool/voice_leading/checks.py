@@ -1,12 +1,36 @@
 import functools
 import itertools
+from collections.abc import Callable
 
 from musictool.chord import SpecificChord
+from musictool.progression import Progression
 from musictool.scale import Scale
 
 
-@functools.cache
-def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+def chord_check_cache(f: Callable):
+    cache = {}
+    cache_info = {'hits': 0, 'misses': 0, 'currsize': 0}
+
+    @functools.wraps(f)
+    def inner(a: SpecificChord, b: SpecificChord, *args) -> bool:
+        a, b = Progression((a, b)).transpose_to_note()
+        key = a, b, *args
+        cached = cache.get(key)
+        if cached is not None:
+            cache_info['hits'] += 1
+            return cached
+        cache_info['misses'] += 1
+        cache_info['currsize'] += 1
+        computed = f(a, b, *args)
+        cache[key] = computed
+        return computed
+    inner._cache = cache
+    inner._cache_info = cache_info
+    return inner
+
+
+@chord_check_cache
+def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     '''
     parallel in same voices!
     if there'are eg fifth in 1st and fifth in 2nd chord but not from same voices
@@ -23,8 +47,8 @@ def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool
     return False
 
 
-@functools.cache
-def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+@chord_check_cache
+def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
         1. outer voices (lower and higher) go in same direction (instead of oblique or contrary motion)
@@ -35,13 +59,11 @@ def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     b_low, b_high = b[0], b[-1]
 
     is_same_direction = (a_low < b_low and a_high < b_high) or (a_low > b_low and a_high > b_high)
-    if is_same_direction and (b_high - b_low) % 12 == interval:
-        return True
-    return False
+    return is_same_direction and (b_high - b_low) % 12 == interval
 
 
-@functools.cache
-def voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
+@chord_check_cache
+def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
     n = len(b)
     for i in range(n):
         upper = i < n - 1 and b[i] > a[i + 1]
@@ -51,25 +73,25 @@ def voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
     return False
 
 
-@functools.cache
-def large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+@chord_check_cache
+def large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     return any(abs(an - bn) > interval for an, bn in zip(a, b))
 
 
-@functools.cache
-def large_spacing(c: SpecificChord, max_interval=12):
+def large_spacing(c: SpecificChord, max_interval=12, /):
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
-@functools.cache
-def small_spacing(c: SpecificChord, min_interval=3):
+def small_spacing(c: SpecificChord, min_interval=3, /):
     return any(b - a < min_interval for a, b in itertools.pairwise(c))
 
 
+@chord_check_cache
 def make_major_scale_leading_tone_resolving_semitone_up(
     a: SpecificChord,
     b: SpecificChord,
     s: Scale,
+    /,
 ) -> bool:
     if s.name != 'major':
         raise ValueError('not ero')
