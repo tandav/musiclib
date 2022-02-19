@@ -6,7 +6,7 @@ from musictool.scale import Scale
 
 
 @functools.cache
-def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     '''
     parallel in same voices!
     if there'are eg fifth in 1st and fifth in 2nd chord but not from same voices
@@ -24,7 +24,7 @@ def have_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int) ->
 
 
 @functools.cache
-def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
         1. outer voices (lower and higher) go in same direction (instead of oblique or contrary motion)
@@ -41,7 +41,7 @@ def have_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int) -> b
 
 
 @functools.cache
-def have_voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
+def voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
     n = len(b)
     for i in range(n):
         upper = i < n - 1 and b[i] > a[i + 1]
@@ -52,7 +52,7 @@ def have_voice_crossing(a: SpecificChord, b: SpecificChord) -> bool:
 
 
 @functools.cache
-def have_large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
+def large_leaps(a: SpecificChord, b: SpecificChord, interval: int) -> bool:
     return any(abs(an - bn) > interval for an, bn in zip(a, b))
 
 
