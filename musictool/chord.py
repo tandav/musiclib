@@ -96,13 +96,6 @@ class SpecificChord(Cached):
     def find_intervals(self, interval: int):
         return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
-    # def add_note(self, note: Note | SpecificNote, steps: int):
-    #     notes = self.notes_ascending
-    #     if type(note) is Note:
-    #         return notes[(notes.index(note) + steps) % len(notes)]
-    #     else:
-    #         raise TypeError
-
     def __len__(self): return len(self.notes)
     def __getitem__(self, item): return self.notes_ascending[item]
 
@@ -123,7 +116,7 @@ class SpecificChord(Cached):
     #     return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
 
     def __sub__(left, right):
-        return sum(abs(l.absolute_i - r.absolute_i) for l, r in zip(left, right))
+        return sum(abs(l - r) for l, r in zip(left, right))
 
     def __add__(self, other: int) -> SpecificChord:
         """transpose"""
