@@ -83,13 +83,6 @@ def test_specific_note_add(absolute_i, to_add):
     assert (note + to_add).absolute_i == note.absolute_i + to_add
 
 
-@pytest.mark.xfail
-@given(st.integers(), st.integers())
-def test_sub(absolute_i, to_sub):
-    note = SpecificNote.from_absolute_i(absolute_i)
-    assert (note - to_sub).absolute_i == note.absolute_i - to_sub
-
-
 def test_color():
     assert not Note('C').is_black
     assert Note('d').is_black

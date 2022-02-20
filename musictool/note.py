@@ -92,7 +92,7 @@ class SpecificNote(Note):
     def __lt__(self, other): return self.absolute_i < other.absolute_i
 
     @functools.cache
-    def __sub__(self, other):
+    def __sub__(self, other: SpecificNote) -> int:
         """distance between notes"""
         return self.absolute_i - other.absolute_i
 
