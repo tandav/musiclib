@@ -24,7 +24,7 @@ class Transition:
         ))
 
 
-def chord_transitons(
+def chord_transitions(
     chord: SpecificChord,
     noterange: NoteRange,
     unique_abstract: bool = False,
@@ -49,7 +49,7 @@ def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[S
     def _graph(chord: SpecificChord):
         if chord in graph:
             return
-        childs = chord_transitons(chord, noterange)
+        childs = chord_transitions(chord, noterange)
         for child in childs:
             graph[chord].add(child)
         for child in childs:
