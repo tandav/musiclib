@@ -4,6 +4,8 @@ from collections.abc import Iterable
 from collections.abc import Sequence
 from typing import Literal
 
+import tqdm
+
 from musictool import config
 
 
@@ -83,6 +85,9 @@ def sequence_builder(
             if abs(k) > len(seq):
                 continue
             ops = [op for op in ops if f(seq[k], op)]
+
+    if not prefix:
+        ops = tqdm.tqdm(ops)
 
     for op in ops:
         candidate = seq + [op]
