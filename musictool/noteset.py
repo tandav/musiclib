@@ -77,7 +77,6 @@ class NoteSet(Cached):
         self.key = self.notes, self.root
         self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-        self.str_chord = ''.join(note.name for note in self.notes_ascending)
 
         if root is not None:
             if root not in notes:
@@ -144,16 +143,16 @@ class NoteSet(Cached):
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
     def __len__(self): return len(self.notes)
+    def __getitem__(self, item): return self.notes_ascending[item]
     def __contains__(self, item): return item in self.notes
     def __le__(self, other): return self.notes <= other
     def __ge__(self, other): return other <= self.notes
-    # def __str__(self): return ''.join(note.name for note in self.notes)
 
     # def to_piano_image(self, base64=False):
     #     return Piano(chord=self)._repr_svg_()
 
     def __repr__(self):
-        _ = self.str_chord
+        _ = ''.join(note.name for note in self)
         if self.root is not None:
             _ += f'/{self.root.name}'
         return _

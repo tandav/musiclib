@@ -144,7 +144,7 @@ class ComparedScales:
                     hex_to_rgb(config.chord_colors[chord.name]),
                     config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
                     config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
-                    chord.str_chord,
+                    str(chord),
                 )
                 for chord in self.right.triads
             } if self.right.kind == 'diatonic' else dict(),

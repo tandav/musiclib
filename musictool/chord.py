@@ -62,7 +62,6 @@ class SpecificChord(Cached):
         self.notes_ascending = tuple(sorted(notes))
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note
         self.key = self.notes, self.root
-        self.str_chord = '_'.join(repr(note) for note in self.notes_ascending)
 
     @classmethod
     def random(cls, n_notes=None, octaves=None) -> SpecificChord:
@@ -100,7 +99,7 @@ class SpecificChord(Cached):
     def __getitem__(self, item): return self.notes_ascending[item]
 
     def __repr__(self):
-        _ = self.str_chord
+        _ = '_'.join(repr(note) for note in self.notes_ascending)
         if self.root is not None:
             _ = f'{_}/{self.root.name}'
         return _
