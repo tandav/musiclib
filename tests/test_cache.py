@@ -5,6 +5,7 @@ from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
 from musictool.progression import Progression
 from musictool.scale import Scale
+from musictool.util.cache import Cached
 
 
 def test_note():
@@ -80,3 +81,19 @@ def test_progression():
     ))
     assert p0 is p1
     assert p0 is not p2
+
+
+def test_cached_class():
+    class K(Cached):
+        def __init__(self, x):
+            self.x = x
+
+        def __bool__(self):
+            """
+            test walrus operator is properly used
+            explicit `is not None` check should be used instead of `if cached := cache.get(key):`
+            """
+            return False
+
+    assert K(1) is K(1)
+    assert K(1) is not K(2)
