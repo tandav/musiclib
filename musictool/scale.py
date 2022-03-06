@@ -207,6 +207,8 @@ all_scales = {
 # circle of fifths clockwise
 majors = dict(
     diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
+    harmonic=tuple(harmonic[note, 'h_major'] for note in 'CGDAEBfdaebF'),
+    melodic=tuple(melodic[note, 'm_major'] for note in 'CGDAEBfdaebF'),
     pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
     sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
 )
