@@ -7,6 +7,7 @@ from musictool.chord import Chord
 from musictool.note import Note
 from musictool.scale import ComparedScales
 from musictool.scale import Scale
+from musictool.scale import all_scales
 
 
 @pytest.mark.parametrize('notes, name', (
@@ -106,14 +107,15 @@ def test_relative(scale, relative_name, expected):
     assert scale.relative(relative_name) is expected
 
 
-@pytest.fixture(params=(Scale.from_name('C', 'major'), Scale.from_name('A', 'major')))
-def scale(request):
-    yield request.param
+@pytest.mark.parametrize('kind', ('diatonic', 'pentatonic', 'sudu'))
+def test_html(kind):
+    for scale in all_scales[kind].values():
+        scale._repr_html_()
 
 
-def test_svg_scale(scale):
-    scale.to_piano_image()
-
-
-def test_svg_compared_scale(scale):
-    ComparedScales(scale, Scale.from_name('f', 'phrygian')).to_piano_image()
+@pytest.mark.parametrize('scale0, scale1', (
+    (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
+    (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
+))
+def test_html_compared_scale(scale0, scale1):
+    ComparedScales(scale0, scale1)._repr_html_()

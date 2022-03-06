@@ -101,9 +101,11 @@ class Scale(NoteSet):
         # <code>bits: {self.bits}</code><br>
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
+        if C_name := self.note_scales.get(Note('C'), ''):
+            C_name = f' | C {C_name}'
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
-        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name} | C {self.note_scales[Note('C')]}</h3></span></a>
+        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}{C_name}</h3></span></a>
         {self.to_piano_image()}
         </div>
         '''
