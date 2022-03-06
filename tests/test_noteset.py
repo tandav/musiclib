@@ -66,6 +66,17 @@ def test_note_i():
     assert noteset.note_i['G'] == 4
 
 
+@pytest.mark.parametrize('string, expected', (
+    ('CDEFGAB/C', NoteSet(frozenset('CDEFGAB'), root='C')),
+    ('CDEFGAB', NoteSet(frozenset('CDEFGAB'))),
+    ('CdeFGab/e', NoteSet(frozenset('CdeFGab'), root='e')),
+    ('CEG/C', NoteSet(frozenset('CEG'), root='C')),
+    ('fa/a', NoteSet(frozenset('fa'), root='a')),
+))
+def test_from_str(string, expected):
+    assert NoteSet.from_str(string) == expected
+
+
 def test_childs_names_unreachable():
     with pytest.raises(KeyError): NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
     with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
