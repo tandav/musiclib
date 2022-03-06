@@ -99,6 +99,15 @@ def test_add_note(notes, note, steps, result):
     assert NoteSet(frozenset(notes)).add_note(note, steps) == result
 
 
+@pytest.mark.parametrize('noteset, note, expected', (
+    ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
+    ('CdeFGab/e', 'D', 'DEfGABC/D'),
+    ('Cd/C', 'd', 'dD/d'),
+))
+def test_transpose(noteset, note, expected):
+    assert NoteSet.from_str(noteset).transpose_to(note) is NoteSet.from_str(expected)
+
+
 @pytest.mark.parametrize('start, stop, noteset, expected', (
     ('C0', 'C1', NoteSet(frozenset(config.chromatic_notes)), 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
     ('b3', 'E4', NoteSet(frozenset(config.chromatic_notes)), 'b3 B3 C4 d4 D4 e4 E4'),

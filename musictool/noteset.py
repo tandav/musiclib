@@ -89,6 +89,11 @@ class NoteSet(Cached):
     @property
     def rootless(self): return NoteSet(self.notes)
 
+    def transpose_to(self, note: Note) -> NoteSet:
+        if self.root is None:
+            raise ValueError('noteset should have root to be transposed')
+        return NoteSet.from_intervals(note, self.intervals)
+
     @classmethod
     def from_name(cls, root: str | Note, name: str):
         if isinstance(root, str):
