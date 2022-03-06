@@ -78,12 +78,15 @@ def test_compared():
     assert c.del_notes == frozenset({Note('B')})
 
 
-def test_parallel():
-    a = Scale.from_name('C', 'major')
-    b = Scale.from_name('C', 'minor')
-    assert a.parallel() is b
-    assert b.parallel() is a
-    assert Scale.from_name('f', 'minor').parallel() is Scale.from_name('f', 'major')
+@pytest.mark.parametrize('scale, parallel_name, expected', (
+    (Scale.from_name('C', 'major'), None, Scale.from_name('C', 'minor')),
+    (Scale.from_name('C', 'minor'), None, Scale.from_name('C', 'major')),
+    (Scale.from_name('f', 'minor'), None, Scale.from_name('f', 'major')),
+    (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('C', 'phrygian')),
+    (Scale.from_name('e', 'dorian'), 'locrian', Scale.from_name('e', 'locrian')),
+))
+def test_parallel(scale, parallel_name, expected):
+    assert scale.parallel(parallel_name) is expected
 
 
 @pytest.mark.parametrize('scale, relative_name, expected', (

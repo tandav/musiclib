@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import functools
 import itertools
 from collections import defaultdict
@@ -72,9 +73,11 @@ class Scale(NoteSet):
             for i in range(len(self))
         )
 
-    def parallel(self) -> Scale:
+    def parallel(self, parallel_name: str | None = None) -> Scale:
         """same root, convert major to minor and vice versa"""
-        return Scale.from_name(self.root, {'major': 'minor', 'minor': 'major'}[self.name])
+        if parallel_name is None:
+            parallel_name = {'major': 'minor', 'minor': 'major'}[self.name]
+        return Scale.from_name(self.root, parallel_name)
 
     def relative(self, relative_name: str | None = None) -> Scale:
         """same set of notes, changes root, convert major to minor and vice versa"""
