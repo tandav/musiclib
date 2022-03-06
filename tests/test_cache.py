@@ -1,3 +1,7 @@
+import operator
+
+import pytest
+
 from musictool.chord import Chord
 from musictool.chord import SpecificChord
 from musictool.note import Note
@@ -8,42 +12,57 @@ from musictool.scale import Scale
 from musictool.util.cache import Cached
 
 
-def test_note():
-    assert Note('A') is Note('A')
-    assert Note('A') is not Note('B')
+@pytest.mark.parametrize('op, a, b', (
+    (operator.is_, Note('A'), Note('A')),
+    (operator.is_not, Note('A'), Note('B')),
+))
+def test_note(op, a, b):
+    assert op(a, b)
 
 
-def test_specific_note():
-    assert SpecificNote('C', 1) is SpecificNote('C', 1)
-    assert SpecificNote('C', 1) is not SpecificNote('C', 2)
-    assert SpecificNote('C', 1) is SpecificNote(Note('C'), 1)
+@pytest.mark.parametrize('op, a, b', (
+    (operator.is_, SpecificNote('C', 1), SpecificNote('C', 1)),
+    (operator.is_not, SpecificNote('C', 1), SpecificNote('C', 2)),
+    (operator.is_, SpecificNote('C', 1), SpecificNote(Note('C'), 1)),
+))
+def test_specific_note(op, a, b):
+    assert op(a, b)
 
 
-def test_noteset():
-    assert NoteSet(frozenset('CDe')) is NoteSet(frozenset('CDe'))
-    assert NoteSet(frozenset('CDe'), root='C') is NoteSet(frozenset('CDe'), root='C')
-    assert NoteSet(frozenset('CDe'), root='C') is NoteSet(frozenset('CDe'), root=Note('C'))
-    assert NoteSet(frozenset('CDe'), root='C') is not NoteSet(frozenset('CDe'), root='D')
+@pytest.mark.parametrize('op, a, b', (
+    (operator.is_, NoteSet(frozenset('CDe')), NoteSet(frozenset('CDe'))),
+    (operator.is_, NoteSet(frozenset('CDe'), root='C'), NoteSet(frozenset('CDe'), root='C')),
+    (operator.is_, NoteSet(frozenset('CDe'), root='C'), NoteSet(frozenset('CDe'), root=Note('C'))),
+    (operator.is_not, NoteSet(frozenset('CDe'), root='C'), NoteSet(frozenset('CDe'), root='D')),
+))
+def test_noteset(op, a, b):
+    assert op(a, b)
 
 
-def test_scale():
-    assert Scale(frozenset('Cde'), root='C') is Scale(frozenset('Cde'), root='C')
-    assert Scale(frozenset('Cde'), root='C') is Scale(frozenset('Cde'), root=Note('C'))
-    assert Scale(frozenset('Cde'), root='C') is not Scale(frozenset('CDe'), root=Note('C'))
-    assert Scale(frozenset('Cde'), root='C') is not Scale(frozenset('Cde'), root=Note('d'))
-    assert Scale.from_name('C', 'major') is Scale.from_name('C', 'major')
-    assert Scale.from_name('C', 'major') is not Scale.from_name('D', 'major')
-    assert Scale.from_name('C', 'major') is Scale.from_name(Note('C'), 'major')
+@pytest.mark.parametrize('op, a, b', (
+    (operator.is_, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root='C')),
+    (operator.is_, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root=Note('C'))),
+    (operator.is_not, Scale(frozenset('Cde'), root='C'), Scale(frozenset('CDe'), root=Note('C'))),
+    (operator.is_not, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root=Note('d'))),
+    (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
+    (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
+    (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
+))
+def test_scale(op, a, b):
+    assert op(a, b)
 
 
-def test_chord():
-    assert Chord(frozenset('CEG')) is Chord(frozenset('CEG'))
-    assert Chord(frozenset('CEG'), root='C') is Chord(frozenset('CEG'), root='C')
-    assert Chord(frozenset('CEG'), root='C') is not Chord(frozenset('CeG'), root=Note('C'))
-    assert Chord(frozenset('CEG'), root='C') is not Chord(frozenset('CEG'), root=Note('E'))
-    assert Chord.from_name('C', 'major') is Chord.from_name('C', 'major')
-    assert Chord.from_name('C', 'major') is not Chord.from_name('D', 'major')
-    assert Chord.from_name('C', 'major') is Chord.from_name(Note('C'), 'major')
+@pytest.mark.parametrize('op, a, b', (
+    (operator.is_, Chord(frozenset('CEG')), Chord(frozenset('CEG'))),
+    (operator.is_, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CEG'), root='C')),
+    (operator.is_not, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CeG'), root=Note('C'))),
+    (operator.is_not, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CEG'), root=Note('E'))),
+    (operator.is_, Chord.from_name('C', 'major'), Chord.from_name('C', 'major')),
+    (operator.is_not, Chord.from_name('C', 'major'), Chord.from_name('D', 'major')),
+    (operator.is_, Chord.from_name('C', 'major'), Chord.from_name(Note('C'), 'major')),
+))
+def test_chord(op, a, b):
+    assert op(a, b)
 
 
 def test_specific_chord():
