@@ -103,7 +103,7 @@ class Scale(NoteSet):
         chords_hover = ''
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
-        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}</h3></span></a>
+        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name} | C {self.note_scales[Note('C')]}</h3></span></a>
         {self.to_piano_image()}
         </div>
         '''
