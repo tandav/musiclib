@@ -107,7 +107,7 @@ def test_relative(scale, relative_name, expected):
     assert scale.relative(relative_name) is expected
 
 
-@pytest.mark.parametrize('kind', ('diatonic', 'pentatonic', 'sudu'))
+@pytest.mark.parametrize('kind', ('diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'))
 def test_html(kind):
     for scale in all_scales[kind].values():
         scale._repr_html_()

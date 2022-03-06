@@ -9,8 +9,16 @@ neighsbors_min_shared = {'diatonic': 0, 'pentatonic': 0}
 
 diatonic = 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'
 pentatonic = 'p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'
+harmonic = 'h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'
+melodic = 'm_minor', 'm_locrian', 'm_major', 'm_dorian', 'm_phrygian', 'm_lydian', 'm_mixolydian'
 sudu = 's_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'
-kinds = {k: 'diatonic' for k in diatonic} | {k: 'pentatonic' for k in pentatonic} | {k: 'sudu' for k in sudu}
+kinds = (
+    {k: 'diatonic' for k in diatonic} |
+    {k: 'harmonic' for k in harmonic} |
+    {k: 'melodic' for k in melodic} |
+    {k: 'pentatonic' for k in pentatonic} |
+    {k: 'sudu' for k in sudu}
+)
 
 
 # if change: also change in static/main.css
@@ -23,6 +31,23 @@ scale_colors = dict(
     minor='D83A56',
     locrian='B980F0',
 )
+
+scale_colors['h_major'] = scale_colors['major']
+scale_colors['h_dorian'] = scale_colors['dorian']
+scale_colors['h_phrygian'] = scale_colors['phrygian']
+scale_colors['h_lydian'] = scale_colors['lydian']
+scale_colors['h_mixolydian'] = scale_colors['mixolydian']
+scale_colors['h_minor'] = scale_colors['minor']
+scale_colors['h_locrian'] = scale_colors['locrian']
+
+scale_colors['m_major'] = scale_colors['major']
+scale_colors['m_dorian'] = scale_colors['dorian']
+scale_colors['m_phrygian'] = scale_colors['phrygian']
+scale_colors['m_lydian'] = scale_colors['lydian']
+scale_colors['m_mixolydian'] = scale_colors['mixolydian']
+scale_colors['m_minor'] = scale_colors['minor']
+scale_colors['m_locrian'] = scale_colors['locrian']
+
 scale_colors['p_major'] = scale_colors['major']
 scale_colors['p_dorian'] = scale_colors['dorian']
 scale_colors['p_phrygian'] = scale_colors['phrygian']

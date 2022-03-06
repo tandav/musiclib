@@ -24,6 +24,22 @@ class Scale(NoteSet):
         frozenset({2, 4, 5, 7, 9, 10}): 'mixolydian',
         frozenset({2, 3, 5, 7, 8, 10}): 'minor',
         frozenset({1, 3, 5, 6, 8, 10}): 'locrian',
+        # harmonic
+        frozenset({2, 3, 5, 7, 8, 11}): 'h_minor',
+        frozenset({1, 3, 5, 6, 9, 10}): 'h_locrian',
+        frozenset({2, 4, 5, 8, 9, 11}): 'h_major',
+        frozenset({2, 3, 6, 7, 9, 10}): 'h_dorian',
+        frozenset({1, 4, 5, 7, 8, 10}): 'h_phrygian',
+        frozenset({3, 4, 6, 7, 9, 11}): 'h_lydian',
+        frozenset({1, 3, 4, 6, 8, 9}): 'h_mixolydian',
+        # melodic
+        frozenset({2, 3, 5, 7, 9, 11}): 'm_minor',
+        frozenset({1, 3, 5, 7, 9, 10}): 'm_locrian',
+        frozenset({2, 4, 6, 8, 9, 11}): 'm_major',
+        frozenset({2, 4, 6, 7, 9, 10}): 'm_dorian',
+        frozenset({2, 4, 5, 7, 8, 10}): 'm_phrygian',
+        frozenset({2, 3, 5, 6, 8, 10}): 'm_lydian',
+        frozenset({1, 3, 4, 6, 8, 10}): 'm_mixolydian',
         # pentatonic
         frozenset({2, 4, 7, 9}): 'p_major',
         frozenset({2, 5, 7, 10}): 'p_dorian',
@@ -176,9 +192,17 @@ class ComparedScales:
 
 
 diatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
+harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.harmonic)}
+melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.melodic)}
 pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
 sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
-all_scales = {'diatonic': diatonic, 'pentatonic': pentatonic, 'sudu': sudu}
+all_scales = {
+    'diatonic': diatonic,
+    'harmonic': harmonic,
+    'melodic': melodic,
+    'pentatonic': pentatonic,
+    'sudu': sudu,
+}
 
 # circle of fifths clockwise
 majors = dict(
