@@ -1,4 +1,3 @@
-
 import pytest
 
 from musictool.chord import Chord
@@ -11,11 +10,9 @@ def test_creation_from_notes():
     assert str(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))) == 'CEG/C'
 
 
-def test_specificchord_notes_type_is_frozenset():
-    with pytest.raises(TypeError): SpecificChord('C1_D1_E1')
-    with pytest.raises(TypeError): SpecificChord(set('C1_D1_E1'))
-    with pytest.raises(TypeError): SpecificChord(tuple('C1_D1_E1'))
-    with pytest.raises(TypeError): SpecificChord(list('C1_D1_E1'))
+@pytest.mark.parametrize('arg', ('C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')))
+def test_specificchord_notes_type_is_frozenset(arg):
+    with pytest.raises(TypeError): SpecificChord(arg)
 
 
 def test_specificchord_root_validation():
@@ -32,26 +29,35 @@ def test_notes():
     assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
 
 
-def test_str_sort_2_octaves():
-    assert str(Chord(frozenset('BDF'), root='B')) == 'BDF/B'
-    assert str(Chord(frozenset('DGBFCEA'), root='B')) == 'BCDEFGA/B'
+@pytest.mark.parametrize('chord, expected', (
+    (Chord(frozenset('BDF'), root='B'), 'BDF/B'),
+    (Chord(frozenset('DGBFCEA'), root='B'), 'BCDEFGA/B'),
+))
+def test_str_sort_2_octaves(chord, expected):
+    assert str(chord) == expected
 
 
-def test_name():
-    assert Chord(frozenset('CEG'), root=Note('C')).name == 'major'
-    assert Chord(frozenset('BDF'), root=Note('B')).name == 'diminished'
-    assert Chord(frozenset('CefA'), root=Note('C')).name == 'dim7'
-    assert Chord(frozenset('DFaC'), root=Note('D')).name == 'half-dim7'
+@pytest.mark.parametrize('notes, root, expected', (
+    ('CEG', 'C', 'major'),
+    ('BDF', 'B', 'diminished'),
+    ('CefA', 'C', 'dim7'),
+    ('DFaC', 'D', 'half-dim7'),
+))
+def test_name(notes, root, expected):
+    assert Chord(frozenset(notes), root=root).name == expected
 
 
 def test_intervals():
     assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({4, 7})
 
 
-def test_from_intervals():
-    assert Chord.from_intervals('C', frozenset({4, 7})) == Chord(frozenset('CEG'), root='C')
-    assert Chord.from_intervals('E', frozenset({1, 3, 5, 7, 8, 10})) == Chord(frozenset('CDEFGAB'), root='E')
-    assert Chord.from_intervals('f', frozenset({2, 3, 5, 7, 9, 10})) == Chord(frozenset('faABdeE'), root='f')
+@pytest.mark.parametrize('root, intervals, expected', (
+    ('C', frozenset({4, 7}), Chord(frozenset('CEG'), root='C')),
+    ('E', frozenset({1, 3, 5, 7, 8, 10}), Chord(frozenset('CDEFGAB'), root='E')),
+    ('f', frozenset({2, 3, 5, 7, 9, 10}), Chord(frozenset('faABdeE'), root='f')),
+))
+def test_from_intervals(root, intervals, expected):
+    assert Chord.from_intervals(root, intervals) is expected
 
 
 def test_from_name():
