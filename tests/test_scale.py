@@ -1,3 +1,5 @@
+import operator
+
 import pytest
 
 from musictool import config
@@ -39,11 +41,14 @@ def test_kind():
     )
 
 
-def test_equal():
-    assert Scale.from_name('C', 'major') == Scale.from_name('C', 'major')
-    assert Scale.from_name('C', 'major') == Scale.from_name(Note('C'), 'major')
-    assert Scale.from_name(Note('C'), 'major') == Scale.from_name(Note('C'), 'major')
-    assert Scale.from_name(Note('C'), 'major') != Scale.from_name(Note('E'), 'major')
+@pytest.mark.parametrize('op, a, b', (
+    (operator.eq, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
+    (operator.eq, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
+    (operator.eq, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('C'), 'major')),
+    (operator.ne, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('E'), 'major')),
+))
+def test_equal(op, a, b):
+    assert op(a, b)
 
 
 @pytest.mark.parametrize('notes, name, nths', (
