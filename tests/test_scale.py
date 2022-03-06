@@ -88,15 +88,16 @@ def test_parallel():
     assert parallel(Scale.from_name('f', 'minor')) is Scale.from_name('f', 'major')
 
 
-def test_relative():
-    a = Scale.from_name('C', 'major')
-    b = Scale.from_name('A', 'minor')
-    c = Scale.from_name('f', 'minor')
-    d = Scale.from_name('A', 'major')
-    assert relative(a) is b
-    assert relative(b) is a
-    assert relative(c) is d
-    assert relative(d) is c
+@pytest.mark.parametrize('scale, relative_name, expected', (
+    (Scale.from_name('C', 'major'), None, Scale.from_name('A', 'minor')),
+    (Scale.from_name('A', 'minor'), None, Scale.from_name('C', 'major')),
+    (Scale.from_name('f', 'minor'), None, Scale.from_name('A', 'major')),
+    (Scale.from_name('A', 'major'), None, Scale.from_name('f', 'minor')),
+    (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('E', 'phrygian')),
+    (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
+))
+def test_relative(scale, relative_name, expected):
+    assert relative(scale, relative_name) is expected
 
 
 @pytest.fixture(params=(Scale.from_name('C', 'major'), Scale.from_name('A', 'major')))

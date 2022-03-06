@@ -207,9 +207,10 @@ def parallel(s: Scale):
     return Scale.from_name(s.root, {'major': 'minor', 'minor': 'major'}[s.name])
 
 
-def relative(s: Scale):
+def relative(s: Scale, relative_name: str | None = None):
     """same set of notes, changes root, convert major to minor and vice versa"""
-    relative_name = {'major': 'minor', 'minor': 'major'}[s.name]
+    if relative_name is None:
+        relative_name = {'major': 'minor', 'minor': 'major'}[s.name]
     for note, name in s.note_scales.items():
         if name == relative_name:
             return Scale.from_name(note, name)

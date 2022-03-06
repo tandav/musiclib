@@ -95,7 +95,7 @@ class NoteSet(Cached):
         return NoteSet.from_intervals(note, self.intervals)
 
     @classmethod
-    def from_name(cls, root: str | Note, name: str):
+    def from_name(cls, root: str | Note, name: str) -> NoteSet:
         if isinstance(root, str):
             root = Note(root)
         notes = frozenset(root + interval for interval in cls.name_to_intervals[name]) | {root}
