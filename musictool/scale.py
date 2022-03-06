@@ -116,7 +116,7 @@ class Scale(NoteSet):
 class ComparedScales:
     '''
     this is compared scale
-    local terminology: left sclae is compared to right
+    local terminology: left scale is compared to right
     left is kinda parent, right is kinda child
     '''
 
@@ -145,9 +145,11 @@ class ComparedScales:
         # <code>bits: {self.bits}</code><br>
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
+        if C_name := self.right.note_scales.get(Note('C'), ''):
+            C_name = f' | C {C_name}'
         return f'''
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
-        <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}</h3></span></a>
+        <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}{C_name}</h3></span></a>
         {self.to_piano_image()}
         </div>
         '''
