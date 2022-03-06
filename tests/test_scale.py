@@ -5,8 +5,6 @@ from musictool.chord import Chord
 from musictool.note import Note
 from musictool.scale import ComparedScales
 from musictool.scale import Scale
-from musictool.scale import parallel
-from musictool.scale import relative
 
 
 @pytest.mark.parametrize('notes, name', (
@@ -83,9 +81,9 @@ def test_compared():
 def test_parallel():
     a = Scale.from_name('C', 'major')
     b = Scale.from_name('C', 'minor')
-    assert parallel(a) is b
-    assert parallel(b) is a
-    assert parallel(Scale.from_name('f', 'minor')) is Scale.from_name('f', 'major')
+    assert a.parallel() is b
+    assert b.parallel() is a
+    assert Scale.from_name('f', 'minor').parallel() is Scale.from_name('f', 'major')
 
 
 @pytest.mark.parametrize('scale, relative_name, expected', (
@@ -97,7 +95,7 @@ def test_parallel():
     (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
 ))
 def test_relative(scale, relative_name, expected):
-    assert relative(scale, relative_name) is expected
+    assert scale.relative(relative_name) is expected
 
 
 @pytest.fixture(params=(Scale.from_name('C', 'major'), Scale.from_name('A', 'major')))

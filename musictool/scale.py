@@ -1,3 +1,4 @@
+from __future__ import annotations
 import functools
 import itertools
 from collections import defaultdict
@@ -70,6 +71,18 @@ class Scale(NoteSet):
             Chord(frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns), root=self.notes_ascending[i])
             for i in range(len(self))
         )
+
+    def parallel(self) -> Scale:
+        """same root, convert major to minor and vice versa"""
+        return Scale.from_name(self.root, {'major': 'minor', 'minor': 'major'}[self.name])
+
+    def relative(self, relative_name: str | None = None) -> Scale:
+        """same set of notes, changes root, convert major to minor and vice versa"""
+        if relative_name is None:
+            relative_name = {'major': 'minor', 'minor': 'major'}[self.name]
+        for note, name in self.note_scales.items():
+            if name == relative_name:
+                return Scale.from_name(note, name)
 
     def to_piano_image(self):
         return Piano(scale=self)._repr_svg_()
@@ -200,17 +213,3 @@ def print_neighbors(s: Scale):
 #     _ = scale.to_piano_image(as_base64=True)
 #     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
 #         _ = neighbor.to_piano_image(as_base64=True)
-
-
-def parallel(s: Scale):
-    """same root, convert major to minor and vice versa"""
-    return Scale.from_name(s.root, {'major': 'minor', 'minor': 'major'}[s.name])
-
-
-def relative(s: Scale, relative_name: str | None = None):
-    """same set of notes, changes root, convert major to minor and vice versa"""
-    if relative_name is None:
-        relative_name = {'major': 'minor', 'minor': 'major'}[s.name]
-    for note, name in s.note_scales.items():
-        if name == relative_name:
-            return Scale.from_name(note, name)
