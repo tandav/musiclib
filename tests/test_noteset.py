@@ -122,6 +122,17 @@ def test_note_range(start, stop, noteset, expected):
     assert list(NoteRange(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)) == expected.split()
 
 
+@pytest.mark.parametrize('start, stop, noterange', (
+    ('C0', 'C1', NoteRange(SpecificNote('C', 0), SpecificNote('C', 1))),
+    ('E1', 'f3', NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
+    (SpecificNote('E', 1), 'f3', NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
+    ('E1', SpecificNote('f', 3), NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
+    (SpecificNote('E', 1), SpecificNote('f', 3), NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
+))
+def test_note_range_from_str(start, stop, noterange):
+    assert NoteRange(start, stop) == noterange
+
+
 def test_noterange_bounds():
     with pytest.raises(ValueError): NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
     with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))

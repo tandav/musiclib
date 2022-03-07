@@ -205,10 +205,15 @@ class NoteSet(Cached):
 class NoteRange:
     def __init__(
         self,
-        start: SpecificNote,
-        stop: SpecificNote,
+        start: SpecificNote | str,
+        stop: SpecificNote | str,
         noteset: NoteSet = NoteSet(frozenset(config.chromatic_notes)),
     ):
+        if isinstance(start, str):
+            start = SpecificNote.from_str(start)
+        if isinstance(stop, str):
+            stop = SpecificNote.from_str(stop)
+
         """both ends included"""
         if start > stop:
             raise ValueError('start should be less than stop')
