@@ -42,11 +42,11 @@ def test_increments_decrements(noteset, increments, decrements):
 
 
 @pytest.mark.parametrize('notes, root, bits', (
-    (frozenset('CDEFGAB'), 'C', '101011010101'),
-    (frozenset('dfb'), 'd', '100001000100'),
+    ('CDEFGAB', 'C', '101011010101'),
+    ('dfb', 'd', '100001000100'),
 ))
 def test_bits(notes, root, bits):
-    assert NoteSet(notes, root=root).bits == bits
+    assert NoteSet(frozenset(notes), root=root).bits == bits
 
 
 def test_empty():
