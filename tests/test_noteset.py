@@ -30,6 +30,17 @@ def test_intervals(noteset, intervals):
     assert noteset.intervals_ascending == intervals
     assert noteset.intervals == frozenset(intervals[1:])
 
+
+@pytest.mark.parametrize('noteset, increments, decrements', (
+    (NoteSet(frozenset('DEFGABC')), {'D': 2, 'E': 1, 'F': 2, 'G': 2, 'A': 2, 'B': 1, 'C': 2}, {'D': -2, 'E': -2, 'F': -1, 'G': -2, 'A': -2, 'B': -2, 'C': -1}),
+    (NoteSet(frozenset('dDFfaAB')), {'d': 1, 'D': 3, 'F': 1, 'f': 2, 'a': 1, 'A': 2, 'B': 2}, {'d': -2, 'D': -1, 'F': -3, 'f': -1, 'a': -2, 'A': -1, 'B': -2}),
+    (NoteSet(frozenset('bBCd')), {'b': 1, 'B': 1, 'C': 1, 'd': 9}, {'b': -9, 'B': -1, 'C': -1, 'd': -1}),
+))
+def test_increments_decrements(noteset, increments, decrements):
+    assert noteset.increments == increments
+    assert noteset.decrements == decrements
+
+
 @pytest.mark.parametrize('notes, root, bits', (
     (frozenset('CDEFGAB'), 'C', '101011010101'),
     (frozenset('dfb'), 'd', '100001000100'),

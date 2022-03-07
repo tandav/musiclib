@@ -77,7 +77,8 @@ class NoteSet(Cached):
         self.key = self.notes, self.root
         self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-
+        self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
+        self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
         if root is not None:
             if root not in notes:
                 raise ValueError('root note should be one of the chord notes')
