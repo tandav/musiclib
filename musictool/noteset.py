@@ -82,8 +82,8 @@ class NoteSet(Cached):
             if root not in notes:
                 raise ValueError('root note should be one of the chord notes')
 
-            self.intervals_ascending = tuple(note - root for note in self.notes_ascending[1:])
-            self.intervals = frozenset(self.intervals_ascending)
+            self.intervals_ascending = tuple(note - root for note in self.notes_ascending)
+            self.intervals = frozenset(self.intervals_ascending[1:])
             self.bits = intervals_to_bits(self.intervals)
             self.name = self.__class__.intervals_to_name.get(self.intervals)
 

@@ -23,12 +23,12 @@ def test_bits_intervals(bits, intervals):
 
 
 @pytest.mark.parametrize('noteset, intervals', (
-    (NoteSet(frozenset('CDEFGAB'), root='C'), (2, 4, 5, 7, 9, 11)),
-    (NoteSet(frozenset('DeFGAbC'), root='D'), (1, 3, 5, 7, 8, 10)),
+    (NoteSet(frozenset('CDEFGAB'), root='C'), (0, 2, 4, 5, 7, 9, 11)),
+    (NoteSet(frozenset('DeFGAbC'), root='D'), (0, 1, 3, 5, 7, 8, 10)),
 ))
 def test_intervals(noteset, intervals):
     assert noteset.intervals_ascending == intervals
-    assert noteset.intervals == frozenset(intervals)
+    assert noteset.intervals == frozenset(intervals[1:])
 
 @pytest.mark.parametrize('notes, root, bits', (
     (frozenset('CDEFGAB'), 'C', '101011010101'),
