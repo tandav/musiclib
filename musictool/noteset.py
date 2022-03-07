@@ -130,9 +130,15 @@ class NoteSet(Cached):
         if type(note) is Note:
             return notes[(notes.index(note) + steps) % len(notes)]
         elif type(note) is SpecificNote:
-            # raise NotImplementedError
-            octave, i = divmod(notes.index(note.abstract) + steps, len(notes))
-            return SpecificNote(notes[i], note.octave + octave)
+            if steps > 0:
+                crements = self.increments
+            elif steps < 0:
+                crements = self.decrements
+            else:
+                return note
+            for _ in range(abs(steps)):
+                note += crements[note.abstract]
+            return note
         else:
             raise TypeError
 

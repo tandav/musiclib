@@ -1,5 +1,9 @@
+import itertools
+from collections.abc import Sequence
+
 import pytest
 
+from musictool import chromatic
 from musictool import config
 from musictool.chord import Chord
 from musictool.note import Note
@@ -9,6 +13,7 @@ from musictool.noteset import NoteSet
 from musictool.noteset import bits_to_intervals
 from musictool.noteset import intervals_to_bits
 from musictool.scale import Scale
+from musictool.scale import all_scales
 
 
 @pytest.mark.parametrize('bits, intervals', (
@@ -101,21 +106,49 @@ def test_childs_names_unreachable():
     with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
 
 
-@pytest.mark.parametrize('notes, note, steps, result', (
-    ('CDEFGAB', Note('C'), 3, 'F'),
-    ('CDEFGAB', 'C', 3, 'F'),
-    ('CDEFGAB', 'C', -2, 'A'),
-    ('DEFGAbC', 'A', 1, 'b'),
-    ('DEFGAbC', 'A', 0, 'A'),
-    ('CDEFGAB', SpecificNote('C', 1), 3, SpecificNote('F', 1)),
-    ('CDEFGAB', SpecificNote('C', 1), -2, SpecificNote('A', 0)),
-    ('CDEFGAB', SpecificNote('G', 5), -22, SpecificNote('F', 2)),
-    ('DEFGAbC', SpecificNote('A', 1), 8, SpecificNote('b', 2)),
-    ('DEFGAbC', SpecificNote('A', 1), 0, SpecificNote('A', 1)),
-    ('DEFGAbC', SpecificNote('A', 2), -7, SpecificNote('A', 1)),
+@pytest.mark.parametrize('noteset, note, steps, result', (
+    (NoteSet(frozenset('CDEFGAB')), Note('C'), 3, 'F'),
+    (NoteSet(frozenset('CDEFGAB')), 'C', 3, 'F'),
+    (NoteSet(frozenset('CDEFGAB')), 'C', -2, 'A'),
+    (NoteSet(frozenset('DEFGAbC')), 'A', 1, 'b'),
+    (NoteSet(frozenset('DEFGAbC')), 'A', 0, 'A'),
 ))
-def test_add_note(notes, note, steps, result):
-    assert NoteSet(frozenset(notes)).add_note(note, steps) == result
+def test_add_note_abstract(noteset, note, steps, result):
+    assert noteset.add_note(note, steps) == result
+
+
+def _make_keyboard(notes: Sequence, octaves=range(-10, 10)) -> tuple[SpecificNote]:
+    return chromatic.sort_notes([SpecificNote(note, octave) for octave, note in itertools.product(octaves, notes)])
+
+
+def _add_note_specific_generator():
+    notesets = [NoteSet(frozenset('CDEFGAB')), NoteSet(frozenset('DEFGAbC'))]
+    notesets += list(all_scales['diatonic'].values())
+    notesets += [
+        Scale.from_name('C', 'h_minor'),
+        Scale.from_name('E', 'h_minor'),
+        Scale.from_name('d', 'm_minor'),
+        Scale.from_name('f', 's_minor'),
+        Scale.from_name('b', 'p_minor'),
+    ]
+    for noteset in notesets:
+        noteset_str = f'NoteSet({noteset})'
+        if isinstance(noteset, Scale):
+            noteset_str = f'Scale({noteset.root.name}, {noteset.name})'
+        yield pytest.param(noteset, id=noteset_str)
+
+
+@pytest.mark.parametrize('noteset', _add_note_specific_generator())
+def test_add_note_specific(noteset):
+    keyboard = _make_keyboard(noteset.notes_ascending)
+    for note, octave, steps in itertools.product(
+        [noteset.notes_ascending[0], noteset.notes_ascending[1], noteset.notes_ascending[2], noteset.notes_ascending[-1]],
+        [-2, -1, 0, 1, 2],
+        [-29, -13, -8, -7, -6, -2, -1, 0, 1, 2, 6, 7, 8, 13, 29],
+    ):
+        note = SpecificNote(note, octave)
+        result = keyboard[keyboard.index(note) + steps]
+        assert noteset.add_note(note, steps) == result
 
 
 @pytest.mark.parametrize('noteset, note, expected', (
