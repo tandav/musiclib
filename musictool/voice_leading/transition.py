@@ -50,8 +50,7 @@ def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[S
         if chord in graph:
             return
         childs = chord_transitions(chord, noterange)
-        for child in childs:
-            graph[chord].add(child)
+        graph[chord] |= childs
         for child in childs:
             _graph(child)
 
