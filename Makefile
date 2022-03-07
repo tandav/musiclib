@@ -16,7 +16,7 @@ clean:
 
 .PHONY: test
 test:
-	$(python) -m pytest -vv --cov=musictool --asyncio-mode=strict tests
+	$(python) -m pytest -s -vv --cov=musictool --asyncio-mode=strict tests
 
 .PHONY: coverage_report
 coverage_report:
