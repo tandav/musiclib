@@ -58,11 +58,9 @@ def test_empty():
     with pytest.raises(ValueError): NoteSet(frozenset())
 
 
-def test_notes_type_is_frozenset():
-    with pytest.raises(TypeError): NoteSet('CDE')
-    with pytest.raises(TypeError): NoteSet(set('CDE'))
-    with pytest.raises(TypeError): NoteSet(tuple('CDE'))
-    with pytest.raises(TypeError): NoteSet(list('CDE'))
+@pytest.mark.parametrize('value', ('CDE', set('CDE'), tuple('CDE'), list('CDE')))
+def test_notes_type_is_frozenset(value):
+    with pytest.raises(TypeError): NoteSet(value)
 
 
 def test_contains():
