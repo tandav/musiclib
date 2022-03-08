@@ -57,7 +57,7 @@ class SpecificChord(Cached):
         self.notes = notes
         self.root = root
         self.abstract = Chord(notes_abstract, root=root)
-        self.root_specific = frozenset(note for note in notes if note.abstract == root)
+        self.root_specific = frozenset(note for note in notes if note.abstract == root) if root is not None else frozenset()
 
         self.notes_ascending = tuple(sorted(notes))
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note

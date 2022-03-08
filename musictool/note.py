@@ -29,13 +29,11 @@ class Note(Cached):
     def short_repr(self): return self.name
     def __repr__(self): return f'Note(name={self.name})'
 
-    def __eq__(self, other):
+    def __eq__(self, other: str | Note):
         if isinstance(other, str):
             return self.name == other
         elif isinstance(other, Note):
             return self.name == other.name
-        elif other is None:
-            return False
         else:
             raise TypeError
 

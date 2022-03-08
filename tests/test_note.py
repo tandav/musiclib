@@ -1,3 +1,4 @@
+import operator
 import os
 
 import hypothesis.strategies as st
@@ -28,9 +29,16 @@ def test_note_exists():
         Note('1')
 
 
-def test_str_equals():
-    assert Note('C') == 'C'
-    assert SpecificNote.from_str('C1') == 'C1'
+@pytest.mark.parametrize('op, a, b', (
+    (operator.eq, Note('C'), 'C'),
+    (operator.eq, Note('C'), Note('C')),
+    (operator.ne, Note('C'), 'D'),
+    (operator.ne, Note('C'), Note('D')),
+    (operator.eq, SpecificNote.from_str('C1'), 'C1'),
+    (operator.ne, SpecificNote.from_str('C1'), 'C2'),
+))
+def test_equals(op, a, b):
+    assert op(a, b)
 
 
 @given(st.integers())
