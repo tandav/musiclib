@@ -101,6 +101,15 @@ def test_from_str(string, expected):
     assert NoteSet.from_str(string) == expected
 
 
+@pytest.mark.parametrize('intervals, root, expected', (
+    (frozenset({4, 7}), 'C', NoteSet(frozenset('CEG'), root='C')),
+    (frozenset({1, 3, 5, 7, 8, 10}), 'E', NoteSet(frozenset('CDEFGAB'), root='E')),
+    (frozenset({2, 3, 5, 7, 9, 10}), 'f', NoteSet(frozenset('faABdeE'), root='f')),
+))
+def test_from_intervals(root, intervals, expected):
+    assert NoteSet.from_intervals(intervals, root) is expected
+
+
 def test_childs_names_unreachable():
     with pytest.raises(KeyError): NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
     with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable

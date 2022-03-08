@@ -94,7 +94,7 @@ class NoteSet(Cached):
     def transpose_to(self, note: Note) -> NoteSet:
         if self.root is None:
             raise ValueError('noteset should have root to be transposed')
-        return NoteSet.from_intervals(note, self.intervals)
+        return NoteSet.from_intervals(self.intervals, note)
 
     @classmethod
     def from_name(cls, root: str | Note, name: str) -> NoteSet:
@@ -104,7 +104,7 @@ class NoteSet(Cached):
         return cls(notes, root=root)
 
     @classmethod
-    def from_intervals(cls, root: str | Note, intervals: frozenset):
+    def from_intervals(cls, intervals: frozenset, root: str | Note):
         if isinstance(root, str):
             root = Note(root)
         return cls(frozenset(root + interval for interval in intervals) | {root}, root=root)

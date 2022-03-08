@@ -51,15 +51,6 @@ def test_intervals():
     assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({4, 7})
 
 
-@pytest.mark.parametrize('root, intervals, expected', (
-    ('C', frozenset({4, 7}), Chord(frozenset('CEG'), root='C')),
-    ('E', frozenset({1, 3, 5, 7, 8, 10}), Chord(frozenset('CDEFGAB'), root='E')),
-    ('f', frozenset({2, 3, 5, 7, 9, 10}), Chord(frozenset('faABdeE'), root='f')),
-))
-def test_from_intervals(root, intervals, expected):
-    assert Chord.from_intervals(root, intervals) is expected
-
-
 def test_from_name():
     assert str(Chord.from_name('C', 'major')) == 'CEG/C'
     assert str(Chord.from_name('d', '7')) == 'dFaB/d'
