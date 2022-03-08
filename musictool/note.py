@@ -34,6 +34,8 @@ class Note(Cached):
             return self.name == other
         elif isinstance(other, Note):
             return self.name == other.name
+        elif other is None:
+            return False
         else:
             raise TypeError
 
