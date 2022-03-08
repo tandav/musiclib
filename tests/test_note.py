@@ -105,4 +105,4 @@ def test_str_to_note():
 
 
 def test_to_abstract():
-    assert SpecificNote.to_astract({SpecificNote('C', 2), SpecificNote('G', 3)}) == frozenset('CG')
+    assert SpecificNote.to_abstract({SpecificNote('C', 2), SpecificNote('G', 3)}) == frozenset('CG')

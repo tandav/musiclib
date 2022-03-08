@@ -17,7 +17,7 @@ class Note(Cached):
     """
 
     def __init__(self, name: str):
-        """:param name: one of CdDeEFfGaAbB"""
+        """param name: one of CdDeEFfGaAbB"""
         self.name = name
         self.i = config.note_i[name]
         self.is_black = config.is_black[name]
@@ -34,6 +34,8 @@ class Note(Cached):
             return self.name == other
         elif isinstance(other, Note):
             return self.name == other.name
+        else:
+            raise TypeError
 
     def __hash__(self): return hash(self.name)
 
@@ -42,8 +44,8 @@ class Note(Cached):
 
     def __sub__(self, other):
         """
-        kinda constraint (may be it will be changed later):
-            if you computing distance between abstract notes - then self considered above other
+        kinda constraint (maybe it will be changed later):
+            if you're computing distance between abstract notes - then self considered above other
             G - C == 7 # C0 G0
             C - G == 5 # G0 C1
         """
@@ -101,7 +103,7 @@ class SpecificNote(Note):
         return SpecificNote.from_absolute_i(self.absolute_i + other)
 
     @staticmethod
-    def to_astract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
+    def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
         return frozenset(note.abstract for note in notes)
 
 

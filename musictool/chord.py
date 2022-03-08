@@ -50,7 +50,7 @@ class SpecificChord(Cached):
         if isinstance(root, str):
             root = Note(root)
 
-        notes_abstract = SpecificNote.to_astract(notes)
+        notes_abstract = SpecificNote.to_abstract(notes)
         if root is not None and root not in notes_abstract:
             raise KeyError('root should be one of notes')
 
