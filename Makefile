@@ -16,21 +16,12 @@ clean:
 
 .PHONY: test
 test:
-	$(python) -m pytest -s -vv --cov=musictool --asyncio-mode=strict tests
+	$(python) -m pytest -vv --asyncio-mode=strict tests
 
-.PHONY: coverage_report
-coverage_report:
-	$(python) -m pytest -v --cov=musictool --cov-report=html tests
+.PHONY: coverage
+coverage:
+	$(python) -m pytest --asyncio-mode=strict --cov=musictool --cov-report=html tests
 	open htmlcov/index.html
-
-.PHONY: clean_docker
-clean_docker:
-	docker rmi musictool
-
-.PHONY: run_docker
-run_docker:
-	docker build -t musictool .
-	docker run --name musictool -d --rm -p 8001:8001 musictool
 
 .PHONY: midi_html
 midi_html:
