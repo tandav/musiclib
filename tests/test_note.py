@@ -34,10 +34,14 @@ def test_note_exists():
     (operator.eq, Note('C'), Note('C')),
     (operator.ne, Note('C'), 'D'),
     (operator.ne, Note('C'), Note('D')),
+    (operator.lt, Note('C'), 'D'),
+    (operator.lt, Note('C'), Note('D')),
+    (operator.gt, Note('D'), Note('d')),
+    (operator.gt, Note('B'), Note('f')),
     (operator.eq, SpecificNote.from_str('C1'), 'C1'),
     (operator.ne, SpecificNote.from_str('C1'), 'C2'),
 ))
-def test_equals(op, a, b):
+def test_ordering(op, a, b):
     assert op(a, b)
 
 

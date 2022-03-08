@@ -10,6 +10,7 @@ from musictool.midi import player
 from musictool.util.cache import Cached
 
 
+@functools.total_ordering
 class Note(Cached):
     """
     abstract note, no octave/key
@@ -34,6 +35,14 @@ class Note(Cached):
             return self.name == other
         elif isinstance(other, Note):
             return self.name == other.name
+        else:
+            raise TypeError
+
+    def __lt__(self, other: str | Note):
+        if isinstance(other, str):
+            return self.i <= config.note_i[other]
+        elif isinstance(other, Note):
+            return self.i <= other.i
         else:
             raise TypeError
 
@@ -91,7 +100,7 @@ class SpecificNote(Note):
             return self.key == SpecificNote.from_str(other).key
 
     def __hash__(self): return hash(self.key)
-    def __lt__(self, other): return self.absolute_i < other.absolute_i
+    def __lt__(self, other: SpecificNote) -> bool: return self.absolute_i < other.absolute_i
 
     @functools.cache
     def __sub__(self, other: SpecificNote) -> int:
