@@ -113,6 +113,15 @@ def test_childs_names_unreachable():
     with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
 
 
+@pytest.mark.parametrize('noteset, notes_octave_fit', (
+    (NoteSet(frozenset('efGd')), 'defG'),
+    (NoteSet(frozenset('efGd'), root='e'), 'defG'),
+    (NoteSet(frozenset('FGbBCd'), root='F'), 'CdFGbB')
+))
+def test_notes_octave_fit(noteset, notes_octave_fit):
+    assert noteset.notes_octave_fit == tuple(notes_octave_fit)
+
+
 @pytest.mark.parametrize('noteset, note, steps, result', (
     (NoteSet(frozenset('CDEFGAB')), Note('C'), 3, 'F'),
     (NoteSet(frozenset('CDEFGAB')), 'C', 3, 'F'),

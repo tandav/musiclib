@@ -76,6 +76,7 @@ class NoteSet(Cached):
         self.root = root
         self.key = self.notes, self.root
         self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
+        self.notes_octave_fit = tuple(sorted(notes))
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
         self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
@@ -130,15 +131,8 @@ class NoteSet(Cached):
         if type(note) is Note:
             return notes[(notes.index(note) + steps) % len(notes)]
         elif type(note) is SpecificNote:
-            if steps > 0:
-                crements = self.increments
-            elif steps < 0:
-                crements = self.decrements
-            else:
-                return note
-            for _ in range(abs(steps)):
-                note += crements[note.abstract]
-            return note
+            octaves, i = divmod(self.notes_octave_fit.index(note.abstract) + steps, len(self.notes))
+            return SpecificNote(self.notes_octave_fit[i], octave=note.octave + octaves)
         else:
             raise TypeError
 
