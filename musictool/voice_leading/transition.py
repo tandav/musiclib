@@ -55,5 +55,4 @@ def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[S
             _graph(child)
 
     _graph(start_chord)
-    graph = dict(graph)
-    return graph
+    return dict(graph)
