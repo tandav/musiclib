@@ -239,7 +239,7 @@ class NoteRange:
             if not 0 <= item.start <= item.stop <= len(self):
                 raise IndexError('NoteRange slice is out of range')
             return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
-        else: raise TypeError('NoteRange indices must be integers or slices, not str')
+        else: raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
 
     def __contains__(self, item: SpecificNote): return item.abstract in self.noteset and self.start <= item <= self.stop
     def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
