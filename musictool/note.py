@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import functools
 from collections.abc import Iterable
-from numbers import Number
 
 from musictool import config
 from musictool.midi import player
@@ -24,7 +23,7 @@ class Note(Cached):
         self.is_black = config.is_black[name]
 
     @classmethod
-    def from_i(cls, i: int):
+    def from_i(cls, i: int) -> Note:
         return cls(config.chromatic_notes[i % 12])
 
     def short_repr(self): return self.name
@@ -38,7 +37,7 @@ class Note(Cached):
         else:
             raise TypeError
 
-    def __lt__(self, other: str | Note):
+    def __lt__(self, other: str | Note) -> bool:
         if isinstance(other, str):
             return self.i <= config.note_i[other]
         elif isinstance(other, Note):
@@ -48,7 +47,7 @@ class Note(Cached):
 
     def __hash__(self): return hash(self.name)
 
-    def __add__(self, other: int):
+    def __add__(self, other: int) -> Note:
         return Note.from_i(self.i + other)
 
     def __sub__(self, other):
@@ -74,19 +73,19 @@ class SpecificNote(Note):
         self.abstract = abstract
         super().__init__(abstract.name)
         self.octave = octave
-        self.absolute_i = octave * 12 + self.i  # this is also midi_code
+        self.absolute_i: int = octave * 12 + self.i  # this is also midi_code
         self.key = self.abstract, self.octave
 
     @classmethod
-    def from_absolute_i(cls, absolute_i: int):
+    def from_absolute_i(cls, absolute_i: int) -> SpecificNote:
         div, mod = divmod(absolute_i, 12)
         return cls(Note(config.chromatic_notes[mod]), octave=div)
 
     @classmethod
-    def from_str(cls, string: str):
+    def from_str(cls, string: str) -> SpecificNote:
         return cls(Note(string[0]), int(string[1:]))
 
-    async def play(self, seconds: Number = 1):
+    async def play(self, seconds: float = 1) -> None:
         player.send_message('note_on', note=self.absolute_i, channel=0)
         await asyncio.sleep(seconds)
         player.send_message('note_off', note=self.absolute_i, channel=0)
@@ -107,7 +106,7 @@ class SpecificNote(Note):
         """distance between notes"""
         return self.absolute_i - other.absolute_i
 
-    def __add__(self, other: int):
+    def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""
         return SpecificNote.from_absolute_i(self.absolute_i + other)
 

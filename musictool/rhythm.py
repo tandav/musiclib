@@ -14,7 +14,7 @@ from musictool.util.iteration import sequence_builder
 class Rhythm:
     def __init__(
         self,
-        notes: tuple,
+        notes: tuple[int, ...],
         beats_per_minute: int = config.beats_per_minute,
         beats_per_bar: int = 4,
         bar_notes: int = 16,  # kinda grid size

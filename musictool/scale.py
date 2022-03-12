@@ -83,7 +83,7 @@ class Scale(NoteSet):
 
         self.html_classes = ('card', self.name)
 
-    def _make_nths(self, ns: frozenset[int]) -> tuple[Chord]:
+    def _make_nths(self, ns: frozenset[int]) -> tuple[Chord, ...]:
         return tuple(
             Chord(frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns), root=self.notes_ascending[i])
             for i in range(len(self))
@@ -102,18 +102,19 @@ class Scale(NoteSet):
         for note, name in self.note_scales.items():
             if name == relative_name:
                 return Scale.from_name(note, name)
+        raise KeyError(f'relative {relative_name} scale not found')
 
     def to_piano_image(self):
         return Piano(scale=self)._repr_svg_()
 
-    def with_html_classes(self, classes: tuple):
+    def with_html_classes(self, classes: tuple[str, ...]) -> str:
         prev = self.html_classes
         self.html_classes = prev + classes
         r = self._repr_html_()
         self.html_classes = prev
         return r
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         # <code>bits: {self.bits}</code><br>
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''

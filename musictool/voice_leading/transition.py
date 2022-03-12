@@ -11,7 +11,7 @@ class Transition:
         self.b = b
 
     @staticmethod
-    def arrow(a: SpecificNote, b: SpecificNote):
+    def arrow(a: SpecificNote, b: SpecificNote) -> str:
         if a < b: return '︎\\'
         elif a == b: return '|'
         else: return '/'
@@ -44,13 +44,14 @@ def chord_transitions(
 
 
 def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[SpecificChord, frozenset[SpecificChord]]:
-    graph = collections.defaultdict(set)
+    # graph: dict[SpecificChord, set[SpecificChord]] = collections.defaultdict(set)
+    graph = dict()
 
-    def _graph(chord: SpecificChord):
+    def _graph(chord: SpecificChord) -> None:
         if chord in graph:
             return
         childs = chord_transitions(chord, noterange)
-        graph[chord] |= childs
+        graph[chord] = childs
         for child in childs:
             _graph(child)
 

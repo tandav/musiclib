@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import itertools
 import random
 
@@ -21,7 +20,7 @@ NoteSet
 '''
 
 
-def bits_to_intervals(bits: str) -> frozenset:
+def bits_to_intervals(bits: str) -> frozenset[int]:
     return (
         bits
         | P.Map(int)
@@ -105,7 +104,7 @@ class NoteSet(Cached):
         return cls(notes, root=root)
 
     @classmethod
-    def from_intervals(cls, intervals: frozenset, root: str | Note):
+    def from_intervals(cls, intervals: frozenset[int], root: str | Note) -> NoteSet:
         if isinstance(root, str):
             root = Note(root)
         return cls(frozenset(root + interval for interval in intervals) | {root}, root=root)
@@ -151,7 +150,7 @@ class NoteSet(Cached):
     def __hash__(self): return hash(self.key)
     def __len__(self): return len(self.notes)
     def __getitem__(self, item): return self.notes_ascending[item]
-    def __contains__(self, item): return item in self.notes
+    def __contains__(self, item) -> bool: return item in self.notes
     def __le__(self, other): return self.notes <= other
     def __ge__(self, other): return other <= self.notes
 
