@@ -1,4 +1,3 @@
-import collections
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
@@ -56,4 +55,4 @@ def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[S
             _graph(child)
 
     _graph(start_chord)
-    return dict(graph)
+    return graph

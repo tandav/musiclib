@@ -216,7 +216,7 @@ majors = dict(
 
 
 @functools.cache
-def neighbors(left: Scale):
+def neighbors(left: Scale) -> dict[int, list[ComparedScales]]:
     neighs = defaultdict(list)
     for right in all_scales[left.kind].values():
         # if left == right:
@@ -226,7 +226,7 @@ def neighbors(left: Scale):
     return neighs
 
 
-def print_neighbors(s: Scale):
+def print_neighbors(s: Scale) -> None:
     neighs = neighbors(s)
     for n_intersect in sorted(neighs.keys(), reverse=True):
         for n in neighs[n_intersect]:
