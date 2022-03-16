@@ -1,6 +1,7 @@
 from __future__ import annotations
 import itertools
 import random
+from typing import TypeVar, Type
 
 import pipe21 as P
 
@@ -38,6 +39,9 @@ def intervals_to_bits(intervals: frozenset) -> str:
     for i in intervals:
         bits[i] = '1'
     return ''.join(bits)
+
+
+Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
@@ -97,7 +101,7 @@ class NoteSet(Cached):
         return NoteSet.from_intervals(self.intervals, note)
 
     @classmethod
-    def from_name(cls, root: str | Note, name: str) -> NoteSet:
+    def from_name(cls: Type[Self], root: str | Note, name: str) -> NoteSet:
         if isinstance(root, str):
             root = Note(root)
         notes = frozenset(root + interval for interval in cls.name_to_intervals[name]) | {root}
