@@ -5,17 +5,6 @@ from musictool.note import Note
 from musictool.note import SpecificNote
 
 
-def test_abstract_take():
-    assert ''.join(note.name for note in chromatic.iterate(start_note='C', take_n=28)) == 'CdDeEFfGaAbBCdDeEFfGaAbBCdDe'
-    assert ''.join(note.name for note in chromatic.iterate(start_note='A', take_n=28)) == 'AbBCdDeEFfGaAbBCdDeEFfGaAbBC'
-    assert tuple(chromatic.iterate(start_note=Note('C'), take_n=2)) == (Note('C'), Note('d'))
-    assert tuple(chromatic.iterate(start_note=Note('B'), take_n=2)) == (Note('B'), Note('C'))
-
-
-def test_specific_take():
-    assert tuple(chromatic.iterate(start_note=SpecificNote('B', octave=8), take_n=2)) == (SpecificNote('B', octave=8), SpecificNote('C', octave=9))
-
-
 def test_sort():
     assert ''.join(chromatic.sort_notes('bAGDCfFedBaE')) == 'CdDeEFfGaAbB'
     assert ''.join(chromatic.sort_notes(set('bAGDCfFedBaE'))) == 'CdDeEFfGaAbB'
