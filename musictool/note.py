@@ -29,21 +29,21 @@ class Note(Cached):
     def short_repr(self): return self.name
     def __repr__(self): return f'Note(name={self.name})'
 
-    def __eq__(self, other: str | Note):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self.name == other
         elif isinstance(other, Note):
             return self.name == other.name
         else:
-            raise TypeError
+            return NotImplemented
 
-    def __lt__(self, other: str | Note) -> bool:
+    def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
             return self.i <= config.note_i[other]
         elif isinstance(other, Note):
             return self.i <= other.i
         else:
-            raise TypeError
+            return NotImplemented
 
     def __hash__(self): return hash(self.name)
 
@@ -92,14 +92,20 @@ class SpecificNote(Note):
 
     def __repr__(self): return f'{self.abstract.name}{self.octave}'
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, SpecificNote):
             return self.key == other.key
         elif isinstance(other, str):
             return self.key == SpecificNote.from_str(other).key
+        else:
+            return NotImplemented
 
     def __hash__(self): return hash(self.key)
-    def __lt__(self, other: SpecificNote) -> bool: return self.absolute_i < other.absolute_i
+
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, SpecificNote):
+            return NotImplemented
+        return self.absolute_i < other.absolute_i
 
     @functools.cache
     def __sub__(self, other: SpecificNote) -> int:
@@ -121,7 +127,6 @@ AnyNote = str | Note | SpecificNote
 def str_to_note(note: str) -> Note | SpecificNote:
     if len(note) == 0:
         raise ValueError('invalid note string representation')
-    elif len(note) == 1:
+    if len(note) == 1:
         return Note(note)
-    elif len(note) > 1:
-        return SpecificNote.from_str(note)
+    return SpecificNote.from_str(note)
