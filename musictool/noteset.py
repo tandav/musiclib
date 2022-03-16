@@ -78,7 +78,11 @@ class NoteSet(Cached):
         self.notes = notes
         self.root = root
         self.key = self.notes, self.root
-        self.notes_ascending = chromatic.sort_notes(self.notes, start=self.root)
+        notes_sorted = tuple(sorted(notes))
+        if root is not None:
+            root_i = notes_sorted.index(root)
+            notes_sorted = notes_sorted[root_i:] + notes_sorted[:root_i]
+        self.notes_ascending = notes_sorted
         self.notes_octave_fit = tuple(sorted(notes))
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
