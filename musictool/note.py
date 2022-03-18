@@ -50,7 +50,7 @@ class Note(Cached):
     def __add__(self, other: int) -> Note:
         return Note.from_i(self.i + other)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Note) -> int:
         """
         kinda constraint (maybe it will be changed later):
             if you're computing distance between abstract notes - then self considered above other
