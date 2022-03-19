@@ -1,5 +1,8 @@
+from typing import Any
+
+
 class Cached:
-    _cache = {}
+    _cache: dict[tuple[tuple[Any, ...], frozenset[tuple[str, Any]]], Any] = {}
 
     def __new__(cls, *args, **kwargs):
         key = args, frozenset(kwargs.items())
@@ -7,6 +10,5 @@ class Cached:
         if instance is not None:
             return instance
         instance = super().__new__(cls)
-        instance.__init__(*args, **kwargs)
         cls._cache[key] = instance
         return instance

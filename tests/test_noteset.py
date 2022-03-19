@@ -134,7 +134,7 @@ def test_add_note_abstract(noteset, note, steps, result):
 
 
 def _make_keyboard(notes: Sequence, octaves=range(-10, 10)) -> tuple[SpecificNote]:
-    return chromatic.sort_notes([SpecificNote(note, octave) for octave, note in itertools.product(octaves, notes)])
+    return tuple(sorted(SpecificNote(note, octave) for octave, note in itertools.product(octaves, notes)))
 
 
 def _add_note_specific_generator():

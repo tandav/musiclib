@@ -4,7 +4,7 @@ import asyncio
 import functools
 import itertools
 import random
-from numbers import Number
+from collections.abc import Iterator
 
 from musictool import config
 from musictool.note import Note
@@ -64,11 +64,9 @@ class SpecificChord(Cached):
         self.key = self.notes, self.root
 
     @classmethod
-    def random(cls, n_notes=None, octaves=None) -> SpecificChord:
+    def random(cls, n_notes: int | None = None, octaves: tuple[int, ...] = (3, 4, 5)) -> SpecificChord:
         if n_notes is None:
             n_notes = random.randint(2, 5)
-        if octaves is None:
-            octaves = 3, 4, 5
         notes_space = tuple(
             SpecificNote(note, octave)
             for note, octave in itertools.product(config.chromatic_notes, octaves)
@@ -78,21 +76,21 @@ class SpecificChord(Cached):
 
     @classmethod
     def from_str(cls, string: str) -> SpecificChord:
-        notes, _, root = string.partition('/')
+        notes_, _, root = string.partition('/')
         root = Note(root) if root else None
-        notes_ = notes.split('_')
-        if len(notes_) != len(set(notes_)):
+        notes_2 = notes_.split('_')
+        if len(notes_2) != len(set(notes_2)):
             raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
-        notes = frozenset(SpecificNote.from_str(note) for note in notes_)
+        notes = frozenset(SpecificNote.from_str(note) for note in notes_2)
         return cls(notes, root=root)
 
-    def notes_combinations(self, ids=False):
+    def notes_combinations(self, ids: bool = False) -> Iterator[tuple[SpecificNote, SpecificNote]] | Iterator[tuple[int, int]]:
         if ids: yield from itertools.combinations(range(len(self.notes_ascending)), 2)
         else: yield from itertools.combinations(self.notes_ascending, 2)
         # for n, m in itertools.combinations(self.notes_ascending, 2):
         #     yield n, m
 
-    def find_intervals(self, interval: int):
+    def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote]]:
         return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
     def __len__(self): return len(self.notes)
@@ -128,7 +126,7 @@ class SpecificChord(Cached):
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
 
-    async def play(self, seconds: Number = 1, bass_octave: int | None = None) -> None:
+    async def play(self, seconds: float = 1, bass_octave: int | None = None) -> None:
         tasks = [note.play(seconds) for note in self.notes]
         if bass_octave:
             if self.root is None:
