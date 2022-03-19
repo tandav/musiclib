@@ -23,7 +23,7 @@ clean:
 
 .PHONY: test
 test:
-	$(python) -m pytest -vv --asyncio-mode=strict tests
+	$(python) -m pytest -vv tests
 
 .PHONY: coverage
 coverage:
