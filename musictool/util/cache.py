@@ -5,7 +5,7 @@ class Cached:
     _cache: dict[tuple[tuple[Any, ...], frozenset[tuple[str, Any]]], Any] = {}
 
     def __new__(cls, *args, **kwargs):
-        key = args, frozenset(kwargs.items())
+        key = cls, args, frozenset(kwargs.items())
         instance = cls._cache.get(key)
         if instance is not None:
             return instance
