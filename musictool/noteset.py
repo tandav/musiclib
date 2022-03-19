@@ -77,34 +77,33 @@ class NoteSet(Cached):
         else:
             raise TypeError
 
-        if isinstance(root, str):
-            self.root = Note(root)
-        elif isinstance(root, Note | None):
+        self.notes_octave_fit = tuple(sorted(self.notes))
+
+        if root is None:
             self.root = root
+            self.notes_ascending = self.notes_octave_fit
         else:
-            raise TypeError
+            if root not in self.notes:
+                raise KeyError('root should be one of notes')
 
-        if root is not None and root not in self.notes:
-            raise KeyError('root should be one of notes')
+            if isinstance(root, Note):
+                self.root = root
+            elif isinstance(root, str):
+                self.root = Note(root)
+            else:
+                raise TypeError('root type should be str | Note | None')
 
-        self.key = self.notes, self.root
-        notes_sorted = tuple(sorted(self.notes))
-        if root is not None:
-            root_i = notes_sorted.index(root)
-            notes_sorted = notes_sorted[root_i:] + notes_sorted[:root_i]
-        self.notes_ascending = notes_sorted
-        self.notes_octave_fit = tuple(sorted(notes))
-        self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-        self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
-        self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
-        if self.root is not None:
-            if self.root not in notes:
-                raise ValueError('root note should be one of the chord notes')
-
+            root_i = self.notes_octave_fit.index(self.root)
+            self.notes_ascending  = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
             self.intervals = frozenset(self.intervals_ascending[1:])
             self.bits = intervals_to_bits(self.intervals)
             self.name = self.__class__.intervals_to_name.get(self.intervals)
+
+        self.key = self.notes, self.root
+        self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
+        self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
+        self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
 
     @property
     def rootless(self): return NoteSet(self.notes)
