@@ -3,16 +3,19 @@ from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
 from typing import Literal
+from typing import TypeVar
+
+T = TypeVar('T')
 
 import tqdm
 
 from musictool import config
 
 
-def iter_scales(kind, start=None):
+def iter_scales(kind: str, start: str | None = None) -> list[str]:
     scales = getattr(config, kind)
-    it = itertools.cycle(scales)
-    if start:
+    it: Iterable[str] = itertools.cycle(scales)
+    if start is not None:
         it = itertools.dropwhile(lambda x: x != start, it)
     it = itertools.islice(it, len(scales))
     return list(it)
@@ -21,7 +24,7 @@ def iter_scales(kind, start=None):
 # @functools.cache ?
 def sequence_builder(
     n: int,
-    options: Iterable | Sequence[Iterable] | Callable,
+    options: Iterable[T] | Sequence[Iterable[T]] | Callable[[T], Iterable[T]],
     options_kind: Literal['iterable', 'fixed_per_step', 'callable_from_curr'] = 'iterable',
     curr_prev_constraint: dict[int, Callable] | None = None,
     candidate_constraint: Callable | None = None,
@@ -29,7 +32,7 @@ def sequence_builder(
     unique_key: Callable | None = None,
     loop: bool = False,
     prefix: Sequence = tuple(),
-) -> Sequence:
+) -> Iterable[tuple[T, ...]]:
     """build a sequence of elements from options
     Parameters
     ----------
