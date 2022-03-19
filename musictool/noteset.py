@@ -1,17 +1,17 @@
 from __future__ import annotations
 import itertools
 import random
-from typing import TypeVar, Type
+from typing import TypeVar, Type, overload, no_type_check
 
 import pipe21 as P
 
-from musictool import chromatic
 from musictool import config
 from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.note import str_to_note
 from musictool.util.cache import Cached
+from musictool.util import typeguards
 
 '''
 NoteSet
@@ -21,6 +21,7 @@ NoteSet
 '''
 
 
+@no_type_check
 def bits_to_intervals(bits: str) -> frozenset[int]:
     return (
         bits
@@ -33,7 +34,7 @@ def bits_to_intervals(bits: str) -> frozenset[int]:
     )
 
 
-def intervals_to_bits(intervals: frozenset) -> str:
+def intervals_to_bits(intervals: frozenset[int]) -> str:
     bits = ['0'] * 12
     bits[0] = '1'
     for i in intervals:
@@ -45,8 +46,11 @@ Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
-    intervals_to_name: dict = {}
-    name_to_intervals: dict = {}
+    intervals_to_name: dict[frozenset[int], str] = {}
+    name_to_intervals: dict[str, frozenset[int]] = {}
+
+    notes: frozenset[Note]
+    root: Note | None
 
     def __init__(
         self,
@@ -66,19 +70,25 @@ class NoteSet(Cached):
         if len(notes) == 0:
             raise ValueError('notes should be not empty')
 
-        if isinstance(next(iter(notes)), str):
-            notes = frozenset(Note(note) for note in notes)
+        if typeguards.is_frozenset_of_str(notes):
+            self.notes = frozenset(Note(note) for note in notes)
+        elif typeguards.is_frozenset_of_note(notes):
+            self.notes = notes
+        else:
+            raise TypeError
 
         if isinstance(root, str):
-            root = Note(root)
+            self.root = Note(root)
+        elif isinstance(root, Note | None):
+            self.root = root
+        else:
+            raise TypeError
 
-        if root is not None and root not in notes:
+        if root is not None and root not in self.notes:
             raise KeyError('root should be one of notes')
 
-        self.notes = notes
-        self.root = root
         self.key = self.notes, self.root
-        notes_sorted = tuple(sorted(notes))
+        notes_sorted = tuple(sorted(self.notes))
         if root is not None:
             root_i = notes_sorted.index(root)
             notes_sorted = notes_sorted[root_i:] + notes_sorted[:root_i]
@@ -87,11 +97,11 @@ class NoteSet(Cached):
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
         self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
-        if root is not None:
-            if root not in notes:
+        if self.root is not None:
+            if self.root not in notes:
                 raise ValueError('root note should be one of the chord notes')
 
-            self.intervals_ascending = tuple(note - root for note in self.notes_ascending)
+            self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
             self.intervals = frozenset(self.intervals_ascending[1:])
             self.bits = intervals_to_bits(self.intervals)
             self.name = self.__class__.intervals_to_name.get(self.intervals)
@@ -125,11 +135,17 @@ class NoteSet(Cached):
         return cls(notes)
 
     @classmethod
-    def from_str(cls, string: str):
-        notes, _, root = string.partition('/')
-        root = Note(root) if root else None
-        notes = frozenset(Note(note) for note in notes)
-        return cls(notes, root=root)
+    def from_str(cls: Type[Self], string: str) -> Self:
+        notes, _, root_ = string.partition('/')
+        root = Note(root_) if root_ else None
+        return cls(frozenset(Note(note) for note in notes), root=root)
+
+    @overload
+    def add_note(self, note: str, steps: int) -> Note | SpecificNote: ...
+    @overload
+    def add_note(self, note: SpecificNote, steps: int) -> SpecificNote: ...
+    @overload
+    def add_note(self, note: Note, steps: int) -> Note: ...
 
     def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
         notes = self.notes_ascending
@@ -158,7 +174,8 @@ class NoteSet(Cached):
     def __hash__(self): return hash(self.key)
     def __len__(self): return len(self.notes)
     def __getitem__(self, item): return self.notes_ascending[item]
-    def __contains__(self, item) -> bool: return item in self.notes
+    def __iter__(self): return iter(self.notes_ascending)
+    def __contains__(self, item: str | Note) -> bool: return item in self.notes
     def __le__(self, other): return self.notes <= other
     def __ge__(self, other): return other <= self.notes
 
@@ -236,7 +253,13 @@ class NoteRange:
         self._key = self.start, self.stop, self.noteset
 
     def _getitem_int(self, item: int) -> SpecificNote:
-        if 0 <= item < len(self): return self.noteset.add_note(self.start, item)
+        # reveal_type(self.start)
+        # reveal_type(self.stop)
+        if 0 <= item < len(self):
+            # reveal_type(self.start)
+            q = self.noteset.add_note(self.start, item)
+            # reveal_type(q)
+            return q
         elif -len(self) <= item < 0: return self.noteset.add_note(self.stop, item + 1)
         else: raise IndexError('index out of range')
 
@@ -248,7 +271,7 @@ class NoteRange:
             return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
         else: raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
 
-    def __contains__(self, item: SpecificNote): return item.abstract in self.noteset and self.start <= item <= self.stop
+    def __contains__(self, item: SpecificNote) -> bool: return item.abstract in self.noteset and self.start <= item <= self.stop
     def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
     def __eq__(self, other): return self._key == other._key
