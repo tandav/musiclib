@@ -1,10 +1,10 @@
+import pytest
+
 from musictool.note import Note
 from musictool.note import SpecificNote
-from musictool.piano import note_color
-from musictool.piano import WHITE_COLOR
 from musictool.piano import BLACK_COLOR
-
-import pytest
+from musictool.piano import WHITE_COLOR
+from musictool.piano import note_color
 
 
 @pytest.mark.parametrize('note, color', [
@@ -15,4 +15,3 @@ import pytest
 ])
 def test_note_color(note, color):
     assert note_color(note) == color
-

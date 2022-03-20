@@ -1,13 +1,11 @@
 from __future__ import annotations
+
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
 from typing import Any
-from typing import Literal
-from typing import Type
-from typing import TypeGuard
 from typing import TypeVar
-from typing import Optional
+
 import tqdm
 
 Op = TypeVar('Op')
@@ -17,8 +15,7 @@ OpsFixedPerStep = Sequence[Iterable[Op]]
 OpsCallableFromCurr = Callable[[Op], Iterable[Op]]
 
 
-
-OPTIONS_EXCEPTION = TypeError("options, options_i, options_callable are mutually exclusive. Only 1 must be not None")
+OPTIONS_EXCEPTION = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
 
 # def is_ops_iterable(opt):
 
@@ -77,7 +74,7 @@ class SequenceBuilder:
         # self.options_type = options_type
 
         if not all(k < 0 for k in curr_prev_constraint.keys()):
-            raise KeyError("curr_prev_constraint keys must be negative")
+            raise KeyError('curr_prev_constraint keys must be negative')
         self.curr_prev_constraint = curr_prev_constraint
         self.candidate_constraint = candidate_constraint
         self.i_constraints = i_constraints
@@ -100,13 +97,10 @@ class SequenceBuilder:
             return self.options_callable(seq[-1])
         raise TypeError
 
-
     def __iter__(self):
         return self._iter(self.prefix)
 
-    def _iter(self,
-        prefix: tuple[Op, ...] = tuple(),
-    ) -> Iterable[tuple[Op, ...]]:
+    def _iter(self, prefix: tuple[Op, ...] = tuple()) -> Iterable[tuple[Op, ...]]:
         seq = prefix or tuple()
         ops = self.generate_options(seq)
         if i_constraint := self.i_constraints.get(len(seq)):
@@ -144,5 +138,3 @@ class SequenceBuilder:
                     yield tuple(candidate)
             else:
                 yield from self._iter(prefix=candidate)
-
-

@@ -5,9 +5,9 @@ import functools
 import itertools
 import random
 from collections.abc import Iterator
-import mido
 from pathlib import Path
-from typing import Optional
+
+import mido
 
 from musictool import config
 from musictool.note import Note
@@ -96,6 +96,7 @@ class SpecificChord(Cached):
     def __len__(self): return len(self.notes)
     def __getitem__(self, item: int) -> SpecificNote: return self.notes_ascending[item]
     def __iter__(self): return iter(self.notes_ascending)
+
     def __repr__(self):
         _ = '_'.join(repr(note) for note in self.notes_ascending)
         if self.root is not None:

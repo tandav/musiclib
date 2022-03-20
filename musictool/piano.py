@@ -59,7 +59,6 @@ class Piano:
         white_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
         black_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
 
-
         RED_COLOR = 255, 0, 0
         GREEN_COLOR = 0, 255, 0
         BLUE_COLOR = 0, 0, 255

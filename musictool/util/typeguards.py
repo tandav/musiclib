@@ -1,4 +1,5 @@
 from typing import TypeGuard
+
 from musictool.note import Note
 
 

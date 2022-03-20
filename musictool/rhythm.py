@@ -1,21 +1,23 @@
 from __future__ import annotations
+
 import functools
 import itertools
 import random
 import statistics
 from collections.abc import Iterable
-from typing import TypeGuard
-import mido
-import pipe21 as P
 from pathlib import Path
 
+import mido
+import pipe21 as P
+
 from musictool import config
-from musictool.note import SpecificNote
 from musictool.chord import SpecificChord
-from musictool.util.sequence_builder import SequenceBuilder
+from musictool.note import SpecificNote
 from musictool.util.cache import Cached
+from musictool.util.sequence_builder import SequenceBuilder
 
 TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
+
 
 class Rhythm(Cached):
     def __init__(

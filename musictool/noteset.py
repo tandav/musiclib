@@ -1,7 +1,11 @@
 from __future__ import annotations
+
 import itertools
 import random
-from typing import TypeVar, Type, overload, no_type_check
+from typing import Type
+from typing import TypeVar
+from typing import no_type_check
+from typing import overload
 
 import pipe21 as P
 
@@ -10,8 +14,8 @@ from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.note import str_to_note
-from musictool.util.cache import Cached
 from musictool.util import typeguards
+from musictool.util.cache import Cached
 
 '''
 NoteSet
