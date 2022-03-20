@@ -12,13 +12,6 @@ import tqdm
 from musictool import config
 
 
-def iter_scales(kind: str, start: str | None = None) -> list[str]:
-    scales = getattr(config, kind)
-    it: Iterable[str] = itertools.cycle(scales)
-    if start is not None:
-        it = itertools.dropwhile(lambda x: x != start, it)
-    it = itertools.islice(it, len(scales))
-    return list(it)
 
 
 # @functools.cache ?
