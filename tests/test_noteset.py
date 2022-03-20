@@ -3,7 +3,6 @@ from collections.abc import Sequence
 
 import pytest
 
-from musictool import chromatic
 from musictool import config
 from musictool.chord import Chord
 from musictool.note import Note

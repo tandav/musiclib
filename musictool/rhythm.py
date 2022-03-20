@@ -1,17 +1,25 @@
+from __future__ import annotations
+
 import functools
 import itertools
 import random
 import statistics
-from collections import deque
+from collections.abc import Iterable
+from pathlib import Path
 
 import mido
 import pipe21 as P
 
 from musictool import config
-from musictool.util.iteration import sequence_builder
+from musictool.chord import SpecificChord
+from musictool.note import SpecificNote
+from musictool.util.cache import Cached
+from musictool.util.sequence_builder import SequenceBuilder
+
+TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
 
 
-class Rhythm:
+class Rhythm(Cached):
     def __init__(
         self,
         notes: tuple[int, ...],
@@ -29,15 +37,14 @@ class Rhythm:
         self.bits = ''.join(map(str, self.notes))
 
     @classmethod
-    def random_rhythm(cls, n_notes: int | None = None, bar_notes: int = 16):
-        if not (0 < n_notes <= bar_notes):
-            raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
+    def random_rhythm(cls, n_notes: int | None = None, bar_notes: int = 16) -> Rhythm:
         if n_notes is None:
             n_notes = random.randint(1, bar_notes)
+        if not (0 < n_notes <= bar_notes):
+            raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
         notes = [1] * n_notes + [0] * (bar_notes - n_notes)
         random.shuffle(notes)
-        notes = tuple(notes)
-        return cls(notes, bar_notes=bar_notes)
+        return cls(tuple(notes), bar_notes=bar_notes)
 
     def __repr__(self):
         return f"Rhythm('{self.bits}')"
@@ -56,27 +63,25 @@ class Rhythm:
     @functools.cached_property
     def score(self) -> float:
         """spacings variance"""
-        x = self.notes
-        if x[0] != 1:  # rotate until first element == 1
-            x = deque(x)
-            x.rotate(-x.index(1))
+        first_1 = self.notes.index(1)
+        x = self.notes[first_1:] + self.notes[:first_1]
         spacings = [len(list(g)) for k, g in itertools.groupby(x, key=bool) if not k]
         if len(spacings) == 1:  # TODO: try normalize into 0..1
             return float('inf')
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score=False):
-        rhythms = sequence_builder(
+    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm]:
+        rhythms_ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
-            curr_prev_constraint=Rhythm.no_contiguous_ones,
+            curr_prev_constraint={-1: Rhythm.no_contiguous_ones},
         )
 
         if n_notes is not None:
-            rhythms = rhythms | P.Filter(lambda r: sum(r) == n_notes)
+            rhythms_ = rhythms_ | P.Filter(lambda r: sum(r) == n_notes)
 
-        rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms)
+        rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
 
         if sort_by_score:
             rhythms = (
@@ -84,12 +89,31 @@ class Rhythm:
                 | P.KeyBy(lambda rhythm: rhythm.score)
                 | P.Pipe(lambda x: sorted(x, key=lambda score_rhythm: (score_rhythm[0], score_rhythm[1].notes)))
             )
-        return rhythms | P.Pipe(tuple)
+        out: tuple[Rhythm] = rhythms | P.Pipe(tuple)
+        return out
 
     def play(self):
         raise NotImplementedError
 
-    def to_midi(self, path=None, note_=None, chord=None, progression=None) -> 'mido.MidiFile | None':
+    def to_midi(
+        self,
+        path: str | Path | None = None,
+        note_: SpecificNote | None = None,
+        chord: SpecificChord | None = None,
+        progression: Iterable[SpecificChord] | None = None,
+    ) -> mido.MidiFile | None:
+
+        if note_ is not None and chord is not None:
+            raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+
+        if chord is None:
+            if note_ is None:
+                raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+            note__ = note_
+
+        if note_ is None:
+            if chord is None:
+                raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
 
         mid = mido.MidiFile(type=0, ticks_per_beat=96)
 
@@ -103,7 +127,7 @@ class Rhythm:
             nonlocal t
             for is_play in self.notes:
                 if is_play:
-                    notes = [note_.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
+                    notes = [note__.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
                     for i, note in enumerate(notes):
                         track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                     for i, note in enumerate(notes):
@@ -122,3 +146,4 @@ class Rhythm:
         if path is None:
             return mid
         mid.save(path)
+        return None

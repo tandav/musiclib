@@ -1,5 +1,5 @@
-from musictool.scale import Scale
 from musictool.chord import Chord
+from musictool.scale import Scale
 
 
 def str_to_chord_progression(s: Scale, progression: str) -> tuple[Chord, ...]:

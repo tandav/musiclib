@@ -2,7 +2,7 @@ from typing import Any
 
 
 class Cached:
-    _cache: dict[tuple[tuple[Any, ...], frozenset[tuple[str, Any]]], Any] = {}
+    _cache: dict[tuple[type, tuple[Any, ...], frozenset[tuple[str, Any]]], Any] = {}
 
     def __new__(cls, *args, **kwargs):
         key = cls, args, frozenset(kwargs.items())
