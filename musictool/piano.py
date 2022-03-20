@@ -11,6 +11,33 @@ if typing.TYPE_CHECKING:
     from musictool.scale import ComparedScales
     from musictool.scale import Scale
 
+RGBColor = tuple[int, int, int]
+WHITE_COLOR = (170,) * 3
+BLACK_COLOR = (80,) * 3
+
+
+def note_color(note: Note | SpecificNote) -> RGBColor:
+    _colors = {
+        Note('C'): WHITE_COLOR,
+        Note('d'): BLACK_COLOR,
+        Note('D'): WHITE_COLOR,
+        Note('e'): BLACK_COLOR,
+        Note('E'): WHITE_COLOR,
+        Note('F'): WHITE_COLOR,
+        Note('f'): BLACK_COLOR,
+        Note('G'): WHITE_COLOR,
+        Note('a'): BLACK_COLOR,
+        Note('A'): WHITE_COLOR,
+        Note('b'): BLACK_COLOR,
+        Note('B'): WHITE_COLOR,
+    }
+    if isinstance(note, SpecificNote):
+        return _colors[note.abstract]
+    elif isinstance(note, Note):
+        return _colors[note]
+    else:
+        raise TypeError
+
 
 class Piano:
     def __init__(
@@ -20,7 +47,7 @@ class Piano:
         red_notes: frozenset[Note] = frozenset(),
         green_notes: frozenset[Note] = frozenset(),
         blue_notes: frozenset[Note] = frozenset(),
-        notes_squares: dict[Note: str] | None = None,
+        notes_squares: dict[Note, str] | None = None,
     ):
         if notes_squares is None:
             notes_squares = dict()
@@ -32,14 +59,10 @@ class Piano:
         white_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
         black_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
 
-        WHITE_COLOR = (170,) * 3
-        BLACK_COLOR = (80,) * 3
+
         RED_COLOR = 255, 0, 0
         GREEN_COLOR = 0, 255, 0
         BLUE_COLOR = 0, 0, 255
-
-        for note in white_notes: note.color = WHITE_COLOR
-        for note in black_notes: note.color = BLACK_COLOR
 
         SMALL_RECT_HEIGHT = 5
         SMALL_SQUARE_SIZE = 12
@@ -50,7 +73,7 @@ class Piano:
 
         # white keys
         for note, x in zip(white_notes, range(0, self.size[0], ww)):
-            color = note.color
+            color = note_color(note)
             if scale is not None and note.abstract in scale.notes:
                 color = scale.note_colors[note.abstract]
             self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
@@ -71,7 +94,7 @@ class Piano:
         # black notes
         it = (x for i, x in enumerate(range(0 + ww, self.size[0], ww)) if i not in {2, 6, 9, 13})
         for note, x in zip(black_notes, it):
-            color = note.color
+            color = note_color(note)
             if scale is not None and note.abstract in scale.notes:
                 color = scale.note_colors[note.abstract]
             self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
