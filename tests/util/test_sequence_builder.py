@@ -22,19 +22,19 @@ def options():
 
 
 def test_length(options, is_even):
-    assert all(len(cycle) == 5 for cycle in SequenceBuilder.ops_iterable(5, options, i_constraints={0: is_even}))
+    assert all(len(cycle) == 5 for cycle in SequenceBuilder(5, options=options, i_constraints={0: is_even}))
 
 
 def test_first_constraint(options, is_even):
-    assert all(is_even(cycle[0]) for cycle in SequenceBuilder.ops_iterable(5, options, i_constraints={0: is_even}))
+    assert all(is_even(cycle[0]) for cycle in SequenceBuilder(5, options=options, i_constraints={0: is_even}))
 
 
 def test_input_validation():
-    with pytest.raises(ValueError): tuple(SequenceBuilder.ops_iterable(5, (1, 1, 2)))
+    with pytest.raises(ValueError): tuple(SequenceBuilder(5, options=(1, 1, 2)))
 
 
 def test_prev_curr(options, even_odd_interchange):
-    for cycle in SequenceBuilder.ops_iterable(5, options, curr_prev_constraint={-1: even_odd_interchange}, loop=True):
+    for cycle in SequenceBuilder(5, options=options, curr_prev_constraint={-1: even_odd_interchange}, loop=True):
         assert even_odd_interchange(cycle[-1], cycle[0])
         for prev, curr in itertools.pairwise(cycle):
             assert even_odd_interchange(prev, curr)
@@ -49,9 +49,9 @@ def test_loop():
     def equal_endswith(a: str, b: str) -> bool:
         return a[1] == b[1]
 
-    for seq in SequenceBuilder.ops_iterable(
+    for seq in SequenceBuilder(
         6,
-        options,
+        options=options,
         curr_prev_constraint={-1: different_startswith, -2: equal_endswith},
         loop=True,
     ):
@@ -64,18 +64,18 @@ def test_loop():
 
 def test_prefix(options):
     prefix = options[:2]
-    for cycle in SequenceBuilder.ops_iterable(5, options, prefix=prefix):
+    for cycle in SequenceBuilder(5, options=options, prefix=prefix):
         assert all(a == b for a, b in zip(prefix, cycle))
 
 
 def test_unique(options):
-    assert all(len(cycle) == len(set(cycle)) for cycle in SequenceBuilder.ops_iterable(5, options, unique_key=lambda x: x))
-    assert any(len(cycle) != len(set(cycle)) for cycle in SequenceBuilder.ops_iterable(5, options))
+    assert all(len(cycle) == len(set(cycle)) for cycle in SequenceBuilder(5, options=options, unique_key=lambda x: x))
+    assert any(len(cycle) != len(set(cycle)) for cycle in SequenceBuilder(5, options=options))
 
 
 def test_candidate_constraint():
     def candidate_constraint(c): return Counter(c)['A'] < 3
-    for seq in SequenceBuilder.ops_iterable(
+    for seq in SequenceBuilder(
         n=4,
         options='AB',
         candidate_constraint=candidate_constraint,
@@ -84,5 +84,5 @@ def test_candidate_constraint():
 
 
 def test_options_kind_callable():
-    assert list(SequenceBuilder.ops_callable_from_curr(3, options=lambda x: [x + 1], prefix=(0,))) == [(0, 1, 2)]
-    assert list(SequenceBuilder.ops_callable_from_curr(3, options=lambda x: [x + 1, x * 10], prefix=(0,))) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
+    assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1], prefix=(0,))) == [(0, 1, 2)]
+    assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1, x * 10], prefix=(0,))) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]

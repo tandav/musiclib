@@ -1,4 +1,4 @@
-import itertools
+from __future__ import annotations
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
@@ -7,6 +7,7 @@ from typing import Literal
 from typing import Type
 from typing import TypeGuard
 from typing import TypeVar
+from typing import Optional
 import tqdm
 
 Op = TypeVar('Op')
@@ -16,23 +17,67 @@ OpsFixedPerStep = Sequence[Iterable[Op]]
 OpsCallableFromCurr = Callable[[Op], Iterable[Op]]
 
 
+
+OPTIONS_EXCEPTION = TypeError("options, options_i, options_callable are mutually exclusive. Only 1 must be not None")
+
+# def is_ops_iterable(opt):
+
+
 class SequenceBuilder:
     def __init__(
         self,
         n: int,
-        options: OpsIterable | OpsFixedPerStep | OpsCallableFromCurr,
-        options_type: type = OpsIterable,
-        # options_type: Literal['iterable', 'fixed_per_step', 'callable_from_curr'] = 'iterable',
-        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] | None = None,
+        # options: OpsIterable[Op] | OpsFixedPerStep[Op] | OpsCallableFromCurr[Op],
+        # options: Union[OpsIterable[Op], None],
+        # options: Union[frozenset[Op], None],
+        # options: OpsIterable | None,
+        # options: Optional[frozenset[Op]],
+        options: OpsIterable[Op] | None = None,
+        options_i: OpsFixedPerStep[Op] | None = None,
+        options_callable: OpsCallableFromCurr[Op] | None = None,
+        # options_type: object,
+        # options_type: Type[OpsIterable[Op]] | Type[OpsFixedPerStep[Op]] | Type[OpsCallableFromCurr[Op]],
+        # options_type:c
+        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] = dict(),
         candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
-        i_constraints: dict[int, Callable[[tuple[Op, ...]], bool]] = dict(),
+        i_constraints: dict[int, Callable[[Op], bool]] = dict(),
         unique_key: Callable[[Op], Any] | None = None,
         loop: bool = False,
         prefix: tuple[Op, ...] = tuple(),
     ):
         self.n = n
-        self.options = options
-        self.options_type = options_type
+        self.options: frozenset[Op] | None
+        self.options_i: OpsFixedPerStep[Op] | None
+        self.options_callable: OpsCallableFromCurr[Op] | None
+
+        if options is not None:
+            if not (options_i is None and options_callable is None):
+                raise OPTIONS_EXCEPTION
+            options_seq = tuple(options)
+            options_fset = frozenset(options_seq)
+            if len(options_seq) != len(options_fset):
+                raise ValueError('options should be unique')
+            self.options = options_fset
+            self.options_type = 'iterable'
+            self.generate_options = self._generate_options_iterable
+        elif options_i is not None:
+            if not (options is None and options_callable is None):
+                raise OPTIONS_EXCEPTION
+            self.options = options
+            self.options_type = 'fixed_per_step'
+            self.generate_options = self._generate_options_fixed_per_step
+        elif options_callable is not None:
+            if not (options is None and options_i is None):
+                raise OPTIONS_EXCEPTION
+            self.options = options
+            self.options_type = 'callable_from_curr'
+            self.generate_options = self._generate_options_callable_from_curr
+        self.options_i = options_i
+        self.options_callable = options_callable
+        # self.options_type = options_type
+
+        if not all(k < 0 for k in curr_prev_constraint.keys()):
+            raise KeyError("curr_prev_constraint keys must be negative")
         self.curr_prev_constraint = curr_prev_constraint
         self.candidate_constraint = candidate_constraint
         self.i_constraints = i_constraints
@@ -40,67 +85,28 @@ class SequenceBuilder:
         self.loop = loop
         self.prefix = prefix
 
-    @classmethod
-    def ops_iterable(
-        cls,
-        n: int,
-        options: OpsIterable,
-        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] | None = None,
-        candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
-        i_constraints: dict[int, Callable[[tuple[Op, ...]], bool]] = dict(),
-        unique_key: Callable[[Op], Any] | None = None,
-        loop: bool = False,
-        prefix: tuple[Op, ...] = tuple(),
-    ):
-        options_seq = tuple(options)
-        options = frozenset(options_seq)
-        if len(options_seq) != len(options):
-            raise ValueError('options should be unique')
-        return cls(n, options, OpsIterable, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix)
-
-    @classmethod
-    def ops_fixed_per_step(
-        cls,
-        n: int,
-        options: OpsFixedPerStep,
-        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] | None = None,
-        candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
-        i_constraints: dict[int, Callable[[tuple[Op, ...]], bool]] = dict(),
-        unique_key: Callable[[Op], Any] | None = None,
-        loop: bool = False,
-        prefix: tuple[Op, ...] = tuple(),
-    ):
-        return cls(n, options, OpsFixedPerStep, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix)
-
-    @classmethod
-    def ops_callable_from_curr(
-        cls,
-        n: int,
-        options: OpsCallableFromCurr,
-        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] | None = None,
-        candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
-        i_constraints: dict[int, Callable[[tuple[Op, ...]], bool]] = dict(),
-        unique_key: Callable[[Op], Any] | None = None,
-        loop: bool = False,
-        prefix: tuple[Op, ...] = tuple(),
-    ):
-        return cls(n, options, OpsCallableFromCurr, curr_prev_constraint, candidate_constraint, i_constraints, unique_key, loop, prefix)
-
-    def generate_options(self, seq: Sequence[Op]):
-        if self.options_type is OpsIterable:
+    def _generate_options_iterable(self, seq: Sequence[Op]) -> Iterable[Op]:
+        if self.options is not None:
             return self.options
-        elif self.options_type is OpsFixedPerStep:
-            return self.options[len(seq)]
-        elif self.options_type is OpsCallableFromCurr:
-            return self.options(seq[-1])
+        raise TypeError
 
-    # def __next__(self): ...
+    def _generate_options_fixed_per_step(self, seq: Sequence[Op]) -> Iterable[Op]:
+        if self.options_i is not None:
+            return self.options_i[len(seq)]
+        raise TypeError
+
+    def _generate_options_callable_from_curr(self, seq: Sequence[Op]) -> Iterable[Op]:
+        if self.options_callable is not None:
+            return self.options_callable(seq[-1])
+        raise TypeError
+
+
     def __iter__(self):
         return self._iter(self.prefix)
 
     def _iter(self,
         prefix: tuple[Op, ...] = tuple(),
-    ):
+    ) -> Iterable[tuple[Op, ...]]:
         seq = prefix or tuple()
         ops = self.generate_options(seq)
         if i_constraint := self.i_constraints.get(len(seq)):
@@ -110,7 +116,7 @@ class SequenceBuilder:
             prefix_keys = frozenset(self.unique_key(op) for op in prefix)
             ops = frozenset(op for op in ops if self.unique_key(op) not in prefix_keys)
 
-        if self.curr_prev_constraint is not None:
+        if self.curr_prev_constraint:
 
             if abs(max(self.curr_prev_constraint.keys())) >= self.n:
                 raise IndexError('max index to look back in curr_prev_constraint should be less than n')
@@ -128,7 +134,7 @@ class SequenceBuilder:
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 continue
             if len(candidate) == self.n:
-                if self.curr_prev_constraint is not None and self.loop:
+                if self.curr_prev_constraint and self.loop:
                     for k, f in self.curr_prev_constraint.items():
                         if any(not f(candidate[(i + k) % self.n], candidate[i]) for i in range(abs(k))):
                             break
