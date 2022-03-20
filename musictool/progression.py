@@ -14,8 +14,11 @@ class Progression(Cached):
         if not all(isinstance(x, SpecificChord) for x in chords):
             raise TypeError('only SpecificChord items allowed')
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> SpecificChord:
         return self.chords[item]
+
+    def __iter__(self):
+        return iter(self.chords)
 
     def __len__(self):
         return len(self.chords)
@@ -34,7 +37,7 @@ class Progression(Cached):
         n = len(self)
         return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
 
-    def transpose_unique_key(self, origin_name: bool = True):
+    def transpose_unique_key(self, origin_name: bool = True) -> tuple[frozenset[int], ...] | tuple[int, tuple[frozenset[int], ...]]:
         origin = self[0][0]
         key = tuple(frozenset(note - origin for note in chord.notes) for chord in self)
         if origin_name:
