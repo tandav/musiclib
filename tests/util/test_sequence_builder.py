@@ -17,7 +17,7 @@ def even_odd_interchange(is_even):
 
 
 @pytest.fixture
-def options():
+def options() -> tuple[int, ...]:
     return 0, 1, 2, 3
 
 
@@ -68,13 +68,15 @@ def test_prefix(options):
         assert all(a == b for a, b in zip(prefix, cycle))
 
 
-def test_unique(options):
+def test_unique(options: tuple[int, ...]) -> None:
     assert all(len(cycle) == len(set(cycle)) for cycle in SequenceBuilder(5, options=options, unique_key=lambda x: x))
     assert any(len(cycle) != len(set(cycle)) for cycle in SequenceBuilder(5, options=options))
 
 
 def test_candidate_constraint():
-    def candidate_constraint(c): return Counter(c)['A'] < 3
+    def candidate_constraint(c: tuple[str, ...]) -> bool:
+        return Counter(c)['A'] < 3
+
     for seq in SequenceBuilder(
         n=4,
         options='AB',
