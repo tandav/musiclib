@@ -31,10 +31,22 @@ def test_score_rotation(example_notes):
     rotated_notes = deque(example_notes)
     for _ in range(len(rotated_notes)):
         rotated_notes.rotate(1)
-        assert Rhythm(rotated_notes).score == original_score
+        assert Rhythm(tuple(rotated_notes)).score == original_score
 
 
 def test_has_contiguous_ones(example_notes):
     assert Rhythm(example_notes).has_contiguous_ones
     assert Rhythm((1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)).has_contiguous_ones
     assert not Rhythm((1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)).has_contiguous_ones
+
+
+def test_all_rhythms():
+    assert Rhythm.all_rhythms(
+        n_notes=3,
+        bar_notes=6,
+    ) == (
+        Rhythm((0, 1, 0, 1, 0, 1), bar_notes=6),
+        Rhythm((1, 0, 0, 1, 0, 1), bar_notes=6),
+        Rhythm((1, 0, 1, 0, 0, 1), bar_notes=6),
+        Rhythm((1, 0, 1, 0, 1, 0), bar_notes=6),
+    )

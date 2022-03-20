@@ -9,9 +9,9 @@ import pipe21 as P
 
 from musictool import config
 from musictool.util.sequence_builder import SequenceBuilder
+from musictool.util.cache import Cached
 
-
-class Rhythm:
+class Rhythm(Cached):
     def __init__(
         self,
         notes: tuple[int, ...],
