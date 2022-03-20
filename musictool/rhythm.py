@@ -4,7 +4,7 @@ import itertools
 import random
 import statistics
 from collections.abc import Iterable
-
+from typing import TypeGuard
 import mido
 import pipe21 as P
 from pathlib import Path
@@ -15,6 +15,7 @@ from musictool.chord import SpecificChord
 from musictool.util.sequence_builder import SequenceBuilder
 from musictool.util.cache import Cached
 
+TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
 
 class Rhythm(Cached):
     def __init__(
@@ -100,6 +101,18 @@ class Rhythm(Cached):
         progression: Iterable[SpecificChord] | None = None,
     ) -> mido.MidiFile | None:
 
+        if note_ is not None and chord is not None:
+            raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+
+        if chord is None:
+            if note_ is None:
+                raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+            note__ = note_
+
+        if note_ is None:
+            if chord is None:
+                raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+
         mid = mido.MidiFile(type=0, ticks_per_beat=96)
 
         ticks_per_note = mid.ticks_per_beat * self.beats_per_bar // self.bar_notes
@@ -112,7 +125,7 @@ class Rhythm(Cached):
             nonlocal t
             for is_play in self.notes:
                 if is_play:
-                    notes = [note_.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
+                    notes = [note__.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
                     for i, note in enumerate(notes):
                         track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                     for i, note in enumerate(notes):
@@ -131,3 +144,4 @@ class Rhythm(Cached):
         if path is None:
             return mid
         mid.save(path)
+        return None

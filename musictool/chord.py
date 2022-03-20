@@ -5,6 +5,9 @@ import functools
 import itertools
 import random
 from collections.abc import Iterator
+import mido
+from pathlib import Path
+from typing import Optional
 
 from musictool import config
 from musictool.note import Note
@@ -131,8 +134,11 @@ class SpecificChord(Cached):
             tasks.append(SpecificNote(self.root, bass_octave).play(seconds))
         await asyncio.gather(*tasks)
 
-    def to_midi(self, path=None, n_bars=1):
-        import mido
+    def to_midi(
+        self,
+        path: str | Path | None = None,
+        n_bars: int = 1,
+    ) -> mido.MidiFile | None:
         mid = mido.MidiFile(type=0, ticks_per_beat=96)
         track = mido.MidiTrack()
         track.append(mido.MetaMessage(type='track_name', name='test_name'))
@@ -153,3 +159,4 @@ class SpecificChord(Cached):
         if path is None:
             return mid
         mid.save(path)
+        return None
