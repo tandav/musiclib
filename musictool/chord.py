@@ -76,26 +76,23 @@ class SpecificChord(Cached):
 
     @classmethod
     def from_str(cls, string: str) -> SpecificChord:
-        notes_, _, root = string.partition('/')
-        root = Note(root) if root else None
+        notes_, _, root_ = string.partition('/')
+        root = Note(root_) if root_ else None
         notes_2 = notes_.split('_')
         if len(notes_2) != len(set(notes_2)):
             raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
         notes = frozenset(SpecificNote.from_str(note) for note in notes_2)
         return cls(notes, root=root)
 
-    def notes_combinations(self, ids: bool = False) -> Iterator[tuple[SpecificNote, SpecificNote]] | Iterator[tuple[int, int]]:
-        if ids: yield from itertools.combinations(range(len(self.notes_ascending)), 2)
-        else: yield from itertools.combinations(self.notes_ascending, 2)
-        # for n, m in itertools.combinations(self.notes_ascending, 2):
-        #     yield n, m
+    def notes_combinations(self,) -> Iterator[tuple[SpecificNote, SpecificNote]]:
+        yield from itertools.combinations(self.notes_ascending, 2)
 
-    def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote]]:
+    def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote], ...]:
         return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
     def __len__(self): return len(self.notes)
-    def __getitem__(self, item): return self.notes_ascending[item]
-
+    def __getitem__(self, item: int) -> SpecificNote: return self.notes_ascending[item]
+    def __iter__(self): return iter(self.notes_ascending)
     def __repr__(self):
         _ = '_'.join(repr(note) for note in self.notes_ascending)
         if self.root is not None:
@@ -112,7 +109,7 @@ class SpecificChord(Cached):
     #     """
     #     return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
 
-    def __sub__(left, right):
+    def __sub__(left, right: SpecificChord) -> int:
         return sum(abs(l - r) for l, r in zip(left, right))
 
     def __add__(self, other: int) -> SpecificChord:
