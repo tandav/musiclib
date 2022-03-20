@@ -21,7 +21,7 @@ class MidiNote:
 
 
 def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
-    notes = []
+    notes: list[MidiNote] = []
     for track_i, track in enumerate(m.tracks):
         t = 0
         t_buffer = dict()
@@ -41,7 +41,7 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
     return notes
 
 
-def print_midi(midi: mido.MidiFile):
+def print_midi(midi: mido.MidiFile) -> None:
     print('n_tracks:', len(midi.tracks))
     print(midi.tracks)
     for i, track in enumerate(midi.tracks):
