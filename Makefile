@@ -5,7 +5,7 @@ LINTING_DIRS := musictool tests
 
 .PHONY: lint
 lint:
-	$(python) -m no_init $(LINTING_DIRS)
+	$(python) -m no_init --allow-empty $(LINTING_DIRS)
 	$(python) -m force_absolute_imports --in-place $(LINTING_DIRS)
 	$(python) -m isort --force-single-line-imports $(LINTING_DIRS)
 	$(python) -m autoflake --recursive --in-place $(LINTING_DIRS)
