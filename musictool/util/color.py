@@ -7,7 +7,8 @@ HexColor = int
 def hex_to_rgb(color: HexColor) -> RGBColor:
     if not (0 <= color <= 0xFFFFFF):
         raise ValueError('color must be in range [0, 0xFFFFFF]')
-    return tuple(color.to_bytes(3, byteorder='big'))
+    a, b, c = color.to_bytes(3, byteorder='big')
+    return a, b, c
 
 
 def rgb_to_hex(color: RGBColor) -> HexColor:
