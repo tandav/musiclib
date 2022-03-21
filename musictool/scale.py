@@ -62,24 +62,25 @@ class Scale(NoteSet):
         root: str | Note,
     ):
         super().__init__(notes, root=root)
+
+        if self.name is None:
+            self.kind = None
+            return
         self.kind = config.kinds.get(self.name)
+        scales = getattr(config, self.kind)
+        _scale_i = scales.index(self.name)
+        scales = scales[_scale_i:] + scales[:_scale_i]
+        self.note_scales = {}
+        for note, scale in zip(self.notes_ascending, scales):
+            self.note_scales[note] = scale
 
-        if self.kind is not None:
-            scales = getattr(config, self.kind)
-            _scale_i = scales.index(self.name)
-            scales = scales[_scale_i:] + scales[:_scale_i]
-            self.note_scales = {}
-            for note, scale in zip(self.notes_ascending, scales):
-                self.note_scales[note] = scale
-
-            if self.kind == 'diatonic':
-                self.triads = self._make_nths(frozenset({0, 2, 4}))
-                self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
-                self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
-                self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
-                self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
-                self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
-
+        if self.kind == 'diatonic':
+            self.triads = self._make_nths(frozenset({0, 2, 4}))
+            self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
+            self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
+            self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
+            self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
+            self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
         self.html_classes = ('card', self.name)
 
     def _make_nths(self, ns: frozenset[int]) -> tuple[Chord, ...]:
@@ -89,13 +90,11 @@ class Scale(NoteSet):
         )
 
     def parallel(self, parallel_name: str | None = None) -> Scale:
-        """same root, convert major to minor and vice versa"""
-        if parallel_name is None:
-            parallel_name = {'major': 'minor', 'minor': 'major'}[self.name]
+        """same root, changes set of notess"""
         return Scale.from_name(self.root, parallel_name)
 
     def relative(self, relative_name: str | None = None) -> Scale:
-        """same set of notes, changes root, convert major to minor and vice versa"""
+        """same set of notes, changes root"""
         if relative_name is None:
             relative_name = {'major': 'minor', 'minor': 'major'}[self.name]
         for note, name in self.note_scales.items():

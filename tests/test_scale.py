@@ -85,9 +85,9 @@ def test_compared():
 
 
 @pytest.mark.parametrize('scale, parallel_name, expected', (
-    (Scale.from_name('C', 'major'), None, Scale.from_name('C', 'minor')),
-    (Scale.from_name('C', 'minor'), None, Scale.from_name('C', 'major')),
-    (Scale.from_name('f', 'minor'), None, Scale.from_name('f', 'major')),
+    (Scale.from_name('C', 'major'), 'minor', Scale.from_name('C', 'minor')),
+    (Scale.from_name('C', 'minor'), 'major', Scale.from_name('C', 'major')),
+    (Scale.from_name('f', 'minor'), 'major', Scale.from_name('f', 'major')),
     (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('C', 'phrygian')),
     (Scale.from_name('e', 'dorian'), 'locrian', Scale.from_name('e', 'locrian')),
 ))
