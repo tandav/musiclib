@@ -118,20 +118,20 @@ class NoteSet(Cached):
         return NoteSet.from_intervals(self.intervals, note)
 
     @classmethod
-    def from_name(cls: Type[Self], root: str | Note, name: str) -> NoteSet:
+    def from_name(cls: Type[Self], root: str | Note, name: str) -> Self:
         if isinstance(root, str):
             root = Note(root)
         notes = frozenset(root + interval for interval in cls.name_to_intervals[name]) | {root}
         return cls(notes, root=root)
 
     @classmethod
-    def from_intervals(cls, intervals: frozenset[int], root: str | Note) -> NoteSet:
+    def from_intervals(cls: Type[Self], intervals: frozenset[int], root: str | Note) -> Self:
         if isinstance(root, str):
             root = Note(root)
         return cls(frozenset(root + interval for interval in intervals) | {root}, root=root)
 
     @classmethod
-    def random(cls, n_notes=None):
+    def random(cls: Type[Self], n_notes: int | None = None) -> Self:
         if n_notes is None:
             n_notes = random.randint(2, 5)
         notes = frozenset(random.sample(config.chromatic_notes, n_notes))

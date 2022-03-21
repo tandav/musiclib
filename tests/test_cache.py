@@ -40,10 +40,10 @@ def test_noteset(op, a, b):
 
 
 @pytest.mark.parametrize('op, a, b', (
-    (operator.is_, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root='C')),
-    (operator.is_, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root=Note('C'))),
-    (operator.is_not, Scale(frozenset('Cde'), root='C'), Scale(frozenset('CDe'), root=Note('C'))),
-    (operator.is_not, Scale(frozenset('Cde'), root='C'), Scale(frozenset('Cde'), root=Note('d'))),
+    (operator.is_, Scale(frozenset('CdeFGab'), root='C'), Scale(frozenset('CdeFGab'), root='C')),
+    (operator.is_, Scale(frozenset('CdeFGab'), root='C'), Scale(frozenset('CdeFGab'), root=Note('C'))),
+    (operator.is_not, Scale(frozenset('CdeFGab'), root='C'), Scale(frozenset('CDeFGab'), root=Note('C'))),
+    (operator.is_not, Scale(frozenset('CdeFGab'), root='C'), Scale(frozenset('CdeFGab'), root=Note('d'))),
     (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
     (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
     (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),

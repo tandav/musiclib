@@ -54,19 +54,20 @@ class Scale(NoteSet):
         frozenset({3, 5, 7, 8, 10}): 's_minor',
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
-
+    root: Note
     def __init__(
         self,
         notes: frozenset[str | Note],
         *,
         root: str | Note,
     ):
+        # if not isinstance(root, str | Note):
+
         super().__init__(notes, root=root)
 
         if self.name is None:
-            self.kind = None
-            return
-        self.kind = config.kinds.get(self.name)
+            raise TypeError('scale is not supported')
+        self.kind = config.kinds[self.name]
         scales = getattr(config, self.kind)
         _scale_i = scales.index(self.name)
         scales = scales[_scale_i:] + scales[:_scale_i]
@@ -89,14 +90,12 @@ class Scale(NoteSet):
             for i in range(len(self))
         )
 
-    def parallel(self, parallel_name: str | None = None) -> Scale:
+    def parallel(self, parallel_name: str) -> Scale:
         """same root, changes set of notess"""
         return Scale.from_name(self.root, parallel_name)
 
-    def relative(self, relative_name: str | None = None) -> Scale:
+    def relative(self, relative_name: str) -> Scale:
         """same set of notes, changes root"""
-        if relative_name is None:
-            relative_name = {'major': 'minor', 'minor': 'major'}[self.name]
         for note, name in self.note_scales.items():
             if name == relative_name:
                 return Scale.from_name(note, name)

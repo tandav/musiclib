@@ -35,11 +35,6 @@ def test_kind():
         {'note_scales'} <= vars(s).keys() and
         len({'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
     )
-    s = Scale(frozenset('Cde'), root='C')
-    assert (
-        s.kind is None and
-        len({'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
-    )
 
 
 @pytest.mark.parametrize('op, a, b', (
@@ -96,10 +91,10 @@ def test_parallel(scale, parallel_name, expected):
 
 
 @pytest.mark.parametrize('scale, relative_name, expected', (
-    (Scale.from_name('C', 'major'), None, Scale.from_name('A', 'minor')),
-    (Scale.from_name('A', 'minor'), None, Scale.from_name('C', 'major')),
-    (Scale.from_name('f', 'minor'), None, Scale.from_name('A', 'major')),
-    (Scale.from_name('A', 'major'), None, Scale.from_name('f', 'minor')),
+    (Scale.from_name('C', 'major'), 'minor', Scale.from_name('A', 'minor')),
+    (Scale.from_name('A', 'minor'), 'major', Scale.from_name('C', 'major')),
+    (Scale.from_name('f', 'minor'), 'major', Scale.from_name('A', 'major')),
+    (Scale.from_name('A', 'major'), 'minor', Scale.from_name('f', 'minor')),
     (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('E', 'phrygian')),
     (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
 ))
