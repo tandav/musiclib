@@ -104,7 +104,7 @@ class Scale(NoteSet):
         raise KeyError(f'relative {relative_name} scale not found')
 
     def to_piano_image(self):
-        return Piano(scale=self)._repr_svg_()
+        return Piano(notes=self.notes, note_scales=self.note_scales)._repr_svg_()
 
     def with_html_classes(self, classes: tuple[str, ...]) -> str:
         prev = self.html_classes
@@ -173,7 +173,8 @@ class ComparedScales:
     def to_piano_image(self, as_base64=False):
 
         return Piano(
-            scale=self.right,
+            notes=self.right.notes,
+            note_scales=self.right.note_scales,
             red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
             notes_squares={
                 chord.root: (
