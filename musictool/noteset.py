@@ -256,12 +256,8 @@ class NoteRange:
         self._key = self.start, self.stop, self.noteset
 
     def _getitem_int(self, item: int) -> SpecificNote:
-        # reveal_type(self.start)
-        # reveal_type(self.stop)
         if 0 <= item < len(self):
-            # reveal_type(self.start)
             q = self.noteset.add_note(self.start, item)
-            # reveal_type(q)
             return q
         elif -len(self) <= item < 0: return self.noteset.add_note(self.stop, item + 1)
         else: raise IndexError('index out of range')
@@ -274,6 +270,7 @@ class NoteRange:
             return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
         else: raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
 
+    def __iter__(self): return (self[i] for i in range(len(self)))
     def __contains__(self, item: SpecificNote) -> bool: return item.abstract in self.noteset and self.start <= item <= self.stop
     def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1

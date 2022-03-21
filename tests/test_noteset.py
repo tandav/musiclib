@@ -1,4 +1,5 @@
 import itertools
+from collections.abc import Iterable
 from collections.abc import Sequence
 
 import pytest
@@ -81,10 +82,10 @@ def test_note_i():
     fs = frozenset('CDEfGaB')
     noteset = NoteSet(fs)
     assert fs == noteset.note_i.keys()
-    assert noteset.note_i['C'] == 0
-    assert noteset.note_i['B'] == 6
-    assert noteset.note_i['f'] == 3
-    assert noteset.note_i['G'] == 4
+    assert noteset.note_i[Note('C')] == 0
+    assert noteset.note_i[Note('B')] == 6
+    assert noteset.note_i[Note('f')] == 3
+    assert noteset.note_i[Note('G')] == 4
 
 
 @pytest.mark.parametrize('string, expected', (
@@ -132,7 +133,7 @@ def test_add_note_abstract(noteset, note, steps, result):
     assert noteset.add_note(note, steps) == result
 
 
-def _make_keyboard(notes: Sequence, octaves=range(-10, 10)) -> tuple[SpecificNote]:
+def _make_keyboard(notes: Sequence[Note], octaves: Iterable[int] = range(-10, 10)) -> tuple[SpecificNote, ...]:
     return tuple(sorted(SpecificNote(note, octave) for octave, note in itertools.product(octaves, notes)))
 
 

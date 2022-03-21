@@ -60,7 +60,7 @@ def test_nths(notes, name, nths):
 
 
 def test_notes_to_triad_root():
-    assert Scale(frozenset('DEFGAbC'), root='D').notes_to_triad_root[frozenset('GbD')] == 'G'
+    assert Scale(frozenset('DEFGAbC'), root='D').notes_to_triad_root[frozenset(map(Note, 'GbD'))] == 'G'
 
 
 @pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))

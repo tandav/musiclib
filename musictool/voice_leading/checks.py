@@ -1,18 +1,21 @@
 import functools
 import itertools
 from collections.abc import Callable
+from typing import Any
 
 from musictool.chord import SpecificChord
 from musictool.progression import Progression
 from musictool.scale import Scale
 
 
-def chord_check_cache(f: Callable):
-    cache = {}
+def chord_pair_check_cache(
+    f: Callable[[SpecificChord, SpecificChord, ], bool],
+) -> Callable[[SpecificChord, SpecificChord, ], bool]:
+    cache: dict[tuple[SpecificChord, SpecificChord, ], bool] = {}
     cache_info = {'hits': 0, 'misses': 0, 'currsize': 0}
 
     @functools.wraps(f)
-    def inner(a: SpecificChord, b: SpecificChord, *args) -> bool:
+    def inner(a: SpecificChord, b: SpecificChord, *args: Any) -> bool:
         a, b = Progression((a, b)).transposed_to_C0
         key = a, b, *args
         cached = cache.get(key)
@@ -29,7 +32,7 @@ def chord_check_cache(f: Callable):
     return inner
 
 
-@chord_check_cache
+@chord_pair_check_cache
 def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     '''
     parallel in same voices!
@@ -47,7 +50,7 @@ def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> b
     return False
 
 
-@chord_check_cache
+@chord_pair_check_cache
 def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
@@ -62,7 +65,7 @@ def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> boo
     return is_same_direction and (b_high - b_low) % 12 == interval
 
 
-@chord_check_cache
+@chord_pair_check_cache
 def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
     n = len(b)
     for i in range(n):
@@ -73,20 +76,12 @@ def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
     return False
 
 
-@chord_check_cache
+@chord_pair_check_cache
 def large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     return any(abs(an - bn) > interval for an, bn in zip(a, b))
 
 
-def large_spacing(c: SpecificChord, max_interval=12, /):
-    return any(b - a > max_interval for a, b in itertools.pairwise(c))
-
-
-def small_spacing(c: SpecificChord, min_interval=3, /):
-    return any(b - a < min_interval for a, b in itertools.pairwise(c))
-
-
-@chord_check_cache
+@chord_pair_check_cache
 def make_major_scale_leading_tone_resolving_semitone_up(
     a: SpecificChord,
     b: SpecificChord,
@@ -98,3 +93,11 @@ def make_major_scale_leading_tone_resolving_semitone_up(
     leading_tone = [note for note in a.notes if note.abstract == s.notes_ascending[-1]][0]
     tonic = [note for note in b.notes if note.abstract == s.root][0]
     return tonic - leading_tone == 1
+
+
+def large_spacing(c: SpecificChord, max_interval=12, /) -> bool:
+    return any(b - a > max_interval for a, b in itertools.pairwise(c))
+
+
+def small_spacing(c: SpecificChord, min_interval=3, /) -> bool:
+    return any(b - a < min_interval for a, b in itertools.pairwise(c))
