@@ -27,18 +27,18 @@ def test_kind():
     s = Scale.from_name('C', 'major')
     assert (
         s.kind == 'diatonic' and
-        {'note_colors', 'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} <= vars(s).keys()
+        {'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} <= vars(s).keys()
     )
     s = Scale.from_name('C', 'p_major')
     assert (
         s.kind == 'pentatonic' and
-        {'note_colors', 'note_scales'} <= vars(s).keys() and
+        {'note_scales'} <= vars(s).keys() and
         len({'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
     )
     s = Scale(frozenset('Cde'), root='C')
     assert (
         s.kind is None and
-        len({'note_colors', 'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
+        len({'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
     )
 
 

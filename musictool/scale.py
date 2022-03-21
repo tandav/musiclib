@@ -68,10 +68,8 @@ class Scale(NoteSet):
             scales = getattr(config, self.kind)
             _scale_i = scales.index(self.name)
             scales = scales[_scale_i:] + scales[:_scale_i]
-            self.note_colors = {}
             self.note_scales = {}
             for note, scale in zip(self.notes_ascending, scales):
-                self.note_colors[note] = hex_to_rgb(config.scale_colors[scale])
                 self.note_scales[note] = scale
 
             if self.kind == 'diatonic':

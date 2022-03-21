@@ -6,12 +6,13 @@ import typing
 from musictool import config
 from musictool.note import Note
 from musictool.note import SpecificNote
+from musictool.util.color import RGBColor
+from musictool.util.color import hex_to_rgb
 
 if typing.TYPE_CHECKING:
     from musictool.scale import ComparedScales
     from musictool.scale import Scale
 
-RGBColor = tuple[int, int, int]
 WHITE_COLOR = (170,) * 3
 BLACK_COLOR = (80,) * 3
 
@@ -74,7 +75,7 @@ class Piano:
         for note, x in zip(white_notes, range(0, self.size[0], ww)):
             color = note_color(note)
             if scale is not None and note.abstract in scale.notes:
-                color = scale.note_colors[note.abstract]
+                color = hex_to_rgb(config.scale_colors[scale.note_scales[note.abstract]])
             self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
             if note.abstract in red_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{SMALL_RECT_HEIGHT}' style='fill:rgb{RED_COLOR};'/>""")
@@ -95,7 +96,7 @@ class Piano:
         for note, x in zip(black_notes, it):
             color = note_color(note)
             if scale is not None and note.abstract in scale.notes:
-                color = scale.note_colors[note.abstract]
+                color = hex_to_rgb(config.scale_colors[scale.note_scales[note.abstract]])
             self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
 
             if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{SMALL_RECT_HEIGHT}' style='fill:rgb{RED_COLOR};'/>""")
