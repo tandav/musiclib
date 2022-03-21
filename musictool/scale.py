@@ -55,6 +55,7 @@ class Scale(NoteSet):
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
     root: Note
+
     def __init__(
         self,
         notes: frozenset[str | Note],
@@ -82,7 +83,7 @@ class Scale(NoteSet):
             self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
             self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
             self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
-        self.html_classes = ('card', self.name)
+        self.html_classes: tuple[str, ...] = ('card', self.name)
 
     def _make_nths(self, ns: frozenset[int]) -> tuple[Chord, ...]:
         return tuple(
@@ -143,9 +144,9 @@ class ComparedScales:
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
-        self.html_classes = ('card',)
+        self.html_classes: tuple[str, ...] = ('card',)
 
-    def with_html_classes(self, classes: tuple):
+    def with_html_classes(self, classes: tuple[str, ...]) -> str:
         prev = self.html_classes
         self.html_classes = prev + classes
         r = self._repr_html_()
@@ -155,7 +156,7 @@ class ComparedScales:
     # def __format__(self, format_spec): raise No
 
     # @functools.cached_property
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         # <code>bits: {self.bits}</code><br>
         # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
@@ -168,8 +169,7 @@ class ComparedScales:
         </div>
         '''
 
-    def to_piano_image(self, as_base64=False):
-
+    def to_piano_image(self):
         return Piano(
             notes=self.right.notes,
             note_scales=self.right.note_scales,
@@ -216,32 +216,9 @@ majors = dict(
 @functools.cache
 def neighbors(left: Scale) -> dict[int, list[ComparedScales]]:
     neighs = defaultdict(list)
-    for right in all_scales[left.kind].values():
+    for right_ in all_scales[left.kind].values():
         # if left == right:
         #     continue
-        right = ComparedScales(left, right)
+        right = ComparedScales(left, right_)
         neighs[len(right.shared_notes)].append(right)
     return neighs
-
-
-def print_neighbors(s: Scale) -> None:
-    neighs = neighbors(s)
-    for n_intersect in sorted(neighs.keys(), reverse=True):
-        for n in neighs[n_intersect]:
-            if n.name != 'major': continue
-            print(repr(n).ljust(32), '|', end=' ')
-            for note in n.chromatic_mask:
-                if note in s.chromatic_mask: print(cprint(note, color='BLUE'), end='')
-                else: print(note, end='')
-            print(' |', end=' ')
-            for chord in n.triads:
-                if chord in n.shared_triads: print(cprint(chord, color='BLUE'), end=' ')
-                else: print(chord, end=' ')
-            print()
-        print('=' * 100)
-
-# warm up cache
-# for scale in tqdm.tqdm(tuple(itertools.chain(all_scales['diatonic'].values(), all_scales['pentatonic'].values()))):
-#     _ = scale.to_piano_image(as_base64=True)
-#     for neighbor in itertools.chain.from_iterable(neighbors(scale).values()):
-#         _ = neighbor.to_piano_image(as_base64=True)

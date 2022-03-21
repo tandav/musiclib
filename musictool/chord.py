@@ -38,6 +38,8 @@ class Chord(NoteSet):
 
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
+    root: Note
+    name: str
 
 
 class SpecificChord(Cached):
