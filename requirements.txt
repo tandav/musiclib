@@ -1,5 +1,4 @@
 hypothesis
-numpy
 mido
 pipe21
 force_absolute_imports
@@ -14,3 +13,4 @@ pytest-cov
 pytest-asyncio
 unify
 tqdm
+mypy

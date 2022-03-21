@@ -1,6 +1,7 @@
 import functools
 import itertools
 from collections.abc import Callable
+from collections.abc import Hashable
 from typing import Any
 
 from musictool.chord import SpecificChord
@@ -8,10 +9,8 @@ from musictool.progression import Progression
 from musictool.scale import Scale
 
 
-def chord_pair_check_cache(
-    f: Callable[[SpecificChord, SpecificChord, ], bool],
-) -> Callable[[SpecificChord, SpecificChord, ], bool]:
-    cache: dict[tuple[SpecificChord, SpecificChord, ], bool] = {}
+def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
+    cache: dict[Hashable, bool] = {}
     cache_info = {'hits': 0, 'misses': 0, 'currsize': 0}
 
     @functools.wraps(f)
@@ -27,8 +26,8 @@ def chord_pair_check_cache(
         computed = f(a, b, *args)
         cache[key] = computed
         return computed
-    inner._cache = cache
-    inner._cache_info = cache_info
+    inner._cache = cache  # type: ignore
+    inner._cache_info = cache_info  # type: ignore
     return inner
 
 
@@ -95,9 +94,9 @@ def make_major_scale_leading_tone_resolving_semitone_up(
     return tonic - leading_tone == 1
 
 
-def large_spacing(c: SpecificChord, max_interval=12, /) -> bool:
+def large_spacing(c: SpecificChord, max_interval: int = 12, /) -> bool:
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
-def small_spacing(c: SpecificChord, min_interval=3, /) -> bool:
+def small_spacing(c: SpecificChord, min_interval: int = 3, /) -> bool:
     return any(b - a < min_interval for a, b in itertools.pairwise(c))

@@ -79,7 +79,7 @@ def test_root_validation():
 
 
 def test_note_i():
-    fs = frozenset('CDEfGaB')
+    fs = frozenset(map(Note, 'CDEfGaB'))
     noteset = NoteSet(fs)
     assert fs == noteset.note_i.keys()
     assert noteset.note_i[Note('C')] == 0

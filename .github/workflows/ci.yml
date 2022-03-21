@@ -22,6 +22,9 @@ jobs:
       - name: lint
         run: make lint
 
+      - name: mypy
+        run: make check-mypy
+
       - name: test
         run: make test
 

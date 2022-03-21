@@ -71,7 +71,7 @@ class Rhythm(Cached):
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm]:
+    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
         rhythms_ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
