@@ -45,7 +45,7 @@ class Piano:
         red_notes: frozenset[Note] = frozenset(),
         green_notes: frozenset[Note] = frozenset(),
         blue_notes: frozenset[Note] = frozenset(),
-        notes_squares: dict[Note, str] | None = None,
+        notes_squares: dict[Note, tuple[RGBColor, RGBColor, RGBColor, str]] | None = None,
         note_scales: dict[Note, str] | None = None,
         size: tuple[int, int] = config.piano_img_size,
         small_rect_height: int = 5,
@@ -68,7 +68,7 @@ class Piano:
         # white keys
         for note, x in zip(white_notes, range(0, self.size[0], ww)):
             color = note_color(note)
-            if note.abstract in notes:
+            if note_scales is not None and note.abstract in notes:
                 color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
             self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
@@ -89,7 +89,7 @@ class Piano:
         it = (x for i, x in enumerate(range(0 + ww, self.size[0], ww)) if i not in {2, 6, 9, 13})
         for note, x in zip(black_notes, it):
             color = note_color(note)
-            if note.abstract in notes:
+            if note_scales is not None and note.abstract in notes:
                 color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
             self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
 
