@@ -1,12 +1,18 @@
 import random
 
+RGBColor = tuple[int, int, int]
+HexColor = int
 
-def hex_to_rgb(color):
-    return tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
+
+def hex_to_rgb(color: HexColor) -> RGBColor:
+    if not (0 <= color <= 0xFFFFFF):
+        raise ValueError('color must be in range [0, 0xFFFFFF]')
+    return tuple(color.to_bytes(3, byteorder='big'))
 
 
-def rgb_to_hex(color):
-    return '#{:02x}{:02x}{:02x}'.format(*color)
+def rgb_to_hex(color: RGBColor) -> HexColor:
+    # return '#{:02x}{:02x}{:02x}'.format(*color)
+    return int.from_bytes(bytes(color), byteorder='big')
 
 
 def rgba_to_rgb(rgb_background, rgba_color):

@@ -22,13 +22,13 @@ kinds = (
 
 # if change: also change in static/main.css
 scale_colors = dict(
-    major='FFFFFF',
-    dorian='54E346',
-    phrygian='00FFCC',
-    lydian='68A6FC',
-    mixolydian='FFF47D',
-    minor='D83A56',
-    locrian='B980F0',
+    major=0xFFFFFF,
+    dorian=0x54E346,
+    phrygian=0x00FFCC,
+    lydian=0x68A6FC,
+    mixolydian=0xFFF47D,
+    minor=0xD83A56,
+    locrian=0xB980F0,
 )
 
 scale_colors['h_major'] = scale_colors['major']
