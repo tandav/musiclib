@@ -10,7 +10,6 @@ from musictool.note import Note
 from musictool.noteset import NoteSet
 from musictool.piano import Piano
 from musictool.util.color import hex_to_rgb
-from musictool.util.text import cprint
 
 
 class Scale(NoteSet):

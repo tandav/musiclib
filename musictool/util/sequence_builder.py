@@ -17,30 +17,20 @@ OpsCallableFromCurr = Callable[[Op], Iterable[Op]]
 
 OPTIONS_EXCEPTION = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
 
-# def is_ops_iterable(opt):
-
 
 class SequenceBuilder:
     def __init__(
         self,
         n: int,
-        # options: OpsIterable[Op] | OpsFixedPerStep[Op] | OpsCallableFromCurr[Op],
-        # options: Union[OpsIterable[Op], None],
-        # options: Union[frozenset[Op], None],
-        # options: OpsIterable | None,
-        # options: Optional[frozenset[Op]],
         options: OpsIterable[Op] | None = None,
         options_i: OpsFixedPerStep[Op] | None = None,
         options_callable: OpsCallableFromCurr[Op] | None = None,
-        # options_type: object,
-        # options_type: Type[OpsIterable[Op]] | Type[OpsFixedPerStep[Op]] | Type[OpsCallableFromCurr[Op]],
-        # options_type:c
-        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] = dict(),
+        curr_prev_constraint: dict[int, Callable[[Op, Op], bool]] | None = None,
         candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
-        i_constraints: dict[int, Callable[[Op], bool]] = dict(),
+        i_constraints: dict[int, Callable[[Op], bool]] | None = None,
         unique_key: Callable[[Op], Any] | None = None,
         loop: bool = False,
-        prefix: tuple[Op, ...] = tuple(),
+        prefix: tuple[Op, ...] = (),
     ):
         self.n = n
         self.options: frozenset[Op] | None
@@ -71,9 +61,8 @@ class SequenceBuilder:
             self.generate_options = self._generate_options_callable_from_curr
         self.options_i = options_i
         self.options_callable = options_callable
-        # self.options_type = options_type
 
-        if not all(k < 0 for k in curr_prev_constraint.keys()):
+        if curr_prev_constraint is not None and not all(k < 0 for k in curr_prev_constraint.keys()):
             raise KeyError('curr_prev_constraint keys must be negative')
         self.curr_prev_constraint = curr_prev_constraint
         self.candidate_constraint = candidate_constraint
@@ -100,10 +89,10 @@ class SequenceBuilder:
     def __iter__(self):
         return self._iter(self.prefix)
 
-    def _iter(self, prefix: tuple[Op, ...] = tuple()) -> Iterable[tuple[Op, ...]]:
-        seq = prefix or tuple()
+    def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:
+        seq = prefix or ()
         ops = self.generate_options(seq)
-        if i_constraint := self.i_constraints.get(len(seq)):
+        if self.i_constraints is not None and (i_constraint := self.i_constraints.get(len(seq))):
             ops = filter(i_constraint, ops)
 
         if self.unique_key:

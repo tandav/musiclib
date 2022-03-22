@@ -21,15 +21,15 @@ kinds = (
 
 
 # if change: also change in static/main.css
-scale_colors = dict(
-    major=0xFFFFFF,
-    dorian=0x54E346,
-    phrygian=0x00FFCC,
-    lydian=0x68A6FC,
-    mixolydian=0xFFF47D,
-    minor=0xD83A56,
-    locrian=0xB980F0,
-)
+scale_colors = {
+    'major': 0xFFFFFF,
+    'dorian': 0x54E346,
+    'phrygian': 0x00FFCC,
+    'lydian': 0x68A6FC,
+    'mixolydian': 0xFFF47D,
+    'minor': 0xD83A56,
+    'locrian': 0xB980F0,
+}
 
 scale_colors['h_major'] = scale_colors['major']
 scale_colors['h_dorian'] = scale_colors['dorian']
@@ -80,7 +80,6 @@ RANDOM_TUNING_RANGE = 420, 510
 tuning = DEFAULT_TUNING
 
 
-# piano_img_size = 14 * 60, 280
 piano_img_size = 14 * 18, 85
 beats_per_minute = 120
 beats_per_second = beats_per_minute / 60

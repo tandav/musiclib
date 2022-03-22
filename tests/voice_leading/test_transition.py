@@ -14,10 +14,10 @@ from musictool.voice_leading import transition
     (
         'C3_E3_G3_C4',
         'B2_E3_G3_C4',
-        '''\
+        """\
         C3_E3_G3_C4
         /  |  |  |
-        B2_E3_G3_C4''',
+        B2_E3_G3_C4""",
     ),
 ))
 def test_transition(a, b, expected):

@@ -89,7 +89,7 @@ class SpecificChord(Cached):
         notes = frozenset(SpecificNote.from_str(note) for note in notes_2)
         return cls(notes, root=root)
 
-    def notes_combinations(self,) -> Iterator[tuple[SpecificNote, SpecificNote]]:
+    def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
         yield from itertools.combinations(self.notes_ascending, 2)
 
     def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote], ...]:
@@ -108,15 +108,8 @@ class SpecificChord(Cached):
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
 
-    # def __sub__(self, other):
-    #     """
-    #     https://music.stackexchange.com/a/77630
-    #     considering no voice crossing
-    #     """
-    #     return sum(note.absolute_i for note in self.notes) - sum(note.absolute_i for note in other.notes)
-
-    def __sub__(left, right: SpecificChord) -> int:
-        return sum(abs(l - r) for l, r in zip(left, right))
+    def __sub__(self, other: SpecificChord) -> int:
+        return sum(abs(l - r) for l, r in zip(self, other))
 
     def __add__(self, other: int) -> SpecificChord:
         """transpose"""

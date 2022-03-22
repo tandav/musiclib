@@ -43,8 +43,7 @@ def chord_transitions(
 
 
 def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[SpecificChord, frozenset[SpecificChord]]:
-    # graph: dict[SpecificChord, set[SpecificChord]] = collections.defaultdict(set)
-    graph = dict()
+    graph: dict[SpecificChord, frozenset[SpecificChord]] = {}
 
     def _graph(chord: SpecificChord) -> None:
         if chord in graph:

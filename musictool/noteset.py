@@ -17,13 +17,6 @@ from musictool.note import str_to_note
 from musictool.util import typeguards
 from musictool.util.cache import Cached
 
-'''
-NoteSet
-    NotesWithRoot
-        Scale
-        Chord
-'''
-
 
 @no_type_check
 def bits_to_intervals(bits: str) -> frozenset[int]:
@@ -50,6 +43,17 @@ Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
+    """
+    an unordered set of notes
+    root note is optional
+    notes w/o root has no intervals
+
+    hierarchy of classes:
+    NoteSet
+        NotesWithRoot
+            Scale
+            Chord
+    """
     intervals_to_name: dict[frozenset[int], str] = {}
     name_to_intervals: dict[str, frozenset[int]] = {}
 
@@ -62,12 +66,6 @@ class NoteSet(Cached):
         *,
         root: str | Note | None = None,
     ):
-        """
-        an unordered set of notes
-        root:
-            root note is optional
-            notes w/o root has no intervals
-        """
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
 
@@ -98,7 +96,7 @@ class NoteSet(Cached):
                 raise TypeError('root type should be str | Note | None')
 
             root_i = self.notes_octave_fit.index(self.root)
-            self.notes_ascending  = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
+            self.notes_ascending = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
             self.intervals = frozenset(self.intervals_ascending[1:])
             self.bits = intervals_to_bits(self.intervals)
@@ -182,53 +180,14 @@ class NoteSet(Cached):
     def __le__(self, other): return self.notes <= other
     def __ge__(self, other): return other <= self.notes
 
-    # def to_piano_image(self, base64=False):
-    #     return Piano(chord=self)._repr_svg_()
-
     def __repr__(self):
         _ = ''.join(note.name for note in self)
         if self.root is not None:
             _ += f'/{self.root.name}'
         return _
 
-    # async def play(self, seconds=1):
-    #     await SpecificChord(
-    #         notes=frozenset(SpecificNote(note) for note in self.notes),
-    #         root=self.root,
-    #     ).play(seconds)
-    #     notes_to_play = self.specific_notes
-    #
-    #     if bass:
-    #         notes_to_play = itertools.chain(notes_to_play, [Note(self.root.name, octave=self.root.octave + bass)])
-    #
-    #     tasks = tuple(note.play(seconds) for note in notes_to_play)
-    #     await asyncio.gather(*tasks)
 
-    # def _repr_html_(self):
-    #     label = hasattr(self, 'label') and f"id={self.label!r}"or ''
-    #     number = hasattr(self, 'number') and self.number or ''
-    #
-    #     return f'''
-    #     <li class='card {self.name}' {label}>
-    #     <a href='play_chord_{self.str_chord}'>
-    #     <span class='card_header' ><h3>{number} {self.root} {self.name}</h3></span>
-    #     <img src='{self.to_piano_image(base64=True)}' />
-    #     </a>
-    #     </li>
-    #     '''
-
-    # def __repr__(self):
-    #     label = hasattr(self, 'label') and f"id={self.label!r}"or ''
-    #     number = hasattr(self, 'number') and self.number or ''
-    #
-    #     return f'''
-    #     <li class='card {self.name}' {label} onclick=play_chord('{str(self)}')>
-    #     <span class='card_header' ><h3>{number} {self.root} {self.name}</h3></span>
-    #     <img src='{self.to_piano_image(base64=True)}' />
-    #     </li>
-    #     '''
-
-# class SpecificNotes: pass
+CHROMATIC_NOTESET = NoteSet(frozenset(config.chromatic_notes))
 
 
 class NoteRange:
@@ -236,7 +195,7 @@ class NoteRange:
         self,
         start: SpecificNote | str,
         stop: SpecificNote | str,
-        noteset: NoteSet = NoteSet(frozenset(config.chromatic_notes)),
+        noteset: NoteSet = CHROMATIC_NOTESET,
     ):
         if isinstance(start, str):
             start = SpecificNote.from_str(start)

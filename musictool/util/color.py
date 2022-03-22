@@ -12,12 +12,11 @@ def hex_to_rgb(color: HexColor) -> RGBColor:
 
 
 def rgb_to_hex(color: RGBColor) -> HexColor:
-    # return '#{:02x}{:02x}{:02x}'.format(*color)
     return int.from_bytes(bytes(color), byteorder='big')
 
 
 def rgba_to_rgb(rgb_background, rgba_color):
-    '''https://stackoverflow.com/a/21576659/4204843'''
+    """https://stackoverflow.com/a/21576659/4204843"""
 
     alpha = rgba_color[3]
 

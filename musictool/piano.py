@@ -52,7 +52,7 @@ class Piano:
         small_square_size: int = 12,
     ):
         if notes_squares is None:
-            notes_squares = dict()
+            notes_squares = {}
         self.size = size
         ww = self.size[0] // 14  # white key width
         bw = int(ww * 0.6)  # black key width
@@ -117,8 +117,8 @@ class Piano:
 
     def _repr_svg_(self):
         rects = '\n'.join(self.rects)
-        return f'''
+        return f"""
         <svg width='{self.size[0]}' height='{self.size[1]}'>
         {rects}
         </svg>
-        '''
+        """

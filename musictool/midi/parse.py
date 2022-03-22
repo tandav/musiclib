@@ -24,7 +24,7 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
     notes: list[MidiNote] = []
     for track_i, track in enumerate(m.tracks):
         t = 0
-        t_buffer = dict()
+        t_buffer = {}
         for message in track:
             t += message.time
 

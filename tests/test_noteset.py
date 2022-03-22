@@ -1,5 +1,4 @@
 import itertools
-from collections.abc import Iterable
 from collections.abc import Sequence
 
 import pytest
@@ -116,7 +115,7 @@ def test_childs_names_unreachable():
 @pytest.mark.parametrize('noteset, notes_octave_fit', (
     (NoteSet(frozenset('efGd')), 'defG'),
     (NoteSet(frozenset('efGd'), root='e'), 'defG'),
-    (NoteSet(frozenset('FGbBCd'), root='F'), 'CdFGbB')
+    (NoteSet(frozenset('FGbBCd'), root='F'), 'CdFGbB'),
 ))
 def test_notes_octave_fit(noteset, notes_octave_fit):
     assert noteset.notes_octave_fit == tuple(notes_octave_fit)
@@ -133,7 +132,7 @@ def test_add_note_abstract(noteset, note, steps, result):
     assert noteset.add_note(note, steps) == result
 
 
-def _make_keyboard(notes: Sequence[Note], octaves: Iterable[int] = range(-10, 10)) -> tuple[SpecificNote, ...]:
+def _make_keyboard(notes: Sequence[Note], octaves: Sequence[int]) -> tuple[SpecificNote, ...]:
     return tuple(sorted(SpecificNote(note, octave) for octave, note in itertools.product(octaves, notes)))
 
 
@@ -156,7 +155,7 @@ def _add_note_specific_generator():
 
 @pytest.mark.parametrize('noteset', _add_note_specific_generator())
 def test_add_note_specific(noteset):
-    keyboard = _make_keyboard(noteset.notes_ascending)
+    keyboard = _make_keyboard(notes=noteset.notes_ascending, octaves=range(-10, 10))
     for note, octave, steps in itertools.product(
         [noteset.notes_ascending[0], noteset.notes_ascending[1], noteset.notes_ascending[2], noteset.notes_ascending[-1]],
         [-2, -1, 0, 1, 2],
