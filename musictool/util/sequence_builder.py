@@ -45,19 +45,16 @@ class SequenceBuilder:
             if len(options_seq) != len(options_fset):
                 raise ValueError('options should be unique')
             self.options = options_fset
-            self.options_type = 'iterable'
             self.generate_options = self._generate_options_iterable
         elif options_i is not None:
             if not (options is None and options_callable is None):
                 raise OPTIONS_EXCEPTION
             self.options = options
-            self.options_type = 'fixed_per_step'
             self.generate_options = self._generate_options_fixed_per_step
         elif options_callable is not None:
             if not (options is None and options_i is None):
                 raise OPTIONS_EXCEPTION
             self.options = options
-            self.options_type = 'callable_from_curr'
             self.generate_options = self._generate_options_callable_from_curr
         self.options_i = options_i
         self.options_callable = options_callable
