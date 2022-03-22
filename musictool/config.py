@@ -60,13 +60,13 @@ scale_colors['s_lydian'] = scale_colors['lydian']
 scale_colors['s_mixolydian'] = scale_colors['mixolydian']
 scale_colors['s_minor'] = scale_colors['minor']
 
-WHITE_COLOR = (0xaa,) * 3
-BLACK_COLOR = (0x50,) * 3
-WHITE = 0xFF, 0xFF, 0xFF
-BLACK = 0, 0, 0
-RED_COLOR = 0xff, 0, 0
-GREEN_COLOR = 0, 0xff, 0
-BLUE_COLOR = 0, 0, 0xff
+WHITE_PALE = (170,) * 3
+BLACK_PALE = (80,) * 3
+WHITE_BRIGHT = (255,) * 3
+BLACK_BRIGHT = (0,) * 3
+RED = 255, 0, 0
+GREEN = 0, 255, 0
+BLUE = 0, 0, 255
 
 chord_colors = {
     'minor': scale_colors['minor'],

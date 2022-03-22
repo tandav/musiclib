@@ -3,33 +3,31 @@ from __future__ import annotations
 import itertools
 
 from musictool import config
+from musictool.config import BLACK_PALE
+from musictool.config import BLUE
+from musictool.config import GREEN
+from musictool.config import RED
+from musictool.config import WHITE_PALE
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.util.color import RGBColor
 from musictool.util.color import hex_to_rgb
 
-WHITE_COLOR = (170,) * 3
-WHITE_BRIGHT_COLOR = (255,) * 3
-BLACK_COLOR = (80,) * 3
-RED_COLOR = 255, 0, 0
-GREEN_COLOR = 0, 255, 0
-BLUE_COLOR = 0, 0, 255
-
 
 def note_color(note: Note | SpecificNote) -> RGBColor:
     _colors = {
-        Note('C'): WHITE_COLOR,
-        Note('d'): BLACK_COLOR,
-        Note('D'): WHITE_COLOR,
-        Note('e'): BLACK_COLOR,
-        Note('E'): WHITE_COLOR,
-        Note('F'): WHITE_COLOR,
-        Note('f'): BLACK_COLOR,
-        Note('G'): WHITE_COLOR,
-        Note('a'): BLACK_COLOR,
-        Note('A'): WHITE_COLOR,
-        Note('b'): BLACK_COLOR,
-        Note('B'): WHITE_COLOR,
+        Note('C'): WHITE_PALE,
+        Note('d'): BLACK_PALE,
+        Note('D'): WHITE_PALE,
+        Note('e'): BLACK_PALE,
+        Note('E'): WHITE_PALE,
+        Note('F'): WHITE_PALE,
+        Note('f'): BLACK_PALE,
+        Note('G'): WHITE_PALE,
+        Note('a'): BLACK_PALE,
+        Note('A'): WHITE_PALE,
+        Note('b'): BLACK_PALE,
+        Note('B'): WHITE_PALE,
     }
     if isinstance(note, SpecificNote):
         return _colors[note.abstract]
@@ -55,16 +53,16 @@ class Piano:
         if notes_squares is None:
             notes_squares = {}
         self.size = size
-        ww = self.size[0] // 14  # white key width
-        bw = int(ww * 0.6)  # black key width
-        bh = int(self.size[1] * 0.6)  # black key height
+        ww = self.size[0] // 14  # WHITE_PALE key width
+        bw = int(ww * 0.6)  # BLACK_PALE key width
+        bh = int(self.size[1] * 0.6)  # BLACK_PALE key height
         do = config.default_octave
         white_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (0, 2, 4, 5, 7, 9, 11)))
         black_notes = tuple(SpecificNote(config.chromatic_notes[i], octave) for octave, i in itertools.product((do, do + 1), (1, 3, 6, 8, 10)))
 
         self.rects = []
 
-        # todo: merge white keys and black keys logic into single loop to deduplicate logic
+        # todo: merge WHITE_PALE keys and BLACK_PALE keys logic into single loop to deduplicate logic
 
         # white keys
         for note, x in zip(white_notes, range(0, self.size[0], ww)):
@@ -72,14 +70,14 @@ class Piano:
                 if note_scales is not None:
                     color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
                 else:
-                    color = RED_COLOR
+                    color = RED
             else:
                 color = note_color(note)
-            self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
+            self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
-            if note.abstract in red_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{RED_COLOR};'/>""")
-            if note.abstract in green_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{GREEN_COLOR};'/>""")
-            if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{BLUE_COLOR};'/>""")
+            if note.abstract in red_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{RED};'/>""")
+            if note.abstract in green_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{GREEN};'/>""")
+            if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{BLUE};'/>""")
 
             if (fill_border_color := notes_squares.get(note.abstract)):
                 fill, border, text_color, str_chord = fill_border_color
@@ -97,14 +95,14 @@ class Piano:
                 if note_scales is not None:
                     color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
                 else:
-                    color = RED_COLOR
+                    color = RED
             else:
                 color = note_color(note)
-            self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
+            self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
 
-            if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{RED_COLOR};'/>""")
-            if note.abstract in green_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{GREEN_COLOR};'/>""")
-            if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{BLUE_COLOR};'/>""")
+            if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{RED};'/>""")
+            if note.abstract in green_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{GREEN};'/>""")
+            if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{BLUE};'/>""")
 
             if (fill_border_color := notes_squares.get(note.abstract)):
                 fill, border, text_color, str_chord = fill_border_color
@@ -116,7 +114,7 @@ class Piano:
                 """)
 
         # border around whole svg
-        self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_COLOR}'/>")
+        self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_PALE}'/>")
 
     def add_rect(self, x, y, w, h, fill, border_color):
         pass

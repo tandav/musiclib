@@ -165,8 +165,8 @@ class ComparedScales:
             notes_squares={
                 chord.root: (
                     hex_to_rgb(config.chord_colors[chord.name]),
-                    config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
-                    config.BLUE_COLOR if chord in self.shared_triads else config.BLACK_COLOR,
+                    config.BLUE if chord in self.shared_triads else config.BLACK_BRIGHT,
+                    config.BLUE if chord in self.shared_triads else config.BLACK_BRIGHT,
                     str(chord),
                 )
                 for chord in self.right.triads
