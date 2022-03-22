@@ -14,6 +14,7 @@ from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.note import str_to_note
+from musictool.piano import Piano
 from musictool.util import typeguards
 from musictool.util.cache import Cached
 
@@ -106,6 +107,7 @@ class NoteSet(Cached):
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
         self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
+        self.html_classes: tuple[str, ...] = ('card',)
 
     @property
     def rootless(self): return NoteSet(self.notes)
@@ -185,6 +187,26 @@ class NoteSet(Cached):
         if self.root is not None:
             _ += f'/{self.root.name}'
         return _
+
+    def to_piano_image(self):
+        return Piano(notes=self.notes)._repr_svg_()
+
+    def with_html_classes(self, classes: tuple[str, ...]) -> str:
+        prev = self.html_classes
+        self.html_classes = prev + classes
+        r = self._repr_html_()
+        self.html_classes = prev
+        return r
+
+    def _repr_html_(self) -> str:
+        notes_str = ''.join(note.name for note in self)
+        root_str = f'/{self.root.name}' if self.root is not None else ''
+        return f"""
+        <div class='{' '.join(self.html_classes)}'>
+        <span class='card_header'><h3>{notes_str}{root_str}</h3></span>
+        {self.to_piano_image()}
+        </div>
+        """
 
 
 CHROMATIC_NOTESET = NoteSet(frozenset(config.chromatic_notes))

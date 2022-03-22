@@ -41,6 +41,14 @@ class Chord(NoteSet):
     root: Note
     name: str
 
+    def _repr_html_(self) -> str:
+        return f"""
+        <div class='{' '.join(self.html_classes)}'>
+        <span class='card_header'><h3>{self.root.name} {self.name}</h3></span>
+        {self.to_piano_image()}
+        </div>
+        """
+
 
 class SpecificChord(Cached):
     def __init__(

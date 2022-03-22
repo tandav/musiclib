@@ -9,6 +9,7 @@ from musictool.util.color import RGBColor
 from musictool.util.color import hex_to_rgb
 
 WHITE_COLOR = (170,) * 3
+WHITE_BRIGHT_COLOR = (255,) * 3
 BLACK_COLOR = (80,) * 3
 RED_COLOR = 255, 0, 0
 GREEN_COLOR = 0, 255, 0
@@ -67,9 +68,13 @@ class Piano:
 
         # white keys
         for note, x in zip(white_notes, range(0, self.size[0], ww)):
-            color = note_color(note)
-            if note_scales is not None and note.abstract in notes:
-                color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
+            if note.abstract in notes:
+                if note_scales is not None:
+                    color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
+                else:
+                    color = RED_COLOR
+            else:
+                color = note_color(note)
             self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
             if note.abstract in red_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{RED_COLOR};'/>""")
@@ -88,9 +93,13 @@ class Piano:
         # black notes
         it = (x for i, x in enumerate(range(0 + ww, self.size[0], ww)) if i not in {2, 6, 9, 13})
         for note, x in zip(black_notes, it):
-            color = note_color(note)
-            if note_scales is not None and note.abstract in notes:
-                color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
+            if note.abstract in notes:
+                if note_scales is not None:
+                    color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
+                else:
+                    color = RED_COLOR
+            else:
+                color = note_color(note)
             self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_COLOR}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
 
             if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{RED_COLOR};'/>""")

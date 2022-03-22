@@ -82,7 +82,7 @@ class Scale(NoteSet):
             self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
             self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
             self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
-        self.html_classes: tuple[str, ...] = ('card', self.name)
+        self.html_classes += self.name,
 
     def _make_nths(self, ns: frozenset[int]) -> tuple[Chord, ...]:
         return tuple(
@@ -104,35 +104,26 @@ class Scale(NoteSet):
     def to_piano_image(self):
         return Piano(notes=self.notes, note_scales=self.note_scales)._repr_svg_()
 
-    def with_html_classes(self, classes: tuple[str, ...]) -> str:
-        prev = self.html_classes
-        self.html_classes = prev + classes
-        r = self._repr_html_()
-        self.html_classes = prev
-        return r
-
     def _repr_html_(self) -> str:
-        # <code>bits: {self.bits}</code><br>
-        # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
-        return f'''
+        return f"""
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}{C_name}</h3></span></a>
         {self.to_piano_image()}
         </div>
-        '''
+        """
 
 # flake8: noqa
 
 
 class ComparedScales:
-    '''
+    """
     this is compared scale
     local terminology: left scale is compared to right
     left is kinda parent, right is kinda child
-    '''
+    """
 
     def __init__(self, left: Scale, right: Scale):
         self.left = left
@@ -156,17 +147,15 @@ class ComparedScales:
 
     # @functools.cached_property
     def _repr_html_(self) -> str:
-        # <code>bits: {self.bits}</code><br>
-        # chords_hover = f"title='{self._chords_text()}'" if self.kind =='diatonic' else ''
         chords_hover = ''
         if C_name := self.right.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
-        return f'''
+        return f"""
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}{C_name}</h3></span></a>
         {self.to_piano_image()}
         </div>
-        '''
+        """
 
     def to_piano_image(self):
         return Piano(

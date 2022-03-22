@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 
 from musictool.chord import Chord
@@ -167,3 +169,8 @@ async def test_play(capsys):
     on, off = set(stdout_[:3]), set(stdout_[3:])
     assert on == {'note_on note=12, channel=0', 'note_on note=16, channel=0', 'note_on note=31, channel=0'}
     assert off == {'note_off note=12, channel=0', 'note_off note=16, channel=0', 'note_off note=31, channel=0'}
+
+
+@pytest.mark.parametrize('root, name', itertools.product('Cf', Chord.name_to_intervals))
+def test_html(root, name):
+    Chord.from_name(root, name)._repr_html_()
