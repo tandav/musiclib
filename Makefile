@@ -30,7 +30,7 @@ mypy:
 
 .PHONY: test
 test:
-	$(python) -m pytest -vv tests
+	$(python) -m pytest tests
 
 .PHONY: check
 check: check-lint mypy test
