@@ -17,7 +17,7 @@ jobs:
           python-version: '3.10'
 
       - name: install python dependencies
-        run: python3 -m pip install -r requirements.txt
+        run: python3 -m pip install -r requirements-dev.txt
 
       - name: lint
         run: make check-lint
