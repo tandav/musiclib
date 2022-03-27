@@ -68,17 +68,17 @@ class SequenceBuilder:
         self.loop = loop
         self.prefix = prefix
 
-    def _generate_options_iterable(self, seq: Sequence[Op]) -> Iterable[Op]:
+    def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:
         if self.options is not None:
             return self.options
         raise TypeError
 
-    def _generate_options_fixed_per_step(self, seq: Sequence[Op]) -> Iterable[Op]:
+    def _generate_options_fixed_per_step(self, seq: tuple[Op, ...]) -> Iterable[Op]:
         if self.options_i is not None:
             return self.options_i[len(seq)]
         raise TypeError
 
-    def _generate_options_callable_from_curr(self, seq: Sequence[Op]) -> Iterable[Op]:
+    def _generate_options_callable_from_curr(self, seq: tuple[Op, ...]) -> Iterable[Op]:
         if self.options_callable is not None:
             return self.options_callable(seq[-1])
         raise TypeError
@@ -109,6 +109,9 @@ class SequenceBuilder:
         if not prefix:
             ops = tqdm.tqdm(ops)
 
+        yield from self._generate_candidates(ops, seq)
+
+    def _generate_candidates(self, ops: Iterable[Op], seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
         for op in ops:
             candidate = seq + (op,)
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
