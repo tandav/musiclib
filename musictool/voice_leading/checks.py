@@ -42,7 +42,7 @@ def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> b
     a0 - b0
     todo: what about fifths + octave (eg C5 G6 -> F5 C6)
     """
-    voice_transitions = tuple(zip(a, b))
+    voice_transitions = tuple(zip(a, b, strict=True))
     for (a0, b0), (a1, b1) in itertools.combinations(voice_transitions, 2):
         if abs(a0 - a1) % 12 == interval == abs(b0 - b1) % 12:
             return True
@@ -77,7 +77,7 @@ def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
 
 @chord_pair_check_cache
 def large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
-    return any(abs(an - bn) > interval for an, bn in zip(a, b))
+    return any(abs(an - bn) > interval for an, bn in zip(a, b, strict=True))
 
 
 @chord_pair_check_cache

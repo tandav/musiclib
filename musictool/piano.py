@@ -65,7 +65,7 @@ class Piano:
         # todo: merge WHITE_PALE keys and BLACK_PALE keys logic into single loop to deduplicate logic
 
         # white keys
-        for note, x in zip(white_notes, range(0, self.size[0], ww)):
+        for note, x in zip(white_notes, range(0, self.size[0], ww), strict=True):
             if note.abstract in notes:
                 if note_scales is not None:
                     color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
@@ -90,7 +90,7 @@ class Piano:
 
         # black notes
         it = (x for i, x in enumerate(range(0 + ww, self.size[0], ww)) if i not in {2, 6, 9, 13})
-        for note, x in zip(black_notes, it):
+        for note, x in zip(black_notes, it, strict=True):
             if note.abstract in notes:
                 if note_scales is not None:
                     color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])

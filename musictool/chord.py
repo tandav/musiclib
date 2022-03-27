@@ -117,7 +117,7 @@ class SpecificChord(Cached):
     def __hash__(self): return hash(self.key)
 
     def __sub__(self, other: SpecificChord) -> int:
-        return sum(abs(l - r) for l, r in zip(self, other))
+        return sum(abs(l - r) for l, r in zip(self, other, strict=True))
 
     def __add__(self, other: int) -> SpecificChord:
         """transpose"""

@@ -65,7 +65,7 @@ def test_notes_to_triad_root():
 
 @pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))
 def test_note_scales(notes):
-    assert Scale(frozenset(notes), root=notes[0]).note_scales == dict(zip(notes, config.diatonic))
+    assert Scale(frozenset(notes), root=notes[0]).note_scales == dict(zip(notes, config.diatonic, strict=True))
 
 
 def test_compared():

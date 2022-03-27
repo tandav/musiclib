@@ -18,7 +18,7 @@ class Transition:
     def __repr__(self):
         return '\n'.join((
             str(self.a),
-            '  '.join(self.arrow(na, nb) for na, nb in zip(self.a, self.b)),
+            '  '.join(self.arrow(na, nb) for na, nb in zip(self.a, self.b, strict=True)),
             str(self.b),
         ))
 

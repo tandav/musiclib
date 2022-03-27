@@ -72,7 +72,7 @@ class Scale(NoteSet):
         _scale_i = scales.index(self.name)
         scales = scales[_scale_i:] + scales[:_scale_i]
         self.note_scales = {}
-        for note, scale in zip(self.notes_ascending, scales):
+        for note, scale in zip(self.notes_ascending, scales, strict=True):
             self.note_scales[note] = scale
 
         if self.kind == 'diatonic':
