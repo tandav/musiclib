@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import itertools
 from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 from typing import TypeVar
-
+from functools import partial
 import tqdm
 
 Op = TypeVar('Op')
@@ -31,6 +34,7 @@ class SequenceBuilder:
         unique_key: Callable[[Op], Any] | None = None,
         loop: bool = False,
         prefix: tuple[Op, ...] = (),
+        parallel: bool = False,
     ):
         self.n = n
         self.options: frozenset[Op] | None
@@ -67,6 +71,7 @@ class SequenceBuilder:
         self.unique_key = unique_key
         self.loop = loop
         self.prefix = prefix
+        self.parallel = parallel
 
     def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:
         if self.options is not None:
@@ -106,24 +111,38 @@ class SequenceBuilder:
                     continue
                 ops = [op for op in ops if f(seq[k], op)]
 
-        if not prefix:
+        # if not prefix:
+        if len(prefix) == len(self.prefix):
             ops = tqdm.tqdm(ops)
+            def _chain_helper(op):
+                return tuple(self._generate_candidates(op, seq))
 
-        yield from self._generate_candidates(ops, seq)
+            if self.parallel:
+                with ThreadPoolExecutor() as executor:
+                # with ProcessPoolExecutor() as executor:
+                    it = executor.map(_chain_helper, ops)
+                    it = itertools.chain.from_iterable(it)
+                    yield from it
+            else:
+                it = map(_chain_helper, ops)
+                it = itertools.chain.from_iterable(it)
+                yield from it
+        else:
+            for op in ops:
+                yield from self._generate_candidates(op, seq)
 
-    def _generate_candidates(self, ops: Iterable[Op], seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
-        for op in ops:
-            candidate = seq + (op,)
-            if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
-                continue
-            if len(candidate) == self.n:
-                if self.curr_prev_constraint and self.loop:
-                    for k, f in self.curr_prev_constraint.items():
-                        if any(not f(candidate[(i + k) % self.n], candidate[i]) for i in range(abs(k))):
-                            break
-                    else:
-                        yield tuple(candidate)
+    def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
+        candidate = seq + (op,)
+        if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
+            return
+        if len(candidate) == self.n:
+            if self.curr_prev_constraint and self.loop:
+                for k, f in self.curr_prev_constraint.items():
+                    if any(not f(candidate[(i + k) % self.n], candidate[i]) for i in range(abs(k))):
+                        break
                 else:
                     yield tuple(candidate)
             else:
-                yield from self._iter(prefix=candidate)
+                yield tuple(candidate)
+        else:
+            yield from self._iter(prefix=candidate)

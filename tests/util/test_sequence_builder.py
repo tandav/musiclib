@@ -88,3 +88,22 @@ def test_candidate_constraint():
 def test_options_kind_callable():
     assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1], prefix=(0,))) == [(0, 1, 2)]
     assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1, x * 10], prefix=(0,))) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
+
+
+def test_parallel(options, is_even):
+    for a, b in zip(
+        SequenceBuilder(5, options=options, i_constraints={0: is_even}),
+        SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True),
+        strict=True,
+    ):
+        assert a == b
+
+
+def test_parallel_with_prefix(options, is_even):
+    prefix = options[:2]
+    for a, b in zip(
+        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix),
+        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix, parallel=True),
+        strict=True,
+    ):
+        assert a == b
