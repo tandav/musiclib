@@ -1,4 +1,5 @@
 import itertools
+import pickle
 from collections import Counter
 
 import pytest
@@ -6,9 +7,16 @@ import pytest
 from musictool.util.sequence_builder import SequenceBuilder
 
 
+# @pytest.fixture
+# def is_even():
+#     return lambda x: x % 2 == 0
+
+
 @pytest.fixture
 def is_even():
-    return lambda x: x % 2 == 0
+    def func(x):
+        return x % 2 == 0
+    return func
 
 
 @pytest.fixture
@@ -90,20 +98,35 @@ def test_options_kind_callable():
     assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1, x * 10], prefix=(0,))) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
 
 
-def test_parallel(options, is_even):
-    for a, b in zip(
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}),
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True),
-        strict=True,
-    ):
-        assert a == b
+def _is_even(x):
+    return x % 2 == 0
+
+# from types import LambdaType
+#
+# assert not isinstance(_is_even, LambdaType)
+# _options = 0, 1, 2, 3
+# def test_parallel(options):
+#     for a, b in zip(
+#         SequenceBuilder(5, options=options, i_constraints={0: _is_even}),
+#         SequenceBuilder(5, options=options, i_constraints={0: _is_even}, parallel=True),
+#         strict=True,
+#     ):
+#         assert a == b
 
 
-def test_parallel_with_prefix(options, is_even):
-    prefix = options[:2]
-    for a, b in zip(
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix),
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix, parallel=True),
-        strict=True,
-    ):
-        assert a == b
+# def test_parallel_with_prefix(options):
+#     prefix = options[:2]
+#     for a, b in zip(
+#         SequenceBuilder(5, options=options, i_constraints={0: _is_even}, prefix=prefix),
+#         SequenceBuilder(5, options=options, i_constraints={0: _is_even}, prefix=prefix, parallel=True),
+#         strict=True,
+#     ):
+#         assert a == b
+
+#
+def test_pickle(options):
+    # print(pickle.dumps(_is_even))
+    options = range(25)
+    s = SequenceBuilder(5, options=options, i_constraints={0: _is_even}, parallel=True)
+    pickle.dumps(s)
+    list(s)
