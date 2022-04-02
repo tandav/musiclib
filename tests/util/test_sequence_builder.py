@@ -81,7 +81,7 @@ def test_prefix(options, parallel):
 
 
 @pytest.mark.parametrize('parallel', (False, True))
-def test_unique(options: tuple[int, ...], parallel) -> None:
+def test_unique(options, parallel):
     assert all(len(seq) == len(set(seq)) for seq in SequenceBuilder(4, options=options, unique_key=identity, parallel=parallel))
     assert any(len(seq) != len(set(seq)) for seq in SequenceBuilder(4, options=options, parallel=parallel))
 
@@ -117,12 +117,12 @@ def test_options_i(parallel):
 
 
 def test_parallel():
-    options = 0, 1, 2, 3, 4, 5, 6, 7, 8
-    a = SequenceBuilder(5, options=options, i_constraints={0: is_even})
-    b = SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True)
+    options_0 = 0, 1, 2, 3, 4, 5, 6, 7, 8
+    a = SequenceBuilder(5, options=options_0, i_constraints={0: is_even})
+    b = SequenceBuilder(5, options=options_0, i_constraints={0: is_even}, parallel=True)
     assert tuple(a) == tuple(b)
 
-    options = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
-    a = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith})
-    b = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True)
+    options_1 = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
+    a = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: different_startswith, -2: equal_endswith})
+    b = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True)
     assert tuple(a) == tuple(b)

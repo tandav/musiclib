@@ -9,8 +9,8 @@ ignore =
     I,
     N802,N812,
     RST301,RST203,
-    S311,S403,
-    C901,
+    S311,S403,S301,
+    C901,C818,
     WPS,
 per-file-ignores =
     tests/*:S101

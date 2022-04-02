@@ -108,7 +108,6 @@ class SequenceBuilder:
     def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:
         seq = prefix or ()
         ops = self.generate_options(seq)
-        # print(f'{ops=}')
 
         if self.i_constraints is not None and (i_constraint := self.i_constraints.get(len(seq))):
             ops = filter(i_constraint, ops)
@@ -130,35 +129,21 @@ class SequenceBuilder:
         map_func = partial(self._generate_candidates, seq=seq)
 
         if len(prefix) == len(self.prefix):
-            # breakpoint()
-            # print(f'{ops=}')
-            # op = next(iter(ops))
-
-            # print(op, pickle.loads(pickle.dumps(op)))
-
-            # ops = tqdm.tqdm(ops)
             if self.parallel:
                 with ProcessPoolExecutor() as executor:
-                    # it = executor.map(map_func, ops)
                     for it in tqdm.tqdm(executor.map(map_func, ops), total=len(ops)):
-                        # for it in executor.map(map_func, ops):
                         yield from it
                 return
             else:
-                # ops = tqdm.tqdm(ops)
                 it = tqdm.tqdm(map(map_func, ops), total=len(ops))
         else:
             it = map(map_func, ops)
-        # print(list(it)[:4])
-        # it = tuple(it)
-        # print('BEFORE CHAIN', it)
         it = itertools.chain.from_iterable(it)
         yield from it
 
     def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
         def inner():
             candidate = seq + (op,)
-            # print(f'{candidate=}')
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 return
             if len(candidate) < self.n:
@@ -172,6 +157,4 @@ class SequenceBuilder:
                 return
             yield candidate
         out = tuple(inner())
-        # print(out)
         return out
-        # return tuple(inner())
