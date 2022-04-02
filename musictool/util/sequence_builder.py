@@ -6,12 +6,11 @@ from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from typing import Any
 from typing import TypeVar
-from functools import partial
+
 import tqdm
-from types import LambdaType
 
 Op = TypeVar('Op')
 
@@ -47,29 +46,11 @@ class SequenceBuilder:
                 pickle.dumps(candidate_constraint)
                 pickle.dumps(i_constraints)
                 pickle.dumps(unique_key)
-            except:
+            except BaseException:
                 raise pickle.PickleError('parallel=True requires all arguments should be picklable')
-            # if options_callable is not None and isinstance(options_callable, LambdaType):
-            #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
-            # if candidate_constraint is not None and isinstance(candidate_constraint, LambdaType):
-            #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
-            # if isinstance(unique_key, LambdaType):
-            #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
-            # if curr_prev_constraint is not None and any(isinstance(f, LambdaType) for f in curr_prev_constraint.values()):
-            #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
-            # if i_constraints is not None and any(isinstance(f, LambdaType) for f in i_constraints.values()):
-            #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
-        # if (parallel and (
-        #     (options_callable is not None and isinstance(options_callable, LambdaType)) or
-        #     (candidate_constraint is not None and isinstance(candidate_constraint, LambdaType)) or
-        #     (isinstance(unique_key, LambdaType)) or
-        #     (curr_prev_constraint is not None and any(isinstance(f, LambdaType) for f in curr_prev_constraint.values())) or
-        #     (i_constraints is not None and any(isinstance(f, LambdaType) for f in i_constraints.values()))
-        # )):
-        #     raise pickle.PickleError('all functions parameters should not be lambdas (parallel requires picklable callables)')
 
         self.n = n
-        self.options: frozenset[Op] | None
+        self.options: tuple[Op, ...] | None
         self.options_i: OpsFixedPerStep[Op] | None
         self.options_callable: OpsCallableFromCurr[Op] | None
 
@@ -77,10 +58,9 @@ class SequenceBuilder:
             if not (options_i is None and options_callable is None):
                 raise OPTIONS_EXCEPTION
             options_seq = tuple(options)
-            options_fset = frozenset(options_seq)
-            if len(options_seq) != len(options_fset):
+            if len(options_seq) != len(frozenset(options_seq)):
                 raise ValueError('options should be unique')
-            self.options = options_fset
+            self.options = options_seq
             self.generate_options = self._generate_options_iterable
         elif options_i is not None:
             if not (options is None and options_callable is None):
@@ -105,9 +85,6 @@ class SequenceBuilder:
         self.prefix = prefix
         self.parallel = parallel
 
-        pickle.dumps(self.__iter__)
-        pickle.dumps(self._generate_candidates)
-
     def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:
         if self.options is not None:
             return self.options
@@ -129,6 +106,8 @@ class SequenceBuilder:
     def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:
         seq = prefix or ()
         ops = self.generate_options(seq)
+        print(f'{ops=}')
+
         if self.i_constraints is not None and (i_constraint := self.i_constraints.get(len(seq))):
             ops = filter(i_constraint, ops)
 
@@ -146,64 +125,42 @@ class SequenceBuilder:
                     continue
                 ops = [op for op in ops if f(seq[k], op)]
 
-        def _chain_helper(op):
-            return self._generate_candidates(op, seq)
-        # def _chain_helper(op):
-        #     return tuple(self._generate_candidates(op, seq))
-        # def _chain_helper(op, self, seq):
-        #     return self._generate_candidates(op, seq)
-
-        # print(pickle.dumps(_chain_helper))
+        map_func = partial(self._generate_candidates, seq=seq)
 
         if len(prefix) == len(self.prefix):
+            # breakpoint()
+            print(f'{ops=}')
             ops = tqdm.tqdm(ops)
-
             if self.parallel:
-                # with ThreadPoolExecutor() as executor:
                 with ProcessPoolExecutor() as executor:
-                    # it = executor.map(_chain_helper, ops)
-                    # it = executor.map(partial(_chain_helper, self=self, seq=seq), ops)
-                    # TODO: minimal example in separate file with ProcessPoolExecutor and generator
-                    it = executor.map(partial(self._generate_candidates, seq=seq), ops)
+                    it = executor.map(map_func, ops)
             else:
-                it = map(_chain_helper, ops)
-            it = itertools.chain.from_iterable(it)
-            yield from it
+                it = map(map_func, ops)
         else:
-            it = map(_chain_helper, ops)
-            it = itertools.chain.from_iterable(it)
-            yield from it
-
-    # def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
-    #     candidate = seq + (op,)
-    #     if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
-    #         return
-    #     if len(candidate) == self.n:
-    #         if self.curr_prev_constraint and self.loop:
-    #             for k, f in self.curr_prev_constraint.items():
-    #                 if any(not f(candidate[(i + k) % self.n], candidate[i]) for i in range(abs(k))):
-    #                     break
-    #             else:
-    #                 yield tuple(candidate)
-    #         else:
-    #             yield tuple(candidate)
-    #     else:
-    #         yield from self._iter(prefix=candidate)
+            it = map(map_func, ops)
+        # print(list(it)[:4])
+        it = tuple(it)
+        # print('BEFORE CHAIN', it)
+        it = itertools.chain.from_iterable(it)
+        yield from it
 
     def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
         def inner():
             candidate = seq + (op,)
+            print(f'{candidate=}')
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 return
-            if len(candidate) == self.n:
-                if self.curr_prev_constraint and self.loop:
-                    for k, f in self.curr_prev_constraint.items():
-                        if any(not f(candidate[(i + k) % self.n], candidate[i]) for i in range(abs(k))):
-                            break
-                    else:
-                        yield tuple(candidate)
-                else:
-                    yield tuple(candidate)
-            else:
+            if len(candidate) < self.n:
                 yield from self._iter(prefix=candidate)
-        return tuple(inner())
+                return
+            if self.curr_prev_constraint and self.loop and not all(
+                f(candidate[(i + k) % self.n], candidate[i])
+                for k, f in self.curr_prev_constraint.items()
+                    for i in range(abs(k))
+            ):
+                return
+            yield candidate
+        out = tuple(inner())
+        # print(out)
+        return out
+        # return tuple(inner())
