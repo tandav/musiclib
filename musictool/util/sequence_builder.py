@@ -65,6 +65,8 @@ class SequenceBuilder:
         elif options_i is not None:
             if not (options is None and options_callable is None):
                 raise OPTIONS_EXCEPTION
+            if len(options_i) != n:
+                raise ValueError('options_i should have options for each step up to n')
             self.options = options
             self.generate_options = self._generate_options_fixed_per_step
         elif options_callable is not None:
@@ -113,7 +115,7 @@ class SequenceBuilder:
 
         if self.unique_key:
             prefix_keys = frozenset(self.unique_key(op) for op in prefix)
-            ops = frozenset(op for op in ops if self.unique_key(op) not in prefix_keys)
+            ops = [op for op in ops if self.unique_key(op) not in prefix_keys]
 
         if self.curr_prev_constraint:
 
@@ -124,7 +126,7 @@ class SequenceBuilder:
                 if abs(k) > len(seq):
                     continue
                 ops = [op for op in ops if f(seq[k], op)]
-
+        ops = tuple(ops)
         map_func = partial(self._generate_candidates, seq=seq)
 
         if len(prefix) == len(self.prefix):
@@ -139,7 +141,7 @@ class SequenceBuilder:
                 with ProcessPoolExecutor() as executor:
                     # it = executor.map(map_func, ops)
                     for it in tqdm.tqdm(executor.map(map_func, ops), total=len(ops)):
-                    # for it in executor.map(map_func, ops):
+                        # for it in executor.map(map_func, ops):
                         yield from it
                 return
             else:

@@ -5,19 +5,13 @@ import pytest
 
 from musictool.util.sequence_builder import SequenceBuilder
 
-# @pytest.fixture
-# def is_even():
-#     return lambda x: x % 2 == 0
-
-
-# @pytest.fixture
-# def is_even():
-#     def func(x):
-#         return x % 2 == 0
-#     return func
 
 def is_even(x):
     return x % 2 == 0
+
+
+def identity(x):
+    return x
 
 
 def different_startswith(a: str, b: str) -> bool:
@@ -28,9 +22,20 @@ def equal_endswith(a: str, b: str) -> bool:
     return a[1] == b[1]
 
 
-@pytest.fixture
-def even_odd_interchange():
-    return lambda prev, curr: is_even(prev) ^ is_even(curr)
+def even_odd_interchange(prev, curr):
+    return is_even(prev) ^ is_even(curr)
+
+
+def candidate_constraint(candidate: tuple[str, ...]) -> bool:
+    return Counter(candidate)['A'] < 3
+
+
+def options_callable_0(x):
+    return [x + 1]
+
+
+def options_callable_1(x):
+    return [x + 1, x * 10]
 
 
 @pytest.fixture
@@ -39,18 +44,18 @@ def options() -> tuple[int, ...]:
 
 
 def test_length(options):
-    assert all(len(cycle) == 5 for cycle in SequenceBuilder(5, options=options, i_constraints={0: is_even}))
+    assert all(len(seq) == 4 for seq in SequenceBuilder(4, options=(0, 1, 2), i_constraints={0: is_even}))
 
 
 def test_first_constraint(options):
-    assert all(is_even(cycle[0]) for cycle in SequenceBuilder(5, options=options, i_constraints={0: is_even}))
+    assert all(is_even(seq[0]) for seq in SequenceBuilder(4, options=(0, 1, 2), i_constraints={0: is_even}))
 
 
 def test_input_validation():
     with pytest.raises(ValueError): tuple(SequenceBuilder(5, options=(1, 1, 2)))
 
 
-def test_prev_curr(options, even_odd_interchange):
+def test_prev_curr(options):
     for cycle in SequenceBuilder(5, options=options, curr_prev_constraint={-1: even_odd_interchange}, loop=True):
         assert even_odd_interchange(cycle[-1], cycle[0])
         for prev, curr in itertools.pairwise(cycle):
@@ -58,90 +63,66 @@ def test_prev_curr(options, even_odd_interchange):
 
 
 def test_loop():
-    options = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
-    for seq in SequenceBuilder(
-        6,
-        options=options,
-        curr_prev_constraint={-1: different_startswith, -2: equal_endswith},
-        loop=True,
-    ):
-        if not (
-            different_startswith(seq[0], seq[-1]) and
-            equal_endswith(seq[1], seq[-1])
-        ):
-            raise AssertionError(seq)
+    assert all(
+        different_startswith(seq[0], seq[-1]) and equal_endswith(seq[1], seq[-1])
+        for seq in SequenceBuilder(
+            4,
+            options=('A0', 'A1', 'C0', 'D0', 'D1'),
+            curr_prev_constraint={-1: different_startswith, -2: equal_endswith},
+            loop=True,
+        )
+    )
 
 
-def test_prefix(options):
-    prefix = options[:2]
-    for cycle in SequenceBuilder(5, options=options, prefix=prefix):
-        assert all(a == b for a, b in zip(prefix, cycle))
+@pytest.mark.parametrize('parallel', (False, True))
+def test_prefix(options, parallel):
+    prefix = options[:3]
+    assert all(seq[:len(prefix)] == prefix for seq in SequenceBuilder(5, options=options, prefix=prefix, parallel=parallel))
 
 
-def test_unique(options: tuple[int, ...]) -> None:
-    assert all(len(cycle) == len(set(cycle)) for cycle in SequenceBuilder(5, options=options, unique_key=lambda x: x))
-    assert any(len(cycle) != len(set(cycle)) for cycle in SequenceBuilder(5, options=options))
+@pytest.mark.parametrize('parallel', (False, True))
+def test_unique(options: tuple[int, ...], parallel) -> None:
+    assert all(len(seq) == len(set(seq)) for seq in SequenceBuilder(4, options=options, unique_key=identity, parallel=parallel))
+    assert any(len(seq) != len(set(seq)) for seq in SequenceBuilder(4, options=options, parallel=parallel))
 
 
-def test_candidate_constraint():
-    def candidate_constraint(c: tuple[str, ...]) -> bool:
-        return Counter(c)['A'] < 3
-
-    for seq in SequenceBuilder(
-        n=4,
-        options='AB',
-        candidate_constraint=candidate_constraint,
-    ):
-        assert candidate_constraint(seq)
-
-
-def test_options_kind_callable():
-    assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1], prefix=(0,))) == [(0, 1, 2)]
-    assert list(SequenceBuilder(3, options_callable=lambda x: [x + 1, x * 10], prefix=(0,))) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
+@pytest.mark.parametrize('parallel', (False, True))
+def test_candidate_constraint(parallel):
+    assert all(
+        candidate_constraint(seq)
+        for seq in SequenceBuilder(
+            n=4,
+            options='AB',
+            candidate_constraint=candidate_constraint,
+            parallel=parallel,
+        )
+    )
 
 
-def test_parallel(options):
-    for a, b in zip(
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}),
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True),
-        strict=True,
-    ):
-        assert a == b
+@pytest.mark.parametrize('parallel', (False, True))
+def test_options_kind_callable(parallel):
+    assert list(SequenceBuilder(3, options_callable=options_callable_0, prefix=(0,), parallel=parallel)) == [(0, 1, 2)]
+    assert list(SequenceBuilder(3, options_callable=options_callable_1, prefix=(0,), parallel=parallel)) == [(0, 1, 2), (0, 1, 10), (0, 0, 1), (0, 0, 0)]
 
 
-def test_parallel_with_prefix(options):
-    prefix = options[:2]
-    for a, b in zip(
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix),
-        SequenceBuilder(5, options=options, i_constraints={0: is_even}, prefix=prefix, parallel=True),
-        strict=True,
-    ):
-        assert a == b
+@pytest.mark.parametrize('parallel', (False, True))
+def test_options_i(parallel):
+    options_i = [{1, 10}, {2, 20}, {3, 30}]
+    assert all(
+        all(item in options_i[i] for i, item in enumerate(seq))
+        for seq in SequenceBuilder(3, options_i=options_i, parallel=parallel)
+    )
+    with pytest.raises(ValueError):
+        SequenceBuilder(3, options_i=options_i[:2], parallel=parallel)
 
 
-def test_parallel_ops_are_iterable():
-    # options = (
-    #     (),
-    # )
+def test_parallel():
+    options = 0, 1, 2, 3, 4, 5, 6, 7, 8
+    a = SequenceBuilder(5, options=options, i_constraints={0: is_even})
+    b = SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True)
+    assert tuple(a) == tuple(b)
 
     options = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
-
-    sa = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith})
-    sb = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True)
-
-    assert frozenset(sa) == frozenset(sb)
-    # raise NotImplementedError('fix order')
-    # for a, b in zip(
-    #     SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}),
-    #     SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True),
-    #     strict=True,
-    # ):
-    #     assert a == b
-
-
-def test_pickle(options):
-    # print(pickle.dumps(_is_even))
-    options = range(25)
-    list(SequenceBuilder(5, options=options, i_constraints={0: is_even}, parallel=True))
-    # pickle.dumps(s)
-    # list(s)
+    a = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith})
+    b = SequenceBuilder(5, options=options, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True)
+    assert tuple(a) == tuple(b)
