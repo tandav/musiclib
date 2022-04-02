@@ -6,24 +6,65 @@ from musictool.chord import Chord
 from musictool.chord import SpecificChord
 from musictool.note import Note
 from musictool.note import SpecificNote
+from musictool.noteset import NoteSet
 from musictool.scale import Scale
 
 
 @pytest.mark.parametrize('note', (Note('C'), SpecificNote('C', 3)))
 def test_note(note):
-    pickle.dumps(note)
+    assert note == pickle.loads(pickle.dumps(note))
+
+
+def iter_containers(a, b):
+    yield from (
+        (a, b),
+        [a, b],
+        {a, b},
+        frozenset({a, b}),
+        {a: 1, b: 1},
+        {1: a, 2: b},
+    )
+
+
+@pytest.mark.parametrize('container', (
+    {1: Note('C')},
+    *iter_containers(Note('C'), Note('D')),
+    *iter_containers(SpecificNote('C', 3), SpecificNote('D', 3)),
+    *iter_containers(SpecificNote('C', 3), SpecificNote('C', 4)),
+    *iter_containers(SpecificNote('C', 3), SpecificNote('D', 4)),
+))
+def test_note_container(container):
+    assert container == pickle.loads(pickle.dumps(container))
+
+
+@pytest.mark.parametrize('noteset', (
+    NoteSet(frozenset('CDEFGAB'), root='C'),
+    NoteSet(frozenset('CDEFGAB')),
+    NoteSet(frozenset('CdeFGab'), root='e'),
+    NoteSet(frozenset('CEG'), root='C'),
+    NoteSet(frozenset('fa'), root='a'),
+    *iter_containers(NoteSet(frozenset('fa'), root='a'), NoteSet(frozenset('fa'), root='f')),
+))
+def test_noteset(noteset):
+    assert noteset == pickle.loads(pickle.dumps(noteset))
 
 
 @pytest.mark.parametrize('chord', (
     Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C')),
+    Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C'),
     SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)})),
+    SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C')),
+    SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root='E'),
+    *iter_containers(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C'), Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='E')),
 ))
 def test_chord(chord):
-    pickle.dumps(chord)
+    assert chord == pickle.loads(pickle.dumps(chord))
 
 
 @pytest.mark.parametrize('scale', (
     Scale.from_name('C', 'major'),
+    Scale(frozenset('DEFGAbC'), root='D'),
+    *iter_containers(Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
 ))
 def test_scale(scale):
-    pickle.dumps(scale)
+    assert scale == pickle.loads(pickle.dumps(scale))

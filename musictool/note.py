@@ -61,6 +61,9 @@ class Note(Cached):
             return self.i - other.i
         return 12 + self.i - other.i
 
+    def __getnewargs__(self):
+        return self.name,
+
 
 @functools.total_ordering
 class SpecificNote(Note):
@@ -119,6 +122,9 @@ class SpecificNote(Note):
     @staticmethod
     def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
         return frozenset(note.abstract for note in notes)
+
+    def __getnewargs__(self):
+        return self.abstract, self.octave
 
 
 AnyNote = str | Note | SpecificNote

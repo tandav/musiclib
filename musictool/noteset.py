@@ -208,6 +208,9 @@ class NoteSet(Cached):
         </div>
         """
 
+    def __getnewargs_ex__(self):
+        return (self.notes,), {'root': self.root}
+
 
 CHROMATIC_NOTESET = NoteSet(frozenset(config.chromatic_notes))
 
