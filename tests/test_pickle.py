@@ -7,6 +7,7 @@ from musictool.chord import SpecificChord
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
+from musictool.progression import Progression
 from musictool.scale import Scale
 
 
@@ -37,25 +38,36 @@ def test_note_container(container):
     assert container == pickle.loads(pickle.dumps(container))
 
 
+a = NoteSet(frozenset('fa'), root='a')
+b = NoteSet(frozenset('fa'), root='f')
+
+
 @pytest.mark.parametrize('noteset', (
     NoteSet(frozenset('CDEFGAB'), root='C'),
     NoteSet(frozenset('CDEFGAB')),
     NoteSet(frozenset('CdeFGab'), root='e'),
     NoteSet(frozenset('CEG'), root='C'),
-    NoteSet(frozenset('fa'), root='a'),
-    *iter_containers(NoteSet(frozenset('fa'), root='a'), NoteSet(frozenset('fa'), root='f')),
+    a,
+    *iter_containers(a, b),
 ))
 def test_noteset(noteset):
     assert noteset == pickle.loads(pickle.dumps(noteset))
 
 
+a = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C')
+b = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='E')
+c = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C'))
+d = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root='E')
+
+
 @pytest.mark.parametrize('chord', (
     Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C')),
-    Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C'),
+    a,
     SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)})),
-    SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C')),
-    SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root='E'),
-    *iter_containers(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C'), Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='E')),
+    c,
+    d,
+    *iter_containers(a, b),
+    *iter_containers(c, d),
 ))
 def test_chord(chord):
     assert chord == pickle.loads(pickle.dumps(chord))
@@ -68,3 +80,18 @@ def test_chord(chord):
 ))
 def test_scale(scale):
     assert scale == pickle.loads(pickle.dumps(scale))
+
+
+a = SpecificChord.random()
+b = SpecificChord.random()
+c = SpecificChord.random()
+d = SpecificChord.random()
+e = SpecificChord.random()
+
+
+@pytest.mark.parametrize('progression', (
+    Progression((a, b, c, d)),
+    *iter_containers(Progression((a, b, c, d)), Progression((a, b, c, e)))
+))
+def test_progression(progression):
+    assert progression == pickle.loads(pickle.dumps(progression))

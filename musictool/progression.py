@@ -10,9 +10,9 @@ from musictool.util.cache import Cached
 
 class Progression(Cached):
     def __init__(self, chords: tuple[SpecificChord, ...], /):
-        self.chords = chords
         if not all(isinstance(x, SpecificChord) for x in chords):
             raise TypeError('only SpecificChord items allowed')
+        self.chords = chords
 
     def __getitem__(self, item: int) -> SpecificChord:
         return self.chords[item]
@@ -25,6 +25,11 @@ class Progression(Cached):
 
     def __repr__(self):
         return f'Progression{self.chords})'
+
+    def __eq__(self, other):
+        return self.chords == other.chords
+
+    def __hash__(self): return hash(self.chords)
 
     def all(self, checks__):
         return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
@@ -52,3 +57,6 @@ class Progression(Cached):
     @functools.cached_property
     def transposed_to_C0(self) -> Progression:
         return self + (SpecificNote('C', 0) - self[0][0])
+
+    def __getnewargs__(self):
+        return self.chords,

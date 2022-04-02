@@ -164,3 +164,6 @@ class SpecificChord(Cached):
             return mid
         mid.save(path)
         return None
+
+    def __getnewargs_ex__(self):
+        return (self.notes,), {'root': self.root}
