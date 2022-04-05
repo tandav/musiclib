@@ -2,19 +2,29 @@ from __future__ import annotations
 
 import functools
 import itertools
+from collections.abc import Sequence
+from typing import overload
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
 from musictool.util.cache import Cached
 
 
-class Progression(Cached):
+class Progression(Cached, Sequence[SpecificChord]):
     def __init__(self, chords: tuple[SpecificChord, ...], /):
         if not all(isinstance(x, SpecificChord) for x in chords):
             raise TypeError('only SpecificChord items allowed')
         self.chords = chords
 
-    def __getitem__(self, item: int) -> SpecificChord:
+    @overload
+    def __getitem__(self, i: int) -> SpecificChord: ...
+
+    @overload
+    def __getitem__(self, s: slice) -> Progression: ...
+
+    def __getitem__(self, item: int | slice) -> SpecificChord | Sequence[SpecificChord]:
+        if isinstance(item, slice):
+            return Progression(self.chords[item])
         return self.chords[item]
 
     def __iter__(self):

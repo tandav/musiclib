@@ -346,9 +346,12 @@ def test_noterange_getitem():
     with pytest.raises(IndexError): nr[-11]
 
 
-def test_noterange_list():
-    assert list(NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))) == 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'.split()
-    assert list(NoteRange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('AbBCdDe')))) == 'b1 B1 C2 d2 D2'.split()
+@pytest.mark.parametrize('noterange, expected', [
+    (NoteRange(SpecificNote('C', 1), SpecificNote('C', 2)), 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'),
+    (NoteRange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('AbBCdDe'))), 'b1 B1 C2 d2 D2'),
+])
+def test_noterange_list(noterange, expected):
+    assert list(noterange) == [SpecificNote.from_str(s) for s in expected.split()]
 
 
 @pytest.mark.parametrize('noteset', [
@@ -359,3 +362,8 @@ def test_noterange_list():
 ])
 def test_html(noteset):
     noteset._repr_html_()
+
+
+def test_sequence():
+    nr = NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert isinstance(nr, Sequence)

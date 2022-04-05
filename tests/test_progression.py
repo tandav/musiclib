@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import pytest
 
 from musictool.chord import SpecificChord
@@ -74,3 +76,10 @@ def test_add_transpose():
     assert p0 + -31 == p1
     with pytest.raises(TypeError): p0 + [1]  # type: ignore
     assert p0.transposed_to_C0 == p1
+
+
+def test_sequence(four_chords):
+    p = Progression(four_chords)
+    assert isinstance(p, Sequence)
+    assert p[2] == four_chords[2]
+    assert p[1:3] == Progression(four_chords[1:3])
