@@ -34,7 +34,7 @@ class Progression(Cached, Sequence[SpecificChord]):
         return len(self.chords)
 
     def __repr__(self):
-        return f'Progression{self.chords})'
+        return f'Progression{self.chords}'
 
     def __eq__(self, other):
         return self.chords == other.chords
