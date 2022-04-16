@@ -76,3 +76,13 @@ def test_transition_graph_same_length():
         for comb in itertools.combinations(noteset.notes, n)
     }
     assert s == abstract_graph.keys()
+
+
+@pytest.mark.parametrize('graph, expected', (
+    (
+        {SpecificChord.from_str('F1_G1'): frozenset(map(SpecificChord.from_str, ('E1_G1', 'F1', 'F1_A1', 'G1')))},
+        {NoteSet.from_str('FG'): frozenset(map(NoteSet.from_str, 'EG F G FA'.split()))},
+    ),
+))
+def test_abstract_graph(graph, expected):
+    assert transition.abstract_graph(graph) == expected

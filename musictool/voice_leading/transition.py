@@ -1,3 +1,4 @@
+from collections import defaultdict
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
@@ -53,22 +54,24 @@ def transition_graph(
     unique_abstract: bool = False,
     same_length: bool = True,
 ) -> dict[SpecificChord, frozenset[SpecificChord]]:
-    graph: dict[SpecificChord, frozenset[SpecificChord]] = {}
+    graph: defaultdict[SpecificChord, set[SpecificChord]] = defaultdict(set)
 
     def _graph(chord: SpecificChord) -> None:
         if chord in graph:
             return
         childs = chord_transitions(chord, noterange, unique_abstract, same_length)
-        graph[chord] = childs
+        graph[chord] |= childs
         for child in childs:
             _graph(child)
 
     _graph(start_chord)
-    return graph
+    return {k: frozenset(v) for k, v in graph.items()}
 
 
 def abstract_graph(g: SpecificChordGraph) -> AbstractChordGraph:
-    return {
-        k.abstract: frozenset(c.abstract for c in v)
-        for k, v in g.items()
-    }
+    graph: defaultdict[NoteSet, set[NoteSet]] = defaultdict(set)
+
+    for k, v in g.items():
+        graph[k.abstract] |= {c.abstract for c in v}
+
+    return {k: frozenset(v) for k, v in graph.items()}
