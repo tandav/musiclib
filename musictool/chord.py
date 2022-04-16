@@ -69,7 +69,7 @@ class SpecificChord(Cached):
 
         self.notes = notes
         self.root = root
-        self.abstract = Chord(notes_abstract, root=root)
+        self.abstract = Chord(notes_abstract, root=root) if root is not None else NoteSet(notes_abstract)
         self.root_specific = frozenset(note for note in notes if note.abstract == root) if root is not None else frozenset()
 
         self.notes_ascending = tuple(sorted(notes))

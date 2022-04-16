@@ -2,6 +2,10 @@
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
 from musictool.noteset import NoteRange
+from musictool.noteset import NoteSet
+
+SpecificChordGraph = dict[SpecificChord, frozenset[SpecificChord]]
+AbstractChordGraph = dict[NoteSet, frozenset[NoteSet]]
 
 
 class Transition:
@@ -27,6 +31,7 @@ def chord_transitions(
     chord: SpecificChord,
     noterange: NoteRange,
     unique_abstract: bool = False,
+    same_length: bool = True,
 ) -> frozenset[SpecificChord]:
     out = set()
     for note in chord:
@@ -34,7 +39,7 @@ def chord_transitions(
             if (new_note := noterange.noteset.add_note(note, add)) not in noterange:
                 continue
             notes = chord.notes - {note} | {new_note}
-            if len(notes) != len(chord.notes):
+            if same_length and len(notes) != len(chord.notes):
                 continue
             if unique_abstract and len(notes) > len({n.abstract for n in notes}):
                 continue
@@ -42,16 +47,28 @@ def chord_transitions(
     return frozenset(out)
 
 
-def transition_graph(start_chord: SpecificChord, noterange: NoteRange) -> dict[SpecificChord, frozenset[SpecificChord]]:
+def transition_graph(
+    start_chord: SpecificChord,
+    noterange: NoteRange,
+    unique_abstract: bool = False,
+    same_length: bool = True,
+) -> dict[SpecificChord, frozenset[SpecificChord]]:
     graph: dict[SpecificChord, frozenset[SpecificChord]] = {}
 
     def _graph(chord: SpecificChord) -> None:
         if chord in graph:
             return
-        childs = chord_transitions(chord, noterange)
+        childs = chord_transitions(chord, noterange, unique_abstract, same_length)
         graph[chord] = childs
         for child in childs:
             _graph(child)
 
     _graph(start_chord)
     return graph
+
+
+def abstract_graph(g: SpecificChordGraph) -> AbstractChordGraph:
+    return {
+        k.abstract: frozenset(c.abstract for c in v)
+        for k, v in g.items()
+    }
