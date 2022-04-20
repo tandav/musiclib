@@ -106,8 +106,6 @@ class NoteSet(Cached):
 
         self.key = self.notes, self.root
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-        self.increments = {a: b - a for a, b in itertools.pairwise(self.notes_ascending + (self.notes_ascending[0],))}
-        self.decrements = {b: -(b - a) for a, b in itertools.pairwise((self.notes_ascending[-1],) + self.notes_ascending)}
         self.html_classes: tuple[str, ...] = ('card',)
 
     @property
