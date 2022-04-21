@@ -15,11 +15,18 @@ from musictool.scale import Scale
 from musictool.scale import all_scales
 
 
+def test_empty():
+    NoteSet(frozenset())
+    with pytest.raises(KeyError):
+        NoteSet(frozenset(), root='C')
+
+
 @pytest.mark.parametrize('bits, intervals', (
-    ('101011010101', frozenset({2, 4, 5, 7, 9, 11})),
-    ('110101101010', frozenset({1, 3, 5, 6, 8, 10})),
-    ('101001010100', frozenset({2, 5, 7, 9})),
-    ('101101010010', frozenset({2, 3, 5, 7, 10})),
+    ('101011010101', frozenset({0, 2, 4, 5, 7, 9, 11})),
+    ('110101101010', frozenset({0, 1, 3, 5, 6, 8, 10})),
+    ('101001010100', frozenset({0, 2, 5, 7, 9})),
+    ('101101010010', frozenset({0, 2, 3, 5, 7, 10})),
+    ('000000000000', frozenset()),
 ))
 def test_bits_intervals(bits, intervals):
     assert bits_to_intervals(bits) == intervals
@@ -29,22 +36,20 @@ def test_bits_intervals(bits, intervals):
 @pytest.mark.parametrize('noteset, intervals', (
     (NoteSet(frozenset('CDEFGAB'), root='C'), (0, 2, 4, 5, 7, 9, 11)),
     (NoteSet(frozenset('DeFGAbC'), root='D'), (0, 1, 3, 5, 7, 8, 10)),
+    (NoteSet(frozenset()), ()),
 ))
 def test_intervals(noteset, intervals):
     assert noteset.intervals_ascending == intervals
-    assert noteset.intervals == frozenset(intervals[1:])
+    assert noteset.intervals == frozenset(intervals)
 
 
 @pytest.mark.parametrize('notes, root, bits', (
     ('CDEFGAB', 'C', '101011010101'),
     ('dfb', 'd', '100001000100'),
+    ('', None, '000000000000'),
 ))
 def test_bits(notes, root, bits):
     assert NoteSet(frozenset(notes), root=root).bits == bits
-
-
-def test_empty():
-    with pytest.raises(ValueError): NoteSet(frozenset())
 
 
 @pytest.mark.parametrize('value', ('CDE', set('CDE'), tuple('CDE'), list('CDE')))
@@ -61,6 +66,10 @@ def test_contains():
     assert NoteSet(frozenset('CD')) <= frozenset('CDE')
     assert NoteSet(frozenset('CDE')) <= frozenset('CDE')
     assert not NoteSet(frozenset('CDEF')) <= frozenset('CDE')
+    empty_noteset = NoteSet(frozenset())
+    assert 'C' not in empty_noteset
+    assert not frozenset('CD') <= empty_noteset
+    assert empty_noteset <= NoteSet(frozenset('CDE'))
 
 
 def test_root_validation():
@@ -75,6 +84,7 @@ def test_note_i():
     assert noteset.note_i[Note('B')] == 6
     assert noteset.note_i[Note('f')] == 3
     assert noteset.note_i[Note('G')] == 4
+    assert NoteSet(frozenset()).note_i == {}
 
 
 @pytest.mark.parametrize('string, expected', (
@@ -83,21 +93,23 @@ def test_note_i():
     ('CdeFGab/e', NoteSet(frozenset('CdeFGab'), root='e')),
     ('CEG/C', NoteSet(frozenset('CEG'), root='C')),
     ('fa/a', NoteSet(frozenset('fa'), root='a')),
+    ('', NoteSet(frozenset())),
 ))
 def test_from_str(string, expected):
     assert NoteSet.from_str(string) == expected
 
 
 @pytest.mark.parametrize('intervals, root, expected', (
-    (frozenset({4, 7}), 'C', NoteSet(frozenset('CEG'), root='C')),
-    (frozenset({1, 3, 5, 7, 8, 10}), 'E', NoteSet(frozenset('CDEFGAB'), root='E')),
-    (frozenset({2, 3, 5, 7, 9, 10}), 'f', NoteSet(frozenset('faABdeE'), root='f')),
+    (frozenset({0, 4, 7}), 'C', NoteSet(frozenset('CEG'), root='C')),
+    (frozenset({0, 1, 3, 5, 7, 8, 10}), 'E', NoteSet(frozenset('CDEFGAB'), root='E')),
+    (frozenset({0, 2, 3, 5, 7, 9, 10}), 'f', NoteSet(frozenset('faABdeE'), root='f')),
+    (frozenset(), None, NoteSet(frozenset(), root=None)),
 ))
 def test_from_intervals(root, intervals, expected):
     assert NoteSet.from_intervals(intervals, root) is expected
 
 
-def test_childs_names_unreachable():
+def test_subclasses_names_unreachable():
     with pytest.raises(KeyError): NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
     with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
 
@@ -106,6 +118,7 @@ def test_childs_names_unreachable():
     (NoteSet(frozenset('efGd')), 'defG'),
     (NoteSet(frozenset('efGd'), root='e'), 'defG'),
     (NoteSet(frozenset('FGbBCd'), root='F'), 'CdFGbB'),
+    (NoteSet(frozenset()), ''),
 ))
 def test_notes_octave_fit(noteset, notes_octave_fit):
     assert noteset.notes_octave_fit == tuple(notes_octave_fit)
@@ -120,6 +133,15 @@ def test_notes_octave_fit(noteset, notes_octave_fit):
 ))
 def test_add_note_abstract(noteset, note, steps, result):
     assert noteset.add_note(note, steps) == result
+
+
+@pytest.mark.parametrize('noteset, note, steps', (
+    (NoteSet(frozenset()), 'A', 1),
+    (NoteSet(frozenset()), 'A1', 1),
+))
+def test_add_note_empty_noteset(noteset, note, steps):
+    with pytest.raises(NotImplementedError):
+        noteset.add_note(note, steps)
 
 
 def _make_keyboard(notes: Sequence[Note], octaves: Sequence[int]) -> tuple[SpecificNote, ...]:
@@ -165,6 +187,17 @@ def test_transpose(noteset, note, expected):
     assert NoteSet.from_str(noteset).transpose_to(note) is NoteSet.from_str(expected)
 
 
+@pytest.mark.parametrize('noteset', [
+    NoteSet(frozenset('CdeFGa')),
+    NoteSet(frozenset('CdeFGa'), root='e'),
+    NoteSet(frozenset('fa')),
+    NoteSet(frozenset('fa'), root='f'),
+    NoteSet(frozenset('')),
+])
+def test_html(noteset):
+    noteset._repr_html_()
+
+
 @pytest.mark.parametrize('start, stop, noteset, expected', (
     ('C0', 'C1', NoteSet(frozenset(config.chromatic_notes)), 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
     ('b3', 'E4', NoteSet(frozenset(config.chromatic_notes)), 'b3 B3 C4 d4 D4 e4 E4'),
@@ -192,6 +225,7 @@ def test_note_range_from_str(start, stop, noterange):
 
 def test_noterange_bounds():
     with pytest.raises(ValueError): NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('C', 2), noteset=NoteSet(frozenset()))
     with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))
     with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dD')))
     with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dDeE')))
@@ -342,16 +376,6 @@ def test_noterange_getitem():
 ])
 def test_noterange_list(noterange, expected):
     assert list(noterange) == [SpecificNote.from_str(s) for s in expected.split()]
-
-
-@pytest.mark.parametrize('noteset', [
-    NoteSet(frozenset('CdeFGa')),
-    NoteSet(frozenset('CdeFGa'), root='e'),
-    NoteSet(frozenset('fa')),
-    NoteSet(frozenset('fa'), root='f'),
-])
-def test_html(noteset):
-    noteset._repr_html_()
 
 
 def test_sequence():

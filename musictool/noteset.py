@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 import random
 from collections.abc import Sequence
 from typing import Type
@@ -26,7 +25,6 @@ def bits_to_intervals(bits: str) -> frozenset[int]:
         bits
         | P.Map(int)
         | P.Pipe(enumerate)
-        | P.Pipe(lambda it: itertools.islice(it, 1, None))
         | P.FilterValues()
         | P.Keys()
         | P.Pipe(frozenset)
@@ -35,7 +33,6 @@ def bits_to_intervals(bits: str) -> frozenset[int]:
 
 def intervals_to_bits(intervals: frozenset[int]) -> str:
     bits = ['0'] * 12
-    bits[0] = '1'
     for i in intervals:
         bits[i] = '1'
     return ''.join(bits)
@@ -61,6 +58,7 @@ class NoteSet(Cached):
 
     notes: frozenset[Note]
     root: Note | None
+    intervals_ascending: tuple[int, ...] | tuple[()]
 
     def __init__(
         self,
@@ -72,9 +70,8 @@ class NoteSet(Cached):
             raise TypeError(f'expected frozenset, got {type(notes)}')
 
         if len(notes) == 0:
-            raise ValueError('notes should be not empty')
-
-        if typeguards.is_frozenset_of_str(notes):
+            self.notes = frozenset()
+        elif typeguards.is_frozenset_of_str(notes):
             self.notes = frozenset(Note(note) for note in notes)
         elif typeguards.is_frozenset_of_note(notes):
             self.notes = notes
@@ -86,6 +83,7 @@ class NoteSet(Cached):
         if root is None:
             self.root = root
             self.notes_ascending = self.notes_octave_fit
+            self.intervals_ascending = ()
         else:
             if root not in self.notes:
                 raise KeyError('root should be one of notes')
@@ -100,9 +98,9 @@ class NoteSet(Cached):
             root_i = self.notes_octave_fit.index(self.root)
             self.notes_ascending = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
-            self.intervals = frozenset(self.intervals_ascending[1:])
-            self.bits = intervals_to_bits(self.intervals)
-            self.name = self.__class__.intervals_to_name.get(self.intervals)
+        self.intervals = frozenset(self.intervals_ascending)
+        self.bits = intervals_to_bits(self.intervals)
+        self.name = self.__class__.intervals_to_name.get(self.intervals)
 
         self.key = self.notes, self.root
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
@@ -120,14 +118,16 @@ class NoteSet(Cached):
     def from_name(cls: Type[Self], root: str | Note, name: str) -> Self:
         if isinstance(root, str):
             root = Note(root)
-        notes = frozenset(root + interval for interval in cls.name_to_intervals[name]) | {root}
+        notes = frozenset(root + interval for interval in cls.name_to_intervals[name])
         return cls(notes, root=root)
 
     @classmethod
-    def from_intervals(cls: Type[Self], intervals: frozenset[int], root: str | Note) -> Self:
+    def from_intervals(cls: Type[Self], intervals: frozenset[int], root: str | Note | None) -> Self:
+        if root is None:
+            return cls(frozenset(), root=root)
         if isinstance(root, str):
             root = Note(root)
-        return cls(frozenset(root + interval for interval in intervals) | {root}, root=root)
+        return cls(frozenset(root + interval for interval in intervals), root=root)
 
     @classmethod
     def random(cls: Type[Self], n_notes: int | None = None) -> Self:
@@ -150,6 +150,8 @@ class NoteSet(Cached):
     def add_note(self, note: Note, steps: int) -> Note: ...
 
     def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
+        if len(self) == 0:
+            raise NotImplementedError('cannot add notes using empty noteset')
         notes = self.notes_ascending
         if type(note) is str:
             note = str_to_note(note)

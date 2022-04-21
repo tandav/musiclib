@@ -19,23 +19,22 @@ from musictool.util.cache import Cached
 class Chord(NoteSet):
     intervals_to_name = {
         # triads
-        frozenset({4, 7}): 'major',
-        frozenset({3, 7}): 'minor',
-        frozenset({3, 6}): 'diminished',
+        frozenset({0, 4, 7}): 'major',
+        frozenset({0, 3, 7}): 'minor',
+        frozenset({0, 3, 6}): 'diminished',
         # 7th
-        frozenset({4, 7, 11}): 'maj7',
-        frozenset({4, 7, 10}): '7',
-        frozenset({3, 7, 10}): 'min7',
-        frozenset({3, 6, 10}): 'half-dim7',
-        frozenset({3, 6, 9}): 'dim7',
+        frozenset({0, 4, 7, 11}): 'maj7',
+        frozenset({0, 4, 7, 10}): '7',
+        frozenset({0, 3, 7, 10}): 'min7',
+        frozenset({0, 3, 6, 10}): 'half-dim7',
+        frozenset({0, 3, 6, 9}): 'dim7',
         # 6th
-        frozenset({4, 7, 9}): '6',
-        frozenset({3, 7, 9}): 'm6',
+        frozenset({0, 4, 7, 9}): '6',
+        frozenset({0, 3, 7, 9}): 'm6',
         # etc
-        frozenset({4, 8}): 'aug',
-        frozenset({2, 7}): 'sus2',
-        frozenset({5, 7}): 'sus4',
-
+        frozenset({0, 4, 8}): 'aug',
+        frozenset({0, 2, 7}): 'sus2',
+        frozenset({0, 5, 7}): 'sus4',
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
     root: Note
@@ -73,7 +72,7 @@ class SpecificChord(Cached):
         self.root_specific = frozenset(note for note in notes if note.abstract == root) if root is not None else frozenset()
 
         self.notes_ascending = tuple(sorted(notes))
-        self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending[1:])  # from lowest note
+        self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending)  # from lowest note
         self.key = self.notes, self.root
 
     @classmethod

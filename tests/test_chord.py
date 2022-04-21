@@ -50,7 +50,7 @@ def test_name(notes, root, expected):
 
 
 def test_intervals():
-    assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({4, 7})
+    assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({0, 4, 7})
 
 
 def test_from_name():
