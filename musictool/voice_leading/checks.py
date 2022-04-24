@@ -5,6 +5,7 @@ from collections.abc import Hashable
 from typing import Any
 
 from musictool.chord import SpecificChord
+from musictool.note import SpecificNote
 from musictool.progression import Progression
 from musictool.scale import Scale
 
@@ -100,3 +101,21 @@ def large_spacing(c: SpecificChord, max_interval: int = 12, /) -> bool:
 
 def small_spacing(c: SpecificChord, min_interval: int = 3, /) -> bool:
     return any(b - a < min_interval for a, b in itertools.pairwise(c))
+
+
+def find_paused_voices(a: SpecificChord, b: SpecificChord, n_notes: int) -> tuple[int, ...] | tuple[()]:
+    if n_notes == 0 or len(a) == len(b) == 0:
+        return ()
+    if max(len(a), len(b)) > n_notes:
+        raise ValueError('both chords should hava number of notes <= n_notes')
+    less_notes, more_notes = sorted((a, b), key=len)
+    used = set()
+
+    def _key(note0: SpecificNote, note1: SpecificNote) -> int:
+        return abs(note0 - note1)
+
+    for note in less_notes:
+        nearest = min(more_notes, key=functools.partial(_key, note1=note))
+        used.add(nearest)
+    paused = tuple(i for i, note in enumerate(more_notes) if note not in used)
+    return paused

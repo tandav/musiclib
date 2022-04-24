@@ -115,3 +115,39 @@ def test_large_spacing(chord_str, max_interval, expected):
 ))
 def test_small_spacing(chord_str, min_interval, expected):
     assert checks.small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected
+
+
+@pytest.mark.parametrize('swap', [False, True])
+@pytest.mark.parametrize('a, b, n_notes, expected', [
+    (SpecificChord(frozenset()), SpecificChord(frozenset()), 0, ()),
+    (SpecificChord(frozenset()), SpecificChord(frozenset()), 1, ()),
+    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 0, ()),
+    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 1, (0,)),
+    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 2, (0,)),
+    (SpecificChord.from_str('C3_E3_A3'), SpecificChord.from_str('d3_B3'), 3, (1,)),
+])
+def test_find_paused_voices(a, b, n_notes, expected, swap):
+    """TODO: test n_notes=0,1,2,3,4
+    TODO: more test cases
+    0 0
+    0 1
+    1 0
+    1 1
+    1 2
+    2 1
+    1 3
+    0 3
+    0 2
+    0 4
+    all combinations? (product(range(5), repeat=2)
+    when both a and b less than n_notes
+    equal distances to more (then chose 1st occurrence)
+    """
+    if swap:
+        a, b = b, a
+    assert checks.find_paused_voices(a, b, n_notes) == expected
+
+
+def test_find_paused_voices_raises():
+    with pytest.raises(ValueError):
+        checks.find_paused_voices(SpecificChord.from_str('C1_D1'), SpecificChord.from_str('C1'), 1)
