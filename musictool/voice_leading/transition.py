@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
-from musictool.noteset import NoteRange
+from musictool.noterange import NoteRange
 from musictool.noteset import NoteSet
 
 SpecificChordGraph = dict[SpecificChord, frozenset[SpecificChord]]

@@ -5,7 +5,7 @@ import pytest
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
-from musictool.noteset import NoteRange
+from musictool.noterange import NoteRange
 from musictool.noteset import NoteSet
 from musictool.scale import Scale
 from musictool.voice_leading import transition
