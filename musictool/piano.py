@@ -53,7 +53,7 @@ def note_color(note: Note | SpecificNote) -> RGBColor:
 class Piano:
     def __init__(
         self,
-        notes: frozenset[Note],
+        notes: frozenset[Note | SpecificNote],
         red_notes: frozenset[Note] = frozenset(),
         green_notes: frozenset[Note] = frozenset(),
         blue_notes: frozenset[Note] = frozenset(),
@@ -67,6 +67,7 @@ class Piano:
         # bw_frac: float = 0.6,
         # bh_frac: float = 0.6,
         noterange: NoteRange | None = None,
+        black_between: bool = False,
     ):
 
         # if bw_frac is not None:
@@ -79,8 +80,9 @@ class Piano:
         self.bw = int(ww * 0.6)
         self.bh = int(wh * 0.6)
 
-        if notes_squares is None:
-            notes_squares = {}
+        self.notes = notes
+        self.note_scales = note_scales
+        self.notes_squares = {} if notes_squares is None else notes_squares
 
         if noterange is not None:
             if noterange.noteset is not CHROMATIC_NOTESET:
@@ -112,17 +114,10 @@ class Piano:
 
         # todo: merge WHITE_PALE keys and BLACK_PALE keys logic into single loop to deduplicate logic
         # x = 0
-        # for note in self.noterange:
         for note in self.white_notes + self.black_notes:
             x, w, h = self.xwh(note)
 
-            if note.abstract in notes:
-                if note_scales is not None:
-                    color = hex_to_rgb(config.scale_colors[note_scales[note.abstract]])
-                else:
-                    color = RED
-            else:
-                color = note_color(note)
+
 
             self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
@@ -186,11 +181,31 @@ class Piano:
         # border around whole svg
         self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_PALE}'/>")
 
-    def xwh(self, note: SpecificNote) -> tuple[int, int, int]:
+    def xywhc(self, note: SpecificNote) -> tuple[int, int, int]:
+        """
+        helper function which computes values for a given note
+
+        Returns
+        -------
+        x: x coordinate of note rect
+        w: width of note rect
+        h: height of note rect
+        rx: x coordinate of square
+        ry: y coordinate of square
+        c: color of note
+        """
+        if note.abstract in self.notes:
+            if self.note_scales is not None:
+                c = hex_to_rgb(config.scale_colors[self.note_scales[note.abstract]])
+            else:
+                c = RED
+        else:
+            c = note_color(note)
+
         if note in self.white_notes:
-            return self.ww * self.white_notes.index(note), self.ww, self.wh
+            return self.ww * self.white_notes.index(note), self.ww, self.wh, c
         elif note in self.black_notes:
-            return self.ww * self.white_notes.index(note + 1) - self.bw // 2, self.bw, self.bh
+            return self.ww * self.white_notes.index(note + 1) - self.bw // 2, self.bw, self.bh, c
         else:
             raise KeyError('unknown note')
 
