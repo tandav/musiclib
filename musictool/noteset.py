@@ -13,7 +13,6 @@ from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.note import str_to_note
-from musictool.piano import Piano
 from musictool.util import typeguards
 from musictool.util.cache import Cached
 
@@ -189,6 +188,7 @@ class NoteSet(Cached):
         return _
 
     def to_piano_image(self):
+        from musictool.piano import Piano  # hack to fix circular import
         return Piano(notes=self.notes)._repr_svg_()
 
     def with_html_classes(self, classes: tuple[str, ...]) -> str:
