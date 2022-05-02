@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from musictool import config
 from musictool.config import BLACK_PALE
-from musictool.config import BLUE
-from musictool.config import GREEN
-from musictool.config import RED
 from musictool.config import WHITE_PALE
 from musictool.note import BLACK_NOTES
 from musictool.note import WHITE_NOTES
@@ -13,7 +9,6 @@ from musictool.note import SpecificNote
 from musictool.noterange import CHROMATIC_NOTESET
 from musictool.noterange import NoteRange
 from musictool.util.color import RGBColor
-from musictool.util.color import hex_to_rgb
 
 
 def note_color(note: Note | SpecificNote) -> RGBColor:
@@ -30,12 +25,9 @@ def note_color(note: Note | SpecificNote) -> RGBColor:
 class Piano:
     def __init__(
         self,
-        notes: frozenset[Note | SpecificNote],
-        red_notes: frozenset[Note] = frozenset(),
-        green_notes: frozenset[Note] = frozenset(),
-        blue_notes: frozenset[Note] = frozenset(),
+        note_colors: dict[Note | SpecificNote, RGBColor] | None = None,
+        top_rect_colors: dict[Note | SpecificNote, RGBColor] | None = None,
         notes_squares: dict[Note, tuple[RGBColor, RGBColor, RGBColor, str]] | None = None,
-        note_scales: dict[Note, str] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
         ww: int = 18,  # white key width
@@ -51,9 +43,9 @@ class Piano:
         self.top_rect_height = top_rect_height
         self.square_size = square_size
 
-        self.notes = notes
-        self.note_scales = note_scales
-        self.notes_squares = {} if notes_squares is None else notes_squares
+        self.note_colors = note_colors or {}
+        self.top_rect_colors = top_rect_colors or {}
+        self.notes_squares = notes_squares or {}
 
         if noterange is not None:
             if noterange.noteset is not CHROMATIC_NOTESET:
@@ -76,12 +68,15 @@ class Piano:
         for note in self.white_notes + self.black_notes:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
+            # draw note
             self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:rgb{c};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
-            for color_notes, color in zip([red_notes, green_notes, blue_notes], [RED, GREEN, BLUE]):
-                if note.abstract in color_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:rgb{color};'/>""")
+            # draw rectangle on top of note
+            if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
+                self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:rgb{rect_color};'/>""")
 
-            if (fill_border_color := self.notes_squares.get(note.abstract)):
+            # draw squares on notes
+            if fill_border_color := self.notes_squares.get(note, self.notes_squares.get(note.abstract)):
                 fill, border, text_color, str_chord = fill_border_color
                 self.rects.append(f"""
                     <g onclick=play_chord('{str_chord}')>
@@ -106,14 +101,7 @@ class Piano:
         sx: x coordinate of square
         sy: x coordinate of square
         """
-        if note.abstract in self.notes:
-            if self.note_scales is not None:
-                c = hex_to_rgb(config.scale_colors[self.note_scales[note.abstract]])
-            else:
-                c = RED
-        else:
-            c = note_color(note)
-
+        c = self.note_colors.get(note, self.note_colors.get(note.abstract, note_color(note)))
         if note in self.white_notes:
             x = self.ww * self.white_notes.index(note)
             return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
@@ -122,9 +110,6 @@ class Piano:
             return x, self.bw, self.bh, c, x - self.square_size // 2, self.bh - self.square_size - 3
         else:
             raise KeyError('unknown note')
-
-    def add_rect(self, x, y, w, h, fill, border_color):
-        pass
 
     def __repr__(self):
         return 'Piano'

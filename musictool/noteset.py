@@ -9,6 +9,7 @@ from typing import overload
 import pipe21 as P
 
 from musictool import config
+from musictool.config import RED
 from musictool.note import AnyNote
 from musictool.note import Note
 from musictool.note import SpecificNote
@@ -187,10 +188,6 @@ class NoteSet(Cached):
             _ += f'/{self.root.name}'
         return _
 
-    def to_piano_image(self):
-        from musictool.piano import Piano  # hack to fix circular import
-        return Piano(notes=self.notes)._repr_svg_()
-
     def with_html_classes(self, classes: tuple[str, ...]) -> str:
         prev = self.html_classes
         self.html_classes = prev + classes
@@ -199,12 +196,13 @@ class NoteSet(Cached):
         return r
 
     def _repr_html_(self) -> str:
+        from musictool.piano import Piano  # hack to fix circular import
         notes_str = ''.join(note.name for note in self)
         root_str = f'/{self.root.name}' if self.root is not None else ''
         return f"""
         <div class='{' '.join(self.html_classes)}'>
         <span class='card_header'><h3>{notes_str}{root_str}</h3></span>
-        {self.to_piano_image()}
+        {Piano(note_colors={note: RED for note in self.notes})._repr_svg_()}
         </div>
         """
 
