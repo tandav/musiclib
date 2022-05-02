@@ -105,6 +105,9 @@ class Scale(NoteSet):
                 return Scale.from_name(note, name)
         raise KeyError(f'relative {relative_name} scale not found')
 
+    def to_piano_image(self):
+        return Piano(note_colors={note: hex_to_rgb(config.scale_colors[scale]) for note, scale in self.note_scales.items()})._repr_svg_()
+
     def _repr_html_(self) -> str:
         chords_hover = ''
         if C_name := self.note_scales.get(Note('C'), ''):
@@ -112,7 +115,7 @@ class Scale(NoteSet):
         return f"""
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}{C_name}</h3></span></a>
-        {Piano(note_colors={note: hex_to_rgb(config.scale_colors[scale]) for note, scale in self.note_scales.items()})._repr_svg_()}
+        {self.to_piano_image()}
         </div>
         """
 
@@ -146,9 +149,8 @@ class ComparedScales:
 
     # def __format__(self, format_spec): raise No
 
-    # @functools.cached_property
-    def _repr_html_(self) -> str:
-        piano = Piano(
+    def to_piano_image(self):
+        return Piano(
             note_colors={note: hex_to_rgb(config.scale_colors[scale]) for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
             notes_squares={
@@ -161,13 +163,16 @@ class ComparedScales:
                 for chord in self.right.triads
             } if self.right.kind == 'diatonic' else {},
         )._repr_svg_()
+
+    # @functools.cached_property
+    def _repr_html_(self) -> str:
         chords_hover = ''
         if C_name := self.right.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
         return f"""
         <div class='{' '.join(self.html_classes)}' {chords_hover}>
         <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}{C_name}</h3></span></a>
-        {piano}
+        {self.to_piano_image()}
         </div>
         """
 
