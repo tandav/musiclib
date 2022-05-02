@@ -26,25 +26,14 @@ default_octave = 5
 # do = config.default_octave
 # do = 5
 
+
 def note_color(note: Note | SpecificNote) -> RGBColor:
-    _colors = {
-        Note('C'): WHITE_PALE,
-        Note('d'): BLACK_PALE,
-        Note('D'): WHITE_PALE,
-        Note('e'): BLACK_PALE,
-        Note('E'): WHITE_PALE,
-        Note('F'): WHITE_PALE,
-        Note('f'): BLACK_PALE,
-        Note('G'): WHITE_PALE,
-        Note('a'): BLACK_PALE,
-        Note('A'): WHITE_PALE,
-        Note('b'): BLACK_PALE,
-        Note('B'): WHITE_PALE,
-    }
+    def _note_color(note: Note) -> RGBColor:
+        return WHITE_PALE if note in WHITE_NOTES else BLACK_PALE
     if isinstance(note, SpecificNote):
-        return _colors[note.abstract]
+        return _note_color(note.abstract)
     elif isinstance(note, Note):
-        return _colors[note]
+        return _note_color(note)
     else:
         raise TypeError
 
