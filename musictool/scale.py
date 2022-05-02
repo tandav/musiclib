@@ -106,7 +106,7 @@ class Scale(NoteSet):
         raise KeyError(f'relative {relative_name} scale not found')
 
     def to_piano_image(self):
-        return Piano(note_colors={note: hex_to_rgb(config.scale_colors[scale]) for note, scale in self.note_scales.items()})._repr_svg_()
+        return Piano(note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()})._repr_svg_()
 
     def _repr_html_(self) -> str:
         chords_hover = ''
@@ -151,11 +151,11 @@ class ComparedScales:
 
     def to_piano_image(self):
         return Piano(
-            note_colors={note: hex_to_rgb(config.scale_colors[scale]) for note, scale in self.right.note_scales.items()},
+            note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
             notes_squares={
                 chord.root: (
-                    hex_to_rgb(config.chord_colors[chord.name]),
+                    config.chord_colors[chord.name],
                     BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     str(chord),

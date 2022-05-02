@@ -8,11 +8,11 @@ from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noterange import CHROMATIC_NOTESET
 from musictool.noterange import NoteRange
-from musictool.util.color import RGBColor
+from musictool.util.color import css_hex
 
 
-def note_color(note: Note | SpecificNote) -> RGBColor:
-    def _note_color(note: Note) -> RGBColor:
+def note_color(note: Note | SpecificNote) -> int:
+    def _note_color(note: Note) -> int:
         return WHITE_PALE if note in WHITE_NOTES else BLACK_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
@@ -25,9 +25,9 @@ def note_color(note: Note | SpecificNote) -> RGBColor:
 class Piano:
     def __init__(
         self,
-        note_colors: dict[Note | SpecificNote, RGBColor] | None = None,
-        top_rect_colors: dict[Note | SpecificNote, RGBColor] | None = None,
-        notes_squares: dict[Note, tuple[RGBColor, RGBColor, RGBColor, str]] | None = None,
+        note_colors: dict[Note | SpecificNote, int] | None = None,
+        top_rect_colors: dict[Note | SpecificNote, int] | None = None,
+        notes_squares: dict[Note, tuple[int, int, int, str]] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
         ww: int = 18,  # white key width
@@ -69,26 +69,26 @@ class Piano:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
             # draw note
-            self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:rgb{c};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
+            self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:{css_hex(c)};stroke-width:1;stroke:{css_hex(BLACK_PALE)}' onclick="play_note('{note}')"/>""")
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
-                self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:rgb{rect_color};'/>""")
+                self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
 
             # draw squares on notes
             if fill_border_color := self.notes_squares.get(note, self.notes_squares.get(note.abstract)):
                 fill, border, text_color, str_chord = fill_border_color
-                self.rects.append(f"""
-                    <g onclick=play_chord('{str_chord}')>
-                        <rect x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:rgb{fill};stroke-width:1;stroke:rgb{border}'/>
-                        <text x='{sx}' y='{sy + square_size}' font-family="Menlo" font-size='15' style='fill:rgb{text_color}'>{note.name}</text>
+                self.rects.append(f'''
+                    <g onclick="play_chord('{str_chord}')">
+                        <rect x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{css_hex(fill)};stroke-width:1;stroke:{css_hex(border)}'/>
+                        <text x='{sx}' y='{sy + square_size}' font-family="Menlo" font-size='15' style='fill:{css_hex(text_color)}'>{note.name}</text>
                     </g>
-                """)
+                ''')
 
         # border around whole svg
-        self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_PALE}'/>")
+        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{css_hex(BLACK_PALE)}'/>")
 
-    def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, RGBColor, int, int]:
+    def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, int, int, int]:
         """
         helper function which computes values for a given note
 

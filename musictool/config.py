@@ -5,7 +5,6 @@ is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010
 
 neighsbors_min_shared = {'diatonic': 0, 'pentatonic': 0}
 
-
 diatonic = 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'
 pentatonic = 'p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'
 harmonic = 'h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'
@@ -19,10 +18,17 @@ kinds = (
     {k: 'sudu' for k in sudu}
 )
 
+WHITE_PALE = 0xAAAAAA
+BLACK_PALE = 0x505050
+WHITE_BRIGHT = 0xFFFFFF
+BLACK_BRIGHT = 0x000000
+RED = 0xFF0000
+GREEN = 0x00FF00
+BLUE = 0x0000FF
 
 # if change: also change in static/main.css
 scale_colors = {
-    'major': 0xFFFFFF,
+    'major': WHITE_BRIGHT,
     'dorian': 0x54E346,
     'phrygian': 0x00FFCC,
     'lydian': 0x68A6FC,
@@ -60,13 +66,6 @@ scale_colors['s_lydian'] = scale_colors['lydian']
 scale_colors['s_mixolydian'] = scale_colors['mixolydian']
 scale_colors['s_minor'] = scale_colors['minor']
 
-WHITE_PALE = (170,) * 3
-BLACK_PALE = (80,) * 3
-WHITE_BRIGHT = (255,) * 3
-BLACK_BRIGHT = (0,) * 3
-RED = 255, 0, 0
-GREEN = 0, 255, 0
-BLUE = 0, 0, 255
 
 chord_colors = {
     'minor': scale_colors['minor'],

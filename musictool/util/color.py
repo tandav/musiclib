@@ -33,3 +33,7 @@ def random_rgb():
 
 def random_rgba():
     return random.randrange(255), random.randrange(255), random.randrange(255), 255
+
+
+def css_hex(color: int) -> str:
+    return f'#{color:06X}'
