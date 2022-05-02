@@ -38,7 +38,6 @@ def note_color(note: Note | SpecificNote) -> RGBColor:
         raise TypeError
 
 
-
 class Piano:
     def __init__(
         self,
@@ -48,7 +47,7 @@ class Piano:
         blue_notes: frozenset[Note] = frozenset(),
         notes_squares: dict[Note, tuple[RGBColor, RGBColor, RGBColor, str]] | None = None,
         note_scales: dict[Note, str] | None = None,
-        small_rect_height: int = 5,
+        top_rect_height: int = 5,
         small_square_size: int = 12,
         ww: int = 18,  # white_key_width
         wh: int = 85,  # white_key_width
@@ -68,6 +67,8 @@ class Piano:
         self.wh = wh
         self.bw = int(ww * 0.6)
         self.bh = int(wh * 0.6)
+
+        self.top_rect_height = top_rect_height
 
         self.notes = notes
         self.note_scales = note_scales
@@ -104,12 +105,14 @@ class Piano:
         # todo: merge WHITE_PALE keys and BLACK_PALE keys logic into single loop to deduplicate logic
         # x = 0
         for note in self.white_notes + self.black_notes:
-            x, w, h = self.xwh(note)
+            x, w, h, c = self.coord_helper(note)
 
+            self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:rgb{c};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
 
+            for color_notes, color in zip([red_notes, green_notes, blue_notes], [RED, GREEN, BLUE]):
+                if note.abstract in color_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:rgb{color};'/>""")
 
-            self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
-
+        #
         #     ...
         #     if note.abstract in WHITE_NOTES:
         #         x += ww
@@ -129,10 +132,9 @@ class Piano:
         #         color = note_color(note)
         #     self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{self.size[1]}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.abstract.name}', '{note.octave}')"/>""")
         #
-        #     if note.abstract in red_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{RED};'/>""")
-        #     if note.abstract in green_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{GREEN};'/>""")
-        #     if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x}' y='0' width='{x + ww}' height='{small_rect_height}' style='fill:rgb{BLUE};'/>""")
-        #
+            # if note.abstract in red_notes: self.rects.append(f"""<rect x='{trx}' y='0' width='{trw}' height='{top_rect_height}' style='fill:rgb{RED};'/>""")
+            # if note.abstract in green_notes: self.rects.append(f"""<rect x='{trx}' y='0' width='{trw}' height='{top_rect_height}' style='fill:rgb{GREEN};'/>""")
+            # if note.abstract in blue_notes: self.rects.append(f"""<rect x='{trx}' y='0' width='{trw}' height='{top_rect_height}' style='fill:rgb{BLUE};'/>""")
         #     if (fill_border_color := notes_squares.get(note.abstract)):
         #         fill, border, text_color, str_chord = fill_border_color
         #         self.rects.append(f"""
@@ -154,9 +156,9 @@ class Piano:
         #         color = note_color(note)
         #     self.rects.append(f"""<rect x='{x - bw // 2}', y='0' width='{bw}' height='{bh}' style='fill:rgb{color};stroke-width:1;stroke:rgb{BLACK_PALE}' onclick="play_note('{note.name}', '{note.octave}')"/>""")
         #
-        #     if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{RED};'/>""")
-        #     if note.abstract in green_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{GREEN};'/>""")
-        #     if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{small_rect_height}' style='fill:rgb{BLUE};'/>""")
+        #     if note.abstract in red_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{top_rect_height}' style='fill:rgb{RED};'/>""")
+        #     if note.abstract in green_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{top_rect_height}' style='fill:rgb{GREEN};'/>""")
+        #     if note.abstract in blue_notes: self.rects.append(f"""<rect x='{x - bw // 2}' y='0' width='{bw}' height='{top_rect_height}' style='fill:rgb{BLUE};'/>""")
         #
         #     if (fill_border_color := notes_squares.get(note.abstract)):
         #         fill, border, text_color, str_chord = fill_border_color
@@ -170,7 +172,7 @@ class Piano:
         # border around whole svg
         self.rects.append(f"<rect x='0', y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:rgb{BLACK_PALE}'/>")
 
-    def xywhc(self, note: SpecificNote) -> tuple[int, int, int]:
+    def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, RGBColor]:
         """
         helper function which computes values for a given note
 
@@ -179,8 +181,6 @@ class Piano:
         x: x coordinate of note rect
         w: width of note rect
         h: height of note rect
-        rx: x coordinate of square
-        ry: y coordinate of square
         c: color of note
         """
         if note.abstract in self.notes:
@@ -192,9 +192,11 @@ class Piano:
             c = note_color(note)
 
         if note in self.white_notes:
-            return self.ww * self.white_notes.index(note), self.ww, self.wh, c
+            x = self.ww * self.white_notes.index(note)
+            return x, self.ww, self.wh, c
         elif note in self.black_notes:
-            return self.ww * self.white_notes.index(note + 1) - self.bw // 2, self.bw, self.bh, c
+            x = self.ww * self.white_notes.index(note + 1) - self.bw // 2
+            return x, self.bw, self.bh, c
         else:
             raise KeyError('unknown note')
 
