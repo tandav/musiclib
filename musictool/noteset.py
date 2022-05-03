@@ -200,11 +200,9 @@ class NoteSet(Cached):
         return Piano(note_colors={note: RED for note in self.notes})._repr_svg_()
 
     def _repr_html_(self) -> str:
-        notes_str = ''.join(note.name for note in self)
-        root_str = f'/{self.root.name}' if self.root is not None else ''
         return f"""
         <div class='{' '.join(self.html_classes)}'>
-        <span class='card_header'><h3>{notes_str}{root_str}</h3></span>
+        <h3 style='height:1em;' class='card_header'>{self!r}</h3>
         {self.to_piano_image()}
         </div>
         """
