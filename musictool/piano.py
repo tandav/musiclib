@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from xml.etree import ElementTree
+
 from musictool.config import BLACK_PALE
 from musictool.config import WHITE_PALE
 from musictool.note import BLACK_NOTES
@@ -68,22 +70,22 @@ class Piano:
         for note in self.white_notes + self.black_notes:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
-            # draw note
-            self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{h}' style='fill:{css_hex(c)};stroke-width:1;stroke:{css_hex(BLACK_PALE)}' onclick="play_note('{note}')"/>""")
+            # draw key
+            self.rects.append(f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{css_hex(c)};stroke-width:1;stroke:{css_hex(BLACK_PALE)}' onclick="play_note('{note}')"/>""")
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
-                self.rects.append(f"""<rect x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
+                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
 
             # draw squares on notes
             if fill_border_color := self.notes_squares.get(note, self.notes_squares.get(note.abstract)):
                 fill, border, text_color, str_chord = fill_border_color
-                self.rects.append(f'''
+                self.rects.append(f"""
                     <g onclick="play_chord('{str_chord}')">
-                        <rect x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{css_hex(fill)};stroke-width:1;stroke:{css_hex(border)}'/>
-                        <text x='{sx}' y='{sy + square_size}' font-family="Menlo" font-size='15' style='fill:{css_hex(text_color)}'>{note.name}</text>
+                        <rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{css_hex(fill)};stroke-width:1;stroke:{css_hex(border)}'/>
+                        <text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family="Menlo" font-size='15' style='fill:{css_hex(text_color)}'>{note.name}</text>
                     </g>
-                ''')
+                """)
 
         # border around whole svg
         self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{css_hex(BLACK_PALE)}'/>")
@@ -114,10 +116,17 @@ class Piano:
     def __repr__(self):
         return 'Piano'
 
+    @staticmethod
+    def pretty_print(svg: str) -> str:
+        tree = ElementTree.fromstring(svg)
+        ElementTree.indent(tree, level=0)
+        return ElementTree.tostring(tree, encoding='unicode')
+
     def _repr_svg_(self):
         rects = '\n'.join(self.rects)
-        return f"""
+        svg = f"""
         <svg width='{self.size[0]}' height='{self.size[1]}'>
         {rects}
         </svg>
         """
+        return Piano.pretty_print(svg)

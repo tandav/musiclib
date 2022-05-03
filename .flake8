@@ -9,7 +9,7 @@ ignore =
     I,
     N802,N812,
     RST301,RST203,
-    S311,S403,S301,
+    S311,S403,S301,S405,S314,
     C901,C818,
     WPS,
 per-file-ignores =
