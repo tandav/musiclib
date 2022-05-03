@@ -42,6 +42,10 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     return dict(out)
 
 
+@pytest.mark.parametrize('notes', [
+    (Note('C'), SpecificNote('C', 0), SpecificNote('C', 1)),
+    (Note('d'), SpecificNote('d', 0), SpecificNote('d', 1)),
+])
 @pytest.mark.parametrize('element, class_, info_part, keyarg, payload, expected', [
     ('rect', 'note', 'style_fill', 'note_colors', config.RED, config.RED),
     ('rect', 'top_rect', 'style_fill', 'top_rect_colors', config.RED, config.RED),
@@ -51,12 +55,16 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
-def test_abstract(element, class_, info_part, keyarg, payload, expected):
-    svg = Piano(**{keyarg: {Note('C'): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()  # type: ignore
+def test_abstract(element, class_, info_part, keyarg, payload, expected, notes):
+    svg = Piano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
-    assert i[SpecificNote('C', 2)][info_part] == i[SpecificNote('C', 3)][info_part] == expected
+    assert i[notes[1]][info_part] == i[notes[2]][info_part] == expected
 
 
+@pytest.mark.parametrize('notes', [
+    (SpecificNote('C', 0), SpecificNote('C', 1)),
+    (SpecificNote('d', 0), SpecificNote('d', 1)),
+])
 @pytest.mark.parametrize('element, class_, info_part, keyarg, payload, expected', [
     ('rect', 'note', 'style_fill', 'note_colors', config.RED, config.RED),
     ('rect', 'top_rect', 'style_fill', 'top_rect_colors', config.RED, config.RED),
@@ -66,17 +74,21 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected):
     ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
-def test_specific(element, class_, info_part, keyarg, payload, expected):
-    svg = Piano(**{keyarg: {SpecificNote('C', 2): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()  # type: ignore
+def test_specific(element, class_, info_part, keyarg, payload, expected, notes):
+    svg = Piano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
-    assert i[SpecificNote('C', 2)][info_part] == expected
+    assert i[notes[0]][info_part] == expected
 
     if class_ == 'note' and info_part == 'style_fill':
-        assert i[SpecificNote('C', 3)][info_part] == config.WHITE_PALE
+        assert i[notes[1]][info_part] == note_color(notes[1])
     else:
-        assert SpecificNote('C', 3) not in i
+        assert notes[1] not in i
 
 
+@pytest.mark.parametrize('notes', [
+    (Note('C'), SpecificNote('C', 0), SpecificNote('C', 1)),
+    (Note('d'), SpecificNote('d', 0), SpecificNote('d', 1)),
+])
 @pytest.mark.parametrize('element, class_, info_part, keyarg, payload, expected', [
     ('rect', 'note', 'style_fill', 'note_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
     ('rect', 'top_rect', 'style_fill', 'top_rect_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
@@ -86,14 +98,13 @@ def test_specific(element, class_, info_part, keyarg, payload, expected):
     ('text', 'square', 'text', 'squares', ({'text': 'T'}, {'text': 'Q'}), ('T', 'Q')),
     ('g', 'square', 'onclick', 'squares', ({'onclick': 'T'}, {'onclick': 'Q'}), ('T', 'Q')),
 ])
-def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected):
+def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes):
     svg = Piano(
-        **{keyarg: {Note('C'): payload[0], SpecificNote('C', 3): payload[1]}},  # type: ignore
-        noterange=NoteRange('C2', 'C3'),
+        **{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}},  # type: ignore
     )._repr_svg_()
     i = note_info(svg, element, class_)
-    assert i[SpecificNote('C', 2)][info_part] == expected[0]
-    assert i[SpecificNote('C', 3)][info_part] == expected[1]
+    assert i[notes[1]][info_part] == expected[0]
+    assert i[notes[2]][info_part] == expected[1]
 
 
 def test_startswith_endswith_white_key():
