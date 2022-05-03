@@ -53,7 +53,6 @@ def test_scale(op, a, b):
 
 
 @pytest.mark.parametrize('op, a, b', (
-    (operator.is_, Chord(frozenset('CEG')), Chord(frozenset('CEG'))),
     (operator.is_, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CEG'), root='C')),
     (operator.is_not, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CeG'), root=Note('C'))),
     (operator.is_not, Chord(frozenset('CEG'), root='C'), Chord(frozenset('CEG'), root=Note('E'))),

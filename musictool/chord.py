@@ -40,6 +40,11 @@ class Chord(NoteSet):
     root: Note
     name: str
 
+    def __init__(self, notes: frozenset[str | Note], *, root: str | Note):
+        if root is None:
+            raise TypeError('Chord requires root note. Use NoteSet if there is no root')
+        super().__init__(notes, root=root)
+
     def _repr_html_(self) -> str:
         return f"""
         <div class='{' '.join(self.html_classes)}'>

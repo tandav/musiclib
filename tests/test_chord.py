@@ -1,4 +1,5 @@
 import itertools
+import random
 
 import pytest
 
@@ -6,10 +7,16 @@ from musictool.chord import Chord
 from musictool.chord import SpecificChord
 from musictool.note import Note
 from musictool.note import SpecificNote
+from musictool.noteset import NoteSet
 
 
 def test_creation_from_notes():
     assert str(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))) == 'CEG/C'
+
+
+def test_chord_root_validation():
+    with pytest.raises(TypeError):
+        Chord.from_str('CEG')
 
 
 @pytest.mark.parametrize('arg', ('C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')))
@@ -64,7 +71,8 @@ def test_from_str():
     for _ in range(10):
         s_chord = SpecificChord.random()
         assert SpecificChord.from_str(str(s_chord)) == s_chord
-        chord = Chord.random()
+        abstract_notes = SpecificNote.to_abstract(s_chord.notes)
+        chord = Chord(notes=abstract_notes, root=random.choice(tuple(abstract_notes)))
         assert Chord.from_str(str(chord)) == chord
     with pytest.raises(NotImplementedError):
         SpecificChord.from_str('C1_C1')
@@ -94,12 +102,11 @@ def test_combinations_order():
 
 
 @pytest.mark.parametrize('specific, abstract', (
-    ('C1_E1_G2/C', 'CEG/C'),
-    ('C1_E1_G2', 'CEG'),
-    ('C1_E1_G2', 'CEG'),
+    ('C1_E1_G2/C', Chord.from_str('CEG/C')),
+    ('C1_E1_G2', NoteSet.from_str('CEG')),
 ))
 def test_abstract(specific, abstract):
-    assert SpecificChord.from_str(specific).abstract == Chord.from_str(abstract)
+    assert SpecificChord.from_str(specific).abstract == abstract
 
 
 def test_find_intervals():
@@ -115,16 +122,16 @@ def test_find_intervals():
 
 
 @pytest.mark.parametrize('chord, note, steps, result', (
-    (Chord.from_str('CEG'), Note('C'), 1, Note('E')),
-    (Chord.from_str('CEG'), Note('C'), 2, Note('G')),
-    (Chord.from_str('CEG'), Note('C'), 3, Note('C')),
-    (Chord.from_str('CeGb'), Note('e'), 2, Note('b')),
-    (Chord.from_str('CeGb'), Note('e'), 25, Note('G')),
-    (Chord.from_str('CEG'), Note('C'), -1, Note('G')),
-    (Chord.from_str('CEG'), Note('C'), -2, Note('E')),
-    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
-    (Chord.from_str('CEG'), Note('C'), -3, Note('C')),
-    (Chord.from_str('CeGb'), Note('e'), -15, Note('G')),
+    (Chord.from_str('CEG/C'), Note('C'), 1, Note('E')),
+    (Chord.from_str('CEG/C'), Note('C'), 2, Note('G')),
+    (Chord.from_str('CEG/C'), Note('C'), 3, Note('C')),
+    (Chord.from_str('CeGb/C'), Note('e'), 2, Note('b')),
+    (Chord.from_str('CeGb/C'), Note('e'), 25, Note('G')),
+    (Chord.from_str('CEG/C'), Note('C'), -1, Note('G')),
+    (Chord.from_str('CEG/C'), Note('C'), -2, Note('E')),
+    (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
+    (Chord.from_str('CeGb/C'), Note('e'), -15, Note('G')),
 ))
 def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
