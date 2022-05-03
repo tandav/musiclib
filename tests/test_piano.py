@@ -1,7 +1,6 @@
-import re
 import collections
+import re
 from xml.etree import ElementTree
-from typing import Any
 
 import pytest
 
@@ -28,7 +27,7 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     element: rect | text | g
     info_part be style_fill | style_stroke | text | text_color | onclick
     """
-    out = collections.defaultdict(dict)
+    out: dict[SpecificNote, dict[str, str | int]] = collections.defaultdict(dict)
     for r in ElementTree.fromstring(svg).findall(f".//{element}/[@class='{class_}'][@note]"):
         note = SpecificNote.from_str(r.attrib['note'])
         if style := r.attrib.get('style'):
@@ -53,7 +52,7 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
 def test_abstract(element, class_, info_part, keyarg, payload, expected):
-    svg = Piano(**{keyarg: {Note('C'): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()
+    svg = Piano(**{keyarg: {Note('C'): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
     assert i[SpecificNote('C', 2)][info_part] == i[SpecificNote('C', 3)][info_part] == expected
 
@@ -68,7 +67,7 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected):
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
 def test_specific(element, class_, info_part, keyarg, payload, expected):
-    svg = Piano(**{keyarg: {SpecificNote('C', 2): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()
+    svg = Piano(**{keyarg: {SpecificNote('C', 2): payload}}, noterange=NoteRange('C2', 'C3'))._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
     assert i[SpecificNote('C', 2)][info_part] == expected
 
@@ -89,7 +88,7 @@ def test_specific(element, class_, info_part, keyarg, payload, expected):
 ])
 def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected):
     svg = Piano(
-        **{keyarg: {Note('C'): payload[0], SpecificNote('C', 3): payload[1]}},
+        **{keyarg: {Note('C'): payload[0], SpecificNote('C', 3): payload[1]}},  # type: ignore
         noterange=NoteRange('C2', 'C3'),
     )._repr_svg_()
     i = note_info(svg, element, class_)
@@ -102,15 +101,3 @@ def test_startswith_endswith_white_key():
     notes = note_info(svg, element='rect', class_='note').keys()
     assert min(notes) == SpecificNote('C', 2)
     assert max(notes) == SpecificNote('B', 2)
-
-
-# @pytest.mark.parametrize('payload', [
-#     {'text': 'T'},
-# ])
-# def test_square_partial_payload(payload):
-#     svg = Piano(
-#         squares={Note('C'): payload},
-#         noterange = NoteRange('C2', 'C3'),
-#     )
-#     i =
-#     assert text('C1') == text('C2') == 'T'

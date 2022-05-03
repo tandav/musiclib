@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from typing import TypedDict
 from xml.etree import ElementTree
 
-from musictool.config import BLACK_PALE
-from musictool.config import WHITE_PALE
-from musictool.config import WHITE_BRIGHT
 from musictool.config import BLACK_BRIGHT
+from musictool.config import BLACK_PALE
+from musictool.config import WHITE_BRIGHT
+from musictool.config import WHITE_PALE
 from musictool.note import BLACK_NOTES
 from musictool.note import WHITE_NOTES
 from musictool.note import Note
@@ -26,12 +27,20 @@ def note_color(note: Note | SpecificNote) -> int:
         raise TypeError
 
 
+class SquaresPayload(TypedDict):
+    fill_color: int
+    border_color: int
+    text_color: int
+    text: str
+    onclick: str
+
+
 class Piano:
     def __init__(
         self,
         note_colors: dict[Note | SpecificNote, int] | None = None,
         top_rect_colors: dict[Note | SpecificNote, int] | None = None,
-        squares: dict[Note, dict[str, str | int]] | None = None,
+        squares: dict[Note, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
         ww: int = 18,  # white key width
@@ -95,7 +104,7 @@ class Piano:
 
                 self.rects.append(f"""
                     <g class='square' note='{note}'{onclick}>
-                        {rect}                        
+                        {rect}
                     </g>
                 """)
 
@@ -134,7 +143,7 @@ class Piano:
         ElementTree.indent(tree, level=0)
         return ElementTree.tostring(tree, encoding='unicode')
 
-    def _repr_svg_(self, pretty: bool = True):
+    def _repr_svg_(self, pretty: bool = True) -> str:
         rects = '\n'.join(self.rects)
         svg = f"""
         <svg width='{self.size[0]}' height='{self.size[1]}'>
