@@ -69,7 +69,7 @@ class NoteRange(Sequence[SpecificNote]):
     def to_piano_image(self) -> str:
         from musictool.piano import Piano  # hack to fix circular import
         return Piano(
-            note_colors=None if self.noteset is CHROMATIC_NOTESET else {note: config.RED for note in self.noteset},
+            note_colors=None if self.noteset is CHROMATIC_NOTESET else dict.fromkeys(self.noteset, config.RED),
             squares={self.start: {'text': str(self.start), 'text_size': '8'}, self.stop: {'text': str(self.stop), 'text_size': '8'}},
             noterange=NoteRange(self.start, self.stop),
         )._repr_svg_()
