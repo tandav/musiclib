@@ -46,15 +46,20 @@ class Piano:
         ww: int = 18,  # white key width
         wh: int = 85,  # white key height
         noterange: NoteRange | None = None,
-        black_between: bool = False,
+        black_small: bool = True,
     ):
         self.ww = ww
         self.wh = wh
-        self.bw = int(ww * 0.6)
-        self.bh = int(wh * 0.6)
+        if black_small:
+            self.bw = int(ww * 0.6)
+            self.bh = int(wh * 0.6)
+        else:
+            self.bw = ww
+            self.bh = wh
 
         self.top_rect_height = top_rect_height
         self.square_size = square_size
+        self.black_small = black_small
 
         self.note_colors = note_colors or {}
         self.top_rect_colors = top_rect_colors or {}
@@ -64,21 +69,26 @@ class Piano:
             if noterange.noteset is not CHROMATIC_NOTESET:
                 raise ValueError  # maybe this is not necessary
 
-            # ensure that start and stop are white keys
-            self.noterange = NoteRange(
-                start=noterange.start + -1 if noterange.start.abstract in BLACK_NOTES else noterange.start,
-                stop=noterange.stop + 1 if noterange.stop.abstract in BLACK_NOTES else noterange.stop,
-            )
+            if black_small:
+                # ensure that start and stop are white keys
+                self.noterange = NoteRange(
+                    start=noterange.start + -1 if noterange.start.abstract in BLACK_NOTES else noterange.start,
+                    stop=noterange.stop + 1 if noterange.stop.abstract in BLACK_NOTES else noterange.stop,
+                )
+            else:
+                self.noterange = noterange
         else:
             # render 2 octaves by default
             self.noterange = NoteRange(SpecificNote('C', 0), SpecificNote('B', 1))
 
         self.white_notes = tuple(note for note in self.noterange if note.abstract in WHITE_NOTES)
         self.black_notes = tuple(note for note in self.noterange if note.abstract in BLACK_NOTES)
-        self.size = ww * len(self.white_notes), wh
+        width = ww * len(self.white_notes) if self.black_small else ww * len(self.noterange)
+        self.size = width, wh
         self.rects = []
 
-        for note in self.white_notes + self.black_notes:
+        notes = self.white_notes + self.black_notes if black_small else self.noterange
+        for note in notes:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
             # draw key
@@ -125,14 +135,25 @@ class Piano:
         sy: x coordinate of square
         """
         c = self.note_colors.get(note, self.note_colors.get(note.abstract, note_color(note)))
-        if note in self.white_notes:
-            x = self.ww * self.white_notes.index(note)
-            return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
-        elif note in self.black_notes:
-            x = self.ww * self.white_notes.index(note + 1) - self.bw // 2
-            return x, self.bw, self.bh, c, x - self.square_size // 2, self.bh - self.square_size - 3
-        else:
-            raise KeyError('unknown note')
+
+        # def big_note():
+        #     ...
+        #
+        # def small(note):
+        #     ...
+
+        if self.black_small:
+            if note in self.white_notes:
+                x = self.ww * self.white_notes.index(note)
+                return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
+            elif note in self.black_notes:
+                x = self.ww * self.white_notes.index(note + 1) - self.bw // 2
+                return x, self.bw, self.bh, c, x - self.square_size // 2, self.bh - self.square_size - 3
+            else:
+                raise KeyError('unknown note')
+
+        x = self.ww * self.noterange.index(note)
+        return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
 
     def __repr__(self):
         return 'Piano'

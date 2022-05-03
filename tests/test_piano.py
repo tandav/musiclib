@@ -55,8 +55,9 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
-def test_abstract(element, class_, info_part, keyarg, payload, expected, notes):
-    svg = Piano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore
+@pytest.mark.parametrize('black_small', [True, False])
+def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
+    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == i[notes[2]][info_part] == expected
 
@@ -74,8 +75,9 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected, notes):
     ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
     ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
 ])
-def test_specific(element, class_, info_part, keyarg, payload, expected, notes):
-    svg = Piano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore
+@pytest.mark.parametrize('black_small', [True, False])
+def test_specific(element, class_, info_part, keyarg, payload, expected, notes, black_small):
+    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
     assert i[notes[0]][info_part] == expected
 
@@ -98,17 +100,20 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes):
     ('text', 'square', 'text', 'squares', ({'text': 'T'}, {'text': 'Q'}), ('T', 'Q')),
     ('g', 'square', 'onclick', 'squares', ({'onclick': 'T'}, {'onclick': 'Q'}), ('T', 'Q')),
 ])
-def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes):
-    svg = Piano(
-        **{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}},  # type: ignore
-    )._repr_svg_()
+@pytest.mark.parametrize('black_small', [True, False])
+def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
+    svg = Piano(**{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}}, black_small=black_small)._repr_svg_()  # type: ignore
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == expected[0]
     assert i[notes[2]][info_part] == expected[1]
 
 
-def test_startswith_endswith_white_key():
-    svg = Piano(noterange=NoteRange('d2', 'b2'))._repr_svg_()
+@pytest.mark.parametrize('noterange, black_small, start, stop', [
+    (NoteRange('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
+    (NoteRange('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
+])
+def test_startswith_endswith_white_key(noterange, black_small, start, stop):
+    svg = Piano(noterange=noterange, black_small=black_small)._repr_svg_()
     notes = note_info(svg, element='rect', class_='note').keys()
-    assert min(notes) == SpecificNote('C', 2)
-    assert max(notes) == SpecificNote('B', 2)
+    assert min(notes) == start
+    assert max(notes) == stop
