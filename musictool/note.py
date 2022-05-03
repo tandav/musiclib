@@ -136,3 +136,7 @@ def str_to_note(note: str) -> Note | SpecificNote:
     if len(note) == 1:
         return Note(note)
     return SpecificNote.from_str(note)
+
+
+WHITE_NOTES = frozenset(map(Note, 'CDEFGAB'))
+BLACK_NOTES = frozenset(map(Note, 'defab'))

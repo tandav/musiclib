@@ -6,6 +6,10 @@ from collections import defaultdict
 
 from musictool import config
 from musictool.chord import Chord
+from musictool.config import BLACK_BRIGHT
+from musictool.config import BLUE
+from musictool.config import GREEN
+from musictool.config import RED
 from musictool.note import Note
 from musictool.noteset import NoteSet
 from musictool.piano import Piano
@@ -102,7 +106,7 @@ class Scale(NoteSet):
         raise KeyError(f'relative {relative_name} scale not found')
 
     def to_piano_image(self):
-        return Piano(notes=self.notes, note_scales=self.note_scales)._repr_svg_()
+        return Piano(note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()})._repr_svg_()
 
     def _repr_html_(self) -> str:
         chords_hover = ''
@@ -145,6 +149,22 @@ class ComparedScales:
 
     # def __format__(self, format_spec): raise No
 
+    def to_piano_image(self):
+        return Piano(
+            note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
+            top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
+            squares={
+                chord.root: {
+                    'fill_color': config.chord_colors[chord.name],
+                    'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text': chord.root.name,
+                    'onclick': f'play_chord("{chord}")',
+                }
+                for chord in self.right.triads
+            } if self.right.kind == 'diatonic' else {},
+        )._repr_svg_()
+
     # @functools.cached_property
     def _repr_html_(self) -> str:
         chords_hover = ''
@@ -156,22 +176,6 @@ class ComparedScales:
         {self.to_piano_image()}
         </div>
         """
-
-    def to_piano_image(self):
-        return Piano(
-            notes=self.right.notes,
-            note_scales=self.right.note_scales,
-            red_notes=self.del_notes, green_notes=self.new_notes, blue_notes=self.shared_notes,
-            notes_squares={
-                chord.root: (
-                    hex_to_rgb(config.chord_colors[chord.name]),
-                    config.BLUE if chord in self.shared_triads else config.BLACK_BRIGHT,
-                    config.BLUE if chord in self.shared_triads else config.BLACK_BRIGHT,
-                    str(chord),
-                )
-                for chord in self.right.triads
-            } if self.right.kind == 'diatonic' else dict(),
-        )._repr_svg_()
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
