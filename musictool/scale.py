@@ -153,13 +153,14 @@ class ComparedScales:
         return Piano(
             note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
-            notes_squares={
-                chord.root: (
-                    config.chord_colors[chord.name],
-                    BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    str(chord),
-                )
+            squares={
+                chord.root: {
+                    'fill_color': config.chord_colors[chord.name],
+                    'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text': chord.root.name,
+                    'onclick': f'play_chord("{chord}")',
+                }
                 for chord in self.right.triads
             } if self.right.kind == 'diatonic' else {},
         )._repr_svg_()

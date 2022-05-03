@@ -4,6 +4,8 @@ from xml.etree import ElementTree
 
 from musictool.config import BLACK_PALE
 from musictool.config import WHITE_PALE
+from musictool.config import WHITE_BRIGHT
+from musictool.config import BLACK_BRIGHT
 from musictool.note import BLACK_NOTES
 from musictool.note import WHITE_NOTES
 from musictool.note import Note
@@ -29,7 +31,7 @@ class Piano:
         self,
         note_colors: dict[Note | SpecificNote, int] | None = None,
         top_rect_colors: dict[Note | SpecificNote, int] | None = None,
-        notes_squares: dict[Note, tuple[int, int, int, str]] | None = None,
+        squares: dict[Note, dict[str, str | int]] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
         ww: int = 18,  # white key width
@@ -47,7 +49,7 @@ class Piano:
 
         self.note_colors = note_colors or {}
         self.top_rect_colors = top_rect_colors or {}
-        self.notes_squares = notes_squares or {}
+        self.squares = squares or {}
 
         if noterange is not None:
             if noterange.noteset is not CHROMATIC_NOTESET:
@@ -78,12 +80,26 @@ class Piano:
                 self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
 
             # draw squares on notes
-            if fill_border_color := self.notes_squares.get(note, self.notes_squares.get(note.abstract)):
-                fill, border, text_color, str_chord = fill_border_color
+            # if fill_border_color := self.squares.get(note, self.squares.get(note.abstract)):
+            if payload := self.squares.get(note, self.squares.get(note.abstract)):
+                fill_color = css_hex(payload.get('fill_color', WHITE_BRIGHT))
+                border_color = css_hex(payload.get('border_color', BLACK_BRIGHT))
+
+                if onclick := payload.get('onclick'):
+                    onclick = f" onclick='{onclick}'"
+                # <g onclick="play_chord('{str_chord}')">
+                # fill, border, text_color, str_chord = fill_border_color
+                # note.name
+
+                rect = f"<rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{fill_color};stroke-width:1;stroke:{border_color}'/>"
+
+                if text := payload.get('text'):
+                    text_color = css_hex(payload.get('text_color', BLACK_BRIGHT))
+                    rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='15' style='fill:{text_color}'>{text}</text>"
+
                 self.rects.append(f"""
-                    <g onclick="play_chord('{str_chord}')">
-                        <rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{css_hex(fill)};stroke-width:1;stroke:{css_hex(border)}'/>
-                        <text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family="Menlo" font-size='15' style='fill:{css_hex(text_color)}'>{note.name}</text>
+                    <g{onclick}>
+                        {rect}                        
                     </g>
                 """)
 
