@@ -150,7 +150,8 @@ class Piano:
                 return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
             elif note in self.black_notes:
                 x = self.ww * self.white_notes.index(note + 1) - self.bw // 2
-                return x, self.bw, self.bh, c, x - self.square_size // 2, self.bh - self.square_size - 3
+                sx = self.ww * self.white_notes.index(note + 1) - self.square_size // 2
+                return x, self.bw, self.bh, c, sx, self.bh - self.square_size - 3
             else:
                 raise KeyError('unknown note')
 
