@@ -164,5 +164,23 @@ class SpecificChord(Cached):
         mid.save(path)
         return None
 
+    def to_piano_image(self) -> str:
+        from musictool.noterange import NoteRange
+        from musictool.piano import Piano
+        noterange = NoteRange(self[0], self[-1]) if self.notes else None
+        return Piano(
+            note_colors=dict.fromkeys(self.notes, config.RED),
+            squares={note: {'text': str(note), 'text_size': '8'} for note in self},
+            noterange=noterange,
+        )._repr_svg_()
+
+    def _repr_html_(self) -> str:
+        return f"""
+        <div class='specificchord'>
+        <h3 class='card_header'>{self}</h3>
+        {self.to_piano_image()}
+        </div>
+        """
+
     def __getnewargs_ex__(self):
         return (self.notes,), {'root': self.root}

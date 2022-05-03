@@ -174,3 +174,12 @@ async def test_play(capsys):
 @pytest.mark.parametrize('root, name', itertools.product('Cf', Chord.name_to_intervals))
 def test_html(root, name):
     Chord.from_name(root, name)._repr_html_()
+
+
+@pytest.mark.parametrize('chord', [
+    SpecificChord.from_str('C1_E1_f1'),
+    SpecificChord.from_str('C1_d3_A5'),
+    SpecificChord(frozenset()),
+])
+def test_html_specific(chord):
+    chord._repr_html_()
