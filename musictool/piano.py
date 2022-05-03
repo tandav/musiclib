@@ -80,16 +80,12 @@ class Piano:
                 self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
 
             # draw squares on notes
-            # if fill_border_color := self.squares.get(note, self.squares.get(note.abstract)):
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
                 fill_color = css_hex(payload.get('fill_color', WHITE_BRIGHT))
                 border_color = css_hex(payload.get('border_color', BLACK_BRIGHT))
 
-                if onclick := payload.get('onclick'):
-                    onclick = f" onclick='{onclick}'"
-                # <g onclick="play_chord('{str_chord}')">
-                # fill, border, text_color, str_chord = fill_border_color
-                # note.name
+                onclick = payload.get('onclick')
+                onclick = f" onclick='{onclick}'" if onclick else ''
 
                 rect = f"<rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{fill_color};stroke-width:1;stroke:{border_color}'/>"
 
