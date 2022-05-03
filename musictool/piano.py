@@ -27,10 +27,11 @@ def note_color(note: Note | SpecificNote) -> int:
         raise TypeError
 
 
-class SquaresPayload(TypedDict):
+class SquaresPayload(TypedDict, total=False):
     fill_color: int
     border_color: int
     text_color: int
+    text_size: str
     text: str
     onclick: str
 
@@ -40,7 +41,7 @@ class Piano:
         self,
         note_colors: dict[Note | SpecificNote, int] | None = None,
         top_rect_colors: dict[Note | SpecificNote, int] | None = None,
-        squares: dict[Note, SquaresPayload] | None = None,
+        squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
         ww: int = 18,  # white key width
@@ -110,7 +111,8 @@ class Piano:
 
                 if text := payload.get('text'):
                     text_color = css_hex(payload.get('text_color', BLACK_BRIGHT))
-                    rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='15' style='fill:{text_color}'>{text}</text>"
+                    text_size = payload.get('text_size', '15')
+                    rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='{text_size}' style='fill:{text_color}'>{text}</text>"
 
                 self.rects.append(f"""
                     <g class='square' note='{note}'{onclick}>
