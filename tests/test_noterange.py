@@ -108,3 +108,11 @@ def test_noterange_list(noterange, expected):
 def test_sequence():
     nr = NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert isinstance(nr, Sequence)
+
+
+@pytest.mark.parametrize('noterange', [
+    NoteRange('C2', 'C5'),
+    NoteRange('D2', 'G2', noteset=NoteSet.from_str('CDG')),
+])
+def test_html(noterange):
+    noterange._repr_html_()
