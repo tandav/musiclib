@@ -41,10 +41,9 @@ class Chord(NoteSet):
     name: str
 
     def _repr_html_(self) -> str:
-        root_str = f'/{self.root.name}' if self.root is not None else ''
         return f"""
         <div class='{' '.join(self.html_classes)}'>
-        <span class='card_header'><h3>{root_str} {self.name}</h3></span>
+        <h3 class='card_header'>{self.root.name} {self.name}</h3>
         {self.to_piano_image()}
         </div>
         """
