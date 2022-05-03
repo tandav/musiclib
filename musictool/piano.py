@@ -138,11 +138,11 @@ class Piano:
         ElementTree.indent(tree, level=0)
         return ElementTree.tostring(tree, encoding='unicode')
 
-    def _repr_svg_(self):
+    def _repr_svg_(self, pretty: bool = True):
         rects = '\n'.join(self.rects)
         svg = f"""
         <svg width='{self.size[0]}' height='{self.size[1]}'>
         {rects}
         </svg>
         """
-        return Piano.pretty_print(svg)
+        return Piano.pretty_print(svg) if pretty else svg
