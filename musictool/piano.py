@@ -94,7 +94,7 @@ class Piano:
                     rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='15' style='fill:{text_color}'>{text}</text>"
 
                 self.rects.append(f"""
-                    <g{onclick}>
+                    <g class='square' note='{note}'{onclick}>
                         {rect}                        
                     </g>
                 """)
