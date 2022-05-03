@@ -65,3 +65,16 @@ class NoteRange(Sequence[SpecificNote]):
     def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
     def __eq__(self, other): return self._key == other._key
     def __hash__(self): return hash(self._key)
+
+    def to_piano_image(self) -> str:
+        from musictool.piano import Piano  # hack to fix circular import
+        note_colors = None if self.noteset is CHROMATIC_NOTESET else {note: config.RED for note in self.noteset}
+        return Piano(note_colors=note_colors, noterange=NoteRange(self.start, self.stop))._repr_svg_()
+
+    def _repr_html_(self) -> str:
+        return f"""
+        <div class='noterange'>
+        <h3 class='card_header'>NoteRange({self.start}, {self.stop})</h3>
+        {self.to_piano_image()}
+        </div>
+        """

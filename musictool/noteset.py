@@ -195,9 +195,9 @@ class NoteSet(Cached):
         self.html_classes = prev
         return r
 
-    def to_piano_image(self):
+    def to_piano_image(self) -> str:
         from musictool.piano import Piano  # hack to fix circular import
-        return Piano(note_colors={note: RED for note in self.notes})._repr_svg_()
+        return Piano(note_colors={note: RED for note in self})._repr_svg_()
 
     def _repr_html_(self) -> str:
         return f"""
