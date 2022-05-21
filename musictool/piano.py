@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TypedDict
 from xml.etree import ElementTree
 
+import colortool
+
 from musictool.config import BLACK_BRIGHT
 from musictool.config import BLACK_PALE
 from musictool.config import WHITE_BRIGHT
@@ -13,7 +15,6 @@ from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noterange import CHROMATIC_NOTESET
 from musictool.noterange import NoteRange
-from musictool.util.color import css_hex
 
 
 def note_color(note: Note | SpecificNote) -> int:
@@ -97,12 +98,12 @@ class Piano:
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
-                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{css_hex(rect_color)};'/>""")
+                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{colortool.css_hex(rect_color)};'/>""")
 
             # draw squares on notes
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
-                fill_color = css_hex(payload.get('fill_color', WHITE_BRIGHT))
-                border_color = css_hex(payload.get('border_color', BLACK_BRIGHT))
+                fill_color = colortool.css_hex(payload.get('fill_color', WHITE_BRIGHT))
+                border_color = colortool.css_hex(payload.get('border_color', BLACK_BRIGHT))
 
                 onclick = payload.get('onclick')
                 onclick = f" onclick='{onclick}'" if onclick else ''
@@ -110,7 +111,7 @@ class Piano:
                 rect = f"<rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{fill_color};stroke-width:1;stroke:{border_color}'/>"
 
                 if text := payload.get('text'):
-                    text_color = css_hex(payload.get('text_color', BLACK_BRIGHT))
+                    text_color = colortool.css_hex(payload.get('text_color', BLACK_BRIGHT))
                     text_size = payload.get('text_size', '15')
                     rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='{text_size}' style='fill:{text_color}'>{text}</text>"
 
@@ -121,7 +122,7 @@ class Piano:
                 """)
 
         # border around whole svg
-        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{css_hex(BLACK_PALE)}'/>")
+        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}'/>")
 
     def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, int, int, int]:
         """

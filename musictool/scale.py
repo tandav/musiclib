@@ -13,7 +13,6 @@ from musictool.config import RED
 from musictool.note import Note
 from musictool.noteset import NoteSet
 from musictool.piano import Piano
-from musictool.util.color import hex_to_rgb
 
 
 class Scale(NoteSet):

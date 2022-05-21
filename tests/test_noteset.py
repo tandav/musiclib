@@ -102,7 +102,7 @@ def test_from_str(string, expected):
     (frozenset({0, 2, 3, 5, 7, 9, 10}), 'f', NoteSet(frozenset('faABdeE'), root='f')),
     (frozenset(), None, NoteSet(frozenset(), root=None)),
 ))
-def test_from_intervals(root, intervals, expected):
+def test_from_intervals(intervals, root, expected):
     assert NoteSet.from_intervals(intervals, root) is expected
 
 
