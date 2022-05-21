@@ -41,6 +41,7 @@ class Piano:
     def __init__(
         self,
         note_colors: dict[Note | SpecificNote, int] | None = None,
+        note_hrefs: dict[Note | SpecificNote, str] | None = None,
         top_rect_colors: dict[Note | SpecificNote, int] | None = None,
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
@@ -66,6 +67,7 @@ class Piano:
         self.note_colors = note_colors or {}
         self.top_rect_colors = top_rect_colors or {}
         self.squares = squares or {}
+        self.note_hrefs = note_hrefs or {}
 
         if noterange is not None:
             if noterange.noteset is not CHROMATIC_NOTESET:
@@ -94,7 +96,10 @@ class Piano:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
             # draw key
-            self.rects.append(f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{css_hex(c)};stroke-width:1;stroke:{css_hex(BLACK_PALE)}' onclick="play_note('{note}')"/>""")
+            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{colortool.css_hex(c)};stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}' onclick="play_note('{note}')"/>"""
+            if note_href := self.note_hrefs.get(note, self.note_hrefs.get(note.abstract)):
+                note_rect = f"<a href='{note_href}'>{note_rect}</a>"
+            self.rects.append(note_rect)
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
