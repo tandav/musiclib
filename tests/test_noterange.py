@@ -77,6 +77,10 @@ def test_noterange_getitem():
     assert nr[0:1] == NoteRange(SpecificNote('C', 1), SpecificNote('d', 1))
     assert nr[0:2] == NoteRange(SpecificNote('C', 1), SpecificNote('D', 1))
     assert nr[0:12] == NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert nr[1:] == NoteRange('d1', 'C2')
+    assert nr[:4] == NoteRange('C1', 'E1')
+    assert nr[:] == NoteRange('C1', 'C2')
+
     with pytest.raises(IndexError): nr[13]
     with pytest.raises(IndexError): nr[-14]
     with pytest.raises(IndexError): nr[-3: 1]

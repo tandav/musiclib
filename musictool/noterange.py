@@ -50,9 +50,12 @@ class NoteRange(Sequence[SpecificNote]):
     def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
         if isinstance(item, int): return self._getitem_int(item)
         elif isinstance(item, slice):
-            if not 0 <= item.start <= item.stop <= len(self):
-                raise IndexError('NoteRange slice is out of range')
-            return NoteRange(self._getitem_int(item.start), self._getitem_int(item.stop), self.noteset)
+            # if item.start is None:
+            start = 0 if item.start is None else item.start
+            stop = len(self) - 1 if item.stop is None else item.stop
+            if not 0 <= start <= stop <= len(self):
+                raise IndexError('NoteRange slice is out of range, negative indexing is not supported')
+            return NoteRange(self._getitem_int(start), self._getitem_int(stop), self.noteset)
         else: raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
 
     def __contains__(self, item: object) -> bool:
