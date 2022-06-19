@@ -10,14 +10,16 @@ from musictool.note import SpecificNote
 from musictool.note import str_to_note
 
 
-@pytest.mark.parametrize('i, expected', (
-    (0, 'C'),
-    (12, 'C'),
-    (1, 'd'),
-    (13, 'd'),
-    (-1, 'B'),
-    (-28, 'a'),
-))
+@pytest.mark.parametrize(
+    'i, expected', (
+        (0, 'C'),
+        (12, 'C'),
+        (1, 'd'),
+        (13, 'd'),
+        (-1, 'B'),
+        (-28, 'a'),
+    ),
+)
 def test_from_i(i, expected):
     assert Note.from_i(i) == expected
 
@@ -29,18 +31,20 @@ def test_note_exists():
         Note('1')
 
 
-@pytest.mark.parametrize('op, a, b', (
-    (operator.eq, Note('C'), 'C'),
-    (operator.eq, Note('C'), Note('C')),
-    (operator.ne, Note('C'), 'D'),
-    (operator.ne, Note('C'), Note('D')),
-    (operator.lt, Note('C'), 'D'),
-    (operator.lt, Note('C'), Note('D')),
-    (operator.gt, Note('D'), Note('d')),
-    (operator.gt, Note('B'), Note('f')),
-    (operator.eq, SpecificNote.from_str('C1'), 'C1'),
-    (operator.ne, SpecificNote.from_str('C1'), 'C2'),
-))
+@pytest.mark.parametrize(
+    'op, a, b', (
+        (operator.eq, Note('C'), 'C'),
+        (operator.eq, Note('C'), Note('C')),
+        (operator.ne, Note('C'), 'D'),
+        (operator.ne, Note('C'), Note('D')),
+        (operator.lt, Note('C'), 'D'),
+        (operator.lt, Note('C'), Note('D')),
+        (operator.gt, Note('D'), Note('d')),
+        (operator.gt, Note('B'), Note('f')),
+        (operator.eq, SpecificNote.from_str('C1'), 'C1'),
+        (operator.ne, SpecificNote.from_str('C1'), 'C2'),
+    ),
+)
 def test_ordering(op, a, b):
     assert op(a, b)
 
@@ -50,13 +54,15 @@ def test_specific_note_from_absolute_i(absolute_i):
     assert SpecificNote.from_absolute_i(absolute_i).absolute_i == absolute_i
 
 
-@pytest.mark.parametrize('string, expected', (
-    ('F1', SpecificNote('F', 1)),
-    ('C4', SpecificNote('C', 4)),
-    ('C10', SpecificNote('C', 10)),
-    ('d456', SpecificNote('d', 456)),
-    ('d-456', SpecificNote('d', -456)),
-))
+@pytest.mark.parametrize(
+    'string, expected', (
+        ('F1', SpecificNote('F', 1)),
+        ('C4', SpecificNote('C', 4)),
+        ('C10', SpecificNote('C', 10)),
+        ('d456', SpecificNote('d', 456)),
+        ('d-456', SpecificNote('d', -456)),
+    ),
+)
 def test_from_str(string, expected):
     assert SpecificNote.from_str(string) == expected
 
@@ -78,13 +84,15 @@ async def test_play(capsys):
     assert stdout == ''.join(lines)
 
 
-@pytest.mark.parametrize('note, steps, expected', (
-    (Note('C'), 4, Note('E')),
-    (Note('C'), 15, Note('e')),
-    (Note('B'), 2, Note('d')),
-    (Note('D'), -2, Note('C')),
-    (Note('d'), -2, Note('B')),
-))
+@pytest.mark.parametrize(
+    'note, steps, expected', (
+        (Note('C'), 4, Note('E')),
+        (Note('C'), 15, Note('e')),
+        (Note('B'), 2, Note('d')),
+        (Note('D'), -2, Note('C')),
+        (Note('d'), -2, Note('B')),
+    ),
+)
 def test_note_add(note, steps, expected):
     assert note + steps == expected
 

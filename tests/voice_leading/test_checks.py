@@ -4,12 +4,14 @@ from musictool.chord import SpecificChord
 from musictool.voice_leading import checks
 
 
-@pytest.mark.parametrize('f, extra_args', (
-    (checks.parallel_interval, (7,)),
-    (checks.hidden_parallel, (7,)),
-    (checks.voice_crossing, ()),
-    (checks.large_leaps, (4,)),
-))
+@pytest.mark.parametrize(
+    'f, extra_args', (
+        (checks.parallel_interval, (7,)),
+        (checks.hidden_parallel, (7,)),
+        (checks.voice_crossing, ()),
+        (checks.large_leaps, (4,)),
+    ),
+)
 def test_cache(f, extra_args):
     a = SpecificChord.from_str('C5653_E2895_G1111')
     b = SpecificChord.from_str('F5384_A5559_C6893')
@@ -79,53 +81,61 @@ def test_voice_crossing():
     assert checks.voice_crossing(SpecificChord.from_str('E3_E5_G5_B5'), SpecificChord.from_str('A3_C4_E4_A4'))
 
 
-@pytest.mark.parametrize('a, b, interval, expected', (
-    ('C1_E1', 'C2_E2', 5, True),
-    ('C1_E1', 'E1_G1', 5, False),
-    ('C1_E1', 'F1_G1', 5, False),
-    ('C1_E1', 'f1_G1', 5, True),
-    ('C1', 'F1', 5, False),
-    ('C1', 'f1', 5, True),
-))
+@pytest.mark.parametrize(
+    'a, b, interval, expected', (
+        ('C1_E1', 'C2_E2', 5, True),
+        ('C1_E1', 'E1_G1', 5, False),
+        ('C1_E1', 'F1_G1', 5, False),
+        ('C1_E1', 'f1_G1', 5, True),
+        ('C1', 'F1', 5, False),
+        ('C1', 'f1', 5, True),
+    ),
+)
 def test_large_leaps(a, b, interval, expected):
     assert checks.large_leaps(SpecificChord.from_str(a), SpecificChord.from_str(b), interval) == expected
 
 
-@pytest.mark.parametrize('chord_str, max_interval, expected', (
-    ('C1_d2', 12, True),
-    ('C1_C2', 12, False),
-    ('C1_d1', 1, False),
-    ('C1_D1', 1, True),
-    ('B0_C1', 2, False),
-    ('B0_d1', 2, False),
-    ('B0_D1', 2, True),
-))
+@pytest.mark.parametrize(
+    'chord_str, max_interval, expected', (
+        ('C1_d2', 12, True),
+        ('C1_C2', 12, False),
+        ('C1_d1', 1, False),
+        ('C1_D1', 1, True),
+        ('B0_C1', 2, False),
+        ('B0_d1', 2, False),
+        ('B0_D1', 2, True),
+    ),
+)
 def test_large_spacing(chord_str, max_interval, expected):
     assert checks.large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected
 
 
-@pytest.mark.parametrize('chord_str, min_interval, expected', (
-    ('C1_d2', 12, False),
-    ('C1_C2', 13, True),
-    ('C1_d1', 1, False),
-    ('C1_d1', 2, True),
-    ('C1_D1', 1, False),
-    ('C1_D1', 2, False),
-    ('C1_D1', 3, True),
-))
+@pytest.mark.parametrize(
+    'chord_str, min_interval, expected', (
+        ('C1_d2', 12, False),
+        ('C1_C2', 13, True),
+        ('C1_d1', 1, False),
+        ('C1_d1', 2, True),
+        ('C1_D1', 1, False),
+        ('C1_D1', 2, False),
+        ('C1_D1', 3, True),
+    ),
+)
 def test_small_spacing(chord_str, min_interval, expected):
     assert checks.small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected
 
 
 @pytest.mark.parametrize('swap', [False, True])
-@pytest.mark.parametrize('a, b, n_notes, expected', [
-    (SpecificChord(frozenset()), SpecificChord(frozenset()), 0, ()),
-    (SpecificChord(frozenset()), SpecificChord(frozenset()), 1, ()),
-    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 0, ()),
-    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 1, (0,)),
-    (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 2, (0,)),
-    (SpecificChord.from_str('C3_E3_A3'), SpecificChord.from_str('d3_B3'), 3, (1,)),
-])
+@pytest.mark.parametrize(
+    'a, b, n_notes, expected', [
+        (SpecificChord(frozenset()), SpecificChord(frozenset()), 0, ()),
+        (SpecificChord(frozenset()), SpecificChord(frozenset()), 1, ()),
+        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 0, ()),
+        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 1, (0,)),
+        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 2, (0,)),
+        (SpecificChord.from_str('C3_E3_A3'), SpecificChord.from_str('d3_B3'), 3, (1,)),
+    ],
+)
 def test_find_paused_voices(a, b, n_notes, expected, swap):
     """TODO: test n_notes=0,1,2,3,4
     TODO: more test cases

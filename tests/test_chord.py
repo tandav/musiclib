@@ -38,20 +38,24 @@ def test_notes():
     assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
 
 
-@pytest.mark.parametrize('chord, expected', (
-    (Chord(frozenset('BDF'), root='B'), 'BDF/B'),
-    (Chord(frozenset('DGBFCEA'), root='B'), 'BCDEFGA/B'),
-))
+@pytest.mark.parametrize(
+    'chord, expected', (
+        (Chord(frozenset('BDF'), root='B'), 'BDF/B'),
+        (Chord(frozenset('DGBFCEA'), root='B'), 'BCDEFGA/B'),
+    ),
+)
 def test_str_sort_2_octaves(chord, expected):
     assert str(chord) == expected
 
 
-@pytest.mark.parametrize('notes, root, expected', (
-    ('CEG', 'C', 'major'),
-    ('BDF', 'B', 'diminished'),
-    ('CefA', 'C', 'dim7'),
-    ('DFaC', 'D', 'half-dim7'),
-))
+@pytest.mark.parametrize(
+    'notes, root, expected', (
+        ('CEG', 'C', 'major'),
+        ('BDF', 'B', 'diminished'),
+        ('CefA', 'C', 'dim7'),
+        ('DFaC', 'D', 'half-dim7'),
+    ),
+)
 def test_name(notes, root, expected):
     assert Chord(frozenset(notes), root=root).name == expected
 
@@ -101,10 +105,12 @@ def test_combinations_order():
             assert n < m
 
 
-@pytest.mark.parametrize('specific, abstract', (
-    ('C1_E1_G2/C', Chord.from_str('CEG/C')),
-    ('C1_E1_G2', NoteSet.from_str('CEG')),
-))
+@pytest.mark.parametrize(
+    'specific, abstract', (
+        ('C1_E1_G2/C', Chord.from_str('CEG/C')),
+        ('C1_E1_G2', NoteSet.from_str('CEG')),
+    ),
+)
 def test_abstract(specific, abstract):
     assert SpecificChord.from_str(specific).abstract == abstract
 
@@ -121,44 +127,50 @@ def test_find_intervals():
     assert SpecificChord(frozenset({a, d})).find_intervals(12) == ((a, d),)
 
 
-@pytest.mark.parametrize('chord, note, steps, result', (
-    (Chord.from_str('CEG/C'), Note('C'), 1, Note('E')),
-    (Chord.from_str('CEG/C'), Note('C'), 2, Note('G')),
-    (Chord.from_str('CEG/C'), Note('C'), 3, Note('C')),
-    (Chord.from_str('CeGb/C'), Note('e'), 2, Note('b')),
-    (Chord.from_str('CeGb/C'), Note('e'), 25, Note('G')),
-    (Chord.from_str('CEG/C'), Note('C'), -1, Note('G')),
-    (Chord.from_str('CEG/C'), Note('C'), -2, Note('E')),
-    (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
-    (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
-    (Chord.from_str('CeGb/C'), Note('e'), -15, Note('G')),
-))
+@pytest.mark.parametrize(
+    'chord, note, steps, result', (
+        (Chord.from_str('CEG/C'), Note('C'), 1, Note('E')),
+        (Chord.from_str('CEG/C'), Note('C'), 2, Note('G')),
+        (Chord.from_str('CEG/C'), Note('C'), 3, Note('C')),
+        (Chord.from_str('CeGb/C'), Note('e'), 2, Note('b')),
+        (Chord.from_str('CeGb/C'), Note('e'), 25, Note('G')),
+        (Chord.from_str('CEG/C'), Note('C'), -1, Note('G')),
+        (Chord.from_str('CEG/C'), Note('C'), -2, Note('E')),
+        (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
+        (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
+        (Chord.from_str('CeGb/C'), Note('e'), -15, Note('G')),
+    ),
+)
 def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
 
 
-@pytest.mark.parametrize('chord, expected', (
-    ('C3_E3_G3', 'C0_E0_G0'),
-    ('F3_A3_C4', 'C0_E0_G0'),
-    ('C3_E3_G3/C', 'C0_E0_G0/C'),
-    ('F3_A3_C4/F', 'C0_E0_G0/C'),
-))
+@pytest.mark.parametrize(
+    'chord, expected', (
+        ('C3_E3_G3', 'C0_E0_G0'),
+        ('F3_A3_C4', 'C0_E0_G0'),
+        ('C3_E3_G3/C', 'C0_E0_G0/C'),
+        ('F3_A3_C4/F', 'C0_E0_G0/C'),
+    ),
+)
 def test_transposed_to_C0(chord, expected):
     assert SpecificChord.from_str(chord).transposed_to_C0 == SpecificChord.from_str(expected)
 
 
-@pytest.mark.parametrize('chord, add, expected', (
-    ('C3_E3_G3', -36, 'C0_E0_G0'),
-    ('C3_E3_G3', -24, 'C1_E1_G1'),
-    ('C3_E3_G3', 0, 'C3_E3_G3'),
-    ('C3_E3_G3', 12, 'C4_E4_G4'),
-    ('C3_E3_G3', -34, 'D0_f0_A0'),
-    ('C3_E3_G3', 13, 'd4_F4_a4'),
-    ('C3_E3_G3/C', -36, 'C0_E0_G0/C'),
-    ('C3_E3_G3/C', -24, 'C1_E1_G1/C'),
-    ('C3_E3_G3/C', 13, 'd4_F4_a4/d'),
-    ('C3_E3_G3/E', 13, 'd4_F4_a4/F'),
-))
+@pytest.mark.parametrize(
+    'chord, add, expected', (
+        ('C3_E3_G3', -36, 'C0_E0_G0'),
+        ('C3_E3_G3', -24, 'C1_E1_G1'),
+        ('C3_E3_G3', 0, 'C3_E3_G3'),
+        ('C3_E3_G3', 12, 'C4_E4_G4'),
+        ('C3_E3_G3', -34, 'D0_f0_A0'),
+        ('C3_E3_G3', 13, 'd4_F4_a4'),
+        ('C3_E3_G3/C', -36, 'C0_E0_G0/C'),
+        ('C3_E3_G3/C', -24, 'C1_E1_G1/C'),
+        ('C3_E3_G3/C', 13, 'd4_F4_a4/d'),
+        ('C3_E3_G3/E', 13, 'd4_F4_a4/F'),
+    ),
+)
 def test_add(chord, add, expected):
     assert SpecificChord.from_str(chord) + add == SpecificChord.from_str(expected)
     with pytest.raises(TypeError): chord + [1]
@@ -183,10 +195,12 @@ def test_html(root, name):
     Chord.from_name(root, name)._repr_html_()
 
 
-@pytest.mark.parametrize('chord', [
-    SpecificChord.from_str('C1_E1_f1'),
-    SpecificChord.from_str('C1_d3_A5'),
-    SpecificChord(frozenset()),
-])
+@pytest.mark.parametrize(
+    'chord', [
+        SpecificChord.from_str('C1_E1_f1'),
+        SpecificChord.from_str('C1_d3_A5'),
+        SpecificChord(frozenset()),
+    ],
+)
 def test_html_specific(chord):
     chord._repr_html_()

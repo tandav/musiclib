@@ -32,12 +32,15 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
                 t_buffer[message.note] = t
 
             elif message.type == 'note_off' or (
-                    message.type == 'note_on' and message.velocity == 0):  # https://stackoverflow.com/a/43322203/4204843
-                heapq.heappush(notes, MidiNote(
-                    note=SpecificNote.from_absolute_i(message.note),
-                    on=t_buffer.pop(message.note), off=t,
-                    track=track_i,
-                ))
+                    message.type == 'note_on' and message.velocity == 0
+            ):  # https://stackoverflow.com/a/43322203/4204843
+                heapq.heappush(
+                    notes, MidiNote(
+                        note=SpecificNote.from_absolute_i(message.note),
+                        on=t_buffer.pop(message.note), off=t,
+                        track=track_i,
+                    ),
+                )
     return notes
 
 

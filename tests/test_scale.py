@@ -10,12 +10,14 @@ from musictool.scale import Scale
 from musictool.scale import all_scales
 
 
-@pytest.mark.parametrize('notes, name', (
-    ('CDEFGAB', 'major'),
-    ('CdeFGab', 'phrygian'),
-    ('DEFGAbC', 'minor'),
-    ('bdefa', 'p_phrygian'),
-))
+@pytest.mark.parametrize(
+    'notes, name', (
+        ('CDEFGAB', 'major'),
+        ('CdeFGab', 'phrygian'),
+        ('DEFGAbC', 'minor'),
+        ('bdefa', 'p_phrygian'),
+    ),
+)
 def test_name(notes, name):
     root = notes[0]
     notes = frozenset(notes)
@@ -37,24 +39,28 @@ def test_kind():
     )
 
 
-@pytest.mark.parametrize('op, a, b', (
-    (operator.eq, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
-    (operator.eq, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
-    (operator.eq, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('C'), 'major')),
-    (operator.ne, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('E'), 'major')),
-))
+@pytest.mark.parametrize(
+    'op, a, b', (
+        (operator.eq, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
+        (operator.eq, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
+        (operator.eq, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('C'), 'major')),
+        (operator.ne, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('E'), 'major')),
+    ),
+)
 def test_equal(op, a, b):
     assert op(a, b)
 
 
-@pytest.mark.parametrize('notes, name, nths', (
-    ('CDEFGAB', 'triads', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
-    ('DEFGAbC', 'triads', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
-    ('CDEFGAB', 'sevenths', 'CEGB/C DFAC/D EGBD/E FACE/F GBDF/G ACEG/A BDFA/B'),
-    ('DEFGAbC', 'sevenths', 'DFAC/D EGbD/E FACE/F GbDF/G ACEG/A bDFA/b CEGb/C'),
-    ('CDEFGAB', 'ninths', 'CEGBD/C DFACE/D EGBDF/E FACEG/F GBDFA/G ACEGB/A BDFAC/B'),
-    ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
-))
+@pytest.mark.parametrize(
+    'notes, name, nths', (
+        ('CDEFGAB', 'triads', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
+        ('DEFGAbC', 'triads', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
+        ('CDEFGAB', 'sevenths', 'CEGB/C DFAC/D EGBD/E FACE/F GBDF/G ACEG/A BDFA/B'),
+        ('DEFGAbC', 'sevenths', 'DFAC/D EGbD/E FACE/F GbDF/G ACEG/A bDFA/b CEGb/C'),
+        ('CDEFGAB', 'ninths', 'CEGBD/C DFACE/D EGBDF/E FACEG/F GBDFA/G ACEGB/A BDFAC/B'),
+        ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
+    ),
+)
 def test_nths(notes, name, nths):
     assert getattr(Scale(frozenset(notes), root=notes[0]), name) == tuple(Chord.from_str(s) for s in nths.split())
 
@@ -79,25 +85,29 @@ def test_compared():
     assert c.del_notes == frozenset({Note('B')})
 
 
-@pytest.mark.parametrize('scale, parallel_name, expected', (
-    (Scale.from_name('C', 'major'), 'minor', Scale.from_name('C', 'minor')),
-    (Scale.from_name('C', 'minor'), 'major', Scale.from_name('C', 'major')),
-    (Scale.from_name('f', 'minor'), 'major', Scale.from_name('f', 'major')),
-    (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('C', 'phrygian')),
-    (Scale.from_name('e', 'dorian'), 'locrian', Scale.from_name('e', 'locrian')),
-))
+@pytest.mark.parametrize(
+    'scale, parallel_name, expected', (
+        (Scale.from_name('C', 'major'), 'minor', Scale.from_name('C', 'minor')),
+        (Scale.from_name('C', 'minor'), 'major', Scale.from_name('C', 'major')),
+        (Scale.from_name('f', 'minor'), 'major', Scale.from_name('f', 'major')),
+        (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('C', 'phrygian')),
+        (Scale.from_name('e', 'dorian'), 'locrian', Scale.from_name('e', 'locrian')),
+    ),
+)
 def test_parallel(scale, parallel_name, expected):
     assert scale.parallel(parallel_name) is expected
 
 
-@pytest.mark.parametrize('scale, relative_name, expected', (
-    (Scale.from_name('C', 'major'), 'minor', Scale.from_name('A', 'minor')),
-    (Scale.from_name('A', 'minor'), 'major', Scale.from_name('C', 'major')),
-    (Scale.from_name('f', 'minor'), 'major', Scale.from_name('A', 'major')),
-    (Scale.from_name('A', 'major'), 'minor', Scale.from_name('f', 'minor')),
-    (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('E', 'phrygian')),
-    (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
-))
+@pytest.mark.parametrize(
+    'scale, relative_name, expected', (
+        (Scale.from_name('C', 'major'), 'minor', Scale.from_name('A', 'minor')),
+        (Scale.from_name('A', 'minor'), 'major', Scale.from_name('C', 'major')),
+        (Scale.from_name('f', 'minor'), 'major', Scale.from_name('A', 'major')),
+        (Scale.from_name('A', 'major'), 'minor', Scale.from_name('f', 'minor')),
+        (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('E', 'phrygian')),
+        (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
+    ),
+)
 def test_relative(scale, relative_name, expected):
     assert scale.relative(relative_name) is expected
 
@@ -108,9 +118,11 @@ def test_html(kind):
         scale._repr_html_()
 
 
-@pytest.mark.parametrize('scale0, scale1', (
-    (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
-    (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
-))
+@pytest.mark.parametrize(
+    'scale0, scale1', (
+        (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
+        (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
+    ),
+)
 def test_html_compared_scale(scale0, scale1):
     ComparedScales(scale0, scale1)._repr_html_()

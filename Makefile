@@ -2,10 +2,14 @@ python := python3.10
 
 LINTING_DIRS := musictool tests
 
+.PHONY: fix-isort
+fix-isort:
+	$(python) -m isort --force-single-line-imports $(LINTING_DIRS)
+
 
 .PHONY: check-lint
 check-lint:
-	$(python) -m no_init --allow-empty $(LINTING_DIRS)
+	#$(python) -m no_init --allow-empty $(LINTING_DIRS)
 	$(python) -m force_absolute_imports $(LINTING_DIRS)
 	$(python) -m isort --check-only --force-single-line-imports $(LINTING_DIRS)
 	$(python) -m autoflake --recursive $(LINTING_DIRS)
@@ -51,3 +55,7 @@ midi_html:
 profile:
 	$(python) -m cProfile -o logs/profile.txt -m musictool.daw video
 	$(python) -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
+
+.PHONY: bump2version
+bump2version:
+	bump2version --no-commit --no-tag $(STEP)

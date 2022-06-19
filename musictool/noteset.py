@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-from typing import Type
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
@@ -114,14 +113,14 @@ class NoteSet(Cached):
         return NoteSet.from_intervals(self.intervals, note)
 
     @classmethod
-    def from_name(cls: Type[Self], root: str | Note, name: str) -> Self:
+    def from_name(cls: type[Self], root: str | Note, name: str) -> Self:
         if isinstance(root, str):
             root = Note(root)
         notes = frozenset(root + interval for interval in cls.name_to_intervals[name])
         return cls(notes, root=root)
 
     @classmethod
-    def from_intervals(cls: Type[Self], intervals: frozenset[int], root: str | Note | None) -> Self:
+    def from_intervals(cls: type[Self], intervals: frozenset[int], root: str | Note | None) -> Self:
         if root is None:
             return cls(frozenset(), root=root)
         if isinstance(root, str):
@@ -129,14 +128,14 @@ class NoteSet(Cached):
         return cls(frozenset(root + interval for interval in intervals), root=root)
 
     @classmethod
-    def random(cls: Type[Self], n_notes: int | None = None) -> Self:
+    def random(cls: type[Self], n_notes: int | None = None) -> Self:
         if n_notes is None:
             n_notes = random.randint(2, 5)
         notes = frozenset(random.sample(config.chromatic_notes, n_notes))
         return cls(notes)
 
     @classmethod
-    def from_str(cls: Type[Self], string: str) -> Self:
+    def from_str(cls: type[Self], string: str) -> Self:
         notes, _, root_ = string.partition('/')
         root = Note(root_) if root_ else None
         return cls(frozenset(Note(note) for note in notes), root=root)
