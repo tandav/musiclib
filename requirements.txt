@@ -1,4 +1,4 @@
 colortool==0.0.2
-tqdm==4.63.0
 mido==1.2.10
 pipe21==1.0.9
+tqdm==4.63.0
