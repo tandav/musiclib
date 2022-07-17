@@ -37,7 +37,6 @@ repos:
     rev: v1.6.0
     hooks:
       - id: autopep8
-        args: ['--in-place', '--ignore', 'E701', '--max-line-length', '250']
 
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
