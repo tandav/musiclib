@@ -11,26 +11,22 @@ fix-isort:
 check-lint:
 	#$(python) -m no_init --allow-empty $(LINTING_DIRS)
 	$(python) -m force_absolute_imports $(LINTING_DIRS)
-	$(python) -m isort --check-only --force-single-line-imports $(LINTING_DIRS)
+	$(python) -m isort --check-only $(LINTING_DIRS)
 	$(python) -m autoflake --recursive $(LINTING_DIRS)
 	$(python) -m autopep8 --diff $(LINTING_DIRS)
-	$(python) -m unify --recursive $(LINTING_DIRS)
 	$(python) -m flake8 $(LINTING_DIRS)
 	#$(python) -m darglint --docstring-style numpy --verbosity 2 $(LINTING_DIRS)
-	#$(python) -m black --diff --check --config pyproject.toml $(LINTING_DIRS)
 
 .PHONY: fix-lint
 fix-lint:
 	$(python) -m force_absolute_imports --in-place $(LINTING_DIRS)
-	$(python) -m isort --force-single-line-imports $(LINTING_DIRS)
+	$(python) -m isort $(LINTING_DIRS)
 	$(python) -m autoflake --recursive --in-place $(LINTING_DIRS)
 	$(python) -m autopep8 --in-place $(LINTING_DIRS)
-	$(python) -m unify --recursive --in-place $(LINTING_DIRS)
-	#$(python) -m black --config pyproject.toml $(LINTING_DIRS)
 
 .PHONY: check-mypy
 mypy:
-	$(python) -m mypy --config-file pyproject.toml $(LINTING_DIRS)
+	$(python) -m mypy $(LINTING_DIRS)
 
 .PHONY: test
 test:
