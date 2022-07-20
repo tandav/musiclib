@@ -2,11 +2,6 @@ python := python3.10
 
 LINTING_DIRS := musictool tests
 
-.PHONY: fix-isort
-fix-isort:
-	$(python) -m isort --force-single-line-imports $(LINTING_DIRS)
-
-
 .PHONY: check-lint
 check-lint:
 	#$(python) -m no_init --allow-empty $(LINTING_DIRS)
@@ -19,10 +14,8 @@ check-lint:
 
 .PHONY: fix-lint
 fix-lint:
-	$(python) -m force_absolute_imports --in-place $(LINTING_DIRS)
 	$(python) -m isort $(LINTING_DIRS)
 	$(python) -m autoflake --recursive --in-place $(LINTING_DIRS)
-	$(python) -m autopep8 --in-place $(LINTING_DIRS)
 
 .PHONY: check-mypy
 mypy:
