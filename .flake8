@@ -1,7 +1,6 @@
 [flake8]
 max-line-length = 200
 max-complexity = 10
-exclude=musictool/util/wavfile.py
 ignore =
     E501,E701,E704,E741,
     W503,W504,

@@ -14,7 +14,6 @@ check-lint:
 
 .PHONY: fix-lint
 fix-lint:
-	$(python) -m isort $(LINTING_DIRS)
 	$(python) -m autoflake --recursive --in-place $(LINTING_DIRS)
 
 .PHONY: check-mypy
