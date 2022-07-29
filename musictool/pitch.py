@@ -8,9 +8,8 @@ class Pitch:
     def i_to_hz(self, i: float) -> float:
         return self.hz_tuning * 2 ** (i / 12)
 
-    def hz_to_i(self, hz: float, to_int: bool = False) -> float:
-        v = 12 * math.log2(hz / self.hz_tuning)
-        return int(v) if to_int else v
+    def hz_to_i(self, hz: float) -> float:
+        return 12 * math.log2(hz / self.hz_tuning)
 
     @staticmethod
     def hz_to_px(hz: float, hz_min: float, hz_max: float, px_max: float) -> float:

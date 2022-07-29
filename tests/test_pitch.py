@@ -16,7 +16,7 @@ from musictool.pitch import Pitch
 def test_i_hz(i, hz):
     pitch = Pitch(hz_tuning=440)
     assert pitch.i_to_hz(i) == hz
-    assert pitch.hz_to_i(hz, to_int=True) == i
+    assert int(pitch.hz_to_i(hz)) == i
 
 
 @pytest.mark.parametrize(
