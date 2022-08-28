@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import functools
 from collections.abc import Iterable
+from typing import overload
 
 from musictool import config
 from musictool.midi import player
@@ -110,10 +111,19 @@ class SpecificNote(Note):
             return NotImplemented
         return self.absolute_i < other.absolute_i
 
+    @overload
+    def __sub__(self, other: SpecificNote) -> int: ...
+
+    @overload
+    def __sub__(self, other: int) -> SpecificNote: ...
+
     @functools.cache
-    def __sub__(self, other: SpecificNote) -> int:
-        """distance between notes"""
-        return self.absolute_i - other.absolute_i
+    def __sub__(self, other: SpecificNote | int) -> int | SpecificNote:
+        if isinstance(other, SpecificNote):  # distance between notes
+            return self.absolute_i - other.absolute_i
+        elif isinstance(other, int):  # subtract semitones
+            return SpecificNote.from_absolute_i(self.absolute_i - other)
+        else: raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
 
     def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""
