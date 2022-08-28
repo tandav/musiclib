@@ -51,23 +51,32 @@ class Note(Cached):
     def __add__(self, other: int) -> Note:
         return Note.from_i(self.i + other)
 
-    def __sub__(self, other: Note) -> int:
+    @overload
+    def __sub__(self, other: Note) -> int: ...
+
+    @overload
+    def __sub__(self, other: int) -> Note: ...
+
+    def __sub__(self, other: Note | int) -> int | Note:
         """
         kinda constraint (maybe it will be changed later):
             if you're computing distance between abstract notes - then self considered above other
             G - C == 7 # C0 G0
             C - G == 5 # G0 C1
         """
-        if other.i <= self.i:
-            return self.i - other.i
-        return 12 + self.i - other.i
+        if isinstance(other, Note):
+            if other.i <= self.i:
+                return self.i - other.i
+            return 12 + self.i - other.i
+        elif isinstance(other, int):
+            return self + (-other)
 
     def __getnewargs__(self):
         return self.name,
 
 
 @functools.total_ordering
-class SpecificNote(Note):
+class SpecificNote(Cached):
     def __init__(self, abstract: Note | str, octave: int):
         """
         :param octave: in midi format (C5-midi == C3-ableton)
@@ -75,14 +84,15 @@ class SpecificNote(Note):
         if isinstance(abstract, str):
             abstract = Note(abstract)
         self.abstract = abstract
-        super().__init__(abstract.name)
+        self.is_black = abstract.is_black
+        # super().__init__(abstract.name)
         self.octave = octave
-        self.absolute_i: int = octave * 12 + self.i  # this is also midi_code
+        self.i: int = octave * 12 + self.abstract.i  # this is also midi_code
         self.key = self.abstract, self.octave
 
     @classmethod
-    def from_absolute_i(cls, absolute_i: int) -> SpecificNote:
-        div, mod = divmod(absolute_i, 12)
+    def from_i(cls, i: int) -> SpecificNote:
+        div, mod = divmod(i, 12)
         return cls(Note(config.chromatic_notes[mod]), octave=div)
 
     @classmethod
@@ -90,9 +100,9 @@ class SpecificNote(Note):
         return cls(Note(string[0]), int(string[1:]))
 
     async def play(self, seconds: float = 1) -> None:
-        player.send_message('note_on', note=self.absolute_i, channel=0)
+        player.send_message('note_on', note=self.i, channel=0)
         await asyncio.sleep(seconds)
-        player.send_message('note_off', note=self.absolute_i, channel=0)
+        player.send_message('note_off', note=self.i, channel=0)
 
     def __repr__(self): return f'{self.abstract.name}{self.octave}'
 
@@ -109,7 +119,7 @@ class SpecificNote(Note):
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
             return NotImplemented
-        return self.absolute_i < other.absolute_i
+        return self.i < other.i
 
     @overload
     def __sub__(self, other: SpecificNote) -> int: ...
@@ -117,17 +127,17 @@ class SpecificNote(Note):
     @overload
     def __sub__(self, other: int) -> SpecificNote: ...
 
-    @functools.cache
+    # @functools.cache
     def __sub__(self, other: SpecificNote | int) -> int | SpecificNote:
         if isinstance(other, SpecificNote):  # distance between notes
-            return self.absolute_i - other.absolute_i
+            return self.i - other.i
         elif isinstance(other, int):  # subtract semitones
-            return SpecificNote.from_absolute_i(self.absolute_i - other)
+            return self + (-other)
         else: raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
 
     def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""
-        return SpecificNote.from_absolute_i(self.absolute_i + other)
+        return SpecificNote.from_i(self.i + other)
 
     @staticmethod
     def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:

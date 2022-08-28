@@ -158,9 +158,9 @@ class SpecificChord(Cached):
         stop_time = int(n_bars * mid.ticks_per_beat * 4)
 
         for note in self.notes_ascending:
-            track.append(mido.Message('note_on', note=note.absolute_i, velocity=100, time=0))
+            track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))
         for i, note in enumerate(self.notes_ascending):
-            track.append(mido.Message('note_off', note=note.absolute_i, velocity=100, time=stop_time if i == 0 else 0))
+            track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
 
         mid.tracks.append(track)
         mid.meta = {'chord': self}

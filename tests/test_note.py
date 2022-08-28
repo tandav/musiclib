@@ -50,8 +50,8 @@ def test_ordering(op, a, b):
 
 
 @given(st.integers())
-def test_specific_note_from_absolute_i(absolute_i):
-    assert SpecificNote.from_absolute_i(absolute_i).absolute_i == absolute_i
+def test_specific_note_from_i(i):
+    assert SpecificNote.from_i(i).i == i
 
 
 @pytest.mark.parametrize(
@@ -69,13 +69,13 @@ def test_from_str(string, expected):
 
 @pytest.mark.asyncio
 async def test_play(capsys):
-    note = SpecificNote.from_absolute_i(60)
+    note = SpecificNote.from_i(60)
     await note.play(seconds=0.0001)
     stdout, stderr = capsys.readouterr()
 
     lines = [
-        f'note_on note={note.absolute_i}, channel=0\n',
-        f'note_off note={note.absolute_i}, channel=0\n',
+        f'note_on note={note.i}, channel=0\n',
+        f'note_off note={note.i}, channel=0\n',
     ]
 
     if 'MIDI_DEVICE' not in os.environ:
@@ -98,15 +98,15 @@ def test_note_add(note, steps, expected):
 
 
 @given(st.integers(), st.integers())
-def test_specific_note_add(absolute_i, to_add):
-    note = SpecificNote.from_absolute_i(absolute_i)
-    assert (note + to_add).absolute_i == note.absolute_i + to_add
+def test_specific_note_add(i, to_add):
+    note = SpecificNote.from_i(i)
+    assert (note + to_add).i == note.i + to_add
 
 
 @given(st.integers(), st.integers())
-def test_specific_note_sub(absolute_i, to_sub):
-    note = SpecificNote.from_absolute_i(absolute_i)
-    assert note - to_sub == SpecificNote.from_absolute_i(note.absolute_i - to_sub)
+def test_specific_note_sub(i, to_sub):
+    note = SpecificNote.from_i(i)
+    assert note - to_sub == SpecificNote.from_i(note.i - to_sub)
 
 
 def test_color():

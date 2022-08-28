@@ -37,7 +37,7 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
                 # todo: heapq seems unnecessary here
                 heapq.heappush(
                     notes, MidiNote(
-                        note=SpecificNote.from_absolute_i(message.note),
+                        note=SpecificNote.from_i(message.note),
                         on=t_buffer.pop(message.note), off=t,
                         track=track_i,
                     ),

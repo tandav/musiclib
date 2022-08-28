@@ -127,7 +127,7 @@ class Rhythm(Cached):
             nonlocal t
             for is_play in self.notes:
                 if is_play:
-                    notes = [note__.absolute_i] if chord is None else [note.absolute_i for note in chord.notes]
+                    notes = [note__.i] if chord is None else [note.i for note in chord.notes]
                     for i, note in enumerate(notes):
                         track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                     for i, note in enumerate(notes):

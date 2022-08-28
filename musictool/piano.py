@@ -43,7 +43,8 @@ class Piano:
         note_colors: dict[Note | SpecificNote, int] | None = None,
         note_hrefs: dict[Note | SpecificNote, str] | None = None,
         note_onclicks: dict[Note | SpecificNote, str] | None = None,
-        top_rect_colors: dict[Note | SpecificNote, int] | None = None,
+        top_rect_colors: dict[Note, int] | dict[SpecificNote, int] | None = None,
+        # top_rect_colors: TopRectDict | None = None,
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
@@ -66,7 +67,13 @@ class Piano:
         self.black_small = black_small
 
         self.note_colors = note_colors or {}
-        self.top_rect_colors = top_rect_colors or {}
+
+        self.top_rect_colors: dict[Note, int] | dict[SpecificNote, int]
+        if top_rect_colors is None:
+            self.top_rect_colors = {}  # type: ignore
+        else:
+            self.top_rect_colors = top_rect_colors
+
         self.squares = squares or {}
         self.note_hrefs = note_hrefs or {}
         self.note_onclicks = note_onclicks or {}
