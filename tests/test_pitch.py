@@ -52,8 +52,10 @@ def test_tuning_origin_note(hz_tuning, origin_note, i, hz):
         (SpecificNote('A', 6), 880),
     ],
 )
-def test_note_to_hz(note, hz):
-    assert Pitch(HZ_440).note_to_hz(note) == hz
+def test_note_hz(note, hz):
+    pitch = Pitch(HZ_440)
+    assert pitch.note_to_hz(note) == hz
+    assert pitch.hz_to_note(hz) == note
 
 
 @pytest.mark.parametrize(
