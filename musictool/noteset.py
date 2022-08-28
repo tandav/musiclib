@@ -97,6 +97,7 @@ class NoteSet(Cached):
             self.notes_ascending = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
         self.intervals = frozenset(self.intervals_ascending)
+        self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending))
         self.bits = intervals_to_bits(self.intervals)
         self.name = self.__class__.intervals_to_name.get(self.intervals)
 

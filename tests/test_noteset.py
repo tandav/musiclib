@@ -45,6 +45,16 @@ def test_intervals(noteset, intervals):
 
 
 @pytest.mark.parametrize(
+    'noteset, note_to_interval', [
+        (NoteSet.from_str('CDE'), {}),
+        (NoteSet.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
+    ],
+)
+def test_note_to_interval(noteset, note_to_interval):
+    assert noteset.note_to_interval == note_to_interval
+
+
+@pytest.mark.parametrize(
     'notes, root, bits', (
         ('CDEFGAB', 'C', '101011010101'),
         ('dfb', 'd', '100001000100'),
