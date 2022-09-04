@@ -20,7 +20,7 @@ class Pitch:
     def hz_to_i(self, hz: float) -> float:
         return 12 * math.log2(hz / self.hz_tuning) - self.transpose
 
-    def note_i_to_hz(self, note_i: int) -> float:
+    def note_i_to_hz(self, note_i: float) -> float:
         return self.i_to_hz(note_i - self.origin_note.i)
 
     def hz_to_note_i(self, hz: float) -> float:
