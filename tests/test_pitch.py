@@ -5,10 +5,16 @@ from musictool.pitch import Pitch
 
 A4 = SpecificNote('A', 4)
 A5 = SpecificNote('A', 5)
+A6 = SpecificNote('A', 6)
+B5 = SpecificNote('B', 5)
+b5 = SpecificNote('b', 5)
 C5 = SpecificNote('C', 5)
 HZ_220 = 220
 HZ_440 = 440
+HZ_880 = 880
 HZ_493 = 493.8833012561241
+HZ_452 = 452.8929841231365
+HZ_466 = 466.1637615180899
 HZ_261 = 261.6255653005986
 
 
@@ -17,16 +23,31 @@ HZ_261 = 261.6255653005986
         (-24, 110),
         (-12, HZ_220),
         (-9, HZ_261),
-        (0, 440),
-        (1, 466.1637615180899),
+        (0, HZ_440),
+        (1, HZ_466),
         (2, HZ_493),
-        (12, 880),
+        (12, HZ_880),
     ],
 )
 def test_i_hz(i, hz):
-    pitch = Pitch(hz_tuning=HZ_440)
+    pitch = Pitch()
     assert pitch.i_to_hz(i) == hz
     assert int(pitch.hz_to_i(hz)) == i
+
+
+@pytest.mark.parametrize(
+    'note_i, hz', [
+        (A5.i, HZ_440),
+        (b5.i, HZ_466),
+        (A4.i, HZ_220),
+        (C5.i, HZ_261),
+        (A5.i + 0.5, HZ_452),
+    ],
+)
+def test_note_i_hz(note_i, hz):
+    pitch = Pitch()
+    assert pitch.note_i_to_hz(note_i) == hz
+    assert pitch.hz_to_note_i(hz) == note_i
 
 
 @pytest.mark.parametrize(
@@ -48,12 +69,12 @@ def test_tuning_origin_note(hz_tuning, origin_note, i, hz):
         (A4, HZ_220),
         (A5, 440),
         (C5, HZ_261),
-        (SpecificNote('B', 5), HZ_493),
-        (SpecificNote('A', 6), 880),
+        (B5, HZ_493),
+        (A6, HZ_880),
     ],
 )
 def test_note_hz(note, hz):
-    pitch = Pitch(HZ_440)
+    pitch = Pitch()
     assert pitch.note_to_hz(note) == hz
     assert pitch.hz_to_note(hz) == note
 
@@ -70,3 +91,17 @@ def test_note_hz(note, hz):
 def test_hz_to_px(hz, px, hz_min, hz_max, px_max):
     assert Pitch.hz_to_px(hz, hz_min, hz_max, px_max) == pytest.approx(px)
     assert Pitch.px_to_hz(px, hz_min, hz_max, px_max) == pytest.approx(hz)
+
+
+@pytest.mark.parametrize(
+    'note, transpose, hz', [
+        (A5, -12, HZ_220),
+        (A5, +12, HZ_880),
+        (A5, +1, HZ_466),
+        (A5, +0.5, HZ_452),
+    ],
+)
+def test_transpose(note, transpose, hz):
+    pitch = Pitch(transpose=transpose)
+    assert pitch.note_to_hz(note) == hz
+    assert pitch.hz_to_note(hz) == note

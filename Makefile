@@ -23,6 +23,7 @@ mypy:
 .PHONY: test
 test:
 	$(python) -m pytest tests
+	#pytest
 
 .PHONY: check
 check: check-lint mypy test

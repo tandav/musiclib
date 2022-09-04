@@ -4,21 +4,33 @@ from musictool.note import SpecificNote
 
 
 class Pitch:
-    def __init__(self, hz_tuning: float = 440, origin_note: SpecificNote = SpecificNote('A', 5)):
+    def __init__(
+        self,
+        hz_tuning: float = 440,
+        origin_note: SpecificNote = SpecificNote('A', 5),
+        transpose: float = 0,
+    ):
         self.hz_tuning = hz_tuning
         self.origin_note = origin_note
+        self.transpose = transpose
 
     def i_to_hz(self, i: float) -> float:
-        return self.hz_tuning * 2 ** (i / 12)
+        return self.hz_tuning * 2 ** ((i + self.transpose) / 12)
 
     def hz_to_i(self, hz: float) -> float:
-        return 12 * math.log2(hz / self.hz_tuning)
+        return 12 * math.log2(hz / self.hz_tuning) - self.transpose
+
+    def note_i_to_hz(self, note_i: int) -> float:
+        return self.i_to_hz(note_i - self.origin_note.i)
+
+    def hz_to_note_i(self, hz: float) -> float:
+        return self.origin_note.i + self.hz_to_i(hz)
 
     def note_to_hz(self, note: SpecificNote) -> float:
-        return self.i_to_hz(note.i - self.origin_note.i)
+        return self.note_i_to_hz(note.i)
 
     def hz_to_note(self, hz: float) -> SpecificNote:
-        return SpecificNote.from_i(self.origin_note.i + int(self.hz_to_i(hz)))
+        return SpecificNote.from_i(int(self.hz_to_note_i(hz)))
 
     @staticmethod
     def hz_to_px(hz: float, hz_min: float, hz_max: float, px_max: float) -> float:
