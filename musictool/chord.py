@@ -45,9 +45,9 @@ class Chord(NoteSet):
             raise TypeError('Chord requires root note. Use NoteSet if there is no root')
         super().__init__(notes, root=root)
 
-    def _repr_html_(self) -> str:
+    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
         return f"""
-        <div class='{' '.join(self.html_classes)}'>
+        <div class='{' '.join(html_classes)}'>
         <h3 class='card_header'>{self.root.name} {self.name}</h3>
         {self.to_piano_image()}
         </div>

@@ -103,7 +103,6 @@ class NoteSet(Cached):
 
         self.key = self.notes, self.root
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-        self.html_classes: tuple[str, ...] = ('card',)
 
     @property
     def rootless(self): return NoteSet(self.notes)
@@ -188,20 +187,13 @@ class NoteSet(Cached):
             _ += f'/{self.root.name}'
         return _
 
-    def with_html_classes(self, classes: tuple[str, ...]) -> str:
-        prev = self.html_classes
-        self.html_classes = prev + classes
-        r = self._repr_html_()
-        self.html_classes = prev
-        return r
-
     def to_piano_image(self) -> str:
         from musictool.piano import Piano  # hack to fix circular import
         return Piano(note_colors={note: RED for note in self})._repr_svg_()
 
-    def _repr_html_(self) -> str:
+    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
         return f"""
-        <div class='{' '.join(self.html_classes)}'>
+        <div class='{' '.join(html_classes)}'>
         <h3 style='height:1em;' class='card_header'>{self!r}</h3>
         {self.to_piano_image()}
         </div>
