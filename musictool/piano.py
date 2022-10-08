@@ -110,7 +110,7 @@ class Piano:
             else:
                 note_onclick = ''
 
-            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{colortool.css_hex(c)};stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}'{note_onclick}/>"""
+            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{colortool.css_hex(c)};stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}'{note_onclick}/>"""  # noqa: E501
             if note_href := self.note_hrefs.get(note, self.note_hrefs.get(note.abstract)):
                 note_rect = f"<a href='{note_href}'>{note_rect}</a>"
             self.rects.append(note_rect)
