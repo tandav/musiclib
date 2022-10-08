@@ -10,7 +10,6 @@ check-lint:
 	$(python) -m autoflake --recursive $(LINTING_DIRS)
 	$(python) -m autopep8 --diff $(LINTING_DIRS)
 	$(python) -m flake8 $(LINTING_DIRS)
-	#$(python) -m darglint --docstring-style numpy --verbosity 2 $(LINTING_DIRS)
 
 .PHONY: fix-lint
 fix-lint:
@@ -22,8 +21,7 @@ mypy:
 
 .PHONY: test
 test:
-	$(python) -m pytest tests
-	#pytest
+	pytest
 
 .PHONY: check
 check: check-lint mypy test
@@ -47,4 +45,4 @@ profile:
 
 .PHONY: bump2version
 bump2version:
-	bump2version $(STEP)
+	bump2version $(PART)
