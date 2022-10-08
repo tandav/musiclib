@@ -43,6 +43,7 @@ profile:
 	$(python) -m cProfile -o logs/profile.txt -m musictool.daw video
 	$(python) -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
 
-.PHONY: bump2version
-bump2version:
-	bump2version $(PART)
+.PHONY: bumpver
+bumpver:
+	# usage: make bumpver PART=minor
+	bumpver update --no-fetch --$(PART)

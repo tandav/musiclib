@@ -1,6 +1,6 @@
 autoflake==1.4
 autopep8==1.6.0
-bump2version==1.0.1
+bumpver==2022.1118
 flake8==4.0.1
 force-absolute-imports==0.9
 hypothesis==6.39.0
