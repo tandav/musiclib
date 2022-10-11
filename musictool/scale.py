@@ -179,8 +179,8 @@ class ComparedScales:
         <div class='$classes'>
         <a href='$href'>
             <div class='card_header'>
-                $title
-                $subtitle
+                <div class='card_title'>$title</div>
+                <div class='card_subtitle'>$subtitle</div>
             </div>
         </a>
         $piano
