@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import itertools
+import string
 from collections import defaultdict
 
 from musictool import config
@@ -158,16 +159,33 @@ class ComparedScales:
         )._repr_svg_()
 
     # @functools.cached_property
-    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
-        chords_hover = ''
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        subtitle: str | None = None,
+    ) -> str:
         if C_name := self.right.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
-        return f"""
-        <div class='{' '.join(html_classes)}' {chords_hover}>
-        <a href='{self.right.root.name}'><span class='card_header'><h3>{self.right.root.name} {self.right.name}{C_name}</h3></span></a>
-        {self.to_piano_image()}
+
+        mapping = dict(
+            classes=' '.join(html_classes),
+            href=self.right.root.name,
+            title=f'<h3>{self.right.root.name} {self.right.name}{C_name}</h3>',
+            subtitle=subtitle if subtitle is not None else '',
+            piano=self.to_piano_image(),
+        )
+
+        return string.Template("""\
+        <div class='$classes'>
+        <a href='$href'>
+            <div class='card_header'>
+                $title
+                $subtitle
+            </div>
+        </a>
+        $piano
         </div>
-        """
+        """).substitute(mapping)
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)
