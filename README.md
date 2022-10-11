@@ -5,8 +5,12 @@
 pip install musictool
 ```
 
+### or install the latest version from github
+```sh
+pip install git+https://github.com/tandav/musictool
+```
 
-### local development
+### development
 ```sh
 pip install -e .[dev]
 ```
