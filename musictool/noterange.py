@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from typing import overload
+from musictool.card import Card
 
 from musictool import config
 from musictool.note import SpecificNote
@@ -10,7 +11,7 @@ from musictool.noteset import NoteSet
 CHROMATIC_NOTESET = NoteSet(frozenset(config.chromatic_notes))
 
 
-class NoteRange(Sequence[SpecificNote]):
+class NoteRange(Sequence[SpecificNote], Card):
     def __init__(
         self,
         start: SpecificNote | str,
@@ -77,10 +78,17 @@ class NoteRange(Sequence[SpecificNote]):
             noterange=NoteRange(self.start, self.stop),
         )._repr_svg_()
 
-    def _repr_html_(self) -> str:
-        return f"""
-        <div class='noterange'>
-        <h3 class='card_header'>NoteRange({self.start}, {self.stop})</h3>
-        {self.to_piano_image()}
-        </div>
-        """
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ):
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or f'NoteRange({self.start}, {self.stop})',
+            subtitle=subtitle,
+            header_href=header_href,
+            piano_html=self.to_piano_image(),
+        )
