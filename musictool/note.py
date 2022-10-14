@@ -88,7 +88,7 @@ class SpecificNote(Cached):
         # super().__init__(abstract.name)
         self.octave = octave
         self.i: int = octave * 12 + self.abstract.i  # this is also midi_code
-        self.key = self.abstract, self.octave
+        self._key = self.abstract, self.octave
 
     @classmethod
     def from_i(cls, i: int) -> SpecificNote:
@@ -108,13 +108,13 @@ class SpecificNote(Cached):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, SpecificNote):
-            return self.key == other.key
+            return self._key == other._key
         elif isinstance(other, str):
-            return self.key == SpecificNote.from_str(other).key
+            return self._key == SpecificNote.from_str(other)._key
         else:
             return NotImplemented
 
-    def __hash__(self): return hash(self.key)
+    def __hash__(self): return hash(self._key)
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
