@@ -6,7 +6,7 @@ import string
 from collections import defaultdict
 
 from musictool import config
-from musictool.card import CardMixin
+from musictool.card import Card
 from musictool.chord import Chord
 from musictool.config import BLACK_BRIGHT
 from musictool.config import BLUE
@@ -17,7 +17,7 @@ from musictool.noteset import NoteSet
 from musictool.piano import Piano
 
 
-class Scale(NoteSet, CardMixin):
+class Scale(NoteSet, Card):
     intervals_to_name = {
         # diatonic
         frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
@@ -132,7 +132,7 @@ class Scale(NoteSet, CardMixin):
 # flake8: noqa
 
 
-class ComparedScales(CardMixin):
+class ComparedScales(Card):
     """
     this is compared scale
     local terminology: left scale is compared to right

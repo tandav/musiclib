@@ -9,7 +9,7 @@ from typing import overload
 import pipe21 as P
 
 from musictool import config
-from musictool.card import CardMixin
+from musictool.card import Card
 from musictool.config import RED
 from musictool.note import AnyNote
 from musictool.note import Note
@@ -41,7 +41,7 @@ def intervals_to_bits(intervals: frozenset[int]) -> str:
 Self = TypeVar('Self', bound='NoteSet')
 
 
-class NoteSet(Cached, CardMixin):
+class NoteSet(Cached, Card):
     """
     an unordered set of notes
     root note is optional

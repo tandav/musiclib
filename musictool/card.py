@@ -1,7 +1,7 @@
 import abc
 
 
-class CardMixin(abc.ABC):
+class Card(abc.ABC):
     @staticmethod
     def repr_card(
         html_classes: tuple[str, ...] = ('card',),

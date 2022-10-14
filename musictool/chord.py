@@ -6,6 +6,7 @@ import itertools
 import random
 from collections.abc import Iterator
 from pathlib import Path
+from musictool.card import Card
 
 import mido
 
