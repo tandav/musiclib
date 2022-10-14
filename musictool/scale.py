@@ -132,7 +132,7 @@ class Scale(NoteSet, CardMixin):
 # flake8: noqa
 
 
-class ComparedScales:
+class ComparedScales(CardMixin):
     """
     this is compared scale
     local terminology: left scale is compared to right
@@ -148,8 +148,6 @@ class ComparedScales:
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
-
-    # def __format__(self, format_spec): raise No
 
     def to_piano_image(self):
         return Piano(
@@ -167,34 +165,24 @@ class ComparedScales:
             } if self.right.kind == 'diatonic' else {},
         )._repr_svg_()
 
-    # @functools.cached_property
     def _repr_html_(
         self,
         html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
         subtitle: str | None = None,
+        header_href: str | None = None,
     ) -> str:
+
         if C_name := self.right.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
 
-        mapping = dict(
-            classes=' '.join(html_classes),
-            href=self.right.root.name,
-            title=f'<h3>{self.right.root.name} {self.right.name}{C_name}</h3>',
-            subtitle=subtitle if subtitle is not None else '',
-            piano=self.to_piano_image(),
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or f'{self.right.root.name} {self.right.name}{C_name}',
+            subtitle=subtitle,
+            header_href=header_href or self.right.root.name,
+            piano_html=self.to_piano_image(),
         )
-
-        return string.Template("""\
-        <div class='$classes'>
-        <a href='$href'>
-            <div class='card_header'>
-                <div class='card_title'>$title</div>
-                <div class='card_subtitle'>$subtitle</div>
-            </div>
-        </a>
-        $piano
-        </div>
-        """).substitute(mapping)
 
     def __eq__(self, other): return self.key == other.key
     def __hash__(self): return hash(self.key)

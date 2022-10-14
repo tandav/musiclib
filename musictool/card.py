@@ -1,4 +1,7 @@
-class CardMixin:
+import abc
+
+
+class CardMixin(abc.ABC):
     @staticmethod
     def repr_card(
         html_classes: tuple[str, ...] = ('card',),
@@ -57,3 +60,13 @@ class CardMixin:
         </div>
         '''
         return out
+
+    @abc.abstractmethod
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ):
+        ...
