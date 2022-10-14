@@ -6,6 +6,7 @@ import string
 from collections import defaultdict
 
 from musictool import config
+from musictool.card import CardMixin
 from musictool.chord import Chord
 from musictool.config import BLACK_BRIGHT
 from musictool.config import BLUE
@@ -16,7 +17,7 @@ from musictool.noteset import NoteSet
 from musictool.piano import Piano
 
 
-class Scale(NoteSet):
+class Scale(NoteSet, CardMixin):
     intervals_to_name = {
         # diatonic
         frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
@@ -107,18 +108,26 @@ class Scale(NoteSet):
     def to_piano_image(self):
         return Piano(note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()})._repr_svg_()
 
-    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ) -> str:
         if self.name is not None:
             html_classes += self.name,
-        chords_hover = ''
+
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
-        return f"""
-        <div class='{' '.join(html_classes)}' {chords_hover}>
-        <a href='{self.root.name}'><span class='card_header'><h3>{self.root.name} {self.name}{C_name}</h3></span></a>
-        {self.to_piano_image()}
-        </div>
-        """
+
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or f'{self.root.name} {self.name}{C_name}',
+            subtitle=subtitle,
+            header_href=header_href or self.root.name,
+            piano_html=self.to_piano_image(),
+        )
 
 # flake8: noqa
 
@@ -205,13 +214,15 @@ all_scales = {
     'sudu': sudu,
 }
 
+CIRCLE_OF_FIFTHS_CLOCKWISE = 'CGDAEBfdaebF'
+
 # circle of fifths clockwise
 majors = dict(
-    diatonic=tuple(diatonic[note, 'major'] for note in 'CGDAEBfdaebF'),
-    harmonic=tuple(harmonic[note, 'h_major'] for note in 'CGDAEBfdaebF'),
-    melodic=tuple(melodic[note, 'm_major'] for note in 'CGDAEBfdaebF'),
-    pentatonic=tuple(pentatonic[note, 'p_major'] for note in 'CGDAEBfdaebF'),
-    sudu=tuple(sudu[note, 's_major'] for note in 'CGDAEBfdaebF'),
+    diatonic=tuple(diatonic[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    harmonic=tuple(harmonic[note, 'h_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    melodic=tuple(melodic[note, 'm_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    pentatonic=tuple(pentatonic[note, 'p_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    sudu=tuple(sudu[note, 's_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
 )
 
 
