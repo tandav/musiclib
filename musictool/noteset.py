@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-import string
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
@@ -195,7 +194,7 @@ class NoteSet(Cached, Card):
 
     def _repr_html_(
         self,
-        html_classes: tuple[str, ...] = ('card',),
+        html_classes: tuple[str, ...] = (),
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,

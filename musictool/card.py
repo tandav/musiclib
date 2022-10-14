@@ -4,7 +4,7 @@ import abc
 class Card(abc.ABC):
     @staticmethod
     def repr_card(
-        html_classes: tuple[str, ...] = ('card',),
+        html_classes: tuple[str, ...] = (),
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
@@ -39,9 +39,9 @@ class Card(abc.ABC):
             {piano_html}
             '''
 
-        classes = ' '.join(html_classes)
+        classes = ' '.join(('card', *html_classes))
         out = f'''
-        <div 
+        <div
             class='{classes}'
             style='
                 margin: 5px;
@@ -61,7 +61,7 @@ class Card(abc.ABC):
     @abc.abstractmethod
     def _repr_html_(
         self,
-        html_classes: tuple[str, ...] = ('card',),
+        html_classes: tuple[str, ...] = (),
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,

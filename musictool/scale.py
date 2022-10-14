@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import functools
 import itertools
-import string
 from collections import defaultdict
 
 from musictool import config
@@ -110,7 +109,7 @@ class Scale(NoteSet, Card):
 
     def _repr_html_(
         self,
-        html_classes: tuple[str, ...] = ('card',),
+        html_classes: tuple[str, ...] = (),
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
