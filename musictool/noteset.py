@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import string
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
@@ -8,6 +9,7 @@ from typing import overload
 import pipe21 as P
 
 from musictool import config
+from musictool.card import CardMixin
 from musictool.config import RED
 from musictool.note import AnyNote
 from musictool.note import Note
@@ -39,7 +41,7 @@ def intervals_to_bits(intervals: frozenset[int]) -> str:
 Self = TypeVar('Self', bound='NoteSet')
 
 
-class NoteSet(Cached):
+class NoteSet(Cached, CardMixin):
     """
     an unordered set of notes
     root note is optional
@@ -191,13 +193,20 @@ class NoteSet(Cached):
         from musictool.piano import Piano  # hack to fix circular import
         return Piano(note_colors={note: RED for note in self})._repr_svg_()
 
-    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
-        return f"""
-        <div class='{' '.join(html_classes)}'>
-        <h3 style='height:1em;' class='card_header'>{self!r}</h3>
-        {self.to_piano_image()}
-        </div>
-        """
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ):
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or repr(self),
+            subtitle=subtitle,
+            header_href=header_href,
+            piano_html=self.to_piano_image(),
+        )
 
     def __getnewargs_ex__(self):
         return (self.notes,), {'root': self.root}
