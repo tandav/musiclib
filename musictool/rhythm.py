@@ -16,7 +16,7 @@ from musictool.note import SpecificNote
 from musictool.util.cache import Cached
 from musictool.util.sequence_builder import SequenceBuilder
 
-TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('options, options_i, options_callable are mutually exclusive. Only 1 must be not None')
+TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('note_, chord are mutually exclusive. Only 1 must be not None')
 
 
 class Rhythm(Cached):
@@ -46,18 +46,18 @@ class Rhythm(Cached):
         random.shuffle(notes)
         return cls(tuple(notes), bar_notes=bar_notes)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Rhythm('{self.bits}')"
 
     @functools.cached_property
-    def has_contiguous_ones(self):
+    def has_contiguous_ones(self) -> bool:
         return (
             self.notes[0] == 1 and self.notes[-1] == 1
             or any(len(list(g)) > 1 for k, g in itertools.groupby(self.notes, key=bool) if k)
         )
 
     @staticmethod
-    def no_contiguous_ones(prev, curr):
+    def no_contiguous_ones(prev: int, curr: int) -> bool:
         return not (prev == curr == 1)
 
     @functools.cached_property
@@ -72,14 +72,14 @@ class Rhythm(Cached):
 
     @staticmethod
     def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
-        rhythms_ = SequenceBuilder(
+        rhythms__ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.no_contiguous_ones},
         )
 
         if n_notes is not None:
-            rhythms_ = rhythms_ | P.Filter(lambda r: sum(r) == n_notes)
+            rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
 
         rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
 
@@ -91,9 +91,6 @@ class Rhythm(Cached):
             )
         out: tuple[Rhythm] = rhythms | P.Pipe(tuple)
         return out
-
-    def play(self):
-        raise NotImplementedError
 
     def to_midi(
         self,
@@ -123,7 +120,7 @@ class Rhythm(Cached):
         track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
         t = 0
 
-        def append_bar(chord):
+        def append_bar(chord: SpecificChord | None) -> None:
             nonlocal t
             for is_play in self.notes:
                 if is_play:

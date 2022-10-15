@@ -107,7 +107,7 @@ class Scale(NoteSet, Card):
                 return Scale.from_name(note, name)
         raise KeyError(f'relative {relative_name} scale not found')
 
-    def to_piano_image(self):
+    def to_piano_image(self) -> str:
         return Piano(note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()})._repr_svg_()
 
     def _repr_html_(
@@ -152,7 +152,7 @@ class ComparedScales(Card):
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
-    def to_piano_image(self):
+    def to_piano_image(self) -> str:
         return Piano(
             note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
@@ -191,9 +191,16 @@ class ComparedScales(Card):
             piano_html=self.to_piano_image(),
         )
 
-    def __eq__(self, other): return self.key == other.key
-    def __hash__(self): return hash(self.key)
-    def __repr__(self): return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ComparedScales):
+            return NotImplemented
+        return self.key == other.key
+
+    def __hash__(self) -> int:
+        return hash(self.key)
+
+    def __repr__(self) -> str:
+        return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
 diatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
