@@ -10,6 +10,7 @@ from pathlib import Path
 import mido
 
 from musictool import config
+from musictool.card import Card
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
@@ -45,16 +46,23 @@ class Chord(NoteSet):
             raise TypeError('Chord requires root note. Use NoteSet if there is no root')
         super().__init__(notes, root=root)
 
-    def _repr_html_(self, html_classes: tuple[str, ...] = ('card',)) -> str:
-        return f"""
-        <div class='{' '.join(html_classes)}'>
-        <h3 class='card_header'>{self.root.name} {self.name}</h3>
-        {self.to_piano_image()}
-        </div>
-        """
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ):
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or f'{self.root.name} {self.name}',
+            subtitle=subtitle,
+            header_href=header_href,
+            piano_html=self.to_piano_image(),
+        )
 
 
-class SpecificChord(Cached):
+class SpecificChord(Cached, Card):
     def __init__(
         self,
         notes: frozenset[SpecificNote],
@@ -179,13 +187,20 @@ class SpecificChord(Cached):
             noterange=noterange,
         )._repr_svg_()
 
-    def _repr_html_(self) -> str:
-        return f"""
-        <div class='specificchord'>
-        <h3 class='card_header'>{self}</h3>
-        {self.to_piano_image()}
-        </div>
-        """
+    def _repr_html_(
+        self,
+        html_classes: tuple[str, ...] = ('card',),
+        title: str | None = None,
+        subtitle: str | None = None,
+        header_href: str | None = None,
+    ):
+        return self.repr_card(
+            html_classes=html_classes,
+            title=title or repr(self),
+            subtitle=subtitle,
+            header_href=header_href,
+            piano_html=self.to_piano_image(),
+        )
 
     def __getnewargs_ex__(self):
         return (self.notes,), {'root': self.root}
