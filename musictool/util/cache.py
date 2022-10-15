@@ -1,10 +1,11 @@
+from collections.abc import Hashable
 from typing import Any
 
 
 class Cached:
-    _cache: dict[tuple[type, tuple[Any, ...], frozenset[tuple[str, Any]]], Any] = {}
+    _cache: dict[tuple[type, tuple[Hashable, ...], frozenset[tuple[str, Hashable]]], Any] = {}
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Hashable, **kwargs: Hashable) -> Any:
         key = cls, args, frozenset(kwargs.items())
         instance = cls._cache.get(key)
         if instance is not None:
