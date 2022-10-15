@@ -12,15 +12,15 @@ class Card(abc.ABC):
     ) -> str:
         out = ''
         if title is not None:
-            out += f"<h3 style='height:1em;' class='card_title'>{title}</h3>\n"
+            out += f"<div style='font-size: 1em' class='card_title'>{title}</div>\n"
         if subtitle is not None:
-            out += f"<div style='margin-top: -0.25em' class='card_subtitle'>{subtitle}</div>\n"
+            out += f"<div style='margin-top: -0.2em;font-size: 0.8em' class='card_subtitle'>{subtitle}</div>\n"
         out = f'''
         <div
             class='card_header'
             style='
                 height: 32px;
-                margin: -1em 0em 0em 0em;
+                font-family: sans-serif;
             '
         >
         {out}
