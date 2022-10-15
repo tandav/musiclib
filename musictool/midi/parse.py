@@ -15,9 +15,18 @@ class MidiNote:
     off: int
     track: int
 
-    def __eq__(self, other): return self.on == other.on
-    def __lt__(self, other): return self.on < other.on
-    def __hash__(self): return hash((self.note, self.track))
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MidiNote):
+            return NotImplemented
+        return self.on == other.on
+
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, MidiNote):
+            return NotImplemented
+        return self.on < other.on
+
+    def __hash__(self) -> int:
+        return hash((self.note, self.track))
 
 
 def parse_notes(m: mido.MidiFile) -> list[MidiNote]:

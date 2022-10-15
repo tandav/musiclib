@@ -27,8 +27,8 @@ class Note(Cached):
     def from_i(cls, i: int) -> Note:
         return cls(config.chromatic_notes[i % 12])
 
-    def short_repr(self): return self.name
-    def __repr__(self): return f'Note(name={self.name})'
+    def __repr__(self) -> str:
+        return f'Note(name={self.name})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -46,7 +46,8 @@ class Note(Cached):
         else:
             return NotImplemented
 
-    def __hash__(self): return hash(self.name)
+    def __hash__(self) -> int:
+        return hash(self.name)
 
     def __add__(self, other: int) -> Note:
         return Note.from_i(self.i + other)
@@ -71,7 +72,7 @@ class Note(Cached):
         elif isinstance(other, int):
             return self + (-other)
 
-    def __getnewargs__(self):
+    def __getnewargs__(self) -> tuple[str]:
         return self.name,
 
 
@@ -85,7 +86,6 @@ class SpecificNote(Cached):
             abstract = Note(abstract)
         self.abstract = abstract
         self.is_black = abstract.is_black
-        # super().__init__(abstract.name)
         self.octave = octave
         self.i: int = octave * 12 + self.abstract.i  # this is also midi_code
         self._key = self.abstract, self.octave
@@ -104,7 +104,8 @@ class SpecificNote(Cached):
         await asyncio.sleep(seconds)
         player.send_message('note_off', note=self.i, channel=0)
 
-    def __repr__(self): return f'{self.abstract.name}{self.octave}'
+    def __repr__(self) -> str:
+        return f'{self.abstract.name}{self.octave}'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, SpecificNote):
@@ -114,7 +115,8 @@ class SpecificNote(Cached):
         else:
             return NotImplemented
 
-    def __hash__(self): return hash(self._key)
+    def __hash__(self) -> int:
+        return hash(self._key)
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
@@ -143,7 +145,7 @@ class SpecificNote(Cached):
     def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
         return frozenset(note.abstract for note in notes)
 
-    def __getnewargs__(self):
+    def __getnewargs__(self) -> tuple[Note, int]:
         return self.abstract, self.octave
 
 

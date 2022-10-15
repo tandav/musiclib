@@ -102,7 +102,7 @@ class SequenceBuilder:
             return self.options_callable(seq[-1])
         raise TypeError
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[tuple[Op, ...]]:
         return self._iter(self.prefix)
 
     def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:
@@ -142,7 +142,7 @@ class SequenceBuilder:
         yield from it
 
     def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
-        def inner():
+        def inner() -> Iterable[tuple[Op, ...]]:
             candidate = seq + (op,)
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 return
