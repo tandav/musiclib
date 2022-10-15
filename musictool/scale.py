@@ -58,6 +58,7 @@ class Scale(NoteSet, Card):
     }
     name_to_intervals = {v: k for k, v in intervals_to_name.items()}
     root: Note
+    name: str
 
     def __init__(
         self,

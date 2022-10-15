@@ -65,5 +65,5 @@ class Card(abc.ABC):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
-    ):
+    ) -> str:
         ...

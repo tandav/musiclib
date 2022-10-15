@@ -52,7 +52,7 @@ class Chord(NoteSet):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
-    ):
+    ) -> str:
         return self.repr_card(
             html_classes=html_classes,
             title=title or f'{self.root.name} {self.name}',
@@ -193,7 +193,7 @@ class SpecificChord(Cached, Card):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
-    ):
+    ) -> str:
         return self.repr_card(
             html_classes=html_classes,
             title=title or repr(self),
