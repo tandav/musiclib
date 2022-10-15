@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import functools
 import itertools
-from collections.abc import Iterator
-from collections.abc import Iterable
-from collections.abc import Sequence
 from collections.abc import Callable
+from collections.abc import Iterable
+from collections.abc import Iterator
+from collections.abc import Sequence
 from typing import overload
 
 from musictool.chord import SpecificChord
