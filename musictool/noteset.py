@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Iterator
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
@@ -106,7 +107,7 @@ class NoteSet(Cached, Card):
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
 
     @property
-    def rootless(self): return NoteSet(self.notes)
+    def rootless(self) -> NoteSet: return NoteSet(self.notes)
 
     def transpose_to(self, note: Note) -> NoteSet:
         if self.root is None:
@@ -173,20 +174,41 @@ class NoteSet(Cached, Card):
         else:
             raise TypeError('left and right should be either Note or SpecificNote (or str representation)')
 
-    def __eq__(self, other): return self.key == other.key
-    def __hash__(self): return hash(self.key)
-    def __len__(self): return len(self.notes)
-    def __getitem__(self, item): return self.notes_ascending[item]
-    def __iter__(self): return iter(self.notes_ascending)
-    def __contains__(self, item: str | Note) -> bool: return item in self.notes
-    def __le__(self, other): return self.notes <= other
-    def __ge__(self, other): return other <= self.notes
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, NoteSet):
+            return NotImplemented
+        return self.key == other.key
 
-    def __repr__(self):
-        _ = ''.join(note.name for note in self)
+    def __hash__(self) -> int:
+        return hash(self.key)
+
+    def __len__(self) -> int:
+        return len(self.notes)
+
+    def __getitem__(self, item: int) -> Note:
+        return self.notes_ascending[item]
+
+    def __iter__(self) -> Iterator[Note]:
+        return iter(self.notes_ascending)
+
+    def __contains__(self, item: str | Note) -> bool:
+        return item in self.notes
+
+    def __le__(self, other: object) -> bool:
+        if not isinstance(other, NoteSet):
+            return NotImplemented
+        return self.notes <= other
+
+    def __ge__(self, other: object) -> bool:
+        if not isinstance(other, NoteSet):
+            return NotImplemented
+        return other <= self.notes
+
+    def __repr__(self) -> str:
+        x = ''.join(note.name for note in self)
         if self.root is not None:
-            _ += f'/{self.root.name}'
-        return _
+            return f'{x}/{self.root.name}'
+        return x
 
     def to_piano_image(self) -> str:
         from musictool.piano import Piano  # hack to fix circular import
@@ -209,5 +231,5 @@ class NoteSet(Cached, Card):
             piano_html=self.to_piano_image(),
         )
 
-    def __getnewargs_ex__(self):
+    def __getnewargs_ex__(self) -> tuple[tuple[frozenset[Note]], dict[str, Note | None]]:
         return (self.notes,), {'root': self.root}
