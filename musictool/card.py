@@ -8,6 +8,7 @@ class Card(abc.ABC):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
         piano_html: str | None = None,
     ) -> str:
         out = ''
@@ -39,6 +40,8 @@ class Card(abc.ABC):
             {piano_html}
             '''
 
+        background_color = f'background-color: {background_color};' if background_color is not None else ''
+
         classes = ' '.join(('card', *html_classes))
         out = f'''
         <div
@@ -51,6 +54,7 @@ class Card(abc.ABC):
                 height: 120px;
                 box-shadow: 2px 2px;
                 border-radius: 3px;
+                {background_color}
             '
         >
         {out}
@@ -65,5 +69,6 @@ class Card(abc.ABC):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
         ...

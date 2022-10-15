@@ -84,11 +84,13 @@ class NoteRange(Sequence[SpecificNote], Card):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
             title=title or f'NoteRange({self.start}, {self.stop})',
             subtitle=subtitle,
             header_href=header_href,
+            background_color=background_color,
             piano_html=self.to_piano_image(),
         )

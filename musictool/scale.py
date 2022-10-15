@@ -4,6 +4,8 @@ import functools
 import itertools
 from collections import defaultdict
 
+import colortool
+
 from musictool import config
 from musictool.card import Card
 from musictool.chord import Chord
@@ -114,6 +116,7 @@ class Scale(NoteSet, Card):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
         html_classes += self.name,
 
@@ -125,6 +128,7 @@ class Scale(NoteSet, Card):
             title=title or f'{self.root.name} {self.name}{C_name}',
             subtitle=subtitle,
             header_href=header_href or self.root.name,
+            background_color=background_color,
             piano_html=self.to_piano_image(),
         )
 
@@ -170,16 +174,20 @@ class ComparedScales(Card):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
 
-        if C_name := self.right.note_scales.get(Note('C'), ''):
-            C_name = f' | C {C_name}'
+        if left_root_name := self.right.note_scales.get(self.left.root, ''):
+            if background_color is None:
+                background_color = colortool.css_hex(config.scale_colors[left_root_name])
+            left_root_name = f' | {self.left.root.name} {left_root_name}'
 
         return self.repr_card(
             html_classes=html_classes,
-            title=title or f'{self.right.root.name} {self.right.name}{C_name}',
+            title=title or f'{self.right.root.name} {self.right.name}{left_root_name}',
             subtitle=subtitle,
             header_href=header_href or self.right.root.name,
+            background_color=background_color,
             piano_html=self.to_piano_image(),
         )
 

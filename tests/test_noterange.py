@@ -120,37 +120,3 @@ def test_noterange_list(noterange, expected):
 def test_sequence():
     nr = NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert isinstance(nr, Sequence)
-
-
-TITLE = 'title_fUYsZHfC'
-SUBTITLE = 'subtitle_EfrKTj'
-HEADER_HREF = 'header_href_TUMhv'
-
-
-@pytest.mark.parametrize(
-    'noterange', [
-        NoteRange('C2', 'C5'),
-        NoteRange('D2', 'G2', noteset=NoteSet.from_str('CDG')),
-    ],
-)
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html(noterange, title, subtitle, header_href):
-    html_classes = ('cls1', 'cls2')
-    html = noterange._repr_html_(
-        html_classes=html_classes,
-        title=title,
-        subtitle=subtitle,
-        header_href=header_href,
-    )
-    classes = ' '.join(['card', *html_classes])
-    assert f"class='{classes}'" in html
-    for item, constant in zip(
-        (title, subtitle, header_href),
-        (TITLE, SUBTITLE, HEADER_HREF),
-    ):
-        if item is None:
-            assert constant not in html
-        else:
-            assert constant in html

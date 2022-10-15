@@ -7,7 +7,6 @@ from musictool.chord import Chord
 from musictool.note import Note
 from musictool.scale import ComparedScales
 from musictool.scale import Scale
-from musictool.scale import all_scales
 
 
 @pytest.mark.parametrize(
@@ -110,63 +109,3 @@ def test_parallel(scale, parallel_name, expected):
 )
 def test_relative(scale, relative_name, expected):
     assert scale.relative(relative_name) is expected
-
-
-TITLE = 'title_fUYsZHfC'
-SUBTITLE = 'subtitle_EfrKTj'
-HEADER_HREF = 'header_href_TUMhv'
-
-
-@pytest.mark.parametrize('kind', ('diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'))
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html(kind, title, subtitle, header_href):
-    for scale in all_scales[kind].values():
-        html_classes = ('cls1', 'cls2')
-        html = scale._repr_html_(
-            html_classes=html_classes,
-            title=title,
-            subtitle=subtitle,
-            header_href=header_href,
-        )
-        classes = ' '.join(['card', *html_classes, scale.name])
-        assert f"class='{classes}'" in html
-        for item, constant in zip(
-            (title, subtitle, header_href),
-            (TITLE, SUBTITLE, HEADER_HREF),
-        ):
-            if item is None:
-                assert constant not in html
-            else:
-                assert constant in html
-
-
-@pytest.mark.parametrize(
-    'scale0, scale1', (
-        (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
-        (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
-    ),
-)
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html_compared_scale(scale0, scale1, title, subtitle, header_href):
-    html_classes = ('cls1', 'cls2')
-    html = ComparedScales(scale0, scale1)._repr_html_(
-        html_classes=html_classes,
-        title=title,
-        subtitle=subtitle,
-        header_href=header_href,
-    )
-    classes = ' '.join(['card', *html_classes])
-    assert f"class='{classes}'" in html
-
-    for item, constant in zip(
-        (title, subtitle, header_href),
-        (TITLE, SUBTITLE, HEADER_HREF),
-    ):
-        if item is None:
-            assert constant not in html
-        else:
-            assert constant in html

@@ -52,12 +52,14 @@ class Chord(NoteSet):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
             title=title or f'{self.root.name} {self.name}',
             subtitle=subtitle,
             header_href=header_href,
+            background_color=background_color,
             piano_html=self.to_piano_image(),
         )
 
@@ -193,12 +195,14 @@ class SpecificChord(Cached, Card):
         title: str | None = None,
         subtitle: str | None = None,
         header_href: str | None = None,
+        background_color: str | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
             title=title or repr(self),
             subtitle=subtitle,
             header_href=header_href,
+            background_color=background_color,
             piano_html=self.to_piano_image(),
         )
 

@@ -1,4 +1,3 @@
-import itertools
 import random
 
 import pytest
@@ -188,62 +187,3 @@ async def test_play(capsys):
     on, off = set(stdout_[:3]), set(stdout_[3:])
     assert on == {'note_on note=12, channel=0', 'note_on note=16, channel=0', 'note_on note=31, channel=0'}
     assert off == {'note_off note=12, channel=0', 'note_off note=16, channel=0', 'note_off note=31, channel=0'}
-
-
-TITLE = 'title_fUYsZHfC'
-SUBTITLE = 'subtitle_EfrKTj'
-HEADER_HREF = 'header_href_TUMhv'
-
-
-@pytest.mark.parametrize('root, name', itertools.product('Cf', Chord.name_to_intervals))
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html(root, name, title, subtitle, header_href):
-    html_classes = ('cls1', 'cls2')
-    html = Chord.from_name(root, name)._repr_html_(
-        html_classes=html_classes,
-        title=title,
-        subtitle=subtitle,
-        header_href=header_href,
-    )
-    classes = ' '.join(['card', *html_classes])
-    assert f"class='{classes}'" in html
-    for item, constant in zip(
-        (title, subtitle, header_href),
-        (TITLE, SUBTITLE, HEADER_HREF),
-    ):
-        if item is None:
-            assert constant not in html
-        else:
-            assert constant in html
-
-
-@pytest.mark.parametrize(
-    'chord', [
-        SpecificChord.from_str('C1_E1_f1'),
-        SpecificChord.from_str('C1_d3_A5'),
-        SpecificChord(frozenset()),
-    ],
-)
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html_specific(chord, title, subtitle, header_href):
-    html_classes = ('cls1', 'cls2')
-    html = chord._repr_html_(
-        html_classes=html_classes,
-        title=title,
-        subtitle=subtitle,
-        header_href=header_href,
-    )
-    classes = ' '.join(['card', *html_classes])
-    assert f"class='{classes}'" in html
-    for item, constant in zip(
-        (title, subtitle, header_href),
-        (TITLE, SUBTITLE, HEADER_HREF),
-    ):
-        if item is None:
-            assert constant not in html
-        else:
-            assert constant in html

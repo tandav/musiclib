@@ -212,43 +212,6 @@ def test_transpose(noteset, note, expected):
     assert NoteSet.from_str(noteset).transpose_to(note) is NoteSet.from_str(expected)
 
 
-TITLE = 'title_fUYsZHfC'
-SUBTITLE = 'subtitle_EfrKTj'
-HEADER_HREF = 'header_href_TUMhv'
-
-
-@pytest.mark.parametrize(
-    'noteset', [
-        NoteSet(frozenset('CdeFGa')),
-        NoteSet(frozenset('CdeFGa'), root='e'),
-        NoteSet(frozenset('fa')),
-        NoteSet(frozenset('fa'), root='f'),
-        NoteSet(frozenset('')),
-    ],
-)
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-def test_html(noteset, title, subtitle, header_href):
-    html_classes = ('cls1', 'cls2')
-    html = noteset._repr_html_(
-        html_classes=html_classes,
-        title=title,
-        subtitle=subtitle,
-        header_href=header_href,
-    )
-    classes = ' '.join(('card', *html_classes))
-    assert f"class='{classes}'" in html
-    for item, constant in zip(
-        (title, subtitle, header_href),
-        (TITLE, SUBTITLE, HEADER_HREF),
-    ):
-        if item is None:
-            assert constant not in html
-        else:
-            assert constant in html
-
-
 @pytest.mark.parametrize(
     'notes, left, right, distance', (
         ('CDEFGAB', 'E', 'C', 2),
