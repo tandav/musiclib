@@ -11,4 +11,4 @@ if midi_device := os.environ.get('MIDI_DEVICE'):
 
 else:
     def send_message(*args: str | int, note: int, **kwargs: str | int) -> None:
-        print('MIDI_DEVICE not found |', *args, ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))
+        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))
