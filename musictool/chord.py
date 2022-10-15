@@ -6,11 +6,11 @@ import itertools
 import random
 from collections.abc import Iterator
 from pathlib import Path
-from musictool.card import Card
 
 import mido
 
 from musictool import config
+from musictool.card import Card
 from musictool.note import Note
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet

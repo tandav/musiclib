@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from typing import overload
-from musictool.card import Card
 
 from musictool import config
+from musictool.card import Card
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
 
