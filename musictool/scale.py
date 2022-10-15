@@ -153,7 +153,6 @@ class ComparedScales(Card):
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
     def to_piano_image(self) -> str:
-        reveal_type(self.del_notes)
         return Piano(
             note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),  # type: ignore

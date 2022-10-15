@@ -73,15 +73,11 @@ def test_notes_type_is_frozenset(value):
 def test_contains():
     assert 'C' in NoteSet(frozenset('C'))
     assert 'C' not in NoteSet(frozenset('D'))
-    assert frozenset('CD') <= NoteSet(frozenset('CDE'))
-    assert frozenset('CDE') <= NoteSet(frozenset('CDE'))
-    assert not frozenset('CDEF') <= NoteSet(frozenset('CDE'))
-    assert NoteSet(frozenset('CD')) <= frozenset('CDE')
-    assert NoteSet(frozenset('CDE')) <= frozenset('CDE')
-    assert not NoteSet(frozenset('CDEF')) <= frozenset('CDE')
+    assert NoteSet(frozenset('CD')) <= NoteSet(frozenset('CDE'))
+    assert NoteSet(frozenset('CDE')) <= NoteSet(frozenset('CDE'))
+    assert not NoteSet(frozenset('CDEF')) <= NoteSet(frozenset('CDE'))
     empty_noteset = NoteSet(frozenset())
     assert 'C' not in empty_noteset
-    assert not frozenset('CD') <= empty_noteset
     assert empty_noteset <= NoteSet(frozenset('CDE'))
 
 

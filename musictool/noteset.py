@@ -203,12 +203,12 @@ class NoteSet(Cached, Card):
     def __le__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
             return NotImplemented
-        return self.notes <= other
+        return self.notes <= other.notes
 
     def __ge__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
             return NotImplemented
-        return other <= self.notes
+        return other.notes <= self.notes
 
     def __repr__(self) -> str:
         x = ''.join(note.name for note in self)
