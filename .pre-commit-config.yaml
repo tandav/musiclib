@@ -60,4 +60,3 @@ repos:
     rev: v0.982
     hooks:
     - id: mypy
-      args: ["--ignore-missing-imports", "--scripts-are-modules", "musictool", "tests"]
