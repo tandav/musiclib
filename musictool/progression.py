@@ -2,12 +2,17 @@ from __future__ import annotations
 
 import functools
 import itertools
+from collections.abc import Iterator
+from collections.abc import Iterable
 from collections.abc import Sequence
+from collections.abc import Callable
 from typing import overload
 
 from musictool.chord import SpecificChord
 from musictool.note import SpecificNote
 from musictool.util.cache import Cached
+
+CheckCallable = Callable[[SpecificChord, SpecificChord], bool]
 
 
 class Progression(Cached, Sequence[SpecificChord]):
@@ -27,28 +32,31 @@ class Progression(Cached, Sequence[SpecificChord]):
             return Progression(self.chords[item])
         return self.chords[item]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[SpecificChord]:
         return iter(self.chords)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.chords)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Progression{self.chords}'
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Progression):
+            return NotImplemented
         return self.chords == other.chords
 
-    def __hash__(self): return hash(self.chords)
+    def __hash__(self) -> int:
+        return hash(self.chords)
 
-    def all(self, checks__):
+    def all(self, checks__: Iterable[CheckCallable]) -> bool:
         return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
 
-    def all_not(self, checks__):
+    def all_not(self, checks__: Iterable[CheckCallable]) -> bool:
         return all(not check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
 
     @property
-    def distance(self):
+    def distance(self) -> int:
         n = len(self)
         return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
 
@@ -68,5 +76,5 @@ class Progression(Cached, Sequence[SpecificChord]):
     def transposed_to_C0(self) -> Progression:
         return self + (SpecificNote('C', 0) - self[0][0])
 
-    def __getnewargs__(self):
+    def __getnewargs__(self) -> tuple[tuple[SpecificChord, ...]]:
         return self.chords,
