@@ -22,10 +22,12 @@ class Progression(Cached, Sequence[SpecificChord]):
         self.chords = chords
 
     @overload
-    def __getitem__(self, i: int) -> SpecificChord: ...
+    def __getitem__(self, i: int) -> SpecificChord:
+        ...
 
     @overload
-    def __getitem__(self, s: slice) -> Progression: ...
+    def __getitem__(self, s: slice) -> Progression:
+        ...
 
     def __getitem__(self, item: int | slice) -> SpecificChord | Sequence[SpecificChord]:
         if isinstance(item, slice):

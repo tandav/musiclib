@@ -141,7 +141,7 @@ class SpecificChord(Cached, Card):
         return hash(self.key)
 
     def __sub__(self, other: SpecificChord) -> int:
-        return sum(abs(l - r) for l, r in zip(self, other, strict=True))
+        return sum(abs(a - b) for a, b in zip(self, other, strict=True))
 
     def __add__(self, other: int) -> SpecificChord:
         """transpose"""

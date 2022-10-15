@@ -178,9 +178,6 @@ class Piano:
         x = self.ww * self.noterange.index(note)
         return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
 
-    def __repr__(self):
-        return 'Piano'
-
     @staticmethod
     def pretty_print(svg: str) -> str:
         tree = ElementTree.fromstring(svg)

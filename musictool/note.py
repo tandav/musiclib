@@ -53,10 +53,12 @@ class Note(Cached):
         return Note.from_i(self.i + other)
 
     @overload
-    def __sub__(self, other: Note) -> int: ...
+    def __sub__(self, other: Note) -> int:
+        ...
 
     @overload
-    def __sub__(self, other: int) -> Note: ...
+    def __sub__(self, other: int) -> Note:
+        ...
 
     def __sub__(self, other: Note | int) -> int | Note:
         """
@@ -124,10 +126,12 @@ class SpecificNote(Cached):
         return self.i < other.i
 
     @overload
-    def __sub__(self, other: SpecificNote) -> int: ...
+    def __sub__(self, other: SpecificNote) -> int:
+        ...
 
     @overload
-    def __sub__(self, other: int) -> SpecificNote: ...
+    def __sub__(self, other: int) -> SpecificNote:
+        ...
 
     # @functools.cache
     def __sub__(self, other: SpecificNote | int) -> int | SpecificNote:

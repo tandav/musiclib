@@ -107,7 +107,8 @@ class NoteSet(Cached, Card):
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
 
     @property
-    def rootless(self) -> NoteSet: return NoteSet(self.notes)
+    def rootless(self) -> NoteSet:
+        return NoteSet(self.notes)
 
     def transpose_to(self, note: Note) -> NoteSet:
         if self.root is None:
@@ -143,11 +144,16 @@ class NoteSet(Cached, Card):
         return cls(frozenset(Note(note) for note in notes), root=root)
 
     @overload
-    def add_note(self, note: str, steps: int) -> Note | SpecificNote: ...
+    def add_note(self, note: str, steps: int) -> Note | SpecificNote:
+        ...
+
     @overload
-    def add_note(self, note: SpecificNote, steps: int) -> SpecificNote: ...
+    def add_note(self, note: SpecificNote, steps: int) -> SpecificNote:
+        ...
+
     @overload
-    def add_note(self, note: Note, steps: int) -> Note: ...
+    def add_note(self, note: Note, steps: int) -> Note:
+        ...
 
     def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
         if len(self) == 0:

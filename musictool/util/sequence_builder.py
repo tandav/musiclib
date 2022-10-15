@@ -3,7 +3,6 @@ from __future__ import annotations
 import itertools
 import pickle
 from collections.abc import Callable
-from collections.abc import Iterator
 from collections.abc import Iterable
 from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor
@@ -103,7 +102,7 @@ class SequenceBuilder:
             return self.options_callable(seq[-1])
         raise TypeError
 
-    def __iter__(self) -> Iterator[tuple[Op, ...]]:
+    def __iter__(self) -> Iterable[tuple[Op, ...]]:
         return self._iter(self.prefix)
 
     def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:

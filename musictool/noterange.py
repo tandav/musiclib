@@ -44,10 +44,12 @@ class NoteRange(Sequence[SpecificNote], Card):
         else: raise IndexError('index out of range')
 
     @overload
-    def __getitem__(self, i: int) -> SpecificNote: ...
+    def __getitem__(self, i: int) -> SpecificNote:
+        ...
 
     @overload
-    def __getitem__(self, s: slice) -> NoteRange: ...
+    def __getitem__(self, s: slice) -> NoteRange:
+        ...
 
     def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
         if isinstance(item, int): return self._getitem_int(item)
