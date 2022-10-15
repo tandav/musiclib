@@ -38,7 +38,8 @@ def test_init(four_chords):
 
 
 def test_all(progression4):
-    def check(x, y): return x[0] < y[0]
+    def check(x, y):
+        return x[0] < y[0]
     assert progression4.all([check])
     assert progression4.all_not([lambda x, y: not check(x, y)])
 

@@ -43,8 +43,7 @@ class Piano:
         note_colors: dict[Note | SpecificNote, int] | None = None,
         note_hrefs: dict[Note | SpecificNote, str] | None = None,
         note_onclicks: dict[Note | SpecificNote, str] | None = None,
-        top_rect_colors: dict[Note, int] | dict[SpecificNote, int] | None = None,
-        # top_rect_colors: TopRectDict | None = None,
+        top_rect_colors: dict[Note | SpecificNote, int] | None = None,
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
@@ -68,9 +67,9 @@ class Piano:
 
         self.note_colors = note_colors or {}
 
-        self.top_rect_colors: dict[Note, int] | dict[SpecificNote, int]
+        self.top_rect_colors: dict[Note | SpecificNote, int]
         if top_rect_colors is None:
-            self.top_rect_colors = {}  # type: ignore
+            self.top_rect_colors = {}
         else:
             self.top_rect_colors = top_rect_colors
 
@@ -177,9 +176,6 @@ class Piano:
 
         x = self.ww * self.noterange.index(note)
         return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
-
-    def __repr__(self):
-        return 'Piano'
 
     @staticmethod
     def pretty_print(svg: str) -> str:

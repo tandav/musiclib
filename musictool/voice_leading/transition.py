@@ -20,7 +20,7 @@ class Transition:
         elif a == b: return '|'
         else: return '/'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '\n'.join((
             str(self.a),
             '  '.join(self.arrow(na, nb) for na, nb in zip(self.a, self.b, strict=True)),

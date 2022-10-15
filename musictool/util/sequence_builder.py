@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import pickle
 from collections.abc import Callable
+from collections.abc import Generator
 from collections.abc import Iterable
 from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor
@@ -102,10 +103,10 @@ class SequenceBuilder:
             return self.options_callable(seq[-1])
         raise TypeError
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[tuple[Op, ...], None, None]:
         return self._iter(self.prefix)
 
-    def _iter(self, prefix: tuple[Op, ...] = ()) -> Iterable[tuple[Op, ...]]:
+    def _iter(self, prefix: tuple[Op, ...] = ()) -> Generator[tuple[Op, ...], None, None]:
         seq = prefix or ()
         ops = self.generate_options(seq)
 
@@ -142,7 +143,7 @@ class SequenceBuilder:
         yield from it
 
     def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
-        def inner():
+        def inner() -> Iterable[tuple[Op, ...]]:
             candidate = seq + (op,)
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 return

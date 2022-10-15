@@ -117,21 +117,31 @@ class SpecificChord(Cached, Card):
     def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote], ...]:
         return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
-    def __len__(self): return len(self.notes)
-    def __getitem__(self, item: int) -> SpecificNote: return self.notes_ascending[item]
-    def __iter__(self): return iter(self.notes_ascending)
+    def __len__(self) -> int:
+        return len(self.notes)
 
-    def __repr__(self):
-        _ = '_'.join(repr(note) for note in self.notes_ascending)
+    def __getitem__(self, item: int) -> SpecificNote:
+        return self.notes_ascending[item]
+
+    def __iter__(self) -> Iterator[SpecificNote]:
+        return iter(self.notes_ascending)
+
+    def __repr__(self) -> str:
+        x = '_'.join(repr(note) for note in self.notes_ascending)
         if self.root is not None:
-            _ = f'{_}/{self.root.name}'
-        return _
+            return f'{x}/{self.root.name}'
+        return x
 
-    def __eq__(self, other): return self.key == other.key
-    def __hash__(self): return hash(self.key)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SpecificChord):
+            return NotImplemented
+        return self.key == other.key
+
+    def __hash__(self) -> int:
+        return hash(self.key)
 
     def __sub__(self, other: SpecificChord) -> int:
-        return sum(abs(l - r) for l, r in zip(self, other, strict=True))
+        return sum(abs(a - b) for a, b in zip(self, other, strict=True))
 
     def __add__(self, other: int) -> SpecificChord:
         """transpose"""
@@ -206,5 +216,5 @@ class SpecificChord(Cached, Card):
             piano_html=self.to_piano_image(),
         )
 
-    def __getnewargs_ex__(self):
+    def __getnewargs_ex__(self) -> tuple[tuple[frozenset[SpecificNote]], dict[str, Note | None]]:
         return (self.notes,), {'root': self.root}

@@ -89,7 +89,7 @@ def test_magic_methods():
     assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
     assert tuple(iter(chord)) == chord.notes_ascending
     chord2 = SpecificChord.from_str('d3_f8')
-    assert tuple(zip(chord, chord2)) == (('C1', 'd3'), ('E1', 'f8'))
+    assert tuple(zip(chord, chord2)) == (('C1', 'd3'), ('E1', 'f8'))  # type: ignore
 
 
 def test_sub():
@@ -172,7 +172,8 @@ def test_transposed_to_C0(chord, expected):
 )
 def test_add(chord, add, expected):
     assert SpecificChord.from_str(chord) + add == SpecificChord.from_str(expected)
-    with pytest.raises(TypeError): chord + [1]
+    with pytest.raises(TypeError):
+        chord + [1]
 
 
 @pytest.mark.asyncio

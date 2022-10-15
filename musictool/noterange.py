@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
 
@@ -43,10 +44,12 @@ class NoteRange(Sequence[SpecificNote], Card):
         else: raise IndexError('index out of range')
 
     @overload
-    def __getitem__(self, i: int) -> SpecificNote: ...
+    def __getitem__(self, i: int) -> SpecificNote:
+        ...
 
     @overload
-    def __getitem__(self, s: slice) -> NoteRange: ...
+    def __getitem__(self, s: slice) -> NoteRange:
+        ...
 
     def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
         if isinstance(item, int): return self._getitem_int(item)
@@ -64,11 +67,22 @@ class NoteRange(Sequence[SpecificNote], Card):
             return False
         return item.abstract in self.noteset and self.start <= item <= self.stop
 
-    def __iter__(self): return (self[i] for i in range(len(self)))
-    def __repr__(self): return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
-    def __len__(self): return self.noteset.subtract(self.stop, self.start) + 1
-    def __eq__(self, other): return self._key == other._key
-    def __hash__(self): return hash(self._key)
+    def __iter__(self) -> Iterator[SpecificNote]:
+        return (self[i] for i in range(len(self)))
+
+    def __repr__(self) -> str:
+        return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
+
+    def __len__(self) -> int:
+        return self.noteset.subtract(self.stop, self.start) + 1
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, NoteRange):
+            return NotImplemented
+        return self._key == other._key
+
+    def __hash__(self) -> int:
+        return hash(self._key)
 
     def to_piano_image(self) -> str:
         from musictool.piano import Piano  # hack to fix circular import
