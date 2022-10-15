@@ -114,8 +114,7 @@ class Scale(NoteSet, Card):
         subtitle: str | None = None,
         header_href: str | None = None,
     ) -> str:
-        if self.name is not None:
-            html_classes += self.name,
+        html_classes += self.name,
 
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'

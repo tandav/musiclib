@@ -117,10 +117,10 @@ SUBTITLE = 'subtitle_EfrKTj'
 HEADER_HREF = 'header_href_TUMhv'
 
 
+@pytest.mark.parametrize('kind', ('diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'))
 @pytest.mark.parametrize('title', (None, TITLE))
 @pytest.mark.parametrize('subtitle', (None, SUBTITLE))
 @pytest.mark.parametrize('header_href', (None, HEADER_HREF))
-@pytest.mark.parametrize('kind', ('diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'))
 def test_html(kind, title, subtitle, header_href):
     for scale in all_scales[kind].values():
         html_classes = ('cls1', 'cls2')
@@ -130,14 +130,11 @@ def test_html(kind, title, subtitle, header_href):
             subtitle=subtitle,
             header_href=header_href,
         )
-        classes = ['card', *html_classes]
-        if scale is not None:
-            classes.append(scale.name)
-        classes = ' '.join(classes)
+        classes = ' '.join(['card', *html_classes, scale.name])
         assert f"class='{classes}'" in html
         for item, constant in zip(
-                (title, subtitle, header_href),
-                (TITLE, SUBTITLE, HEADER_HREF),
+            (title, subtitle, header_href),
+            (TITLE, SUBTITLE, HEADER_HREF),
         ):
             if item is None:
                 assert constant not in html
@@ -151,5 +148,25 @@ def test_html(kind, title, subtitle, header_href):
         (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
     ),
 )
-def test_html_compared_scale(scale0, scale1):
-    ComparedScales(scale0, scale1)._repr_html_()
+@pytest.mark.parametrize('title', (None, TITLE))
+@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
+@pytest.mark.parametrize('header_href', (None, HEADER_HREF))
+def test_html_compared_scale(scale0, scale1, title, subtitle, header_href):
+    html_classes = ('cls1', 'cls2')
+    html = ComparedScales(scale0, scale1)._repr_html_(
+        html_classes=html_classes,
+        title=title,
+        subtitle=subtitle,
+        header_href=header_href,
+    )
+    classes = ' '.join(['card', *html_classes])
+    assert f"class='{classes}'" in html
+
+    for item, constant in zip(
+        (title, subtitle, header_href),
+        (TITLE, SUBTITLE, HEADER_HREF),
+    ):
+        if item is None:
+            assert constant not in html
+        else:
+            assert constant in html
