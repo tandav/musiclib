@@ -12,14 +12,14 @@ from musictool.scale import Scale
 
 @pytest.mark.parametrize(
     'start, stop, noteset, expected', (
-        ('C0', 'C1', NoteSet(frozenset(config.chromatic_notes)), 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
-        ('b3', 'E4', NoteSet(frozenset(config.chromatic_notes)), 'b3 B3 C4 d4 D4 e4 E4'),
-        ('C0', 'C0', NoteSet(frozenset(config.chromatic_notes)), 'C0'),
-        ('C0', 'C1', NoteSet(frozenset('CDEFGAB')), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-        ('C0', 'C1', Scale(frozenset('CDEFGAB'), root='C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-        ('C0', 'C1', Chord(frozenset('CDEFGAB'), root='C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-        ('a3', 'f4', NoteSet(frozenset('dEfaB')), 'a3 B3 d4 E4 f4'),
-        ('A0', 'D2', NoteSet(frozenset('CDEFGAB')), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
+        ('C0', 'C1', NoteSet.from_str(config.chromatic_notes), 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
+        ('b3', 'E4', NoteSet.from_str(config.chromatic_notes), 'b3 B3 C4 d4 D4 e4 E4'),
+        ('C0', 'C0', NoteSet.from_str(config.chromatic_notes), 'C0'),
+        ('C0', 'C1', NoteSet.from_str('CDEFGAB'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+        ('C0', 'C1', Scale.from_str('CDEFGAB/C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+        ('C0', 'C1', Chord.from_str('CDEFGAB/C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+        ('a3', 'f4', NoteSet.from_str('dEfaB'), 'a3 B3 d4 E4 f4'),
+        ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
     ),
 )
 def test_note_range(start, stop, noteset, expected):
@@ -42,9 +42,9 @@ def test_note_range_from_str(start, stop, noterange):
 def test_noterange_bounds():
     with pytest.raises(ValueError): NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
     with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('C', 2), noteset=NoteSet(frozenset()))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('Cd')))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dD')))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('dDeE')))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('Cd'))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dD'))
+    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dDeE'))
 
 
 def test_noterange_contains():
@@ -52,7 +52,7 @@ def test_noterange_contains():
     assert SpecificNote('C', 1) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert SpecificNote('C', 2) in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
     assert SpecificNote('C', 3) not in NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
-    assert SpecificNote('D', 1) not in NoteRange(SpecificNote('C', 1), SpecificNote('F', 1), noteset=NoteSet(frozenset('CEF')))
+    assert SpecificNote('D', 1) not in NoteRange(SpecificNote('C', 1), SpecificNote('F', 1), noteset=NoteSet.from_str('CEF'))
 
 
 @pytest.mark.parametrize(
@@ -69,7 +69,7 @@ def test_noterange_contains():
     ),
 )
 def test_noterange_len(start, stop, notes, length):
-    assert len(NoteRange(start, stop, NoteSet(frozenset(notes)))) == length
+    assert len(NoteRange(start, stop, NoteSet.from_str(notes))) == length
 
 
 def test_noterange_getitem():
@@ -92,7 +92,7 @@ def test_noterange_getitem():
     with pytest.raises(IndexError): nr[-3: 1]
     with pytest.raises(IndexError): nr[5: 13]
 
-    ns = NoteSet(frozenset('fa'))
+    ns = NoteSet.from_str('fa')
     nr = NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
     assert nr[0] == nr[-10] == SpecificNote('f', -1)
     assert nr[1] == nr[-9] == SpecificNote('a', -1)
@@ -110,7 +110,7 @@ def test_noterange_getitem():
 @pytest.mark.parametrize(
     'noterange, expected', [
         (NoteRange(SpecificNote('C', 1), SpecificNote('C', 2)), 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'),
-        (NoteRange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet(frozenset('AbBCdDe'))), 'b1 B1 C2 d2 D2'),
+        (NoteRange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('AbBCdDe')), 'b1 B1 C2 d2 D2'),
     ],
 )
 def test_noterange_list(noterange, expected):

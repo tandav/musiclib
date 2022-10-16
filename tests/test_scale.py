@@ -19,8 +19,8 @@ from musictool.scale import Scale
 )
 def test_name(notes, name):
     root = notes[0]
-    notes = frozenset(notes)
-    assert Scale(notes, root=root).name == name
+    notes = frozenset(map(Note, notes))
+    assert Scale(notes, root=Note(root)).name == name
     assert Scale.from_name(root, name).notes == notes
 
 
@@ -61,16 +61,16 @@ def test_equal(op, a, b):
     ),
 )
 def test_nths(notes, name, nths):
-    assert getattr(Scale(frozenset(notes), root=notes[0]), name) == tuple(Chord.from_str(s) for s in nths.split())
+    assert getattr(Scale.from_str(f'{notes}/{notes[0]}'), name) == tuple(Chord.from_str(s) for s in nths.split())
 
 
 def test_notes_to_triad_root():
-    assert Scale(frozenset('DEFGAbC'), root='D').notes_to_triad_root[frozenset(map(Note, 'GbD'))] == 'G'
+    assert Scale.from_str('DEFGAbC/D').notes_to_triad_root[frozenset(map(Note, 'GbD'))] == 'G'
 
 
 @pytest.mark.parametrize('notes', ('CDEFGAB', 'BdeEfab', 'deFfabC'))
 def test_note_scales(notes):
-    assert Scale(frozenset(notes), root=notes[0]).note_scales == dict(zip(notes, config.diatonic, strict=True))
+    assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.diatonic, strict=True))
 
 
 def test_compared():

@@ -9,7 +9,7 @@ from musictool.card import Card
 from musictool.note import SpecificNote
 from musictool.noteset import NoteSet
 
-CHROMATIC_NOTESET = NoteSet(frozenset(config.chromatic_notes))
+CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
 
 class NoteRange(Sequence[SpecificNote], Card):

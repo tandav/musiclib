@@ -31,11 +31,11 @@ def html_helper(html, html_classes, title, subtitle, header_href, background_col
 
 @pytest.mark.parametrize(
     'noteset', [
-        NoteSet(frozenset('CdeFGa')),
-        NoteSet(frozenset('CdeFGa'), root='e'),
-        NoteSet(frozenset('fa')),
-        NoteSet(frozenset('fa'), root='f'),
-        NoteSet(frozenset('')),
+        NoteSet.from_str('CdeFGa'),
+        NoteSet.from_str('CdeFGa/e'),
+        NoteSet.from_str('fa'),
+        NoteSet.from_str('fa/f'),
+        NoteSet.from_str(''),
     ],
 )
 @pytest.mark.parametrize('title', (None, TITLE))
