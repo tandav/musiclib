@@ -40,11 +40,16 @@ def test_note_range_from_str(start, stop, noterange):
 
 
 def test_noterange_bounds():
-    with pytest.raises(ValueError): NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('C', 2), noteset=NoteSet(frozenset()))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('Cd'))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dD'))
-    with pytest.raises(KeyError): NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dDeE'))
+    with pytest.raises(ValueError):
+        NoteRange(SpecificNote('D', 2), SpecificNote('C', 1))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('C', 2), noteset=NoteSet(frozenset()))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('Cd'))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dD'))
+    with pytest.raises(KeyError):
+        NoteRange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dDeE'))
 
 
 def test_noterange_contains():
@@ -87,10 +92,14 @@ def test_noterange_getitem():
     assert nr[:4] == NoteRange('C1', 'E1')
     assert nr[:] == NoteRange('C1', 'C2')
 
-    with pytest.raises(IndexError): nr[13]
-    with pytest.raises(IndexError): nr[-14]
-    with pytest.raises(IndexError): nr[-3: 1]
-    with pytest.raises(IndexError): nr[5: 13]
+    with pytest.raises(IndexError):
+        nr[13]
+    with pytest.raises(IndexError):
+        nr[-14]
+    with pytest.raises(IndexError):
+        nr[-3: 1]
+    with pytest.raises(IndexError):
+        nr[5: 13]
 
     ns = NoteSet.from_str('fa')
     nr = NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
@@ -103,8 +112,10 @@ def test_noterange_getitem():
     assert nr[0:1] == NoteRange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
     assert nr[0:2] == NoteRange(SpecificNote('f', -1), SpecificNote('f', 0), ns)
     assert nr[0:9] == NoteRange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
-    with pytest.raises(IndexError): nr[10]
-    with pytest.raises(IndexError): nr[-11]
+    with pytest.raises(IndexError):
+        nr[10]
+    with pytest.raises(IndexError):
+        nr[-11]
 
 
 @pytest.mark.parametrize(

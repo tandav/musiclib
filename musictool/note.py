@@ -139,7 +139,8 @@ class SpecificNote(Cached):
             return self.i - other.i
         elif isinstance(other, int):  # subtract semitones
             return self + (-other)
-        else: raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
+        else:
+            raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
 
     def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""

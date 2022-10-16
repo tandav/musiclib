@@ -40,8 +40,10 @@ class NoteRange(Sequence[SpecificNote], Card):
         if 0 <= item < len(self):
             q = self.noteset.add_note(self.start, item)
             return q
-        elif -len(self) <= item < 0: return self.noteset.add_note(self.stop, item + 1)
-        else: raise IndexError('index out of range')
+        elif -len(self) <= item < 0:
+            return self.noteset.add_note(self.stop, item + 1)
+        else:
+            raise IndexError('index out of range')
 
     @overload
     def __getitem__(self, i: int) -> SpecificNote:
@@ -52,7 +54,8 @@ class NoteRange(Sequence[SpecificNote], Card):
         ...
 
     def __getitem__(self, item: int | slice) -> SpecificNote | NoteRange:
-        if isinstance(item, int): return self._getitem_int(item)
+        if isinstance(item, int):
+            return self._getitem_int(item)
         elif isinstance(item, slice):
             # if item.start is None:
             start = 0 if item.start is None else item.start
@@ -60,7 +63,8 @@ class NoteRange(Sequence[SpecificNote], Card):
             if not 0 <= start <= stop <= len(self):
                 raise IndexError('NoteRange slice is out of range, negative indexing is not supported')
             return NoteRange(self._getitem_int(start), self._getitem_int(stop), self.noteset)
-        else: raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
+        else:
+            raise TypeError(f'NoteRange indices must be integers or slices, got {type(item)}')
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, SpecificNote):

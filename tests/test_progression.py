@@ -75,7 +75,8 @@ def test_add_transpose():
         SpecificChord.from_str('F0_A0_C1'),
     ))
     assert p0 + -31 == p1
-    with pytest.raises(TypeError): p0 + [1]  # type: ignore
+    with pytest.raises(TypeError):
+        p0 + [1]  # type: ignore
     assert p0.transposed_to_C0 == p1
 
 

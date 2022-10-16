@@ -16,9 +16,12 @@ class Transition:
 
     @staticmethod
     def arrow(a: SpecificNote, b: SpecificNote) -> str:
-        if a < b: return '︎\\'
-        elif a == b: return '|'
-        else: return '/'
+        if a < b:
+            return '︎\\'
+        elif a == b:
+            return '|'
+        else:
+            return '/'
 
     def __repr__(self) -> str:
         return '\n'.join((

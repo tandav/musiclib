@@ -132,8 +132,10 @@ def test_from_intervals(intervals, root, expected):
 
 
 def test_subclasses_names_unreachable():
-    with pytest.raises(KeyError): NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
-    with pytest.raises(KeyError): NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
+    with pytest.raises(KeyError):
+        NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
+    with pytest.raises(KeyError):
+        NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
 
 
 @pytest.mark.parametrize(
@@ -296,9 +298,15 @@ def test_subtract(notes, left, right, distance):
 
 def test_subtract_types():
     noteset = NoteSet.from_str('CDEFGAB')
-    with pytest.raises(TypeError): noteset.subtract(Note('C'), SpecificNote('D', 1))
-    with pytest.raises(TypeError): noteset.subtract(SpecificNote('D', 1), Note('C'))
-    with pytest.raises(TypeError): noteset.subtract('C', 'D1')
-    with pytest.raises(TypeError): noteset.subtract('D1', 'C')
-    with pytest.raises(TypeError): noteset.subtract('C', SpecificNote('D', 1))
-    with pytest.raises(TypeError): noteset.subtract('D1', Note('C'))
+    with pytest.raises(TypeError):
+        noteset.subtract(Note('C'), SpecificNote('D', 1))
+    with pytest.raises(TypeError):
+        noteset.subtract(SpecificNote('D', 1), Note('C'))
+    with pytest.raises(TypeError):
+        noteset.subtract('C', 'D1')
+    with pytest.raises(TypeError):
+        noteset.subtract('D1', 'C')
+    with pytest.raises(TypeError):
+        noteset.subtract('C', SpecificNote('D', 1))
+    with pytest.raises(TypeError):
+        noteset.subtract('D1', Note('C'))

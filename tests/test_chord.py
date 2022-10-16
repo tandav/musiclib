@@ -20,12 +20,14 @@ def test_chord_root_validation():
 
 @pytest.mark.parametrize('arg', ('C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')))
 def test_specificchord_notes_type_is_frozenset(arg):
-    with pytest.raises(TypeError): SpecificChord(arg)
+    with pytest.raises(TypeError):
+        SpecificChord(arg)
 
 
 def test_specificchord_root_validation():
     assert isinstance(SpecificChord(frozenset({SpecificNote('A', 1)}), root='A').root, Note)
-    with pytest.raises(KeyError): SpecificChord(frozenset({SpecificNote('A', 1)}), root='E')
+    with pytest.raises(KeyError):
+        SpecificChord(frozenset({SpecificNote('A', 1)}), root='E')
 
 
 def test_notes():

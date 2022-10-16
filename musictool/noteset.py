@@ -154,19 +154,21 @@ class NoteSet(Cached, Card):
         if len(self) == 0:
             raise NotImplementedError('cannot add notes using empty noteset')
         notes = self.notes_ascending
-        if type(note) is str:
+        if isinstance(note, str):
             note = str_to_note(note)
-        if type(note) is Note:
+        if isinstance(note, Note):
             return notes[(notes.index(note) + steps) % len(notes)]
-        elif type(note) is SpecificNote:
+        elif isinstance(note, SpecificNote):
             octaves, i = divmod(self.notes_octave_fit.index(note.abstract) + steps, len(self.notes))
             return SpecificNote(self.notes_octave_fit[i], octave=note.octave + octaves)
         else:
             raise TypeError
 
     def subtract(self, left: AnyNote, right: AnyNote) -> int:
-        if type(left) is str: left = str_to_note(left)
-        if type(right) is str: right = str_to_note(right)
+        if isinstance(left, str):
+            left = str_to_note(left)
+        if isinstance(right, str):
+            right = str_to_note(right)
 
         if type(left) is type(right) is Note:
             return (self.note_i[left] - self.note_i[right]) % len(self)
