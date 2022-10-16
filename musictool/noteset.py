@@ -129,7 +129,7 @@ class NoteSet(Cached, Card):
     def random(cls: type[Self], n_notes: int | None = None) -> Self:
         if n_notes is None:
             n_notes = random.randint(2, 5)
-        notes = frozenset(random.sample(config.chromatic_notes, n_notes))
+        notes = frozenset(map(Note, random.sample(config.chromatic_notes, n_notes)))
         return cls(notes)
 
     @classmethod
@@ -192,9 +192,9 @@ class NoteSet(Cached, Card):
     def __iter__(self) -> Iterator[Note]:
         return iter(self.notes_ascending)
 
-    def __contains__(self, item: Note) -> bool:
+    def __contains__(self, item: object) -> bool:
         if not isinstance(item, Note):
-            return False
+            return NotImplemented
         return item in self.notes
 
     def __le__(self, other: object) -> bool:
