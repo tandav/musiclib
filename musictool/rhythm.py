@@ -92,7 +92,7 @@ class Rhythm(Cached):
         out: tuple[Rhythm] = rhythms | P.Pipe(tuple)
         return out
 
-    def to_midi(
+    def to_midi(  # noqa: C901
         self,
         path: str | Path | None = None,
         note_: SpecificNote | None = None,

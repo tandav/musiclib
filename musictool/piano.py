@@ -38,7 +38,7 @@ class SquaresPayload(TypedDict, total=False):
 
 
 class Piano:
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         note_colors: dict[Note | SpecificNote, int] | None = None,
         note_hrefs: dict[Note | SpecificNote, str] | None = None,

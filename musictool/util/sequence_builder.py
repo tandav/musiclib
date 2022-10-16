@@ -24,7 +24,7 @@ OPTIONS_EXCEPTION = TypeError('options, options_i, options_callable are mutually
 
 
 class SequenceBuilder:
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         n: int,
         options: OpsIterable[Op] | None = None,
