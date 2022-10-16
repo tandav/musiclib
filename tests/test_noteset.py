@@ -79,12 +79,14 @@ def test_bits(notes, bits):
     assert NoteSet.from_str(notes).bits == bits
 
 
-@pytest.mark.parametrize('value', (
-    'CDE',
-    set(map(Note, 'CDE')),
-    tuple(map(Note, 'CDE')),
-    list(map(Note, 'CDE')),
-))
+@pytest.mark.parametrize(
+    'value', (
+        'CDE',
+        set(map(Note, 'CDE')),
+        tuple(map(Note, 'CDE')),
+        list(map(Note, 'CDE')),
+    ),
+)
 def test_notes_type_is_frozenset(value):
     with pytest.raises(TypeError):
         NoteSet(value)
