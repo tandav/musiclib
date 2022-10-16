@@ -40,16 +40,16 @@ def test_note_container(container):
     assert container == pickle.loads(pickle.dumps(container))
 
 
-a = NoteSet(frozenset('fa'), root='a')
-b = NoteSet(frozenset('fa'), root='f')
+a = NoteSet.from_str('fa/a')
+b = NoteSet.from_str('fa/f')
 
 
 @pytest.mark.parametrize(
     'noteset', (
-        NoteSet(frozenset('CDEFGAB'), root='C'),
-        NoteSet(frozenset('CDEFGAB')),
-        NoteSet(frozenset('CdeFGab'), root='e'),
-        NoteSet(frozenset('CEG'), root='C'),
+        NoteSet.from_str('CDEFGAB/C'),
+        NoteSet.from_str('CDEFGAB'),
+        NoteSet.from_str('CdeFGab/e'),
+        NoteSet.from_str('CEG/C'),
         a,
         *iter_containers(a, b),
     ),
@@ -58,10 +58,10 @@ def test_noteset(noteset):
     assert noteset == pickle.loads(pickle.dumps(noteset))
 
 
-c = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='C')
-d = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root='E')
+c = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))
+d = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('E'))
 e = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C'))
-f = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root='E')
+f = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root= Note('E'))
 
 
 @pytest.mark.parametrize(
@@ -82,7 +82,7 @@ def test_chord(chord):
 @pytest.mark.parametrize(
     'scale', (
         Scale.from_name('C', 'major'),
-        Scale(frozenset('DEFGAbC'), root='D'),
+        Scale.from_str('DEFGAbC/D'),
         *iter_containers(Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
     ),
 )

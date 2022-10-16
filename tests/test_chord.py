@@ -28,19 +28,15 @@ def test_specificchord_root_validation():
     with pytest.raises(KeyError): SpecificChord(frozenset({SpecificNote('A', 1)}), root='E')
 
 
-def test_creation_from_str():
-    assert str(Chord(frozenset('CEG'), root=Note('C'))) == 'CEG/C'
-
-
 def test_notes():
-    assert Chord(frozenset('CEG'), root=Note('C')).notes == frozenset({Note('C'), Note('E'), Note('G')})
+    assert Chord(frozenset(map(Note, 'CEG')), root=Note('C')).notes == frozenset({Note('C'), Note('E'), Note('G')})
     assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
 
 
 @pytest.mark.parametrize(
     'chord, expected', (
-        (Chord(frozenset('BDF'), root='B'), 'BDF/B'),
-        (Chord(frozenset('DGBFCEA'), root='B'), 'BCDEFGA/B'),
+        (Chord(frozenset(map(Note, 'BDF')), root=Note('B')), 'BDF/B'),
+        (Chord(frozenset(map(Note, 'DGBFCEA')), root=Note('B')), 'BCDEFGA/B'),
     ),
 )
 def test_str_sort_2_octaves(chord, expected):
@@ -56,11 +52,11 @@ def test_str_sort_2_octaves(chord, expected):
     ),
 )
 def test_name(notes, root, expected):
-    assert Chord(frozenset(notes), root=root).name == expected
+    assert Chord(frozenset(map(Note, notes)), root=Note(root)).name == expected
 
 
 def test_intervals():
-    assert Chord(frozenset('CEG'), root=Note('C')).intervals == frozenset({0, 4, 7})
+    assert Chord.from_str('CEG/C').intervals == frozenset({0, 4, 7})
 
 
 def test_from_name():
@@ -70,7 +66,7 @@ def test_from_name():
 
 def test_from_str():
     assert SpecificChord.from_str('C1_E1_G1/C') == SpecificChord(frozenset({SpecificNote('C', 1), SpecificNote('E', 1), SpecificNote('G', 1)}), root=Note('C'))
-    assert Chord.from_str('CEG/C') == Chord(frozenset('CEG'), root='C')
+    assert Chord.from_str('CEG/C') == Chord(frozenset(map(Note, 'CEG')), root=Note('C'))
     for _ in range(10):
         s_chord = SpecificChord.random()
         assert SpecificChord.from_str(str(s_chord)) == s_chord
