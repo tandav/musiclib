@@ -55,7 +55,7 @@ def test_noteset(op, a, b):
         (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
         (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
         (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
-        (operator.is_, Scale.from_name('C', 'major'), Scale.from_str('CDEFGAB/C'))
+        (operator.is_, Scale.from_name('C', 'major'), Scale.from_str('CDEFGAB/C')),
     ),
 )
 def test_scale(op, a, b):
@@ -69,9 +69,9 @@ def test_scale(op, a, b):
         (operator.is_, Chord.from_str('CEG/C'), Chord.from_str('CEG/C')),
         (operator.is_not, Chord.from_str('CEG/C'), Chord.from_str('CeG/C')),
         (operator.is_not, Chord.from_str('CEG/C'), Chord.from_str('CEG/E')),
-#         (operator.is_, Chord.from_name('C', 'major'), Chord.from_name('C', 'major')),
-#         (operator.is_not, Chord.from_name('C', 'major'), Chord.from_name('D', 'major')),
-#         (operator.is_, Chord.from_name('C', 'major'), Chord.from_name(Note('C'), 'major')),
+        #         (operator.is_, Chord.from_name('C', 'major'), Chord.from_name('C', 'major')),
+        #         (operator.is_not, Chord.from_name('C', 'major'), Chord.from_name('D', 'major')),
+        #         (operator.is_, Chord.from_name('C', 'major'), Chord.from_name(Note('C'), 'major')),
     ),
 )
 def test_chord(op, a, b):
