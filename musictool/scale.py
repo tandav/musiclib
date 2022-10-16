@@ -64,9 +64,9 @@ class Scale(NoteSet, Card):
 
     def __init__(
         self,
-        notes: frozenset[str | Note],
+        notes: frozenset[Note],
         *,
-        root: str | Note,
+        root: Note,
     ):
         # if not isinstance(root, str | Note):
 

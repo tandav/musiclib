@@ -62,9 +62,9 @@ class NoteSet(Cached, Card):
 
     def __init__(
         self,
-        notes: frozenset[str | Note],
+        notes: frozenset[Note],
         *,
-        root: str | Note | None = None,
+        root: Note | None = None,
     ):
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
@@ -72,7 +72,7 @@ class NoteSet(Cached, Card):
         if len(notes) == 0:
             self.notes = frozenset()
         elif typeguards.is_frozenset_of_str(notes):
-            self.notes = frozenset(Note(note) for note in notes)
+            raise TypeError('expected frozenset of Note, got frozenset of str')
         elif typeguards.is_frozenset_of_note(notes):
             self.notes = notes
         else:
@@ -84,17 +84,12 @@ class NoteSet(Cached, Card):
             self.root = root
             self.notes_ascending = self.notes_octave_fit
             self.intervals_ascending = ()
+        elif not isinstance(root, Note):
+            raise TypeError('root type should be Note | None')
+        elif root not in self.notes:
+            raise KeyError('root should be one of notes')
         else:
-            if root not in self.notes:
-                raise KeyError('root should be one of notes')
-
-            if isinstance(root, Note):
-                self.root = root
-            elif isinstance(root, str):
-                self.root = Note(root)
-            else:
-                raise TypeError('root type should be str | Note | None')
-
+            self.root = root
             root_i = self.notes_octave_fit.index(self.root)
             self.notes_ascending = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
@@ -140,8 +135,8 @@ class NoteSet(Cached, Card):
     @classmethod
     def from_str(cls: type[Self], string: str) -> Self:
         notes, _, root_ = string.partition('/')
-        root = Note(root_) if root_ else None
-        return cls(frozenset(Note(note) for note in notes), root=root)
+        kw = {'root': Note(root_)} if root_ else {}
+        return cls(frozenset(Note(note) for note in notes), **kw)
 
     @overload
     def add_note(self, note: str, steps: int) -> Note | SpecificNote:
@@ -197,7 +192,9 @@ class NoteSet(Cached, Card):
     def __iter__(self) -> Iterator[Note]:
         return iter(self.notes_ascending)
 
-    def __contains__(self, item: str | Note) -> bool:
+    def __contains__(self, item: Note) -> bool:
+        if not isinstance(item, Note):
+            return False
         return item in self.notes
 
     def __le__(self, other: object) -> bool:
