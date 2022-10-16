@@ -61,7 +61,7 @@ def test_noteset(noteset):
 c = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))
 d = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('E'))
 e = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C'))
-f = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root= Note('E'))
+f = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('E'))
 
 
 @pytest.mark.parametrize(
