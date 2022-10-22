@@ -1,6 +1,6 @@
 # musictool
 
-### install
+### install from [pypi](https://pypi.org/project/musictool/)
 ```sh
 pip install musictool
 ```
