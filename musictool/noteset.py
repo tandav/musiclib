@@ -71,12 +71,10 @@ class NoteSet(Cached, Card):
 
         if len(notes) == 0:
             self.notes = frozenset()
-        elif typeguards.is_frozenset_of_str(notes):
-            raise TypeError('expected frozenset of Note, got frozenset of str')
         elif typeguards.is_frozenset_of_note(notes):
             self.notes = notes
         else:
-            raise TypeError
+            raise TypeError('expected frozenset of Note')
 
         self.notes_octave_fit = tuple(sorted(self.notes))
 
