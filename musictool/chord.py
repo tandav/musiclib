@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import functools
 import itertools
 import random
@@ -153,14 +152,6 @@ class SpecificChord(Cached, Card):
     @functools.cached_property
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
-
-    async def play(self, seconds: float = 1, bass_octave: int | None = None) -> None:
-        tasks = [note.play(seconds) for note in self.notes]
-        if bass_octave:
-            if self.root is None:
-                raise ValueError('cannot play bass when root is None')
-            tasks.append(SpecificNote(self.root, bass_octave).play(seconds))
-        await asyncio.gather(*tasks)
 
     def to_midi(
         self,

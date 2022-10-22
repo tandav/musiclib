@@ -35,5 +35,10 @@ class Player:
         self.send_message('note_off', note=obj.i, channel=0)
 
     @play.register
-    async def _(self, obj: SpecificChord, seconds: float = 1) -> None:
-        raise NotImplementedError
+    async def _(self, obj: SpecificChord, seconds: float = 1, bass_octave: int | None = None) -> None:
+        tasks = [self.play(note, seconds) for note in obj.notes]
+        if bass_octave:
+            if obj.root is None:
+                raise ValueError('cannot play bass when root is None')
+            tasks.append(self.play(SpecificNote(obj.root, bass_octave), seconds))
+        await asyncio.gather(*tasks)
