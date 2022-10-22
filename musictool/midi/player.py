@@ -1,5 +1,6 @@
 import asyncio
 import functools
+from pathlib import Path
 
 import mido
 
@@ -42,3 +43,31 @@ class Player:
                 raise ValueError('cannot play bass when root is None')
             tasks.append(self.play(SpecificNote(obj.root, bass_octave), seconds))
         await asyncio.gather(*tasks)
+
+
+def chord_to_midi(
+    chord: SpecificChord,
+    path: str | Path | None = None,
+    n_bars: int = 1,
+) -> mido.MidiFile | None:
+    mid = mido.MidiFile(type=0, ticks_per_beat=96)
+    track = mido.MidiTrack()
+    track.append(mido.MetaMessage(type='track_name', name='test_name'))
+    track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+    track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
+    if chord.root is not None:
+        track.append(mido.MetaMessage(type='marker', text=chord.root.name))
+
+    stop_time = int(n_bars * mid.ticks_per_beat * 4)
+
+    for note in chord.notes_ascending:
+        track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))
+    for i, note in enumerate(chord.notes_ascending):
+        track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
+
+    mid.tracks.append(track)
+    mid.meta = {'chord': chord}
+    if path is None:
+        return mid
+    mid.save(path)
+    return None
