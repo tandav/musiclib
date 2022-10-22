@@ -1,5 +1,4 @@
 import operator
-import os
 
 import hypothesis.strategies as st
 import pytest
@@ -65,23 +64,6 @@ def test_specific_note_from_i(i):
 )
 def test_from_str(string, expected):
     assert SpecificNote.from_str(string) == expected
-
-
-@pytest.mark.asyncio
-async def test_play(capsys):
-    note = SpecificNote.from_i(60)
-    await note.play(seconds=0.0001)
-    stdout, stderr = capsys.readouterr()
-
-    lines = [
-        f'note_on note={note.i}, channel=0\n',
-        f'note_off note={note.i}, channel=0\n',
-    ]
-
-    if 'MIDI_DEVICE' not in os.environ:
-        lines = ['MIDI_DEVICE not found | ' + line for line in lines]
-
-    assert stdout == ''.join(lines)
 
 
 @pytest.mark.parametrize(
