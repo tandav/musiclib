@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import asyncio
 import functools
 from collections.abc import Iterable
 from typing import overload
 
 from musictool import config
-from musictool.midi import player
 from musictool.util.cache import Cached
 
 
@@ -100,11 +98,6 @@ class SpecificNote(Cached):
     @classmethod
     def from_str(cls, string: str) -> SpecificNote:
         return cls(Note(string[0]), int(string[1:]))
-
-    async def play(self, seconds: float = 1) -> None:
-        player.send_message('note_on', note=self.i, channel=0)
-        await asyncio.sleep(seconds)
-        player.send_message('note_off', note=self.i, channel=0)
 
     def __repr__(self) -> str:
         return f'{self.abstract.name}{self.octave}'

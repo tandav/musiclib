@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import asyncio
 import functools
 import itertools
 import random
 from collections.abc import Iterator
-from pathlib import Path
-
-import mido
 
 from musictool import config
 from musictool.card import Card
@@ -153,41 +149,6 @@ class SpecificChord(Cached, Card):
     @functools.cached_property
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
-
-    async def play(self, seconds: float = 1, bass_octave: int | None = None) -> None:
-        tasks = [note.play(seconds) for note in self.notes]
-        if bass_octave:
-            if self.root is None:
-                raise ValueError('cannot play bass when root is None')
-            tasks.append(SpecificNote(self.root, bass_octave).play(seconds))
-        await asyncio.gather(*tasks)
-
-    def to_midi(
-        self,
-        path: str | Path | None = None,
-        n_bars: int = 1,
-    ) -> mido.MidiFile | None:
-        mid = mido.MidiFile(type=0, ticks_per_beat=96)
-        track = mido.MidiTrack()
-        track.append(mido.MetaMessage(type='track_name', name='test_name'))
-        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
-        track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
-        if self.root is not None:
-            track.append(mido.MetaMessage(type='marker', text=self.root.name))
-
-        stop_time = int(n_bars * mid.ticks_per_beat * 4)
-
-        for note in self.notes_ascending:
-            track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))
-        for i, note in enumerate(self.notes_ascending):
-            track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
-
-        mid.tracks.append(track)
-        mid.meta = {'chord': self}
-        if path is None:
-            return mid
-        mid.save(path)
-        return None
 
     def to_piano_image(self) -> str:
         from musictool.noterange import NoteRange
