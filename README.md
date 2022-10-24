@@ -1,3 +1,5 @@
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/tandav/musictool)
+
 # musictool
 set of tools to work with scales, modes, modulations, chord progressions, voice leading, rhythm and more
 
