@@ -1,4 +1,4 @@
-LINTING_DIRS := musictool tests
+LINTING_DIRS := src tests
 
 .PHONY: check-lint
 check-lint:
