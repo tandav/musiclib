@@ -104,6 +104,15 @@ class NoteSet(Cached, Card):
     def rootless(self) -> NoteSet:
         return NoteSet(self.notes)
 
+    def with_root(self, root: Note) -> NoteSet:
+        if len(self) == 0:
+            raise NotImplementedError('cannot add root to empty noteset')
+        if not isinstance(root, Note):
+            raise TypeError('root type should be Note')
+        if root not in self.notes:
+            raise KeyError('root should be one of notes')
+        return NoteSet(self.notes, root=root)
+
     def transpose_to(self, note: Note) -> NoteSet:
         if self.root is None:
             raise ValueError('noteset should have root to be transposed')

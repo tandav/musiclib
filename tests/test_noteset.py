@@ -209,13 +209,32 @@ def test_add_note_specific(noteset):
 
 
 @pytest.mark.parametrize(
+    'noteset, root, expected', (
+        ('CD/C', 'C', 'CD/C'),
+        ('CD/C', 'D', 'CD/D'),
+        ('CD/D', 'C', 'CD/C'),
+        ('CD', 'C', 'CD/C'),
+    ),
+)
+def test_with_root(noteset, root, expected):
+    assert NoteSet.from_str(noteset).with_root(Note(root)) == NoteSet.from_str(expected)
+
+
+def test_with_root_validation():
+    with pytest.raises(NotImplementedError):
+        NoteSet(frozenset()).with_root(Note('C'))
+    with pytest.raises(KeyError):
+        NoteSet.from_str('CD/D').with_root(Note('E'))
+
+
+@pytest.mark.parametrize(
     'noteset, note, expected', (
         ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
         ('CdeFGab/e', 'D', 'DEfGABC/D'),
         ('Cd/C', 'd', 'dD/d'),
     ),
 )
-def test_transpose(noteset, note, expected):
+def test_transpose_to(noteset, note, expected):
     assert NoteSet.from_str(noteset).transpose_to(note) is NoteSet.from_str(expected)
 
 
