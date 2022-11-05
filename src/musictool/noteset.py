@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import random
 from collections.abc import Iterator
 from typing import TypeVar
@@ -236,3 +237,11 @@ class NoteSet(Cached, Card):
 
     def __getnewargs_ex__(self) -> tuple[tuple[frozenset[Note]], dict[str, Note | None]]:
         return (self.notes,), {'root': self.root}
+
+
+def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
+    out = set()
+    for n_subset in range(min_notes, len(noteset) + 1):
+        for notes in itertools.combinations(noteset, n_subset):
+            out.add(NoteSet(frozenset(notes)))
+    return frozenset(out)
