@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TypedDict
 from xml.etree import ElementTree
 
-import colortool
+from colortool import Color
 
 from musictool.config import BLACK_BRIGHT
 from musictool.config import BLACK_PALE
@@ -17,8 +17,8 @@ from musictool.noterange import CHROMATIC_NOTESET
 from musictool.noterange import NoteRange
 
 
-def note_color(note: Note | SpecificNote) -> int:
-    def _note_color(note: Note) -> int:
+def note_color(note: Note | SpecificNote) -> Color:
+    def _note_color(note: Note) -> Color:
         return WHITE_PALE if note in WHITE_NOTES else BLACK_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
@@ -29,10 +29,10 @@ def note_color(note: Note | SpecificNote) -> int:
 
 
 class SquaresPayload(TypedDict, total=False):
-    fill_color: int
-    border_color: int
-    text_color: int
-    text_size: str
+    fill_color: Color
+    border_color: Color
+    text_color: Color
+    text_size: Color
     text: str
     onclick: str
 
@@ -40,10 +40,10 @@ class SquaresPayload(TypedDict, total=False):
 class Piano:
     def __init__(  # noqa: C901
         self,
-        note_colors: dict[Note | SpecificNote, int] | None = None,
-        note_hrefs: dict[Note | SpecificNote, str] | None = None,
-        note_onclicks: dict[Note | SpecificNote, str] | None = None,
-        top_rect_colors: dict[Note | SpecificNote, int] | None = None,
+        note_colors: dict[Note | SpecificNote, Color] | None = None,
+        note_hrefs: dict[Note | SpecificNote, Color] | None = None,
+        note_onclicks: dict[Note | SpecificNote, Color] | None = None,
+        top_rect_colors: dict[Note | SpecificNote, Color] | None = None,
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
@@ -67,7 +67,7 @@ class Piano:
 
         self.note_colors = note_colors or {}
 
-        self.top_rect_colors: dict[Note | SpecificNote, int]
+        self.top_rect_colors: dict[Note | SpecificNote, Color]
         if top_rect_colors is None:
             self.top_rect_colors = {}
         else:
@@ -109,19 +109,19 @@ class Piano:
             else:
                 note_onclick = ''
 
-            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{colortool.css_hex(c)};stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}'{note_onclick}/>"""  # noqa: E501
+            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{c.css_hex};stroke-width:1;stroke:{BLACK_PALE.css_hex}'{note_onclick}/>"""  # noqa: E501
             if note_href := self.note_hrefs.get(note, self.note_hrefs.get(note.abstract)):
                 note_rect = f"<a href='{note_href}'>{note_rect}</a>"
             self.rects.append(note_rect)
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
-                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{colortool.css_hex(rect_color)};'/>""")
+                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{rect_color.css_hex};'/>""")
 
             # draw squares on notes
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
-                fill_color = colortool.css_hex(payload.get('fill_color', WHITE_BRIGHT))
-                border_color = colortool.css_hex(payload.get('border_color', BLACK_BRIGHT))
+                fill_color = payload.get('fill_color', WHITE_BRIGHT).css_hex
+                border_color = payload.get('border_color', BLACK_BRIGHT).css_hex
 
                 onclick = payload.get('onclick')
                 onclick = f" onclick='{onclick}'" if onclick else ''
@@ -129,7 +129,7 @@ class Piano:
                 rect = f"<rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{fill_color};stroke-width:1;stroke:{border_color}'/>"
 
                 if text := payload.get('text'):
-                    text_color = colortool.css_hex(payload.get('text_color', BLACK_BRIGHT))
+                    text_color = payload.get('text_color', BLACK_BRIGHT).css_hex
                     text_size = payload.get('text_size', '15')
                     rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='{text_size}' style='fill:{text_color}'>{text}</text>"
 
@@ -140,9 +140,9 @@ class Piano:
                 """)
 
         # border around whole svg
-        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{colortool.css_hex(BLACK_PALE)}'/>")
+        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{BLACK_PALE.css_hex}'/>")
 
-    def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, int, int, int]:
+    def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, Color, int, int]:
         """
         helper function which computes values for a given note
 

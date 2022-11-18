@@ -3,6 +3,7 @@ import re
 from xml.etree import ElementTree
 
 import pytest
+from colortool import Color
 
 from musictool import config
 from musictool.note import Note
@@ -24,19 +25,19 @@ def test_note_color(note, color):
     assert note_color(note) == color
 
 
-def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[str, str | int]]:
+def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[str, str | Color]]:
     """
     element: rect | text | g
     info_part be style_fill | style_stroke | text | text_color | onclick
     """
-    out: dict[SpecificNote, dict[str, str | int]] = collections.defaultdict(dict)
+    out: dict[SpecificNote, dict[str, str | Color]] = collections.defaultdict(dict)
     for r in ElementTree.fromstring(svg).findall(f".//{element}/[@class='{class_}'][@note]"):
         note = SpecificNote.from_str(r.attrib['note'])
         if style := r.attrib.get('style'):
-            if match := re.match('.*fill:#(.{6})', style):
-                out[note]['style_fill'] = int(match.group(1), base=16)
-            if match := re.match('.*stroke:#(.{6})', style):
-                out[note]['style_stroke'] = int(match.group(1), base=16)
+            if match := re.match('.*fill:(#.{6})', style):
+                out[note]['style_fill'] = Color.from_css_hex(match.group(1))
+            if match := re.match('.*stroke:(#.{6})', style):
+                out[note]['style_stroke'] = Color.from_css_hex(match.group(1))
         if text := r.text:
             out[note]['text'] = text
         if onclick := r.attrib.get('onclick'):

@@ -1,3 +1,5 @@
+from colortool import Color
+
 chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010')}
@@ -17,23 +19,23 @@ kinds = (
     {k: 'sudu' for k in sudu}
 )
 
-WHITE_PALE = 0xAAAAAA
-BLACK_PALE = 0x505050
-WHITE_BRIGHT = 0xFFFFFF
-BLACK_BRIGHT = 0x000000
-RED = 0xFF0000
-GREEN = 0x00FF00
-BLUE = 0x0000FF
+WHITE_PALE = Color.from_hex(0xAAAAAA)
+BLACK_PALE = Color.from_hex(0x505050)
+WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
+BLACK_BRIGHT = Color.from_hex(0x000000)
+RED = Color.from_hex(0xFF0000)
+GREEN = Color.from_hex(0x00FF00)
+BLUE = Color.from_hex(0x0000FF)
 
 # if change: also change in static/main.css
 scale_colors = {
     'major': WHITE_BRIGHT,
-    'dorian': 0x54E346,
-    'phrygian': 0x00FFCC,
-    'lydian': 0x68A6FC,
-    'mixolydian': 0xFFF47D,
-    'minor': 0xD83A56,
-    'locrian': 0xB980F0,
+    'dorian': Color.from_hex(0x54E346),
+    'phrygian': Color.from_hex(0x00FFCC),
+    'lydian': Color.from_hex(0x68A6FC),
+    'mixolydian': Color.from_hex(0xFFF47D),
+    'minor': Color.from_hex(0xD83A56),
+    'locrian': Color.from_hex(0xB980F0),
 }
 
 scale_colors['h_major'] = scale_colors['major']

@@ -4,8 +4,6 @@ import functools
 import itertools
 from collections import defaultdict
 
-import colortool
-
 from musictool import config
 from musictool.card import Card
 from musictool.chord import Chord
@@ -155,7 +153,7 @@ class ComparedScales(Card):
     def to_piano_image(self) -> str:
         return Piano(
             note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
-            top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),  # type: ignore
+            top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
             squares={
                 chord.root: {
                     'fill_color': config.chord_colors[chord.name],
@@ -179,7 +177,7 @@ class ComparedScales(Card):
 
         if left_root_name := self.right.note_scales.get(self.left.root, ''):
             if background_color is None:
-                background_color = colortool.css_hex(config.scale_colors[left_root_name])
+                background_color = config.scale_colors[left_root_name].css_hex
             left_root_name = f' | {self.left.root.name} {left_root_name}'
 
         return self.repr_card(
