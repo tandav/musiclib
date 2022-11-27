@@ -7,9 +7,12 @@ class Pitch:
     def __init__(
         self,
         hz_tuning: float = 440,
-        origin_note: SpecificNote = SpecificNote('A', 5),
+        origin_note: SpecificNote = SpecificNote('A', 4),
         transpose: float = 0,
     ):
+        """
+        origin_note: in midi format, A4 midi ~ A4 ableton ~ 440Hz
+        """
         self.hz_tuning = hz_tuning
         self.origin_note = origin_note
         self.transpose = transpose

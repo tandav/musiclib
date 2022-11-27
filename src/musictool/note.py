@@ -79,9 +79,6 @@ class Note(Cached):
 @functools.total_ordering
 class SpecificNote(Cached):
     def __init__(self, abstract: Note | str, octave: int):
-        """
-        :param octave: in midi format (C5-midi == C3-ableton)
-        """
         if isinstance(abstract, str):
             abstract = Note(abstract)
         self.abstract = abstract

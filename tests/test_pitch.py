@@ -3,12 +3,13 @@ import pytest
 from musictool.note import SpecificNote
 from musictool.pitch import Pitch
 
+A3 = SpecificNote('A', 3)
 A4 = SpecificNote('A', 4)
 A5 = SpecificNote('A', 5)
 A6 = SpecificNote('A', 6)
-B5 = SpecificNote('B', 5)
-b5 = SpecificNote('b', 5)
-C5 = SpecificNote('C', 5)
+B4 = SpecificNote('B', 4)
+b4 = SpecificNote('b', 4)
+C4 = SpecificNote('C', 4)
 HZ_220 = 220
 HZ_440 = 440
 HZ_880 = 880
@@ -37,11 +38,11 @@ def test_i_hz(i, hz):
 
 @pytest.mark.parametrize(
     'note_i, hz', [
-        (A5.i, HZ_440),
-        (b5.i, HZ_466),
-        (A4.i, HZ_220),
-        (C5.i, HZ_261),
-        (A5.i + 0.5, HZ_452),
+        (A3.i, HZ_220),
+        (A4.i, HZ_440),
+        (b4.i, HZ_466),
+        (C4.i, HZ_261),
+        (A4.i + 0.5, HZ_452),
     ],
 )
 def test_note_i_hz(note_i, hz):
@@ -52,9 +53,9 @@ def test_note_i_hz(note_i, hz):
 
 @pytest.mark.parametrize(
     'hz, note', [
-        (441, A5),
-        (452.9, b5),
-        (465, b5),
+        (441, A4),
+        (452.9, b4),
+        (465, b4),
     ],
 )
 def test_round(hz, note):
@@ -78,11 +79,11 @@ def test_tuning_origin_note(hz_tuning, origin_note, i, hz):
 
 @pytest.mark.parametrize(
     'note, hz', [
-        (A4, HZ_220),
-        (A5, 440),
-        (C5, HZ_261),
-        (B5, HZ_493),
-        (A6, HZ_880),
+        (A3, HZ_220),
+        (A4, HZ_440),
+        (A5, HZ_880),
+        (C4, HZ_261),
+        (B4, HZ_493),
     ],
 )
 def test_note_hz(note, hz):
@@ -107,10 +108,10 @@ def test_hz_to_px(hz, px, hz_min, hz_max, px_max):
 
 @pytest.mark.parametrize(
     'note, transpose, hz', [
-        (A5, -12, HZ_220),
-        (A5, +12, HZ_880),
-        (A5, +1, HZ_466),
-        (A5, +0.5, HZ_452),
+        (A4, -12, HZ_220),
+        (A4, +12, HZ_880),
+        (A4, +1, HZ_466),
+        (A4, +0.5, HZ_452),
     ],
 )
 def test_transpose(note, transpose, hz):

@@ -74,11 +74,6 @@ chord_colors = {
     'diminished': scale_colors['locrian'],
 }
 
-DEFAULT_TUNING = 440  # default A hz tuning
-RANDOM_TUNING_RANGE = 420, 510
-tuning = DEFAULT_TUNING
-
-
 beats_per_minute = 120
 beats_per_second = beats_per_minute / 60
 beats_per_bar = 4
