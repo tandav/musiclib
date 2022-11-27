@@ -30,7 +30,7 @@ class Pitch:
         return self.note_i_to_hz(note.i)
 
     def hz_to_note(self, hz: float) -> SpecificNote:
-        return SpecificNote.from_i(int(self.hz_to_note_i(hz)))
+        return SpecificNote.from_i(round(self.hz_to_note_i(hz)))
 
     @staticmethod
     def hz_to_px(hz: float, hz_min: float, hz_max: float, px_max: float) -> float:

@@ -51,6 +51,18 @@ def test_note_i_hz(note_i, hz):
 
 
 @pytest.mark.parametrize(
+    'hz, note', [
+        (441, A5),
+        (452.9, b5),
+        (465, b5),
+    ],
+)
+def test_round(hz, note):
+    pitch = Pitch()
+    assert pitch.hz_to_note(hz) == note
+
+
+@pytest.mark.parametrize(
     'hz_tuning, origin_note, i, hz', [
         (HZ_220, A5, 0, HZ_220),
         (HZ_220, A5, 12, HZ_440),
