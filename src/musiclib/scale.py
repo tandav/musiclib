@@ -4,16 +4,16 @@ import functools
 import itertools
 from collections import defaultdict
 
-from musictool import config
-from musictool.card import Card
-from musictool.chord import Chord
-from musictool.config import BLACK_BRIGHT
-from musictool.config import BLUE
-from musictool.config import GREEN
-from musictool.config import RED
-from musictool.note import Note
-from musictool.noteset import NoteSet
-from musictool.piano import Piano
+from musiclib import config
+from musiclib.card import Card
+from musiclib.chord import Chord
+from musiclib.config import BLACK_BRIGHT
+from musiclib.config import BLUE
+from musiclib.config import GREEN
+from musiclib.config import RED
+from musiclib.note import Note
+from musiclib.noteset import NoteSet
+from musiclib.piano import Piano
 
 
 class Scale(NoteSet, Card):

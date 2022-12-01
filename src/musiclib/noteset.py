@@ -9,15 +9,15 @@ from typing import overload
 
 import pipe21 as P
 
-from musictool import config
-from musictool.card import Card
-from musictool.config import RED
-from musictool.note import AnyNote
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.note import str_to_note
-from musictool.util import typeguards
-from musictool.util.cache import Cached
+from musiclib import config
+from musiclib.card import Card
+from musiclib.config import RED
+from musiclib.note import AnyNote
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.note import str_to_note
+from musiclib.util import typeguards
+from musiclib.util.cache import Cached
 
 
 @no_type_check
@@ -224,7 +224,7 @@ class NoteSet(Cached, Card):
         return x
 
     def to_piano_image(self) -> str:
-        from musictool.piano import Piano  # hack to fix circular import
+        from musiclib.piano import Piano  # hack to fix circular import
         return Piano(note_colors={note: RED for note in self})._repr_svg_()
 
     def _repr_html_(

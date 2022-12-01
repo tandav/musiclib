@@ -2,14 +2,14 @@ import operator
 
 import pytest
 
-from musictool.chord import Chord
-from musictool.chord import SpecificChord
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noteset import NoteSet
-from musictool.progression import Progression
-from musictool.scale import Scale
-from musictool.util.cache import Cached
+from musiclib.chord import Chord
+from musiclib.chord import SpecificChord
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noteset import NoteSet
+from musiclib.progression import Progression
+from musiclib.scale import Scale
+from musiclib.util.cache import Cached
 
 
 @pytest.mark.parametrize(

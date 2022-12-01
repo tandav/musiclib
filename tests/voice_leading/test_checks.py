@@ -1,7 +1,7 @@
 import pytest
 
-from musictool.chord import SpecificChord
-from musictool.voice_leading import checks
+from musiclib.chord import SpecificChord
+from musiclib.voice_leading import checks
 
 
 @pytest.mark.parametrize(

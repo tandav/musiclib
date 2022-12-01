@@ -1,7 +1,7 @@
 import pytest
 
-from musictool.note import SpecificNote
-from musictool.pitch import Pitch
+from musiclib.note import SpecificNote
+from musiclib.pitch import Pitch
 
 A3 = SpecificNote('A', 3)
 A4 = SpecificNote('A', 4)

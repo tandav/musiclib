@@ -2,11 +2,11 @@ import operator
 
 import pytest
 
-from musictool import config
-from musictool.chord import Chord
-from musictool.note import Note
-from musictool.scale import ComparedScales
-from musictool.scale import Scale
+from musiclib import config
+from musiclib.chord import Chord
+from musiclib.note import Note
+from musiclib.scale import ComparedScales
+from musiclib.scale import Scale
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,6 @@
 import math
 
-from musictool.note import SpecificNote
+from musiclib.note import SpecificNote
 
 
 class Pitch:

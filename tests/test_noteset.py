@@ -3,13 +3,13 @@ from collections.abc import Sequence
 
 import pytest
 
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noteset import NoteSet
-from musictool.noteset import bits_to_intervals
-from musictool.noteset import intervals_to_bits
-from musictool.scale import Scale
-from musictool.scale import all_scales
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noteset import NoteSet
+from musiclib.noteset import bits_to_intervals
+from musiclib.noteset import intervals_to_bits
+from musiclib.scale import Scale
+from musiclib.scale import all_scales
 
 
 def test_empty():

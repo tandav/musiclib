@@ -2,8 +2,8 @@ from collections.abc import Sequence
 
 import pytest
 
-from musictool.chord import SpecificChord
-from musictool.progression import Progression
+from musiclib.chord import SpecificChord
+from musiclib.progression import Progression
 
 
 @pytest.fixture

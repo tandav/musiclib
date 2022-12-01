@@ -26,19 +26,19 @@ check: check-lint mypy test
 
 .PHONY: coverage
 coverage:
-	python -m pytest --asyncio-mode=strict --cov=musictool --cov-report=html tests
+	python -m pytest --asyncio-mode=strict --cov=musiclib --cov-report=html tests
 	open htmlcov/index.html
 
 .PHONY: midi_html
 midi_html:
-	#python -m musictool.daw.midi.html static/midi/vespers-04.mid
-	python -m musictool.daw.midi.html static/midi/vespers-04.mid
+	#python -m musiclib.daw.midi.html static/midi/vespers-04.mid
+	python -m musiclib.daw.midi.html static/midi/vespers-04.mid
 	#open logs/vespers-04
 	#open logs/vespers-04/index.html
 
 .PHONY: profile
 profile:
-	python -m cProfile -o logs/profile.txt -m musictool.daw video
+	python -m cProfile -o logs/profile.txt -m musiclib.daw video
 	python -m gprof2dot -f pstats logs/profile.txt | dot -Tsvg -o logs/callgraph.svg
 
 .PHONY: bumpver

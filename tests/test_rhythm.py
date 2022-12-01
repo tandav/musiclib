@@ -2,7 +2,7 @@ from collections import deque
 
 import pytest
 
-from musictool.rhythm import Rhythm
+from musiclib.rhythm import Rhythm
 
 
 @pytest.fixture

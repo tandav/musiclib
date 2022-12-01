@@ -2,13 +2,13 @@ import itertools
 
 import pytest
 
-from musictool.chord import Chord
-from musictool.chord import SpecificChord
-from musictool.noterange import NoteRange
-from musictool.noteset import NoteSet
-from musictool.scale import ComparedScales
-from musictool.scale import Scale
-from musictool.scale import all_scales
+from musiclib.chord import Chord
+from musiclib.chord import SpecificChord
+from musiclib.noterange import NoteRange
+from musiclib.noteset import NoteSet
+from musiclib.scale import ComparedScales
+from musiclib.scale import Scale
+from musiclib.scale import all_scales
 
 TITLE = 'title_fUYsZHfC'
 SUBTITLE = 'subtitle_EfrKTj'

@@ -7,9 +7,9 @@ import statistics
 
 import pipe21 as P
 
-from musictool import config
-from musictool.util.cache import Cached
-from musictool.util.sequence_builder import SequenceBuilder
+from musiclib import config
+from musiclib.util.cache import Cached
+from musiclib.util.sequence_builder import SequenceBuilder
 
 
 class Rhythm(Cached):

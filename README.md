@@ -1,17 +1,17 @@
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/tandav/musictool)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/tandav/musiclib)
 
-# musictool
+# musiclib
 set of tools to work with scales, modes, modulations, chord progressions, voice leading, rhythm and more
 
 ## install
-### install from [pypi](https://pypi.org/project/musictool/)
+### install from [pypi](https://pypi.org/project/musiclib/)
 ```sh
-pip install musictool
+pip install musiclib
 ```
 
 ### or install the latest version from github
 ```sh
-pip install git+https://github.com/tandav/musictool
+pip install git+https://github.com/tandav/musiclib
 ```
 
 ### development
@@ -22,8 +22,8 @@ pip install -e .[dev]
 ## examples
 
 ```py
->>> from musictool.scale import Scale
->>> from musictool.chord import Chord
+>>> from musiclib.scale import Scale
+>>> from musiclib.chord import Chord
 
 >>> scale = Scale.from_name('C', 'major')
 

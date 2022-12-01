@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
-from musictool.noterange import NoteRange
-from musictool.noteset import NoteSet
+from musiclib.chord import SpecificChord
+from musiclib.note import SpecificNote
+from musiclib.noterange import NoteRange
+from musiclib.noteset import NoteSet
 
 SpecificChordGraph = dict[SpecificChord, frozenset[SpecificChord]]
 AbstractChordGraph = dict[NoteSet, frozenset[NoteSet]]

@@ -4,10 +4,10 @@ from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
 
-from musictool import config
-from musictool.card import Card
-from musictool.note import SpecificNote
-from musictool.noteset import NoteSet
+from musiclib import config
+from musiclib.card import Card
+from musiclib.note import SpecificNote
+from musiclib.noteset import NoteSet
 
 CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
@@ -89,7 +89,7 @@ class NoteRange(Sequence[SpecificNote], Card):
         return hash(self._key)
 
     def to_piano_image(self) -> str:
-        from musictool.piano import Piano  # hack to fix circular import
+        from musiclib.piano import Piano  # hack to fix circular import
         return Piano(
             note_colors=None if self.noteset is CHROMATIC_NOTESET else dict.fromkeys(self.noteset, config.RED),
             squares={self.start: {'text': str(self.start), 'text_size': '8'}, self.stop: {'text': str(self.stop), 'text_size': '8'}},

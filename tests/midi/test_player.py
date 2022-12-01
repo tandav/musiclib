@@ -2,9 +2,9 @@ import os
 
 import pytest
 
-from musictool.chord import SpecificChord
-from musictool.midi.player import Player
-from musictool.note import SpecificNote
+from musiclib.chord import SpecificChord
+from musiclib.midi.player import Player
+from musiclib.note import SpecificNote
 
 
 @pytest.fixture

@@ -4,8 +4,8 @@ import functools
 from collections.abc import Iterable
 from typing import overload
 
-from musictool import config
-from musictool.util.cache import Cached
+from musiclib import config
+from musiclib.util.cache import Cached
 
 
 @functools.total_ordering

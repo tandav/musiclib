@@ -4,10 +4,10 @@ from collections.abc import Callable
 from collections.abc import Hashable
 from typing import Any
 
-from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
-from musictool.progression import Progression
-from musictool.scale import Scale
+from musiclib.chord import SpecificChord
+from musiclib.note import SpecificNote
+from musiclib.progression import Progression
+from musiclib.scale import Scale
 
 
 def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:

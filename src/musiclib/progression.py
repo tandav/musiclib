@@ -8,9 +8,9 @@ from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
 
-from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
-from musictool.util.cache import Cached
+from musiclib.chord import SpecificChord
+from musiclib.note import SpecificNote
+from musiclib.util.cache import Cached
 
 CheckCallable = Callable[[SpecificChord, SpecificChord], bool]
 

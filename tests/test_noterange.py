@@ -2,12 +2,12 @@ from collections.abc import Sequence
 
 import pytest
 
-from musictool import config
-from musictool.chord import Chord
-from musictool.note import SpecificNote
-from musictool.noterange import NoteRange
-from musictool.noteset import NoteSet
-from musictool.scale import Scale
+from musiclib import config
+from musiclib.chord import Chord
+from musiclib.note import SpecificNote
+from musiclib.noterange import NoteRange
+from musiclib.noteset import NoteSet
+from musiclib.scale import Scale
 
 
 @pytest.mark.parametrize(

@@ -3,12 +3,12 @@ import textwrap
 
 import pytest
 
-from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
-from musictool.noterange import NoteRange
-from musictool.noteset import NoteSet
-from musictool.scale import Scale
-from musictool.voice_leading import transition
+from musiclib.chord import SpecificChord
+from musiclib.note import SpecificNote
+from musiclib.noterange import NoteRange
+from musiclib.noteset import NoteSet
+from musiclib.scale import Scale
+from musiclib.voice_leading import transition
 
 
 @pytest.mark.parametrize(

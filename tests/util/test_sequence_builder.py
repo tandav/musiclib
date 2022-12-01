@@ -3,7 +3,7 @@ from collections import Counter
 
 import pytest
 
-from musictool.util.sequence_builder import SequenceBuilder
+from musiclib.util.sequence_builder import SequenceBuilder
 
 
 def is_even(x):

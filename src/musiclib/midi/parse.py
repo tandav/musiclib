@@ -4,7 +4,7 @@ import heapq
 
 import mido
 
-from musictool.note import SpecificNote
+from musiclib.note import SpecificNote
 
 
 @dataclasses.dataclass(frozen=True)

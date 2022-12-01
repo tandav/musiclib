@@ -5,9 +5,9 @@ from pathlib import Path
 
 import mido
 
-from musictool.chord import SpecificChord
-from musictool.note import SpecificNote
-from musictool.rhythm import Rhythm
+from musiclib.chord import SpecificChord
+from musiclib.note import SpecificNote
+from musiclib.rhythm import Rhythm
 
 Playable = SpecificNote | SpecificChord
 

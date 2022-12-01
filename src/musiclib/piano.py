@@ -5,16 +5,16 @@ from xml.etree import ElementTree
 
 from colortool import Color
 
-from musictool.config import BLACK_BRIGHT
-from musictool.config import BLACK_PALE
-from musictool.config import WHITE_BRIGHT
-from musictool.config import WHITE_PALE
-from musictool.note import BLACK_NOTES
-from musictool.note import WHITE_NOTES
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noterange import CHROMATIC_NOTESET
-from musictool.noterange import NoteRange
+from musiclib.config import BLACK_BRIGHT
+from musiclib.config import BLACK_PALE
+from musiclib.config import WHITE_BRIGHT
+from musiclib.config import WHITE_PALE
+from musiclib.note import BLACK_NOTES
+from musiclib.note import WHITE_NOTES
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noterange import CHROMATIC_NOTESET
+from musiclib.noterange import NoteRange
 
 
 def note_color(note: Note | SpecificNote) -> Color:

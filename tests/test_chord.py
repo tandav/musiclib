@@ -2,11 +2,11 @@ import random
 
 import pytest
 
-from musictool.chord import Chord
-from musictool.chord import SpecificChord
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noteset import NoteSet
+from musiclib.chord import Chord
+from musiclib.chord import SpecificChord
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noteset import NoteSet
 
 
 def test_creation_from_notes():

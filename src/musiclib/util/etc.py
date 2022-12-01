@@ -1,4 +1,4 @@
-from musictool import config
+from musiclib import config
 
 
 def bars_to_seconds(

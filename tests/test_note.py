@@ -4,9 +4,9 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.note import str_to_note
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.note import str_to_note
 
 
 @pytest.mark.parametrize(

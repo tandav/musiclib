@@ -5,12 +5,12 @@ from xml.etree import ElementTree
 import pytest
 from colortool import Color
 
-from musictool import config
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noterange import NoteRange
-from musictool.piano import Piano
-from musictool.piano import note_color
+from musiclib import config
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noterange import NoteRange
+from musiclib.piano import Piano
+from musiclib.piano import note_color
 
 
 @pytest.mark.parametrize(

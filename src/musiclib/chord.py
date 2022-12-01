@@ -5,12 +5,12 @@ import itertools
 import random
 from collections.abc import Iterator
 
-from musictool import config
-from musictool.card import Card
-from musictool.note import Note
-from musictool.note import SpecificNote
-from musictool.noteset import NoteSet
-from musictool.util.cache import Cached
+from musiclib import config
+from musiclib.card import Card
+from musiclib.note import Note
+from musiclib.note import SpecificNote
+from musiclib.noteset import NoteSet
+from musiclib.util.cache import Cached
 
 
 class Chord(NoteSet):
@@ -151,8 +151,8 @@ class SpecificChord(Cached, Card):
         return self + (SpecificNote('C', 0) - self[0])
 
     def to_piano_image(self) -> str:
-        from musictool.noterange import NoteRange
-        from musictool.piano import Piano
+        from musiclib.noterange import NoteRange
+        from musiclib.piano import Piano
         noterange = NoteRange(self[0], self[-1]) if self.notes else None
         return Piano(
             note_colors=dict.fromkeys(self.notes, config.RED),
