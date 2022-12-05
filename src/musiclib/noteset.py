@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    from musiclib.noterange import NoteRange
+
 import itertools
 import random
 from collections.abc import Iterator
@@ -223,9 +228,12 @@ class NoteSet(Cached, Card):
             return f'{x}/{self.root.name}'
         return x
 
-    def to_piano_image(self) -> str:
+    def to_piano_image(self, noterange: NoteRange | None) -> str:
         from musiclib.piano import Piano  # hack to fix circular import
-        return Piano(note_colors={note: RED for note in self})._repr_svg_()
+        return Piano(
+            note_colors={note: RED for note in self},
+            noterange=noterange,
+        )._repr_svg_()
 
     def _repr_html_(
         self,
@@ -234,6 +242,7 @@ class NoteSet(Cached, Card):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
@@ -241,7 +250,7 @@ class NoteSet(Cached, Card):
             subtitle=subtitle,
             header_href=header_href,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
 
     def __getnewargs_ex__(self) -> tuple[tuple[frozenset[Note]], dict[str, Note | None]]:

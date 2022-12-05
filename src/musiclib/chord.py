@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    from musiclib.noterange import NoteRange
 import functools
 import itertools
 import random
@@ -14,6 +18,9 @@ from musiclib.util.cache import Cached
 
 
 class Chord(NoteSet):
+    """
+    Chord is a set of notes with a root note
+    """
     intervals_to_name = {
         # triads
         frozenset({0, 4, 7}): 'major',
@@ -49,6 +56,7 @@ class Chord(NoteSet):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
@@ -56,7 +64,7 @@ class Chord(NoteSet):
             subtitle=subtitle,
             header_href=header_href,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
 
 
@@ -150,10 +158,14 @@ class SpecificChord(Cached, Card):
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
 
-    def to_piano_image(self) -> str:
+    def to_piano_image(
+        self,
+        noterange: NoteRange | None = None,
+    ) -> str:
         from musiclib.noterange import NoteRange
         from musiclib.piano import Piano
-        noterange = NoteRange(self[0], self[-1]) if self.notes else None
+        if noterange is None:
+            noterange = NoteRange(self[0], self[-1]) if self.notes else None
         return Piano(
             note_colors=dict.fromkeys(self.notes, config.RED),
             squares={note: {'text': str(note), 'text_size': '8'} for note in self},
@@ -167,6 +179,7 @@ class SpecificChord(Cached, Card):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
@@ -174,7 +187,7 @@ class SpecificChord(Cached, Card):
             subtitle=subtitle,
             header_href=header_href,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
 
     def __getnewargs_ex__(self) -> tuple[tuple[frozenset[SpecificNote]], dict[str, Note | None]]:

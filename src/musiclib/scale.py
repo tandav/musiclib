@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    from musiclib.noterange import NoteRange
+
 import functools
 import itertools
 from collections import defaultdict
@@ -105,8 +110,11 @@ class Scale(NoteSet, Card):
                 return Scale.from_name(note, name)
         raise KeyError(f'relative {relative_name} scale not found')
 
-    def to_piano_image(self) -> str:
-        return Piano(note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()})._repr_svg_()
+    def to_piano_image(self, noterange: NoteRange | None = None) -> str:
+        return Piano(
+            note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()},
+            noterange=noterange,
+        )._repr_svg_()
 
     def _repr_html_(
         self,
@@ -115,6 +123,7 @@ class Scale(NoteSet, Card):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         html_classes += self.name,
 
@@ -127,7 +136,7 @@ class Scale(NoteSet, Card):
             subtitle=subtitle,
             header_href=header_href or self.root.name,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
 
 # flake8: noqa
@@ -150,7 +159,7 @@ class ComparedScales(Card):
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
-    def to_piano_image(self) -> str:
+    def to_piano_image(self, noterange: NoteRange | None = None) -> str:
         return Piano(
             note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
             top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
@@ -164,6 +173,7 @@ class ComparedScales(Card):
                 }
                 for chord in self.right.triads
             } if self.right.kind == 'diatonic' else {},
+            noterange=noterange,
         )._repr_svg_()
 
     def _repr_html_(
@@ -173,6 +183,7 @@ class ComparedScales(Card):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
 
         if left_root_name := self.right.note_scales.get(self.left.root, ''):
@@ -186,7 +197,7 @@ class ComparedScales(Card):
             subtitle=subtitle,
             header_href=header_href or self.right.root.name,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
 
     def __eq__(self, other: object) -> bool:

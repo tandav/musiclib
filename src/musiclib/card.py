@@ -1,4 +1,10 @@
+from __future__ import annotations
+
 import abc
+import typing
+
+if typing.TYPE_CHECKING:
+    from musiclib.noterange import NoteRange
 
 
 class Card(abc.ABC):
@@ -70,5 +76,6 @@ class Card(abc.ABC):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         ...

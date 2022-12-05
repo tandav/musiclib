@@ -88,12 +88,14 @@ class NoteRange(Sequence[SpecificNote], Card):
     def __hash__(self) -> int:
         return hash(self._key)
 
-    def to_piano_image(self) -> str:
+    def to_piano_image(self, noterange: NoteRange | None) -> str:
         from musiclib.piano import Piano  # hack to fix circular import
+        if noterange is None:
+            noterange = NoteRange(self.start, self.stop)
         return Piano(
             note_colors=None if self.noteset is CHROMATIC_NOTESET else dict.fromkeys(self.noteset, config.RED),
             squares={self.start: {'text': str(self.start), 'text_size': '8'}, self.stop: {'text': str(self.stop), 'text_size': '8'}},
-            noterange=NoteRange(self.start, self.stop),
+            noterange=noterange,
         )._repr_svg_()
 
     def _repr_html_(
@@ -103,6 +105,7 @@ class NoteRange(Sequence[SpecificNote], Card):
         subtitle: str | None = None,
         header_href: str | None = None,
         background_color: str | None = None,
+        noterange: NoteRange | None = None,
     ) -> str:
         return self.repr_card(
             html_classes=html_classes,
@@ -110,5 +113,5 @@ class NoteRange(Sequence[SpecificNote], Card):
             subtitle=subtitle,
             header_href=header_href,
             background_color=background_color,
-            piano_html=self.to_piano_image(),
+            piano_html=self.to_piano_image(noterange),
         )
