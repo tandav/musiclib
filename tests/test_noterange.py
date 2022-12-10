@@ -23,7 +23,7 @@ from musiclib.scale import Scale
     ),
 )
 def test_note_range(start, stop, noteset, expected):
-    assert list(NoteRange(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)) == expected.split()
+    assert list(NoteRange(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)) == [SpecificNote.from_str(s) for s in expected.split()]
 
 
 @pytest.mark.parametrize(

@@ -87,7 +87,10 @@ def test_magic_methods():
     assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
     assert tuple(iter(chord)) == chord.notes_ascending
     chord2 = SpecificChord.from_str('d3_f8')
-    assert tuple(zip(chord, chord2)) == (('C1', 'd3'), ('E1', 'f8'))  # type: ignore
+    assert tuple(zip(chord, chord2)) == (
+        (SpecificNote('C', 1), SpecificNote('d', 3)),
+        (SpecificNote('E', 1), SpecificNote('f', 8)),
+    )
 
 
 def test_sub():

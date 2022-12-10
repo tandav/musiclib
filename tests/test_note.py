@@ -39,7 +39,7 @@ def test_note_exists():
         (operator.lt, Note('C'), Note('D')),
         (operator.gt, Note('D'), Note('d')),
         (operator.gt, Note('B'), Note('f')),
-        (operator.eq, SpecificNote.from_str('C1'), 'C1'),
+        (operator.ne, SpecificNote.from_str('C1'), 'C1'),  # avoid implicit string comparison for SpecificNote
         (operator.ne, SpecificNote.from_str('C1'), 'C2'),
     ),
 )

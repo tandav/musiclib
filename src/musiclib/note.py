@@ -100,12 +100,9 @@ class SpecificNote(Cached):
         return f'{self.abstract.name}{self.octave}'
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, SpecificNote):
-            return self._key == other._key
-        elif isinstance(other, str):
-            return self._key == SpecificNote.from_str(other)._key
-        else:
+        if not isinstance(other, SpecificNote):
             return NotImplemented
+        return self._key == other._key
 
     def __hash__(self) -> int:
         return hash(self._key)
