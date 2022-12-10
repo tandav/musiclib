@@ -130,6 +130,11 @@ class SpecificChord(Cached, Card):
     def __iter__(self) -> Iterator[SpecificNote]:
         return iter(self.notes_ascending)
 
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, SpecificNote):
+            return NotImplemented
+        return item in self.notes
+
     def __repr__(self) -> str:
         x = '_'.join(repr(note) for note in self.notes_ascending)
         if self.root is not None:
