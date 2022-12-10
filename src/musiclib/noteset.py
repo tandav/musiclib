@@ -17,10 +17,8 @@ import pipe21 as P
 from musiclib import config
 from musiclib.card import Card
 from musiclib.config import RED
-from musiclib.note import AnyNote
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.note import str_to_note
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
 
@@ -152,10 +150,6 @@ class NoteSet(Cached, Card):
         return cls(frozenset(Note(note) for note in notes), **kw)
 
     @overload
-    def add_note(self, note: str, steps: int) -> Note | SpecificNote:
-        ...
-
-    @overload
     def add_note(self, note: SpecificNote, steps: int) -> SpecificNote:
         ...
 
@@ -163,12 +157,10 @@ class NoteSet(Cached, Card):
     def add_note(self, note: Note, steps: int) -> Note:
         ...
 
-    def add_note(self, note: AnyNote, steps: int) -> Note | SpecificNote:
+    def add_note(self, note: Note | SpecificNote, steps: int) -> Note | SpecificNote:
         if len(self) == 0:
             raise NotImplementedError('cannot add notes using empty noteset')
         notes = self.notes_ascending
-        if isinstance(note, str):
-            note = str_to_note(note)
         if isinstance(note, Note):
             return notes[(notes.index(note) + steps) % len(notes)]
         elif isinstance(note, SpecificNote):
@@ -177,18 +169,13 @@ class NoteSet(Cached, Card):
         else:
             raise TypeError
 
-    def subtract(self, left: AnyNote, right: AnyNote) -> int:
-        if isinstance(left, str):
-            left = str_to_note(left)
-        if isinstance(right, str):
-            right = str_to_note(right)
-
+    def subtract(self, left: Note | SpecificNote, right: Note | SpecificNote) -> int:
         if type(left) is type(right) is Note:
             return (self.note_i[left] - self.note_i[right]) % len(self)
         elif type(left) is type(right) is SpecificNote:
             return self.note_i[left.abstract] - self.note_i[right.abstract] + len(self) * (left.octave - right.octave)
         else:
-            raise TypeError('left and right should be either Note or SpecificNote (or str representation)')
+            raise TypeError('left and right should be either Note or SpecificNote')
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):

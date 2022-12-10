@@ -144,16 +144,5 @@ class SpecificNote(Cached):
         return self.abstract, self.octave
 
 
-AnyNote = str | Note | SpecificNote
-
-
-def str_to_note(note: str) -> Note | SpecificNote:
-    if len(note) == 0:
-        raise ValueError('invalid note string representation')
-    if len(note) == 1:
-        return Note(note)
-    return SpecificNote.from_str(note)
-
-
 WHITE_NOTES = frozenset(map(Note, 'CDEFGAB'))
 BLACK_NOTES = frozenset(map(Note, 'defab'))

@@ -6,7 +6,6 @@ from hypothesis import given
 
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.note import str_to_note
 
 
 @pytest.mark.parametrize(
@@ -96,20 +95,6 @@ def test_color():
     assert Note('d').is_black
     assert not SpecificNote('D', 1).is_black
     assert SpecificNote('f', -35).is_black
-
-
-def test_str_to_note():
-    assert str_to_note('C') == Note('C')
-    assert str_to_note('C1') == SpecificNote('C', 1)
-    assert str_to_note('C13') == SpecificNote('C', 13)
-    assert str_to_note('C-13') == SpecificNote('C', -13)
-    assert str_to_note('C1334') == SpecificNote('C', 1334)
-
-    with pytest.raises(KeyError):
-        str_to_note('Q')
-
-    with pytest.raises(ValueError):
-        str_to_note('CQ')
 
 
 def test_to_abstract():
