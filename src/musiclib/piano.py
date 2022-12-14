@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from typing import TypedDict
-from xml.etree import ElementTree
 
+import svg
 from colortool import Color
 
 from musiclib.config import BLACK_BRIGHT
@@ -97,50 +97,79 @@ class Piano:
         self.black_notes = tuple(note for note in self.noterange if note.abstract in BLACK_NOTES)
         width = ww * len(self.white_notes) if self.black_small else ww * len(self.noterange)
         self.size = width, wh
-        self.rects = []
+        self.elements: list[svg.Element] = []
 
         notes = self.white_notes + self.black_notes if black_small else self.noterange
         for note in notes:
             x, w, h, c, sx, sy = self.coord_helper(note)
 
+            note_rect = svg.Rect(
+                class_=['note', str(note)],
+                x=x,
+                y=0,
+                width=w,
+                height=h,
+                fill=c.css_hex,
+                stroke_width=1,
+                stroke=BLACK_PALE.css_hex,
+                onclick=self.note_onclicks.get(note, self.note_onclicks.get(note.abstract)),
+            )
             # draw key
-            if note_onclick := self.note_onclicks.get(note, self.note_onclicks.get(note.abstract)):
-                note_onclick = f' onclick="{note_onclick}"'
-            else:
-                note_onclick = ''
 
-            note_rect = f"""<rect class='note' note='{note}' x='{x}' y='0' width='{w}' height='{h}' style='fill:{c.css_hex};stroke-width:1;stroke:{BLACK_PALE.css_hex}'{note_onclick}/>"""  # noqa: E501
             if note_href := self.note_hrefs.get(note, self.note_hrefs.get(note.abstract)):
-                note_rect = f"<a href='{note_href}'>{note_rect}</a>"
-            self.rects.append(note_rect)
+                self.elements.append(svg.A(href=note_href, elements=[note_rect]))
+            else:
+                self.elements.append(note_rect)
 
             # draw rectangle on top of note
             if rect_color := self.top_rect_colors.get(note, self.top_rect_colors.get(note.abstract)):
-                self.rects.append(f"""<rect class='top_rect' note='{note}' x='{x}' y='0' width='{w}' height='{top_rect_height}' style='fill:{rect_color.css_hex};'/>""")
+                self.elements.append(
+                    svg.Rect(
+                        class_=['top_rect', str(note)],
+                        x=x,
+                        y=0,
+                        width=w,
+                        height=top_rect_height,
+                        fill=rect_color.css_hex,
+                    ),
+                )
 
             # draw squares on notes
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
-                fill_color = payload.get('fill_color', WHITE_BRIGHT).css_hex
-                border_color = payload.get('border_color', BLACK_BRIGHT).css_hex
-
-                onclick = payload.get('onclick')
-                onclick = f" onclick='{onclick}'" if onclick else ''
-
-                rect = f"<rect class='square' note='{note}' x='{sx}' y='{sy}' width='{square_size}' height='{square_size}' style='fill:{fill_color};stroke-width:1;stroke:{border_color}'/>"
+                sq_elements: list[svg.Element] = []
+                sq_rect = svg.Rect(
+                    class_=['square', str(note)],
+                    x=sx,
+                    y=sy,
+                    width=square_size,
+                    height=square_size,
+                    fill=payload.get('fill_color', WHITE_BRIGHT).css_hex,
+                    stroke_width=1,
+                    stroke=payload.get('border_color', BLACK_BRIGHT).css_hex,
+                )
+                sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
-                    text_color = payload.get('text_color', BLACK_BRIGHT).css_hex
-                    text_size = payload.get('text_size', '15')
-                    rect += f"<text class='square' note='{note}' x='{sx}' y='{sy + square_size}' font-family=\"Menlo\" font-size='{text_size}' style='fill:{text_color}'>{text}</text>"
-
-                self.rects.append(f"""
-                    <g class='square' note='{note}'{onclick}>
-                        {rect}
-                    </g>
-                """)
+                    sq_text = svg.Text(
+                        class_=['square', str(note)],
+                        x=sx,
+                        y=sy + square_size,
+                        font_family='Menlo',
+                        font_size=payload.get('text_size', 15),
+                        fill=payload.get('text_color', BLACK_BRIGHT).css_hex,
+                        text=text,
+                    )
+                    sq_elements.append(sq_text)
+                self.elements.append(
+                    svg.G(
+                        class_=['square', str(note)],
+                        onclick=payload.get('onclick'),
+                        elements=sq_elements,
+                    ),
+                )
 
         # border around whole svg
-        self.rects.append(f"<rect x='0' y='0' width='{self.size[0] - 1}' height='{self.size[1] - 1}' style='fill:none;stroke-width:1;stroke:{BLACK_PALE.css_hex}'/>")
+        self.elements.append(svg.Rect(x=0, y=0, width=self.size[0] - 1, height=self.size[1] - 1, fill='none', stroke_width=1, stroke=BLACK_PALE.css_hex))
 
     def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, Color, int, int]:
         """
@@ -177,17 +206,12 @@ class Piano:
         x = self.ww * self.noterange.index(note)
         return x, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.wh - self.square_size - 5
 
-    @staticmethod
-    def pretty_print(svg: str) -> str:
-        tree = ElementTree.fromstring(svg)
-        ElementTree.indent(tree, level=0)
-        return ElementTree.tostring(tree, encoding='unicode')
-
-    def _repr_svg_(self, pretty: bool = True) -> str:
-        rects = '\n'.join(self.rects)
-        svg = f"""
-        <svg width='{self.size[0]}' height='{self.size[1]}'>
-        {rects}
-        </svg>
-        """
-        return Piano.pretty_print(svg) if pretty else svg
+    # @functools.cache
+    def _repr_svg_(self) -> str:
+        _svg = svg.SVG(
+            xmlns=None,
+            width=self.size[0],
+            height=self.size[1],
+            elements=self.elements,
+        )
+        return str(_svg)

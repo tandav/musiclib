@@ -1,5 +1,4 @@
 import collections
-import re
 from xml.etree import ElementTree
 
 import pytest
@@ -28,16 +27,17 @@ def test_note_color(note, color):
 def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[str, str | Color]]:
     """
     element: rect | text | g
-    info_part be style_fill | style_stroke | text | text_color | onclick
+    info_part be fill | stroke | text | text_color | onclick
     """
     out: dict[SpecificNote, dict[str, str | Color]] = collections.defaultdict(dict)
-    for r in ElementTree.fromstring(svg).findall(f".//{element}/[@class='{class_}'][@note]"):
-        note = SpecificNote.from_str(r.attrib['note'])
-        if style := r.attrib.get('style'):
-            if match := re.match('.*fill:(#.{6})', style):
-                out[note]['style_fill'] = Color.from_css_hex(match.group(1))
-            if match := re.match('.*stroke:(#.{6})', style):
-                out[note]['style_stroke'] = Color.from_css_hex(match.group(1))
+    for r in ElementTree.fromstring(svg).findall(f'.//{element}/[@class]'):
+        if not r.attrib['class'].startswith(class_):
+            continue
+        note = SpecificNote.from_str(r.attrib['class'].split()[1])
+        if fill := r.attrib.get('fill'):
+            out[note]['fill'] = Color.from_css_hex(fill)
+        if stroke := r.attrib.get('stroke'):
+            out[note]['stroke'] = Color.from_css_hex(stroke)
         if text := r.text:
             out[note]['text'] = text
         if onclick := r.attrib.get('onclick'):
@@ -53,11 +53,11 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
 )
 @pytest.mark.parametrize(
     'element, class_, info_part, keyarg, payload, expected', [
-        ('rect', 'note', 'style_fill', 'note_colors', config.RED, config.RED),
-        ('rect', 'top_rect', 'style_fill', 'top_rect_colors', config.RED, config.RED),
-        ('rect', 'square', 'style_fill', 'squares', {'fill_color': config.RED}, config.RED),
-        ('rect', 'square', 'style_stroke', 'squares', {'border_color': config.RED}, config.RED),
-        ('text', 'square', 'style_fill', 'squares', {'text': 'T', 'text_color': config.RED}, config.RED),
+        ('rect', 'note', 'fill', 'note_colors', config.RED, config.RED),
+        ('rect', 'top_rect', 'fill', 'top_rect_colors', config.RED, config.RED),
+        ('rect', 'square', 'fill', 'squares', {'fill_color': config.RED}, config.RED),
+        ('rect', 'square', 'stroke', 'squares', {'border_color': config.RED}, config.RED),
+        ('text', 'square', 'fill', 'squares', {'text': 'T', 'text_color': config.RED}, config.RED),
         ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
         ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
     ],
@@ -77,11 +77,11 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, 
 )
 @pytest.mark.parametrize(
     'element, class_, info_part, keyarg, payload, expected', [
-        ('rect', 'note', 'style_fill', 'note_colors', config.RED, config.RED),
-        ('rect', 'top_rect', 'style_fill', 'top_rect_colors', config.RED, config.RED),
-        ('rect', 'square', 'style_fill', 'squares', {'fill_color': config.RED}, config.RED),
-        ('rect', 'square', 'style_stroke', 'squares', {'border_color': config.RED}, config.RED),
-        ('text', 'square', 'style_fill', 'squares', {'text': 'T', 'text_color': config.RED}, config.RED),
+        ('rect', 'note', 'fill', 'note_colors', config.RED, config.RED),
+        ('rect', 'top_rect', 'fill', 'top_rect_colors', config.RED, config.RED),
+        ('rect', 'square', 'fill', 'squares', {'fill_color': config.RED}, config.RED),
+        ('rect', 'square', 'stroke', 'squares', {'border_color': config.RED}, config.RED),
+        ('text', 'square', 'fill', 'squares', {'text': 'T', 'text_color': config.RED}, config.RED),
         ('text', 'square', 'text', 'squares', {'text': 'T'}, 'T'),
         ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
     ],
@@ -92,7 +92,7 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes, 
     i = note_info(svg, element, class_)
     assert i[notes[0]][info_part] == expected
 
-    if class_ == 'note' and info_part == 'style_fill':
+    if class_ == 'note' and info_part == 'fill':
         assert i[notes[1]][info_part] == note_color(notes[1])
     else:
         assert notes[1] not in i
@@ -106,11 +106,11 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes, 
 )
 @pytest.mark.parametrize(
     'element, class_, info_part, keyarg, payload, expected', [
-        ('rect', 'note', 'style_fill', 'note_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
-        ('rect', 'top_rect', 'style_fill', 'top_rect_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
-        ('rect', 'square', 'style_fill', 'squares', ({'fill_color': config.RED}, {'fill_color': config.GREEN}), (config.RED, config.GREEN)),
-        ('rect', 'square', 'style_stroke', 'squares', ({'border_color': config.RED}, {'border_color': config.GREEN}), (config.RED, config.GREEN)),
-        ('text', 'square', 'style_fill', 'squares', ({'text': 'T', 'text_color': config.RED}, {'text': 'T', 'text_color': config.GREEN}), (config.RED, config.GREEN)),
+        ('rect', 'note', 'fill', 'note_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
+        ('rect', 'top_rect', 'fill', 'top_rect_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
+        ('rect', 'square', 'fill', 'squares', ({'fill_color': config.RED}, {'fill_color': config.GREEN}), (config.RED, config.GREEN)),
+        ('rect', 'square', 'stroke', 'squares', ({'border_color': config.RED}, {'border_color': config.GREEN}), (config.RED, config.GREEN)),
+        ('text', 'square', 'fill', 'squares', ({'text': 'T', 'text_color': config.RED}, {'text': 'T', 'text_color': config.GREEN}), (config.RED, config.GREEN)),
         ('text', 'square', 'text', 'squares', ({'text': 'T'}, {'text': 'Q'}), ('T', 'Q')),
         ('g', 'square', 'onclick', 'squares', ({'onclick': 'T'}, {'onclick': 'Q'}), ('T', 'Q')),
     ],
