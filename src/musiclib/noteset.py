@@ -6,6 +6,7 @@ from collections.abc import Iterator
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
+from typing import Any
 
 import pipe21 as P
 
@@ -209,7 +210,7 @@ class NoteSet(Cached):
             return f'{x}/{self.root.name}'
         return x
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         from musiclib.piano import Piano  # hack to fix circular import
         kwargs.setdefault('note_colors', {note: RED for note in self})
         kwargs.setdefault('classes', ('card',))

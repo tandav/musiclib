@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
+from typing import Any
 
 from musiclib import config
 from musiclib.note import SpecificNote
@@ -87,7 +88,7 @@ class NoteRange(Sequence[SpecificNote]):
     def __hash__(self) -> int:
         return hash(self._key)
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         from musiclib.piano import Piano
         kwargs.setdefault('title', f'NoteRange({self.start}, {self.stop})')
         kwargs.setdefault('classes', ('card',))

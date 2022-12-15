@@ -67,10 +67,10 @@ class Piano:
         subtitle_y: int = 30,
         background_color: Color = WHITE_BRIGHT,
         classes: tuple[str, ...] = (),
-        margin=(3, 3, 3, 3),
-        padding=(30, 2, 2, 2),
-        shadow_offset=2,
-        border_radius=3,
+        margin: tuple[int, int, int, int] = (3, 3, 3, 3),
+        padding: tuple[int, int, int, int] = (30, 2, 2, 2),
+        shadow_offset: int = 2,
+        border_radius: int = 3,
         black_small_width_ratio: float = 0.6,
         black_small_height_ratio: float = 0.6,
         debug_rect: bool = False,
@@ -149,7 +149,7 @@ class Piano:
                     y = (self.margin[0] + self.padding[0]) // 2
                     dominant_baseline = 'central'
                 text_title = svg.Text(
-                    x=self.margin[3] + self.padding[3], y=y, font_family=title_font_size, font_size=title_font_size,
+                    x=self.margin[3] + self.padding[3], y=y, font_family=title_font_family, font_size=title_font_size,
                     font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,
                 )
                 if title_href:
@@ -172,10 +172,10 @@ class Piano:
                 else:
                     self.elements.append(text_subtitle)
 
-    def x(self, value: int):
+    def x(self, value: int) -> int:
         return self.margin[3] + self.padding[3] + value
 
-    def y(self, value: int):
+    def y(self, value: int) -> int:
         return self.margin[0] + self.padding[0] + value
 
     def make_piano(self):

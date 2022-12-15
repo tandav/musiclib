@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import typing
+from typing import Any
 
-if typing.TYPE_CHECKING:
-    from musiclib.noterange import NoteRange
 
 import functools
 import itertools
@@ -109,7 +107,7 @@ class Scale(NoteSet):
                 return Scale.from_name(note, name)
         raise KeyError(f'relative {relative_name} scale not found')
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.note_scales.items()})
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
@@ -138,7 +136,7 @@ class ComparedScales:
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         if left_root_name := self.right.note_scales.get(self.left.root, ''):
             kwargs.setdefault('background_color', config.scale_colors[left_root_name])
             left_root_name = f' | {self.left.root.name} {left_root_name}'

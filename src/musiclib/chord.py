@@ -4,6 +4,7 @@ import functools
 import itertools
 import random
 from collections.abc import Iterator
+from typing import Any
 
 from musiclib import config
 from musiclib.note import Note
@@ -46,7 +47,7 @@ class Chord(NoteSet):
             raise TypeError('Chord requires root note. Use NoteSet if there is no root')
         super().__init__(notes, root=root)
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         kwargs.setdefault('title', f'{self.root.name} {self.name}')
         return super()._repr_svg_(**kwargs)
 
@@ -146,7 +147,7 @@ class SpecificChord(Cached):
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
 
-    def _repr_svg_(self, **kwargs) -> str:
+    def _repr_svg_(self, **kwargs: Any) -> str:
         kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('title', repr(self))
