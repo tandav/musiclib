@@ -115,7 +115,7 @@ class Scale(NoteSet):
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
         kwargs.setdefault('title', f'{self.root.name} {self.name}{C_name}')
-        kwargs.setdefault('classes', ('card', self.name,))
+        kwargs.setdefault('classes', ('card', self.name))
         return Piano(**kwargs)._repr_svg_()
 
 
@@ -146,16 +146,18 @@ class ComparedScales:
 
         kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()})
         kwargs.setdefault('top_rect_colors', dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE))
-        kwargs.setdefault('squares', {
-            chord.root: {
-                'fill_color': config.chord_colors[chord.name],
-                'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                'text': chord.root.name,
-                'onclick': f'play_chord("{chord}")',
-            }
-            for chord in self.right.triads
-        } if self.right.kind == 'diatonic' else {})
+        kwargs.setdefault(
+            'squares', {
+                chord.root: {
+                    'fill_color': config.chord_colors[chord.name],
+                    'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                    'text': chord.root.name,
+                    'onclick': f'play_chord("{chord}")',
+                }
+                for chord in self.right.triads
+            } if self.right.kind == 'diatonic' else {},
+        )
 
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('title', f'{self.right.root.name} {self.right.name}{left_root_name}')

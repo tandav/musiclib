@@ -2,21 +2,18 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    from musiclib.noterange import NoteRange
 import functools
 import itertools
 import random
 from collections.abc import Iterator
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noteset import NoteSet
-from musiclib.util.cache import Cached
-from musiclib.piano import Piano
 from musiclib.noterange import NoteRange
+from musiclib.noteset import NoteSet
+from musiclib.piano import Piano
+from musiclib.util.cache import Cached
 
 
 class Chord(NoteSet):

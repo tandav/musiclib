@@ -15,7 +15,6 @@ from typing import overload
 import pipe21 as P
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.config import RED
 from musiclib.note import Note
 from musiclib.note import SpecificNote

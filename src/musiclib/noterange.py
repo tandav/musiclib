@@ -5,7 +5,6 @@ from collections.abc import Sequence
 from typing import overload
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 

@@ -1,6 +1,7 @@
 import itertools
 
 import pytest
+from colortool import Color
 
 from musiclib.chord import Chord
 from musiclib.chord import SpecificChord
@@ -9,7 +10,6 @@ from musiclib.noteset import NoteSet
 from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
 from musiclib.scale import all_scales
-from colortool import Color
 
 TITLE = 'title_fUYsZHfC'
 SUBTITLE = 'subtitle_EfrKTj'
@@ -29,7 +29,7 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
         elif isinstance(item, Color):
             assert item.css_hex in html
         else:
-            if not constant in html:
+            if constant not in html:
                 print(html)
             assert constant in html
 
