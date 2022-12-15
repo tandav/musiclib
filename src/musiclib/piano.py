@@ -47,6 +47,8 @@ class Piano:
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
         top_rect_height: int = 5,
         square_size: int = 12,
+        square_white_offset: int = 5,
+        square_black_offset: int = 3,
         ww: int = 18,  # white key width
         wh: int = 85,  # white key height
         noterange: NoteRange | None = None,
@@ -79,6 +81,8 @@ class Piano:
 
         self.top_rect_height = top_rect_height
         self.square_size = square_size
+        self.square_white_offset = square_white_offset
+        self.square_black_offset = square_black_offset
         self.black_small = black_small
         self.note_colors = note_colors or {}
         self.top_rect_colors: dict[Note | SpecificNote, Color]
@@ -199,43 +203,31 @@ class Piano:
         sy: x coordinate of square
         """
         c = self.note_colors.get(note, self.note_colors.get(note.abstract, note_color(note)))
-
-        # def big_note():
-        #     ...
-        #
-        # def small(note):
-        #     ...
-
         x0 = self.x(0)
         y = self.y(0)
         if self.black_small:
             if note in self.white_notes:
                 x = x0 + self.ww * self.white_notes.index(note)
                 sx = (x + x + self.ww) // 2 - self.square_size // 2
-                sy =self.y(self.wh - self.square_size - 5)
+                sy = self.y(self.wh - self.square_size - self.square_white_offset)
                 return x, y, self.ww, self.wh, c, sx, sy
             if note in self.black_notes:
                 x = x0 + self.ww * self.white_notes.index(note + 1) - self.bw // 2
                 sx = self.x(self.ww * self.white_notes.index(note + 1) - self.square_size // 2)
-                sy = self.y(self.bh - self.square_size - 3)
+                sy = self.y(self.bh - self.square_size - self.square_black_offset)
                 return x, y, self.bw, self.bh, c, sx, sy
 
-        x = x0 + self.ww * self.noterange.index(note)
+        x = self.ww * self.noterange.index(note)
         sx = self.x((x + x + self.ww) // 2 - self.square_size // 2)
-        sy = self.y(self.wh - self.square_size - 5)
-        return x, y, self.ww, self.wh, c, sx, sy
+        sy = self.y(self.wh - self.square_size - self.square_white_offset)
+        return self.x(x), y, self.ww, self.wh, c, sx, sy
 
     # @functools.cache
     def _repr_svg_(self) -> str:
         w_pp = self.padding[1] + self.padding[3] + self.piano_width
         h_pp = self.padding[0] + self.padding[2] + self.piano_height
-        h_mp = self.margin[0] + self.margin[2] + self.piano_height
-        w_mpp = self.margin[1] + self.margin[3] + w_pp
-        h_mpp = self.margin[0] + self.margin[2] + h_pp
-        w_mpps = w_mpp + self.shadow_offset
-        h_mpps = h_mpp + self.shadow_offset
-        svg_width = w_mpps
-        svg_height = h_mpps
+        svg_width = self.margin[1] + self.margin[3] + w_pp + self.shadow_offset
+        svg_height = self.margin[0] + self.margin[2] + h_pp + self.shadow_offset
         elements = []
         if self.debug_rect:
             debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=svg_width, height=svg_height, fill='red')
