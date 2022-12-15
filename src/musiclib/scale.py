@@ -10,7 +10,6 @@ import itertools
 from collections import defaultdict
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.chord import Chord
 from musiclib.config import BLACK_BRIGHT
 from musiclib.config import BLUE

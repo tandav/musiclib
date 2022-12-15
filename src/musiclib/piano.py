@@ -136,7 +136,7 @@ class Piano:
 
         if title_href is not None and title is None:
             raise ValueError('title_href requires title')
-        
+
         if subtitle_href is not None and subtitle is None:
             raise ValueError('subtitle_href requires subtitle')
 
@@ -144,23 +144,33 @@ class Piano:
             if title:
                 if subtitle:
                     y = self.margin[0] + title_y
-                    dominant_baseline='text-before-edge'
+                    dominant_baseline = 'text-before-edge'
                 else:
                     y = (self.margin[0] + self.padding[0]) // 2
                     dominant_baseline = 'central'
-                text_title = svg.Text(x=self.margin[3] + self.padding[3], y=y, font_family=title_font_size, font_size=title_font_size, font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline)
+                text_title = svg.Text(
+                    x=self.margin[3] + self.padding[3], y=y, font_family=title_font_size, font_size=title_font_size,
+                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,
+                )
                 if title_href:
                     self.elements.append(svg.A(href=title_href, elements=[text_title]))
                 else:
                     self.elements.append(text_title)
 
             if subtitle:
-                text_subtitle = svg.Text(x=self.margin[3] + self.padding[3], y=self.margin[0] + subtitle_y, font_family=subtitle_font_family, font_size=subtitle_font_size, fill=BLACK_BRIGHT.css_hex, text=subtitle, dominant_baseline='text-after-edge')
+                text_subtitle = svg.Text(
+                    x=self.margin[3] + self.padding[3],
+                    y=self.margin[0] + subtitle_y,
+                    font_family=subtitle_font_family,
+                    font_size=subtitle_font_size,
+                    fill=BLACK_BRIGHT.css_hex,
+                    text=subtitle,
+                    dominant_baseline='text-after-edge',
+                )
                 if subtitle_href:
                     self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
                 else:
                     self.elements.append(text_subtitle)
-        
 
     def x(self, value: int):
         return self.margin[3] + self.padding[3] + value
@@ -172,7 +182,25 @@ class Piano:
         for note in self.notes:
             x, y, w, h, c, sx, sy = self.coord_helper(note)
 
-            note_rect = svg.Rect(class_=['note', str(note)], x=x, y=y, width=w, height=h, fill=c.css_hex, stroke_width=1, stroke=BLACK_PALE.css_hex, onclick=self.note_onclicks.get(note, self.note_onclicks.get(note.abstract)))
+            note_rect = svg.Rect(
+                class_=[
+                    'note',
+                    str(note),
+                ],
+                x=x,
+                y=y,
+                width=w,
+                height=h,
+                fill=c.css_hex,
+                stroke_width=1,
+                stroke=BLACK_PALE.css_hex,
+                onclick=self.note_onclicks.get(
+                    note,
+                    self.note_onclicks.get(
+                        note.abstract,
+                    ),
+                ),
+            )
             # draw key
 
             if note_href := self.note_hrefs.get(note, self.note_hrefs.get(note.abstract)):
@@ -187,14 +215,50 @@ class Piano:
             # draw squares on notes
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
                 sq_elements: list[svg.Element] = []
-                sq_rect = svg.Rect(class_=['square', str(note)], x=sx, y=sy, width=self.square_size, height=self.square_size, fill=payload.get('fill_color', WHITE_BRIGHT).css_hex, stroke_width=1, stroke=payload.get('border_color', BLACK_BRIGHT).css_hex)
+                sq_rect = svg.Rect(
+                    class_=[
+                        'square',
+                        str(note),
+                    ],
+                    x=sx,
+                    y=sy,
+                    width=self.square_size,
+                    height=self.square_size,
+                    fill=payload.get(
+                        'fill_color',
+                        WHITE_BRIGHT,
+                    ).css_hex,
+                    stroke_width=1,
+                    stroke=payload.get(
+                        'border_color',
+                        BLACK_BRIGHT,
+                    ).css_hex,
+                )
                 sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
-                    sq_text = svg.Text(class_=['square', str(note)], x=sx + self.square_size // 2, y=sy + self.square_size // 2, font_family=self.square_font_family, font_size=payload.get('text_size', self.title_font_size), fill=payload.get('text_color', BLACK_BRIGHT).css_hex, text=text, text_anchor='middle', dominant_baseline='central')
+                    sq_text = svg.Text(
+                        class_=[
+                            'square',
+                            str(note),
+                        ],
+                        x=sx + self.square_size // 2,
+                        y=sy + self.square_size // 2,
+                        font_family=self.square_font_family,
+                        font_size=payload.get(
+                            'text_size',
+                            self.title_font_size,
+                        ),
+                        fill=payload.get(
+                            'text_color',
+                            BLACK_BRIGHT,
+                        ).css_hex,
+                        text=text,
+                        text_anchor='middle',
+                        dominant_baseline='central',
+                    )
                     sq_elements.append(sq_text)
                 self.elements.append(svg.G(class_=['square', str(note)], onclick=payload.get('onclick'), elements=sq_elements))
-
 
     def coord_helper(self, note: SpecificNote) -> tuple[int, int, int, int, Color, int, int]:
         """
@@ -241,8 +305,30 @@ class Piano:
             debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=svg_width, height=svg_height, fill='red')
             elements.append(debug_rect)
         if self.card:
-            card_rect = svg.Rect(class_=['card_rect'], x=self.margin[3], y=self.margin[0], width=w_pp, height=h_pp, fill=self.background_color.css_hex, rx=self.border_radius, ry=self.border_radius, stroke_width=1, stroke=BLACK_PALE.css_hex)
-            shadow_rect = svg.Rect(class_=['shadow_rect'], x=self.margin[3] + self.shadow_offset, y=self.margin[0] + self.shadow_offset, width=w_pp, height=h_pp, fill=BLACK_BRIGHT.css_hex, rx=self.border_radius, ry=self.border_radius)
+            card_rect = svg.Rect(
+                class_=['card_rect'],
+                x=self.margin[3],
+                y=self.margin[0],
+                width=w_pp,
+                height=h_pp,
+                fill=self.background_color.css_hex,
+                rx=self.border_radius,
+                ry=self.border_radius,
+                stroke_width=1,
+                stroke=BLACK_PALE.css_hex,
+            )
+            shadow_rect = svg.Rect(
+                class_=['shadow_rect'],
+                x=self.margin[3] +
+                self.shadow_offset,
+                y=self.margin[0] +
+                self.shadow_offset,
+                width=w_pp,
+                height=h_pp,
+                fill=BLACK_BRIGHT.css_hex,
+                rx=self.border_radius,
+                ry=self.border_radius,
+            )
             elements += [shadow_rect, card_rect]
         elements += self.elements
         _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=self.classes)

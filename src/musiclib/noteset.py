@@ -1,10 +1,5 @@
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    from musiclib.noterange import NoteRange
-
 import itertools
 import random
 from collections.abc import Iterator
