@@ -135,3 +135,10 @@ def test_startswith_endswith_white_key(noterange, black_small, start, stop):
     notes = note_info(svg, element='rect', class_='note').keys()
     assert min(notes) == start
     assert max(notes) == stop
+
+
+def test_href_only_when_title():
+    with pytest.raises(ValueError):
+        Piano(title_href='T')
+    with pytest.raises(ValueError):
+        Piano(subtitle_href='T')

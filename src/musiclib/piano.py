@@ -122,6 +122,12 @@ class Piano:
         self.notes = self.white_notes + self.black_notes if black_small else self.noterange
         self.make_piano()
 
+        if title_href is not None and title is None:
+            raise ValueError('title_href requires title')
+        
+        if subtitle_href is not None and subtitle is None:
+            raise ValueError('subtitle_href requires subtitle')
+
         if self.card:
             if title:
                 if subtitle:
