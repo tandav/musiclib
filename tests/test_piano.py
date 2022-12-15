@@ -30,7 +30,7 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     info_part be fill | stroke | text | text_color | onclick
     """
     out: dict[SpecificNote, dict[str, str | Color]] = collections.defaultdict(dict)
-    svg = svg.replace('xmlns="http://www.w3.org/2000/svg"/', '') # ElementTree findall dont work with xmlns
+    svg = svg.replace('xmlns="http://www.w3.org/2000/svg"', '') # ElementTree findall dont work with xmlns
     for r in ElementTree.fromstring(svg).findall(f'.//{element}/[@class]'):
         if not r.attrib['class'].startswith(class_):
             continue
