@@ -124,7 +124,13 @@ class Piano:
 
         if self.card:
             if title:
-                text_title = svg.Text(x=self.margin[3] + self.padding[3], y=self.margin[0] + title_y, font_family='sans-serif', font_size=15, font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline='text-before-edge')
+                if subtitle:
+                    y = self.margin[0] + title_y
+                    dominant_baseline='text-before-edge'
+                else:
+                    y = (self.margin[0] + self.padding[0]) // 2
+                    dominant_baseline = 'central'
+                text_title = svg.Text(x=self.margin[3] + self.padding[3], y=y, font_family='sans-serif', font_size=15, font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline)
                 if title_href:
                     self.elements.append(svg.A(href=title_href, elements=[text_title]))
                 else:
