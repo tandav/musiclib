@@ -167,7 +167,7 @@ class Piano:
                 sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
-                    sq_text = svg.Text(class_=['square', str(note)], x=sx, y=sy + self.square_size, font_family='Menlo', font_size=payload.get('text_size', 15), fill=payload.get('text_color', BLACK_BRIGHT).css_hex, text=text)
+                    sq_text = svg.Text(class_=['square', str(note)], x=sx + self.square_size // 2, y=sy + self.square_size // 2, font_family='Menlo', font_size=payload.get('text_size', 15), fill=payload.get('text_color', BLACK_BRIGHT).css_hex, text=text, text_anchor='middle', dominant_baseline='central')
                     sq_elements.append(sq_text)
                 self.elements.append(svg.G(class_=['square', str(note)], onclick=payload.get('onclick'), elements=sq_elements))
 
@@ -199,7 +199,9 @@ class Piano:
         if self.black_small:
             if note in self.white_notes:
                 x = x0 + self.ww * self.white_notes.index(note)
-                return x, y, self.ww, self.wh, c, (x + x + self.ww) // 2 - self.square_size // 2, self.y(self.wh - self.square_size - 5)
+                sx = (x + x + self.ww) // 2 - self.square_size // 2
+                sy =self.y(self.wh - self.square_size - 5)
+                return x, y, self.ww, self.wh, c, sx, sy
             if note in self.black_notes:
                 x = x0 + self.ww * self.white_notes.index(note + 1) - self.bw // 2
                 sx = self.x(self.ww * self.white_notes.index(note + 1) - self.square_size // 2)
