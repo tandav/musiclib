@@ -57,7 +57,12 @@ class Piano:
         title: str | None = None,
         subtitle: str | None = None,
         title_href: str | None = None,
+        title_font_size: int = 15,
         subtitle_href: str | None = None,
+        subtitle_font_size: int = 12,
+        title_font_family: str = 'sans-serif',
+        subtitle_font_family: str = 'sans-serif',
+        square_font_family: str = 'monospace',
         title_y: int = 0,
         subtitle_y: int = 30,
         background_color: Color = WHITE_BRIGHT,
@@ -93,6 +98,9 @@ class Piano:
         self.card = card
         self.background_color = background_color
         self.classes = classes
+        self.title_font_size = title_font_size
+        self.subtitle_font_size = subtitle_font_size
+        self.square_font_family = square_font_family
         if not card:
             self.padding = (0, 0, 0, 0)
             self.margin = (0, 0, 0, 0)
@@ -140,14 +148,14 @@ class Piano:
                 else:
                     y = (self.margin[0] + self.padding[0]) // 2
                     dominant_baseline = 'central'
-                text_title = svg.Text(x=self.margin[3] + self.padding[3], y=y, font_family='sans-serif', font_size=15, font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline)
+                text_title = svg.Text(x=self.margin[3] + self.padding[3], y=y, font_family=title_font_size, font_size=title_font_size, font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline)
                 if title_href:
                     self.elements.append(svg.A(href=title_href, elements=[text_title]))
                 else:
                     self.elements.append(text_title)
 
             if subtitle:
-                text_subtitle = svg.Text(x=self.margin[3] + self.padding[3], y=self.margin[0] + subtitle_y, font_family='sans-serif', font_size=12, fill=BLACK_BRIGHT.css_hex, text=subtitle, dominant_baseline='text-after-edge')
+                text_subtitle = svg.Text(x=self.margin[3] + self.padding[3], y=self.margin[0] + subtitle_y, font_family=subtitle_font_family, font_size=subtitle_font_size, fill=BLACK_BRIGHT.css_hex, text=subtitle, dominant_baseline='text-after-edge')
                 if subtitle_href:
                     self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
                 else:
@@ -183,7 +191,7 @@ class Piano:
                 sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
-                    sq_text = svg.Text(class_=['square', str(note)], x=sx + self.square_size // 2, y=sy + self.square_size // 2, font_family='Menlo', font_size=payload.get('text_size', 15), fill=payload.get('text_color', BLACK_BRIGHT).css_hex, text=text, text_anchor='middle', dominant_baseline='central')
+                    sq_text = svg.Text(class_=['square', str(note)], x=sx + self.square_size // 2, y=sy + self.square_size // 2, font_family=self.square_font_family, font_size=payload.get('text_size', self.title_font_size), fill=payload.get('text_color', BLACK_BRIGHT).css_hex, text=text, text_anchor='middle', dominant_baseline='central')
                     sq_elements.append(sq_text)
                 self.elements.append(svg.G(class_=['square', str(note)], onclick=payload.get('onclick'), elements=sq_elements))
 
