@@ -21,7 +21,7 @@ from musiclib.noteset import NoteSet
 from musiclib.piano import Piano
 
 
-class Scale(NoteSet, Card):
+class Scale(NoteSet):
     intervals_to_name = {
         # diatonic
         frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
@@ -110,39 +110,19 @@ class Scale(NoteSet, Card):
                 return Scale.from_name(note, name)
         raise KeyError(f'relative {relative_name} scale not found')
 
-    def to_piano_image(self, noterange: NoteRange | None = None) -> str:
-        return Piano(
-            note_colors={note: config.scale_colors[scale] for note, scale in self.note_scales.items()},
-            noterange=noterange,
-        )._repr_svg_()
-
-    def _repr_html_(
-        self,
-        html_classes: tuple[str, ...] = (),
-        title: str | None = None,
-        subtitle: str | None = None,
-        header_href: str | None = None,
-        background_color: str | None = None,
-        noterange: NoteRange | None = None,
-    ) -> str:
-        html_classes += self.name,
-
+    def _repr_svg_(self, **kwargs) -> str:
+        kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.note_scales.items()})
         if C_name := self.note_scales.get(Note('C'), ''):
             C_name = f' | C {C_name}'
+        kwargs.setdefault('title', f'{self.root.name} {self.name}{C_name}')
+        kwargs.setdefault('classes', ('card', self.name,))
+        return Piano(**kwargs)._repr_svg_()
 
-        return self.repr_card(
-            html_classes=html_classes,
-            title=title or f'{self.root.name} {self.name}{C_name}',
-            subtitle=subtitle,
-            header_href=header_href or self.root.name,
-            background_color=background_color,
-            piano_html=self.to_piano_image(noterange),
-        )
 
 # flake8: noqa
 
 
-class ComparedScales(Card):
+class ComparedScales:
     """
     this is compared scale
     local terminology: left scale is compared to right
@@ -159,46 +139,27 @@ class ComparedScales(Card):
         if right.kind == 'diatonic':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
-    def to_piano_image(self, noterange: NoteRange | None = None) -> str:
-        return Piano(
-            note_colors={note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()},
-            top_rect_colors=dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE),
-            squares={
-                chord.root: {
-                    'fill_color': config.chord_colors[chord.name],
-                    'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    'text': chord.root.name,
-                    'onclick': f'play_chord("{chord}")',
-                }
-                for chord in self.right.triads
-            } if self.right.kind == 'diatonic' else {},
-            noterange=noterange,
-        )._repr_svg_()
-
-    def _repr_html_(
-        self,
-        html_classes: tuple[str, ...] = ('card',),
-        title: str | None = None,
-        subtitle: str | None = None,
-        header_href: str | None = None,
-        background_color: str | None = None,
-        noterange: NoteRange | None = None,
-    ) -> str:
-
+    def _repr_svg_(self, **kwargs) -> str:
         if left_root_name := self.right.note_scales.get(self.left.root, ''):
-            if background_color is None:
-                background_color = config.scale_colors[left_root_name].css_hex
+            kwargs.setdefault('background_color', config.scale_colors[left_root_name])
             left_root_name = f' | {self.left.root.name} {left_root_name}'
 
-        return self.repr_card(
-            html_classes=html_classes,
-            title=title or f'{self.right.root.name} {self.right.name}{left_root_name}',
-            subtitle=subtitle,
-            header_href=header_href or self.right.root.name,
-            background_color=background_color,
-            piano_html=self.to_piano_image(noterange),
-        )
+        kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()})
+        kwargs.setdefault('top_rect_colors', dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE))
+        kwargs.setdefault('squares', {
+            chord.root: {
+                'fill_color': config.chord_colors[chord.name],
+                'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
+                'text': chord.root.name,
+                'onclick': f'play_chord("{chord}")',
+            }
+            for chord in self.right.triads
+        } if self.right.kind == 'diatonic' else {})
+
+        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('title', f'{self.right.root.name} {self.right.name}{left_root_name}')
+        return Piano(**kwargs)._repr_svg_()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ComparedScales):
