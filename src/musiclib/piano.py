@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Literal
 from typing import TypedDict
 
 import svg
@@ -63,8 +64,8 @@ class Piano:
         title_font_family: str = 'sans-serif',
         subtitle_font_family: str = 'sans-serif',
         square_font_family: str = 'monospace',
-        title_y: int = 0,
-        subtitle_y: int = 30,
+        title_y: int = 4,
+        subtitle_y: int = 18,
         background_color: Color = WHITE_BRIGHT,
         classes: tuple[str, ...] = (),
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
@@ -142,15 +143,16 @@ class Piano:
 
         if self.card:
             if title:
+                dominant_baseline: Literal['hanging', 'central']
                 if subtitle:
                     y = self.margin[0] + title_y
-                    dominant_baseline = 'text-before-edge'
+                    dominant_baseline = 'hanging'
                 else:
                     y = (self.margin[0] + self.padding[0]) // 2
                     dominant_baseline = 'central'
                 text_title = svg.Text(
                     x=self.margin[3] + self.padding[3], y=y, font_family=title_font_family, font_size=title_font_size,
-                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,  # type: ignore
+                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,
                 )
                 if title_href:
                     self.elements.append(svg.A(href=title_href, elements=[text_title]))
@@ -165,7 +167,7 @@ class Piano:
                     font_size=subtitle_font_size,
                     fill=BLACK_BRIGHT.css_hex,
                     text=subtitle,
-                    dominant_baseline='text-after-edge',  # type: ignore
+                    dominant_baseline='hanging',
                 )
                 if subtitle_href:
                     self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
