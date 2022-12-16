@@ -3,10 +3,10 @@ from __future__ import annotations
 import itertools
 import random
 from collections.abc import Iterator
+from typing import Any
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
-from typing import Any
 
 import pipe21 as P
 

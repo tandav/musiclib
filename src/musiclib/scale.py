@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import Any
-
-
 import functools
 import itertools
 from collections import defaultdict
+from typing import Any
 
 from musiclib import config
 from musiclib.chord import Chord

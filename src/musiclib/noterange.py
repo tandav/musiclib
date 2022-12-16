@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from collections.abc import Sequence
-from typing import overload
 from typing import Any
+from typing import overload
 
 from musiclib import config
 from musiclib.note import SpecificNote
