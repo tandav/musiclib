@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from collections.abc import Sequence
+from typing import Any
 from typing import overload
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 
 CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
 
-class NoteRange(Sequence[SpecificNote], Card):
+class NoteRange(Sequence[SpecificNote]):
     def __init__(
         self,
         start: SpecificNote | str,
@@ -88,30 +88,11 @@ class NoteRange(Sequence[SpecificNote], Card):
     def __hash__(self) -> int:
         return hash(self._key)
 
-    def to_piano_image(self, noterange: NoteRange | None) -> str:
-        from musiclib.piano import Piano  # hack to fix circular import
-        if noterange is None:
-            noterange = NoteRange(self.start, self.stop)
-        return Piano(
-            note_colors=None if self.noteset is CHROMATIC_NOTESET else dict.fromkeys(self.noteset, config.RED),
-            squares={self.start: {'text': str(self.start), 'text_size': '8'}, self.stop: {'text': str(self.stop), 'text_size': '8'}},
-            noterange=noterange,
-        )._repr_svg_()
-
-    def _repr_html_(
-        self,
-        html_classes: tuple[str, ...] = ('card',),
-        title: str | None = None,
-        subtitle: str | None = None,
-        header_href: str | None = None,
-        background_color: str | None = None,
-        noterange: NoteRange | None = None,
-    ) -> str:
-        return self.repr_card(
-            html_classes=html_classes,
-            title=title or f'NoteRange({self.start}, {self.stop})',
-            subtitle=subtitle,
-            header_href=header_href,
-            background_color=background_color,
-            piano_html=self.to_piano_image(noterange),
-        )
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        from musiclib.piano import Piano
+        kwargs.setdefault('title', f'NoteRange({self.start}, {self.stop})')
+        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('noterange', NoteRange(self.start, self.stop))
+        kwargs.setdefault('squares', {self.start: {'text': str(self.start), 'text_size': '8'}, self.stop: {'text': str(self.stop), 'text_size': '8'}})
+        kwargs.setdefault('note_colors', None if self.noteset is CHROMATIC_NOTESET else dict.fromkeys(self.noteset, config.RED))
+        return Piano(**kwargs)._repr_svg_()

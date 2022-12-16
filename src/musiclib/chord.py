@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    from musiclib.noterange import NoteRange
 import functools
 import itertools
 import random
 from collections.abc import Iterator
+from typing import Any
 
 from musiclib import config
-from musiclib.card import Card
 from musiclib.note import Note
 from musiclib.note import SpecificNote
+from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
+from musiclib.piano import Piano
 from musiclib.util.cache import Cached
 
 
@@ -49,26 +47,12 @@ class Chord(NoteSet):
             raise TypeError('Chord requires root note. Use NoteSet if there is no root')
         super().__init__(notes, root=root)
 
-    def _repr_html_(
-        self,
-        html_classes: tuple[str, ...] = ('card',),
-        title: str | None = None,
-        subtitle: str | None = None,
-        header_href: str | None = None,
-        background_color: str | None = None,
-        noterange: NoteRange | None = None,
-    ) -> str:
-        return self.repr_card(
-            html_classes=html_classes,
-            title=title or f'{self.root.name} {self.name}',
-            subtitle=subtitle,
-            header_href=header_href,
-            background_color=background_color,
-            piano_html=self.to_piano_image(noterange),
-        )
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        kwargs.setdefault('title', f'{self.root.name} {self.name}')
+        return super()._repr_svg_(**kwargs)
 
 
-class SpecificChord(Cached, Card):
+class SpecificChord(Cached):
     def __init__(
         self,
         notes: frozenset[SpecificNote],
@@ -163,37 +147,13 @@ class SpecificChord(Cached, Card):
     def transposed_to_C0(self) -> SpecificChord:
         return self + (SpecificNote('C', 0) - self[0])
 
-    def to_piano_image(
-        self,
-        noterange: NoteRange | None = None,
-    ) -> str:
-        from musiclib.noterange import NoteRange
-        from musiclib.piano import Piano
-        if noterange is None:
-            noterange = NoteRange(self[0], self[-1]) if self.notes else None
-        return Piano(
-            note_colors=dict.fromkeys(self.notes, config.RED),
-            squares={note: {'text': str(note), 'text_size': '8'} for note in self},
-            noterange=noterange,
-        )._repr_svg_()
-
-    def _repr_html_(
-        self,
-        html_classes: tuple[str, ...] = ('card',),
-        title: str | None = None,
-        subtitle: str | None = None,
-        header_href: str | None = None,
-        background_color: str | None = None,
-        noterange: NoteRange | None = None,
-    ) -> str:
-        return self.repr_card(
-            html_classes=html_classes,
-            title=title or repr(self),
-            subtitle=subtitle,
-            header_href=header_href,
-            background_color=background_color,
-            piano_html=self.to_piano_image(noterange),
-        )
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
+        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('title', repr(self))
+        kwargs.setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
+        kwargs.setdefault('squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
+        return Piano(**kwargs)._repr_svg_()
 
     def __getnewargs_ex__(self) -> tuple[tuple[frozenset[SpecificNote]], dict[str, Note | None]]:
         return (self.notes,), {'root': self.root}
