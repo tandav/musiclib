@@ -142,7 +142,7 @@ class Piano:
             raise ValueError('subtitle_href requires subtitle')
 
         if self.card:
-            if title:
+            if title is not None:
                 dominant_baseline: Literal['hanging', 'central']
                 if subtitle:
                     y = self.margin[0] + title_y
@@ -159,7 +159,7 @@ class Piano:
                 else:
                     self.elements.append(text_title)
 
-            if subtitle:
+            if subtitle is not None:
                 text_subtitle = svg.Text(
                     x=self.margin[3] + self.padding[3],
                     y=self.margin[0] + subtitle_y,
