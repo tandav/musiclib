@@ -150,7 +150,7 @@ class Piano:
                     dominant_baseline = 'central'
                 text_title = svg.Text(
                     x=self.margin[3] + self.padding[3], y=y, font_family=title_font_family, font_size=title_font_size,
-                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,
+                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,  # type: ignore
                 )
                 if title_href:
                     self.elements.append(svg.A(href=title_href, elements=[text_title]))
@@ -165,7 +165,7 @@ class Piano:
                     font_size=subtitle_font_size,
                     fill=BLACK_BRIGHT.css_hex,
                     text=subtitle,
-                    dominant_baseline='text-after-edge',
+                    dominant_baseline='text-after-edge',  # type: ignore
                 )
                 if subtitle_href:
                     self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
@@ -178,7 +178,7 @@ class Piano:
     def y(self, value: int) -> int:
         return self.margin[0] + self.padding[0] + value
 
-    def make_piano(self):
+    def make_piano(self) -> None:
         for note in self.notes:
             x, y, w, h, c, sx, sy = self.coord_helper(note)
 
@@ -300,7 +300,7 @@ class Piano:
         h_pp = self.padding[0] + self.padding[2] + self.piano_height
         svg_width = self.margin[1] + self.margin[3] + w_pp + self.shadow_offset
         svg_height = self.margin[0] + self.margin[2] + h_pp + self.shadow_offset
-        elements = []
+        elements: list[svg.Element] = []
         if self.debug_rect:
             debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=svg_width, height=svg_height, fill='red')
             elements.append(debug_rect)
@@ -331,5 +331,5 @@ class Piano:
             )
             elements += [shadow_rect, card_rect]
         elements += self.elements
-        _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=self.classes)
+        _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=list(self.classes))
         return str(_svg)
