@@ -144,7 +144,7 @@ class Piano:
         if self.card:
             if title is not None:
                 dominant_baseline: Literal['hanging', 'central']
-                if subtitle:
+                if subtitle is not None:
                     y = self.margin[0] + title_y
                     dominant_baseline = 'hanging'
                 else:
@@ -169,7 +169,7 @@ class Piano:
                     text=subtitle,
                     dominant_baseline='hanging',
                 )
-                if subtitle_href:
+                if subtitle_href is not None:
                     self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
                 else:
                     self.elements.append(text_subtitle)
