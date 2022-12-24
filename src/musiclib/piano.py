@@ -68,6 +68,7 @@ class Piano:
         subtitle_y: int = 18,
         background_color: Color = WHITE_BRIGHT,
         classes: tuple[str, ...] = (),
+        id: str | None = None,
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
         shadow_offset: int = 2,
@@ -99,6 +100,7 @@ class Piano:
         self.card = card
         self.background_color = background_color
         self.classes = classes
+        self.id = id
         self.title_font_size = title_font_size
         self.subtitle_font_size = subtitle_font_size
         self.square_font_family = square_font_family
@@ -333,5 +335,5 @@ class Piano:
             )
             elements += [shadow_rect, card_rect]
         elements += self.elements
-        _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=list(self.classes))
+        _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=list(self.classes), id=self.id)
         return str(_svg)
