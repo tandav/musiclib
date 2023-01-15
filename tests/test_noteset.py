@@ -80,6 +80,16 @@ def test_bits(notes, bits):
 
 
 @pytest.mark.parametrize(
+    'noteset, bits', (
+        (NoteSet.from_str('CDE'), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
+        (NoteSet.from_str('df'), (0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)),
+    ),
+)
+def test_bits_notes(noteset, bits):
+    assert noteset.bits_notes == bits
+
+
+@pytest.mark.parametrize(
     'value', (
         'CDE',
         set(map(Note, 'CDE')),
