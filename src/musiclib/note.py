@@ -84,13 +84,13 @@ class SpecificNote(Cached):
         self.abstract = abstract
         self.is_black = abstract.is_black
         self.octave = octave
-        self.i: int = octave * 12 + self.abstract.i  # this is also midi_code
+        self.i: int = (octave + 1) * 12 + self.abstract.i  # this is also midi_code
         self._key = self.abstract, self.octave
 
     @classmethod
     def from_i(cls, i: int) -> SpecificNote:
         div, mod = divmod(i, 12)
-        return cls(Note(config.chromatic_notes[mod]), octave=div)
+        return cls(Note(config.chromatic_notes[mod]), octave=div - 1)
 
     @classmethod
     def from_str(cls, string: str) -> SpecificNote:

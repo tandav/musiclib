@@ -39,5 +39,5 @@ async def test_specific_chord(player, capsys):
         assert line.startswith(prefix)
         stdout_.append(line.removeprefix(prefix))
     on, off = set(stdout_[:3]), set(stdout_[3:])
-    assert on == {'note_on note=12, channel=0', 'note_on note=16, channel=0', 'note_on note=31, channel=0'}
-    assert off == {'note_off note=12, channel=0', 'note_off note=16, channel=0', 'note_off note=31, channel=0'}
+    assert on == {'note_on note=24, channel=0', 'note_on note=28, channel=0', 'note_on note=43, channel=0'}
+    assert off == {'note_off note=24, channel=0', 'note_off note=28, channel=0', 'note_off note=43, channel=0'}

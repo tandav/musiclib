@@ -99,3 +99,9 @@ def test_color():
 
 def test_to_abstract():
     assert SpecificNote.to_abstract({SpecificNote('C', 2), SpecificNote('G', 3)}) == frozenset({Note('C'), Note('G')})
+
+
+def test_midi_code():
+    A4 = SpecificNote(Note('A'), 4)
+    assert A4.i == 69
+    assert SpecificNote.from_i(69) == A4
