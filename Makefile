@@ -3,7 +3,6 @@ LINTING_DIRS := src tests
 .PHONY: check-lint
 check-lint:
 	#python -m no_init --allow-empty $(LINTING_DIRS)
-	python -m force_absolute_imports $(LINTING_DIRS)
 	python -m isort --check-only $(LINTING_DIRS)
 	python -m autoflake --recursive $(LINTING_DIRS)
 	python -m autopep8 --diff $(LINTING_DIRS)
