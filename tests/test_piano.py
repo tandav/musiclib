@@ -8,8 +8,8 @@ from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
-from musiclib.piano import Piano
-from musiclib.piano import note_color
+from musiclib.svg.piano import Piano
+from musiclib.svg.piano import note_color
 
 
 @pytest.mark.parametrize(

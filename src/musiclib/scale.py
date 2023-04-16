@@ -13,7 +13,7 @@ from musiclib.config import GREEN
 from musiclib.config import RED
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
-from musiclib.piano import Piano
+from musiclib.svg.piano import Piano
 
 
 class Scale(NoteSet):

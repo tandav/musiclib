@@ -89,7 +89,7 @@ class NoteRange(Sequence[SpecificNote]):
         return hash(self._key)
 
     def _repr_svg_(self, **kwargs: Any) -> str:
-        from musiclib.piano import Piano
+        from musiclib.svg.piano import Piano
         kwargs.setdefault('title', f'NoteRange({self.start}, {self.stop})')
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('noterange', NoteRange(self.start, self.stop))
