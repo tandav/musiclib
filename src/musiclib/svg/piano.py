@@ -41,7 +41,7 @@ class SquaresPayload(TypedDict, total=False):
 
 
 class Piano:
-    def __init__(  # noqa: PLR0915,PLR0912,C901
+    def __init__(  # noqa: PLR0915,PLR0912,C901 # pylint: disable=too-many-branches,too-many-statements
         self,
         *,
         note_colors: dict[Note | SpecificNote, Color] | None = None,
@@ -71,7 +71,7 @@ class Piano:
         subtitle_y: int = 18,
         background_color: Color = WHITE_BRIGHT,
         classes: tuple[str, ...] = (),
-        id: str | None = None,  # noqa: A002
+        id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
         shadow_offset: int = 2,

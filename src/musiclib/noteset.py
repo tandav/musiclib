@@ -207,6 +207,16 @@ class NoteSet(Cached):
             return NotImplemented
         return other.notes <= self.notes
 
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, NoteSet):
+            return NotImplemented
+        return self.notes < other.notes
+
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, NoteSet):
+            return NotImplemented
+        return other.notes < self.notes
+
     def __repr__(self) -> str:
         x = ''.join(note.name for note in self)
         if self.root is not None:

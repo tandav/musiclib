@@ -24,8 +24,7 @@ class NoteRange(Sequence[SpecificNote]):
         if isinstance(stop, str):
             stop = SpecificNote.from_str(stop)
 
-        """both ends included"""
-        if start > stop:
+        if start > stop:  # both ends included
             raise ValueError('start should be less than stop')
 
         if not {start.abstract, stop.abstract} <= noteset.notes:

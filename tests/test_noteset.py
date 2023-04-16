@@ -106,7 +106,8 @@ def test_contains():
     assert Note('C') not in NoteSet.from_str('D')
     assert NoteSet.from_str('CD') <= NoteSet.from_str('CDE')
     assert NoteSet.from_str('CDE') <= NoteSet.from_str('CDE')
-    assert not NoteSet.from_str('CDEF') <= NoteSet.from_str('CDE')
+    assert NoteSet.from_str('CDEF') > NoteSet.from_str('CDE')
+    assert NoteSet.from_str('CDE') < NoteSet.from_str('CDEF')
     empty_noteset = NoteSet(frozenset())
     assert Note('C') not in empty_noteset
     assert empty_noteset <= NoteSet.from_str('CDE')

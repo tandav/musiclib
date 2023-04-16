@@ -5,6 +5,8 @@ import itertools
 from typing import TYPE_CHECKING
 from typing import Any
 
+from musiclib.progression import Progression
+
 if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Hashable
@@ -12,8 +14,6 @@ if TYPE_CHECKING:
     from musiclib.chord import SpecificChord
     from musiclib.note import SpecificNote
     from musiclib.scale import Scale
-
-from musiclib.progression import Progression
 
 
 def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:

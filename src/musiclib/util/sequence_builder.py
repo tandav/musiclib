@@ -89,7 +89,7 @@ class SequenceBuilder:
         self.prefix = prefix
         self.parallel = parallel
 
-    def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:  # noqa: ARG002
+    def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:  # noqa: ARG002 # pylint: disable=unused-argument
         if self.options is not None:
             return self.options
         raise TypeError
@@ -136,8 +136,7 @@ class SequenceBuilder:
                     for it in tqdm.tqdm(executor.map(map_func, ops), total=len(ops)):
                         yield from it
                 return
-            else:
-                it = tqdm.tqdm(map(map_func, ops), total=len(ops))
+            it = tqdm.tqdm(map(map_func, ops), total=len(ops))
         else:
             it = map(map_func, ops)
         it = itertools.chain.from_iterable(it)

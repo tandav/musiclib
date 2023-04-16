@@ -63,7 +63,7 @@ class Progression(Cached, Sequence[SpecificChord]):
         return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
 
     def transpose_unique_key(self, *, origin_name: bool = True) -> tuple[frozenset[int], ...] | tuple[int, tuple[frozenset[int], ...]]:
-        origin = self[0][0]
+        origin = self[0][0]  # pylint: disable=unsubscriptable-object
         key = tuple(frozenset(note - origin for note in chord.notes) for chord in self)
         if origin_name:
             return origin.abstract.i, key
@@ -76,7 +76,7 @@ class Progression(Cached, Sequence[SpecificChord]):
 
     @functools.cached_property
     def transposed_to_C0(self) -> Progression:
-        return self + (SpecificNote('C', 0) - self[0][0])
+        return self + (SpecificNote('C', 0) - self[0][0])  # pylint: disable=unsubscriptable-object
 
     def __getnewargs__(self) -> tuple[tuple[SpecificChord, ...]]:
         return (self.chords,)

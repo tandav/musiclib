@@ -33,7 +33,7 @@ class Rhythm(Cached):
     def random_rhythm(cls, n_notes: int | None = None, bar_notes: int = 16) -> Rhythm:
         if n_notes is None:
             n_notes = random.randint(1, bar_notes)
-        if not (0 < n_notes <= bar_notes):
+        if not 0 < n_notes <= bar_notes:
             raise ValueError(f'number of notes should be more than 1 and less than bar_notes={bar_notes}')
         notes = [1] * n_notes + [0] * (bar_notes - n_notes)
         random.shuffle(notes)
@@ -51,7 +51,7 @@ class Rhythm(Cached):
 
     @staticmethod
     def no_contiguous_ones(prev: int, curr: int) -> bool:
-        return not (prev == curr == 1)
+        return not prev == curr == 1
 
     @functools.cached_property
     def score(self) -> float:

@@ -28,7 +28,7 @@ class Player:
         self.port.send(mido.Message(*args, note=note, **kwargs))
 
     @functools.singledispatchmethod
-    async def play(self, obj: Playable, seconds: float = 1) -> None:
+    async def play(self, obj: Playable, seconds: float = 1) -> None:  # pylint: disable=unused-argument
         ...
 
     @play.register
@@ -121,8 +121,8 @@ def rhythm_to_midi(  # noqa: C901
     if progression is None:
         append_bar(chord)
     else:
-        for chord in progression:
-            append_bar(chord)
+        for _chord in progression:
+            append_bar(_chord)
 
     mid.tracks.append(track)
     if path is None:

@@ -147,17 +147,21 @@ disable = [
     "import-outside-toplevel",
     "unused-variable",
     "too-many-arguments",
-    "import-error",
+    "too-many-instance-attributes",
+    "too-many-locals",
     "too-few-public-methods",
+    "import-error",
     "unspecified-encoding",
     "redefined-outer-name",
-    "too-many-locals",
     "invalid-name",
     "protected-access",
+    "fixme",
+    "duplicate-code",
+    "cyclic-import",
 ]
 
 [tool.pylint-per-file-ignores]
-"/tests/" = "redefined-outer-name"
+"/tests/" = "redefined-outer-name,pointless-statement"
 
 # ==============================================================================
 
@@ -169,16 +173,8 @@ aggressive = 3
 # ==============================================================================
 
 [tool.pyright]
-venvPath = "/home/tandav/.cache/.virtualenvs"
+venvPath = "/Users/tandav/.cache/.virtualenvs"
 venv = "musiclib"
-
-# ==============================================================================
-
-# [tool.pytest.ini_options]
-# filterwarnings = [
-#     "ignore:pkg_resources is deprecated as an API",
-#     "ignore:Deprecated call to `pkg_resources.declare_namespace",
-#     "ignore:distutils Version classes are deprecated",
-# ]
-
-# ==============================================================================
+exclude = [
+    "src/musiclib/util/sequence_builder.py",
+]

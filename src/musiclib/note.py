@@ -72,7 +72,7 @@ class Note(Cached):
             return 12 + self.i - other.i
         if isinstance(other, int):
             return self + (-other)
-        return None
+        return None  # type: ignore[unreachable]
 
     def __getnewargs__(self) -> tuple[str]:
         return (self.name,)
