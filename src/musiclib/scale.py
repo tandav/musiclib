@@ -186,13 +186,13 @@ all_scales = {
 CIRCLE_OF_FIFTHS_CLOCKWISE = 'CGDAEBfdaebF'
 
 # circle of fifths clockwise
-majors = dict(
-    diatonic=tuple(diatonic[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    harmonic=tuple(harmonic[note, 'h_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    melodic=tuple(melodic[note, 'm_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    pentatonic=tuple(pentatonic[note, 'p_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    sudu=tuple(sudu[note, 's_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-)
+majors = {
+    'diatonic': tuple(diatonic[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    'harmonic': tuple(harmonic[note, 'h_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    'melodic': tuple(melodic[note, 'm_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    'pentatonic': tuple(pentatonic[note, 'p_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    'sudu': tuple(sudu[note, 's_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+}
 
 
 @functools.cache

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
 from typing import overload
 
 from musiclib import config
 from musiclib.util.cache import Cached
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @functools.total_ordering
@@ -15,7 +18,7 @@ class Note(Cached):
     kinda music theoretic pitch-class
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         """param name: one of CdDeEFfGaAbB"""
         self.name = name
         self.i = config.note_i[name]
@@ -31,18 +34,16 @@ class Note(Cached):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self.name == other
-        elif isinstance(other, Note):
+        if isinstance(other, Note):
             return self.name == other.name
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
             return self.i <= config.note_i[other]
-        elif isinstance(other, Note):
+        if isinstance(other, Note):
             return self.i <= other.i
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __hash__(self) -> int:
         return hash(self.name)
@@ -69,16 +70,17 @@ class Note(Cached):
             if other.i <= self.i:
                 return self.i - other.i
             return 12 + self.i - other.i
-        elif isinstance(other, int):
+        if isinstance(other, int):
             return self + (-other)
+        return None  # type: ignore[unreachable]
 
     def __getnewargs__(self) -> tuple[str]:
-        return self.name,
+        return (self.name,)
 
 
 @functools.total_ordering
 class SpecificNote(Cached):
-    def __init__(self, abstract: Note | str, octave: int):
+    def __init__(self, abstract: Note | str, octave: int) -> None:
         if isinstance(abstract, str):
             abstract = Note(abstract)
         self.abstract = abstract
@@ -124,10 +126,9 @@ class SpecificNote(Cached):
     def __sub__(self, other: SpecificNote | int) -> int | SpecificNote:
         if isinstance(other, SpecificNote):  # distance between notes
             return self.i - other.i
-        elif isinstance(other, int):  # subtract semitones
+        if isinstance(other, int):  # subtract semitones
             return self + (-other)
-        else:
-            raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
+        raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
 
     def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""

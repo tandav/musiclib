@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from musiclib.chord import SpecificChord
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote

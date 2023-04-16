@@ -21,14 +21,14 @@ class Player:
             self.send_message = self._send_message
 
     def _print_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
-        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))
+        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))  # noqa: T201
 
     def _send_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
         note += 24  # to match ableton octaves
         self.port.send(mido.Message(*args, note=note, **kwargs))
 
     @functools.singledispatchmethod
-    async def play(self, obj: Playable, seconds: float = 1) -> None:
+    async def play(self, obj: Playable, seconds: float = 1) -> None:  # pylint: disable=unused-argument
         ...
 
     @play.register
@@ -94,9 +94,8 @@ def rhythm_to_midi(  # noqa: C901
             raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
         note__ = note_
 
-    if note_ is None:
-        if chord is None:
-            raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+    if note_ is None and chord is None:
+        raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
 
     mid = mido.MidiFile(type=0, ticks_per_beat=96)
 
@@ -122,8 +121,8 @@ def rhythm_to_midi(  # noqa: C901
     if progression is None:
         append_bar(chord)
     else:
-        for chord in progression:
-            append_bar(chord)
+        for _chord in progression:
+            append_bar(_chord)
 
     mid.tracks.append(track)
     if path is None:

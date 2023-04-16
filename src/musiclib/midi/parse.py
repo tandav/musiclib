@@ -60,13 +60,3 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
                     ),
                 )
     return notes
-
-
-def print_midi(midi: mido.MidiFile) -> None:
-    print('n_tracks:', len(midi.tracks))
-    print(midi.tracks)
-    for i, track in enumerate(midi.tracks):
-        print('track', i)
-        for message in track:
-            print(message)
-        print('=' * 100)

@@ -3,7 +3,6 @@ from xml.etree import ElementTree
 
 import pytest
 from colortool import Color
-
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
@@ -13,7 +12,7 @@ from musiclib.svg.piano import note_color
 
 
 @pytest.mark.parametrize(
-    'note, color', [
+    ('note', 'color'), [
         (Note('C'), config.WHITE_PALE),
         (Note('d'), config.BLACK_PALE),
         (SpecificNote('C', 1), config.WHITE_PALE),
@@ -53,7 +52,7 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
     ],
 )
 @pytest.mark.parametrize(
-    'element, class_, info_part, keyarg, payload, expected', [
+    ('element', 'class_', 'info_part', 'keyarg', 'payload', 'expected'), [
         ('rect', 'note', 'fill', 'note_colors', config.RED, config.RED),
         ('rect', 'top_rect', 'fill', 'top_rect_colors', config.RED, config.RED),
         ('rect', 'square', 'fill', 'squares', {'fill_color': config.RED}, config.RED),
@@ -65,7 +64,7 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
 )
 @pytest.mark.parametrize('black_small', [True, False])
 def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore
+    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == i[notes[2]][info_part] == expected
 
@@ -77,7 +76,7 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, 
     ],
 )
 @pytest.mark.parametrize(
-    'element, class_, info_part, keyarg, payload, expected', [
+    ('element', 'class_', 'info_part', 'keyarg', 'payload', 'expected'), [
         ('rect', 'note', 'fill', 'note_colors', config.RED, config.RED),
         ('rect', 'top_rect', 'fill', 'top_rect_colors', config.RED, config.RED),
         ('rect', 'square', 'fill', 'squares', {'fill_color': config.RED}, config.RED),
@@ -89,7 +88,7 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, 
 )
 @pytest.mark.parametrize('black_small', [True, False])
 def test_specific(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore
+    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[0]][info_part] == expected
 
@@ -106,7 +105,7 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes, 
     ],
 )
 @pytest.mark.parametrize(
-    'element, class_, info_part, keyarg, payload, expected', [
+    ('element', 'class_', 'info_part', 'keyarg', 'payload', 'expected'), [
         ('rect', 'note', 'fill', 'note_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
         ('rect', 'top_rect', 'fill', 'top_rect_colors', (config.RED, config.GREEN), (config.RED, config.GREEN)),
         ('rect', 'square', 'fill', 'squares', ({'fill_color': config.RED}, {'fill_color': config.GREEN}), (config.RED, config.GREEN)),
@@ -118,14 +117,14 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes, 
 )
 @pytest.mark.parametrize('black_small', [True, False])
 def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}}, black_small=black_small)._repr_svg_()  # type: ignore
+    svg = Piano(**{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == expected[0]
     assert i[notes[2]][info_part] == expected[1]
 
 
 @pytest.mark.parametrize(
-    'noterange, black_small, start, stop', [
+    ('noterange', 'black_small', 'start', 'stop'), [
         (NoteRange('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
         (NoteRange('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
     ],

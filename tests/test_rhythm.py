@@ -1,7 +1,6 @@
 from collections import deque
 
 import pytest
-
 from musiclib.rhythm import Rhythm
 
 
@@ -15,14 +14,14 @@ def test_n_notes(n_notes):
     assert sum(Rhythm.random_rhythm(n_notes).notes) == n_notes
 
 
-@pytest.mark.parametrize('n_notes', (-1, 16 + 1))
+@pytest.mark.parametrize('n_notes', [-1, 16 + 1])
 def test_n_notes_validation(n_notes):
     with pytest.raises(ValueError):
         Rhythm.random_rhythm(n_notes)
 
 
 @pytest.mark.parametrize(
-    'notes, score', [
+    ('notes', 'score'), [
         ((0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1), 0.3),
         ((1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1), 0.5),
         ((0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0), 12.5),

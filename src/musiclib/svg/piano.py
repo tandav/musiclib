@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Literal
 from typing import TypedDict
 
 import svg
-from colortool import Color
 
 from musiclib.config import BLACK_BRIGHT
 from musiclib.config import BLACK_PALE
@@ -17,16 +17,18 @@ from musiclib.note import SpecificNote
 from musiclib.noterange import CHROMATIC_NOTESET
 from musiclib.noterange import NoteRange
 
+if TYPE_CHECKING:
+    from colortool import Color
+
 
 def note_color(note: Note | SpecificNote) -> Color:
     def _note_color(note: Note) -> Color:
         return WHITE_PALE if note in WHITE_NOTES else BLACK_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
-    elif isinstance(note, Note):
+    if isinstance(note, Note):
         return _note_color(note)
-    else:
-        raise TypeError
+    raise TypeError
 
 
 class SquaresPayload(TypedDict, total=False):
@@ -39,8 +41,9 @@ class SquaresPayload(TypedDict, total=False):
 
 
 class Piano:
-    def __init__(  # noqa: C901
+    def __init__(  # noqa: PLR0915,PLR0912,C901 # pylint: disable=too-many-branches,too-many-statements
         self,
+        *,
         note_colors: dict[Note | SpecificNote, Color] | None = None,
         note_hrefs: dict[Note | SpecificNote, Color] | None = None,
         note_onclicks: dict[Note | SpecificNote, Color] | None = None,
@@ -68,7 +71,7 @@ class Piano:
         subtitle_y: int = 18,
         background_color: Color = WHITE_BRIGHT,
         classes: tuple[str, ...] = (),
-        id: str | None = None,
+        id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
         shadow_offset: int = 2,
@@ -76,7 +79,7 @@ class Piano:
         black_small_width_ratio: float = 0.6,
         black_small_height_ratio: float = 0.6,
         debug_rect: bool = False,
-    ):
+    ) -> None:
         self.ww = ww
         self.wh = wh
         if black_small:

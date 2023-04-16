@@ -1,7 +1,6 @@
 import random
 
 import pytest
-
 from musiclib.chord import Chord
 from musiclib.chord import SpecificChord
 from musiclib.note import Note
@@ -18,7 +17,7 @@ def test_chord_root_validation():
         Chord.from_str('CEG')
 
 
-@pytest.mark.parametrize('arg', ('C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')))
+@pytest.mark.parametrize('arg', ['C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')])
 def test_specificchord_notes_type_is_frozenset(arg):
     with pytest.raises(TypeError):
         SpecificChord(arg)
@@ -36,22 +35,22 @@ def test_notes():
 
 
 @pytest.mark.parametrize(
-    'chord, expected', (
+    ('chord', 'expected'), [
         (Chord(frozenset(map(Note, 'BDF')), root=Note('B')), 'BDF/B'),
         (Chord(frozenset(map(Note, 'DGBFCEA')), root=Note('B')), 'BCDEFGA/B'),
-    ),
+    ],
 )
 def test_str_sort_2_octaves(chord, expected):
     assert str(chord) == expected
 
 
 @pytest.mark.parametrize(
-    'notes, root, expected', (
+    ('notes', 'root', 'expected'), [
         ('CEG', 'C', 'major'),
         ('BDF', 'B', 'diminished'),
         ('CefA', 'C', 'dim7'),
         ('DFaC', 'D', 'half-dim7'),
-    ),
+    ],
 )
 def test_name(notes, root, expected):
     assert Chord(frozenset(map(Note, notes)), root=Note(root)).name == expected
@@ -87,7 +86,7 @@ def test_magic_methods():
     assert all(chord[i] == chord.notes_ascending[i] for i in range(len(chord)))
     assert tuple(iter(chord)) == chord.notes_ascending
     chord2 = SpecificChord.from_str('d3_f8')
-    assert tuple(zip(chord, chord2)) == (
+    assert tuple(zip(chord, chord2, strict=False)) == (
         (SpecificNote('C', 1), SpecificNote('d', 3)),
         (SpecificNote('E', 1), SpecificNote('f', 8)),
     )
@@ -106,10 +105,10 @@ def test_combinations_order():
 
 
 @pytest.mark.parametrize(
-    'specific, abstract', (
+    ('specific', 'abstract'), [
         ('C1_E1_G2/C', Chord.from_str('CEG/C')),
         ('C1_E1_G2', NoteSet.from_str('CEG')),
-    ),
+    ],
 )
 def test_abstract(specific, abstract):
     assert SpecificChord.from_str(specific).abstract == abstract
@@ -128,7 +127,7 @@ def test_find_intervals():
 
 
 @pytest.mark.parametrize(
-    'chord, note, steps, result', (
+    ('chord', 'note', 'steps', 'result'), [
         (Chord.from_str('CEG/C'), Note('C'), 1, Note('E')),
         (Chord.from_str('CEG/C'), Note('C'), 2, Note('G')),
         (Chord.from_str('CEG/C'), Note('C'), 3, Note('C')),
@@ -139,26 +138,26 @@ def test_find_intervals():
         (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
         (Chord.from_str('CEG/C'), Note('C'), -3, Note('C')),
         (Chord.from_str('CeGb/C'), Note('e'), -15, Note('G')),
-    ),
+    ],
 )
 def test_add_note(chord, note, steps, result):
     assert chord.add_note(note, steps) == result
 
 
 @pytest.mark.parametrize(
-    'chord, expected', (
+    ('chord', 'expected'), [
         ('C3_E3_G3', 'C0_E0_G0'),
         ('F3_A3_C4', 'C0_E0_G0'),
         ('C3_E3_G3/C', 'C0_E0_G0/C'),
         ('F3_A3_C4/F', 'C0_E0_G0/C'),
-    ),
+    ],
 )
 def test_transposed_to_C0(chord, expected):
     assert SpecificChord.from_str(chord).transposed_to_C0 == SpecificChord.from_str(expected)
 
 
 @pytest.mark.parametrize(
-    'chord, add, expected', (
+    ('chord', 'add', 'expected'), [
         ('C3_E3_G3', -36, 'C0_E0_G0'),
         ('C3_E3_G3', -24, 'C1_E1_G1'),
         ('C3_E3_G3', 0, 'C3_E3_G3'),
@@ -169,9 +168,9 @@ def test_transposed_to_C0(chord, expected):
         ('C3_E3_G3/C', -24, 'C1_E1_G1/C'),
         ('C3_E3_G3/C', 13, 'd4_F4_a4/d'),
         ('C3_E3_G3/E', 13, 'd4_F4_a4/F'),
-    ),
+    ],
 )
 def test_add(chord, add, expected):
     assert SpecificChord.from_str(chord) + add == SpecificChord.from_str(expected)
     with pytest.raises(TypeError):
-        chord + [1]
+        chord + [1]  # noqa: RUF005

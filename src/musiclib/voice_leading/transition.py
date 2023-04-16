@@ -10,7 +10,7 @@ AbstractChordGraph = dict[NoteSet, frozenset[NoteSet]]
 
 
 class Transition:
-    def __init__(self, a: SpecificChord, b: SpecificChord):
+    def __init__(self, a: SpecificChord, b: SpecificChord) -> None:
         self.a = a
         self.b = b
 
@@ -18,10 +18,9 @@ class Transition:
     def arrow(a: SpecificNote, b: SpecificNote) -> str:
         if a < b:
             return '︎\\'
-        elif a == b:
+        if a == b:
             return '|'
-        else:
-            return '/'
+        return '/'
 
     def __repr__(self) -> str:
         return '\n'.join((
@@ -34,6 +33,7 @@ class Transition:
 def chord_transitions(
     chord: SpecificChord,
     noterange: NoteRange,
+    *,
     unique_abstract: bool = False,
     same_length: bool = True,
 ) -> frozenset[SpecificChord]:
@@ -54,6 +54,7 @@ def chord_transitions(
 def transition_graph(
     start_chord: SpecificChord,
     noterange: NoteRange,
+    *,
     unique_abstract: bool = False,
     same_length: bool = True,
 ) -> dict[SpecificChord, frozenset[SpecificChord]]:
@@ -62,7 +63,12 @@ def transition_graph(
     def _graph(chord: SpecificChord) -> None:
         if chord in graph:
             return
-        childs = chord_transitions(chord, noterange, unique_abstract, same_length)
+        childs = chord_transitions(
+            chord,
+            noterange,
+            unique_abstract=unique_abstract,
+            same_length=same_length,
+        )
         graph[chord] |= childs
         for child in childs:
             _graph(child)
