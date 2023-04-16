@@ -35,6 +35,12 @@ class Pitch:
     def hz_to_note(self, hz: float) -> SpecificNote:
         return SpecificNote.from_i(round(self.hz_to_note_i(hz)))
 
+    def note_to_i(self, note: SpecificNote) -> float:
+        return note.i - self.origin_note.i
+
+    def i_to_note(self, i: float) -> SpecificNote:
+        return SpecificNote.from_i(round(self.origin_note.i + i))
+
     @staticmethod
     def hz_to_px(hz: float, hz_min: float, hz_max: float, px_max: float) -> float:
         """Convert Hz to pixel position (using logarithmic scale)"""

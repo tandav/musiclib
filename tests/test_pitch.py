@@ -118,3 +118,18 @@ def test_transpose(note, transpose, hz):
     pitch = Pitch(transpose=transpose)
     assert pitch.note_to_hz(note) == hz
     assert pitch.hz_to_note(hz) == note
+
+
+@pytest.mark.parametrize(
+    'note, i', [
+        (A4, 0),
+        (A5, 12),
+        (A3, -12),
+        (b4, 1),
+        (C4, -9),
+    ],
+)
+def test_note_to_i(note, i):
+    pitch = Pitch()
+    assert pitch.note_to_i(note) == i
+    assert pitch.i_to_note(i) == note
