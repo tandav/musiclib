@@ -11,7 +11,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
-from musiclib.piano import Piano
+from musiclib.svg.piano import Piano
 from musiclib.util.cache import Cached
 
 
