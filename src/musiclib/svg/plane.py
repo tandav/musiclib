@@ -10,6 +10,8 @@ from musiclib.scale import Scale
 
 
 class JankoSquare:
+    """https://en.wikipedia.org/wiki/Jankó_keyboard"""
+
     def __init__(
         self,
         scale: Scale = Scale.from_name('C', 'major'),
