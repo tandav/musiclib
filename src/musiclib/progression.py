@@ -16,7 +16,7 @@ CheckCallable = Callable[[SpecificChord, SpecificChord], bool]
 
 
 class Progression(Cached, Sequence[SpecificChord]):
-    def __init__(self, chords: tuple[SpecificChord, ...], /):
+    def __init__(self, chords: tuple[SpecificChord, ...], /) -> None:
         if not all(isinstance(x, SpecificChord) for x in chords):
             raise TypeError('only SpecificChord items allowed')
         self.chords = chords
@@ -51,7 +51,7 @@ class Progression(Cached, Sequence[SpecificChord]):
     def __hash__(self) -> int:
         return hash(self.chords)
 
-    def all(self, checks__: Iterable[CheckCallable]) -> bool:
+    def all(self, checks__: Iterable[CheckCallable]) -> bool:  # noqa: A003
         return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
 
     def all_not(self, checks__: Iterable[CheckCallable]) -> bool:
@@ -62,7 +62,7 @@ class Progression(Cached, Sequence[SpecificChord]):
         n = len(self)
         return sum(abs(self[i] - self[(i + 1) % n]) for i in range(n))
 
-    def transpose_unique_key(self, origin_name: bool = True) -> tuple[frozenset[int], ...] | tuple[int, tuple[frozenset[int], ...]]:
+    def transpose_unique_key(self, *, origin_name: bool = True) -> tuple[frozenset[int], ...] | tuple[int, tuple[frozenset[int], ...]]:
         origin = self[0][0]
         key = tuple(frozenset(note - origin for note in chord.notes) for chord in self)
         if origin_name:
@@ -79,4 +79,4 @@ class Progression(Cached, Sequence[SpecificChord]):
         return self + (SpecificNote('C', 0) - self[0][0])
 
     def __getnewargs__(self) -> tuple[tuple[SpecificChord, ...]]:
-        return self.chords,
+        return (self.chords,)

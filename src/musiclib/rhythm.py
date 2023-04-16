@@ -5,7 +5,7 @@ import itertools
 import random
 import statistics
 
-import pipe21 as P
+import pipe21 as P  # noqa: N812
 
 from musiclib import config
 from musiclib.util.cache import Cached
@@ -19,7 +19,7 @@ class Rhythm(Cached):
         beats_per_minute: int = config.beats_per_minute,
         beats_per_bar: int = 4,
         bar_notes: int = 16,  # kinda grid size
-    ):
+    ) -> None:
         self.notes = notes
         self.beats_per_minute = beats_per_minute
         self.beats_per_second = beats_per_minute / 60
@@ -64,7 +64,7 @@ class Rhythm(Cached):
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
+    def all_rhythms(*, n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
         rhythms__ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),

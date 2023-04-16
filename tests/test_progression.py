@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 
 import pytest
-
 from musiclib.chord import SpecificChord
 from musiclib.progression import Progression
 
@@ -26,7 +25,7 @@ def progression4():
 
 def test_validation():
     with pytest.raises(TypeError):
-        Progression((0, 1, 2))  # type: ignore
+        Progression((0, 1, 2))  # type: ignore[arg-type]
     Progression((SpecificChord.random(), SpecificChord.random()))
 
 
@@ -76,7 +75,7 @@ def test_add_transpose():
     ))
     assert p0 + -31 == p1
     with pytest.raises(TypeError):
-        p0 + [1]  # type: ignore
+        p0 + [1]  # type: ignore[operator] # noqa: RUF005
     assert p0.transposed_to_C0 == p1
 
 

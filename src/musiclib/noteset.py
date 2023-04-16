@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import itertools
 import random
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
 
-import pipe21 as P
+import pipe21 as P  # noqa: N812
 
 from musiclib import config
 from musiclib.config import RED
@@ -16,6 +16,9 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @no_type_check
@@ -52,6 +55,7 @@ class NoteSet(Cached):
             Scale
             Chord
     """
+
     intervals_to_name: dict[frozenset[int], str] = {}
     name_to_intervals: dict[str, frozenset[int]] = {}
 
@@ -64,7 +68,7 @@ class NoteSet(Cached):
         notes: frozenset[Note],
         *,
         root: Note | None = None,
-    ):
+    ) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
 
@@ -91,7 +95,7 @@ class NoteSet(Cached):
             self.notes_ascending = self.notes_octave_fit[root_i:] + self.notes_octave_fit[:root_i]
             self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
         self.intervals = frozenset(self.intervals_ascending)
-        self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending))
+        self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
         self.bits = intervals_to_bits(self.intervals)
         self.bits_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.name = self.__class__.intervals_to_name.get(self.intervals)
@@ -159,19 +163,17 @@ class NoteSet(Cached):
         notes = self.notes_ascending
         if isinstance(note, Note):
             return notes[(notes.index(note) + steps) % len(notes)]
-        elif isinstance(note, SpecificNote):
+        if isinstance(note, SpecificNote):
             octaves, i = divmod(self.notes_octave_fit.index(note.abstract) + steps, len(self.notes))
             return SpecificNote(self.notes_octave_fit[i], octave=note.octave + octaves)
-        else:
-            raise TypeError
+        raise TypeError
 
     def subtract(self, left: Note | SpecificNote, right: Note | SpecificNote) -> int:
         if type(left) is type(right) is Note:
             return (self.note_i[left] - self.note_i[right]) % len(self)
-        elif type(left) is type(right) is SpecificNote:
+        if type(left) is type(right) is SpecificNote:
             return self.note_i[left.abstract] - self.note_i[right.abstract] + len(self) * (left.octave - right.octave)
-        else:
-            raise TypeError('left and right should be either Note or SpecificNote')
+        raise TypeError('left and right should be either Note or SpecificNote')
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):

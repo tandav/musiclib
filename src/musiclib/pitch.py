@@ -2,14 +2,16 @@ import math
 
 from musiclib.note import SpecificNote
 
+A4 = SpecificNote('A', 4)
+
 
 class Pitch:
     def __init__(
         self,
         hz_tuning: float = 440,
-        origin_note: SpecificNote = SpecificNote('A', 4),
+        origin_note: SpecificNote = A4,
         transpose: float = 0,
-    ):
+    ) -> None:
         """
         origin_note: in midi format, A4 midi ~ A4 ableton ~ 440Hz
         """
@@ -50,4 +52,4 @@ class Pitch:
     def px_to_hz(px: float, hz_min: float, hz_max: float, px_max: float) -> float:
         """Convert pixel position to hz (assuming pixel using logarithmic scale)"""
         c = px / px_max
-        return hz_min ** (1 - c) * hz_max ** c  # type: ignore
+        return hz_min ** (1 - c) * hz_max ** c  # type: ignore[no-any-return]

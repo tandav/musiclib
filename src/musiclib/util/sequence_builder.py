@@ -34,10 +34,11 @@ class SequenceBuilder:
         candidate_constraint: Callable[[tuple[Op, ...]], bool] | None = None,
         i_constraints: dict[int, Callable[[Op], bool]] | None = None,
         unique_key: Callable[[Op], Any] | None = None,
-        loop: bool = False,
         prefix: tuple[Op, ...] = (),
+        *,
+        loop: bool = False,
         parallel: bool = False,
-    ):
+    ) -> None:
         if parallel:
             try:
                 pickle.dumps(options)
@@ -47,8 +48,8 @@ class SequenceBuilder:
                 pickle.dumps(candidate_constraint)
                 pickle.dumps(i_constraints)
                 pickle.dumps(unique_key)
-            except BaseException:
-                raise pickle.PickleError('parallel=True requires all arguments should be picklable')
+            except BaseException:  # noqa: BLE001
+                raise pickle.PickleError('parallel=True requires all arguments should be picklable') from None
 
         self.n = n
         self.options: tuple[Op, ...] | None
@@ -78,7 +79,7 @@ class SequenceBuilder:
         self.options_i = options_i
         self.options_callable = options_callable
 
-        if curr_prev_constraint is not None and not all(k < 0 for k in curr_prev_constraint.keys()):
+        if curr_prev_constraint is not None and not all(k < 0 for k in curr_prev_constraint):
             raise KeyError('curr_prev_constraint keys must be negative')
         self.curr_prev_constraint = curr_prev_constraint
         self.candidate_constraint = candidate_constraint
@@ -88,7 +89,7 @@ class SequenceBuilder:
         self.prefix = prefix
         self.parallel = parallel
 
-    def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:
+    def _generate_options_iterable(self, seq: tuple[Op, ...]) -> Iterable[Op]:  # noqa: ARG002
         if self.options is not None:
             return self.options
         raise TypeError
@@ -144,7 +145,7 @@ class SequenceBuilder:
 
     def _generate_candidates(self, op: Op, seq: tuple[Op, ...]) -> Iterable[tuple[Op, ...]]:
         def inner() -> Iterable[tuple[Op, ...]]:
-            candidate = seq + (op,)
+            candidate = (*seq, op)
             if self.candidate_constraint is not None and not self.candidate_constraint(candidate):
                 return
             if len(candidate) < self.n:
@@ -157,5 +158,4 @@ class SequenceBuilder:
             ):
                 return
             yield candidate
-        out = tuple(inner())
-        return out
+        return tuple(inner())

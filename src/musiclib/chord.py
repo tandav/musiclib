@@ -3,7 +3,7 @@ from __future__ import annotations
 import functools
 import itertools
 import random
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 from typing import Any
 
 from musiclib import config
@@ -13,6 +13,9 @@ from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
 from musiclib.svg.piano import Piano
 from musiclib.util.cache import Cached
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class Chord(NoteSet):
@@ -42,7 +45,7 @@ class Chord(NoteSet):
     root: Note
     name: str
 
-    def __init__(self, notes: frozenset[Note], *, root: Note):
+    def __init__(self, notes: frozenset[Note], *, root: Note) -> None:
         if root is None:
             raise TypeError('Chord requires root note. Use NoteSet if there is no root')
         super().__init__(notes, root=root)
@@ -58,7 +61,7 @@ class SpecificChord(Cached):
         notes: frozenset[SpecificNote],
         *,
         root: str | Note | None = None,
-    ):
+    ) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
 

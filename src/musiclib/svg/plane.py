@@ -8,18 +8,21 @@ from musiclib.note import SpecificNote
 from musiclib.pitch import Pitch
 from musiclib.scale import Scale
 
+C_major = Scale.from_name('C', 'major')
+C4 = SpecificNote('C', 4)
+
 
 class JankoSquare:
     """https://en.wikipedia.org/wiki/Jankó_keyboard"""
 
     def __init__(
         self,
-        scale: Scale = Scale.from_name('C', 'major'),
-        origin_note: SpecificNote = SpecificNote('C', 4),
+        scale: Scale = C_major,
+        origin_note: SpecificNote = C4,
         radius: int = 30,
         n_rows: int = 7,
         n_cols: int = 13,
-    ):
+    ) -> None:
         self.width = 2 * n_cols * radius
         self.height = 2 * n_rows * radius
         self.radius = radius
@@ -52,7 +55,7 @@ class JankoSquare:
             fill=color.css_hex,
             stroke='black',
             stroke_width=1,
-            points=self.square_points(x, y, self.radius),  # type: ignore
+            points=self.square_points(x, y, self.radius),  # type: ignore[arg-type]
         )
         self.elements.append(polygon)
         text = svg.Text(
@@ -64,8 +67,8 @@ class JankoSquare:
             text_anchor='middle',
             dominant_baseline='middle',
         )
-        text.note = str(note)  # type: ignore
-        text.note_midi = note.i  # type: ignore
+        text.note = str(note)  # type: ignore[attr-defined]
+        text.note_midi = note.i  # type: ignore[attr-defined]
         self.elements.append(text)
 
     @staticmethod

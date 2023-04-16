@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 import functools
 import itertools
-from collections.abc import Callable
-from collections.abc import Hashable
+from typing import TYPE_CHECKING
 from typing import Any
 
-from musiclib.chord import SpecificChord
-from musiclib.note import SpecificNote
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Hashable
+
+    from musiclib.chord import SpecificChord
+    from musiclib.note import SpecificNote
+    from musiclib.scale import Scale
+
 from musiclib.progression import Progression
-from musiclib.scale import Scale
 
 
 def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
@@ -27,8 +33,8 @@ def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
         computed = f(a, b, *args)
         cache[key] = computed
         return computed
-    inner._cache = cache  # type: ignore
-    inner._cache_info = cache_info  # type: ignore
+    inner._cache = cache  # type: ignore[attr-defined]
+    inner._cache_info = cache_info  # type: ignore[attr-defined]
     return inner
 
 
@@ -118,4 +124,4 @@ def find_paused_voices(a: SpecificChord, b: SpecificChord, n_notes: int) -> tupl
         nearest = min(more_notes, key=functools.partial(_key, note1=note))
         used.add(nearest)
     paused = tuple(i for i, note in enumerate(more_notes) if note not in used)
-    return paused
+    return paused  # noqa: RET504

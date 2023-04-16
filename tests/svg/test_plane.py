@@ -1,5 +1,4 @@
 import pytest
-
 from musiclib.note import SpecificNote
 from musiclib.scale import Scale
 from musiclib.svg.plane import JankoSquare

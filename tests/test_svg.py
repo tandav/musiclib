@@ -2,7 +2,6 @@ import itertools
 
 import pytest
 from colortool import Color
-
 from musiclib.chord import Chord
 from musiclib.chord import SpecificChord
 from musiclib.noterange import NoteRange
@@ -23,6 +22,7 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
     for item, constant in zip(
         (title, subtitle, title_href, background_color),
         (TITLE, SUBTITLE, TITLE_HREF, BACKGROUND_COLOR),
+        strict=True,
     ):
         if item is None:
             assert constant not in html
@@ -30,7 +30,7 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
             assert item.css_hex in html
         else:
             if constant not in html:
-                print(html)
+                print(html)  # noqa: T201
             assert constant in html
 
 
@@ -43,10 +43,10 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
         NoteSet.from_str(''),
     ],
 )
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_noteset(noteset, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
@@ -61,11 +61,11 @@ def test_html_noteset(noteset, title, subtitle, title_href, background_color):
     svg_helper(svg, classes, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize('kind', ('diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'))
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize('kind', ['diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'])
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_scale(kind, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
@@ -82,15 +82,15 @@ def test_html_scale(kind, title, subtitle, title_href, background_color):
 
 
 @pytest.mark.parametrize(
-    'scale0, scale1', (
+    ('scale0', 'scale1'), [
         (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
         (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
-    ),
+    ],
 )
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_compared_scale(scale0, scale1, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
@@ -105,11 +105,11 @@ def test_html_compared_scale(scale0, scale1, title, subtitle, title_href, backgr
     svg_helper(svg, classes, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize('root, name', itertools.product('Cf', Chord.name_to_intervals))
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize(('root', 'name'), itertools.product('Cf', Chord.name_to_intervals))
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_chord(root, name, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
@@ -131,10 +131,10 @@ def test_html_chord(root, name, title, subtitle, title_href, background_color):
         SpecificChord(frozenset()),
     ],
 )
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_specific_chord(chord, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
@@ -155,10 +155,10 @@ def test_html_specific_chord(chord, title, subtitle, title_href, background_colo
         NoteRange('D2', 'G2', noteset=NoteSet.from_str('CDG')),
     ],
 )
-@pytest.mark.parametrize('title', (None, TITLE))
-@pytest.mark.parametrize('subtitle', (None, SUBTITLE))
-@pytest.mark.parametrize('title_href', (None, TITLE_HREF))
-@pytest.mark.parametrize('background_color', (BACKGROUND_COLOR,))
+@pytest.mark.parametrize('title', [None, TITLE])
+@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
 def test_html_noterange(noterange, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')

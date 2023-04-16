@@ -21,7 +21,7 @@ class Player:
             self.send_message = self._send_message
 
     def _print_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
-        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))
+        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))  # noqa: T201
 
     def _send_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
         note += 24  # to match ableton octaves
@@ -94,9 +94,8 @@ def rhythm_to_midi(  # noqa: C901
             raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
         note__ = note_
 
-    if note_ is None:
-        if chord is None:
-            raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
+    if note_ is None and chord is None:
+        raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
 
     mid = mido.MidiFile(type=0, ticks_per_beat=96)
 
