@@ -178,3 +178,12 @@ venv = "musiclib"
 exclude = [
     "src/musiclib/util/sequence_builder.py",
 ]
+
+# ==============================================================================
+
+[tool.flake8]
+ignore = ['E231', 'E241', 'E501', 'W503', 'W504']
+per-file-ignores = [
+    '__init__.py:F401',
+]
+count = true

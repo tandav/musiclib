@@ -62,6 +62,12 @@ repos:
     - id: mypy
       additional_dependencies: [svg.py]
 
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+    - id: flake8
+      additional_dependencies: [Flake8-pyproject]
+
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.302
   #   hooks:
