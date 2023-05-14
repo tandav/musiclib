@@ -21,7 +21,7 @@ def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
     cache_info = {'hits': 0, 'misses': 0, 'currsize': 0}
 
     @functools.wraps(f)
-    def inner(a: SpecificChord, b: SpecificChord, *args: Any) -> bool:
+    def is_check_passed(a: SpecificChord, b: SpecificChord, *args: Any) -> bool:
         a, b = Progression((a, b)).transposed_to_C0
         key = a, b, *args
         cached = cache.get(key)
@@ -33,13 +33,13 @@ def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
         computed = f(a, b, *args)
         cache[key] = computed
         return computed
-    inner._cache = cache  # type: ignore[attr-defined]
-    inner._cache_info = cache_info  # type: ignore[attr-defined]
-    return inner
+    is_check_passed._cache = cache  # type: ignore[attr-defined]
+    is_check_passed._cache_info = cache_info  # type: ignore[attr-defined]
+    return is_check_passed
 
 
 @chord_pair_check_cache
-def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     """
     parallel in same voices!
     if there'are eg fifth in 1st and fifth in 2nd chord but not from same voices
@@ -57,7 +57,7 @@ def parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> b
 
 
 @chord_pair_check_cache
-def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
         1. outer voices (lower and higher) go in same direction (instead of oblique or contrary motion)
@@ -72,7 +72,7 @@ def hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> boo
 
 
 @chord_pair_check_cache
-def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
+def is_voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
     n = len(b)
     for i in range(n):
         upper = i < n - 1 and b[i] > a[i + 1]
@@ -83,12 +83,12 @@ def voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
 
 
 @chord_pair_check_cache
-def large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
     return any(abs(an - bn) > interval for an, bn in zip(a, b, strict=True))
 
 
 @chord_pair_check_cache
-def make_major_scale_leading_tone_resolving_semitone_up(
+def is_make_major_scale_leading_tone_resolving_semitone_up(
     a: SpecificChord,
     b: SpecificChord,
     s: Scale,
@@ -101,11 +101,11 @@ def make_major_scale_leading_tone_resolving_semitone_up(
     return tonic - leading_tone == 1
 
 
-def large_spacing(c: SpecificChord, max_interval: int = 12, /) -> bool:
+def is_large_spacing(c: SpecificChord, max_interval: int = 12, /) -> bool:
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
-def small_spacing(c: SpecificChord, min_interval: int = 3, /) -> bool:
+def is_small_spacing(c: SpecificChord, min_interval: int = 3, /) -> bool:
     return any(b - a < min_interval for a, b in itertools.pairwise(c))
 
 

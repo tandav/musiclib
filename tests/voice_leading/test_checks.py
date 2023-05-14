@@ -5,10 +5,10 @@ from musiclib.voice_leading import checks
 
 @pytest.mark.parametrize(
     ('f', 'extra_args'), [
-        (checks.parallel_interval, (7,)),
-        (checks.hidden_parallel, (7,)),
-        (checks.voice_crossing, ()),
-        (checks.large_leaps, (4,)),
+        (checks.is_parallel_interval, (7,)),
+        (checks.is_hidden_parallel, (7,)),
+        (checks.is_voice_crossing, ()),
+        (checks.is_large_leaps, (4,)),
     ],
 )
 def test_cache(f, extra_args):
@@ -44,18 +44,18 @@ def test_parallel_interval():
     i = SpecificChord.from_str('C5_E5_G6')
     j = SpecificChord.from_str('F5_A5_C7')
 
-    assert checks.parallel_interval(a, b, 7)
-    assert checks.parallel_interval(a, h, 7)
-    assert checks.parallel_interval(i, j, 7)
-    assert not checks.parallel_interval(a, c, 7)
-    assert not checks.parallel_interval(a, d, 7)
+    assert checks.is_parallel_interval(a, b, 7)
+    assert checks.is_parallel_interval(a, h, 7)
+    assert checks.is_parallel_interval(i, j, 7)
+    assert not checks.is_parallel_interval(a, c, 7)
+    assert not checks.is_parallel_interval(a, d, 7)
 
     # octaves
     e = SpecificChord.from_str('C5_E5_C6')
     f = SpecificChord.from_str('D5_F5_D6')
     g = SpecificChord.from_str('C5_E5_E6')
-    assert checks.parallel_interval(e, f, 0)
-    assert not checks.parallel_interval(g, f, 0)
+    assert checks.is_parallel_interval(e, f, 0)
+    assert not checks.is_parallel_interval(g, f, 0)
 
 
 def test_hidden_parallel():
@@ -68,16 +68,16 @@ def test_hidden_parallel():
     g = SpecificChord.from_str('C5_E5_F5')
     h = SpecificChord.from_str('D5_F5_A5')
     i = SpecificChord.from_str('D5_F5_A6')
-    assert checks.hidden_parallel(a, b, 0)
-    assert checks.hidden_parallel(e, f, 0)
-    assert checks.hidden_parallel(g, h, 7)
-    assert checks.hidden_parallel(g, i, 7)
-    assert not checks.hidden_parallel(c, b, 0)
-    assert not checks.hidden_parallel(c, d, 0)
+    assert checks.is_hidden_parallel(a, b, 0)
+    assert checks.is_hidden_parallel(e, f, 0)
+    assert checks.is_hidden_parallel(g, h, 7)
+    assert checks.is_hidden_parallel(g, i, 7)
+    assert not checks.is_hidden_parallel(c, b, 0)
+    assert not checks.is_hidden_parallel(c, d, 0)
 
 
 def test_voice_crossing():
-    assert checks.voice_crossing(SpecificChord.from_str('E3_E5_G5_B5'), SpecificChord.from_str('A3_C4_E4_A4'))
+    assert checks.is_voice_crossing(SpecificChord.from_str('E3_E5_G5_B5'), SpecificChord.from_str('A3_C4_E4_A4'))
 
 
 @pytest.mark.parametrize(
@@ -91,7 +91,7 @@ def test_voice_crossing():
     ],
 )
 def test_large_leaps(a, b, interval, expected):
-    assert checks.large_leaps(SpecificChord.from_str(a), SpecificChord.from_str(b), interval) == expected
+    assert checks.is_large_leaps(SpecificChord.from_str(a), SpecificChord.from_str(b), interval) == expected
 
 
 @pytest.mark.parametrize(
@@ -106,7 +106,7 @@ def test_large_leaps(a, b, interval, expected):
     ],
 )
 def test_large_spacing(chord_str, max_interval, expected):
-    assert checks.large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected
+    assert checks.is_large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected
 
 
 @pytest.mark.parametrize(
@@ -121,7 +121,7 @@ def test_large_spacing(chord_str, max_interval, expected):
     ],
 )
 def test_small_spacing(chord_str, min_interval, expected):
-    assert checks.small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected
+    assert checks.is_small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected
 
 
 @pytest.mark.parametrize('swap', [False, True])

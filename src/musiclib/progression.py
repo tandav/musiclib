@@ -51,10 +51,10 @@ class Progression(Cached, Sequence[SpecificChord]):
     def __hash__(self) -> int:
         return hash(self.chords)
 
-    def all(self, checks__: Iterable[CheckCallable]) -> bool:  # noqa: A003
+    def are_all(self, checks__: Iterable[CheckCallable]) -> bool:
         return all(check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
 
-    def all_not(self, checks__: Iterable[CheckCallable]) -> bool:
+    def are_all_not(self, checks__: Iterable[CheckCallable]) -> bool:
         return all(not check(a, b) for a, b in itertools.pairwise(self) for check in checks__)
 
     @property
