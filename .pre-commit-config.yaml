@@ -21,7 +21,6 @@ repos:
       - id: detect-private-key
       - id: double-quote-string-fixer
       - id: name-tests-test
-        args: [--pytest-test-first]
       - id: requirements-txt-fixer
 
   - repo: https://github.com/asottile/add-trailing-comma
@@ -62,11 +61,11 @@ repos:
     - id: mypy
       additional_dependencies: [svg.py]
 
-  - repo: https://github.com/pycqa/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:
     - id: flake8
-      additional_dependencies: [Flake8-pyproject]
+      additional_dependencies: [Flake8-pyproject, flake8-functions-names]
 
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.302

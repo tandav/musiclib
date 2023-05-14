@@ -5,7 +5,7 @@ import pytest
 from musiclib.util.sequence_builder import SequenceBuilder
 
 
-def is_even(x):
+def is_even(x: int) -> bool:
     return x % 2 == 0
 
 
@@ -13,11 +13,11 @@ def identity(x):
     return x
 
 
-def different_startswith(a: str, b: str) -> bool:
+def is_different_startswith(a: str, b: str) -> bool:
     return a[0] != b[0]
 
 
-def equal_endswith(a: str, b: str) -> bool:
+def is_equal_endswith(a: str, b: str) -> bool:
     return a[1] == b[1]
 
 
@@ -25,7 +25,7 @@ def even_odd_interchange(prev, curr):
     return is_even(prev) ^ is_even(curr)
 
 
-def candidate_constraint(candidate: tuple[str, ...]) -> bool:
+def is_candidate_constraint(candidate: tuple[str, ...]) -> bool:
     return Counter(candidate)['A'] < 3
 
 
@@ -64,11 +64,11 @@ def test_prev_curr(options):
 
 def test_loop():
     assert all(  # type: ignore[var-annotated]
-        different_startswith(seq[0], seq[-1]) and equal_endswith(seq[1], seq[-1])
+        is_different_startswith(seq[0], seq[-1]) and is_equal_endswith(seq[1], seq[-1])
         for seq in SequenceBuilder(
             4,
             options=('A0', 'A1', 'C0', 'D0', 'D1'),
-            curr_prev_constraint={-1: different_startswith, -2: equal_endswith},
+            curr_prev_constraint={-1: is_different_startswith, -2: is_equal_endswith},
             loop=True,
         )
     )
@@ -89,11 +89,11 @@ def test_unique(options, parallel):
 @pytest.mark.parametrize('parallel', [False, True])
 def test_candidate_constraint(parallel):
     assert all(  # type: ignore[var-annotated]
-        candidate_constraint(seq)
+        is_candidate_constraint(seq)
         for seq in SequenceBuilder(
             n=4,
             options='AB',
-            candidate_constraint=candidate_constraint,
+            candidate_constraint=is_candidate_constraint,
             parallel=parallel,
         )
     )
@@ -123,6 +123,6 @@ def test_parallel():
     assert tuple(a) == tuple(b)
 
     options_1 = 'A0', 'A1', 'C0', 'D0', 'D1', 'G0'
-    a = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: different_startswith, -2: equal_endswith})
-    b = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: different_startswith, -2: equal_endswith}, parallel=True)
+    a = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: is_different_startswith, -2: is_equal_endswith})
+    b = SequenceBuilder(5, options=options_1, curr_prev_constraint={-1: is_different_startswith, -2: is_equal_endswith}, parallel=True)
     assert tuple(a) == tuple(b)

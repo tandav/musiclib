@@ -50,7 +50,7 @@ class Rhythm(Cached):
         )
 
     @staticmethod
-    def no_contiguous_ones(prev: int, curr: int) -> bool:
+    def have_no_contiguous_ones(prev: int, curr: int) -> bool:
         return not prev == curr == 1
 
     @functools.cached_property
@@ -68,7 +68,7 @@ class Rhythm(Cached):
         rhythms__ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
-            curr_prev_constraint={-1: Rhythm.no_contiguous_ones},
+            curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
         )
 
         if n_notes is not None:
