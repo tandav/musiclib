@@ -1,6 +1,6 @@
 from colortool import Color
 
-chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config, reimport everywhere, maybe circular imports
+chromatic_notes = 'CdDeEFfGaAbB'  # TODO make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010', strict=True)}
 
