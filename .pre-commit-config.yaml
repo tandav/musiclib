@@ -24,12 +24,12 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: v2.4.0
+    rev: v3.0.0
     hooks:
       - id: add-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.8.0
     hooks:
       - id: pyupgrade
 
@@ -39,24 +39,24 @@ repos:
       - id: autopep8
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.2
+    rev: v2.2.0
     hooks:
       - id: autoflake
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.254
+    rev: v0.0.275
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.17.0
+    rev: v3.0.0a6
     hooks:
       - id: pylint
         additional_dependencies: ["pylint-per-file-ignores"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.1.1
+    rev: v1.4.1
     hooks:
     - id: mypy
       additional_dependencies: [svg.py]
