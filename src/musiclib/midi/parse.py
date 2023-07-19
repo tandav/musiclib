@@ -42,7 +42,7 @@ def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
             elif message.type == 'note_off' or (
                 message.type == 'note_on' and message.velocity == 0
             ):  # https://stackoverflow.com/a/43322203/4204843
-                # todo: heapq seems unnecessary here
+                # TODO: heapq seems unnecessary here
                 # heapq.heappush(
                 # notes, MidiNote(
                 #     note=SpecificNote.from_i(message.note),

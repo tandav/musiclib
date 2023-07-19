@@ -5,6 +5,7 @@ import itertools
 import random
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import ClassVar
 
 from musiclib import config
 from musiclib.note import Note
@@ -22,7 +23,7 @@ class Chord(NoteSet):
     """
     Chord is a set of notes with a root note
     """
-    intervals_to_name = {
+    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {
         # triads
         frozenset({0, 4, 7}): 'major',
         frozenset({0, 3, 7}): 'minor',
@@ -41,7 +42,7 @@ class Chord(NoteSet):
         frozenset({0, 2, 7}): 'sus2',
         frozenset({0, 5, 7}): 'sus4',
     }
-    name_to_intervals = {v: k for k, v in intervals_to_name.items()}
+    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = {v: k for k, v in intervals_to_name.items()}
     root: Note
     name: str
 

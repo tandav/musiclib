@@ -25,7 +25,7 @@ def test_name(notes, name):
 
 def test_kind():
     s = Scale.from_name('C', 'major')
-    assert s.kind == 'diatonic'
+    assert s.kind == 'natural'
     assert {'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} <= vars(s).keys()
     s = Scale.from_name('C', 'p_major')
     assert s.kind == 'pentatonic'
@@ -65,7 +65,7 @@ def test_notes_to_triad_root():
 
 @pytest.mark.parametrize('notes', ['CDEFGAB', 'BdeEfab', 'deFfabC'])
 def test_note_scales(notes):
-    assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.diatonic, strict=True))
+    assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.natural, strict=True))
 
 
 def test_compared():

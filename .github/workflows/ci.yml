@@ -27,8 +27,8 @@ jobs:
       - name: test
         run: pytest --cov musiclib
 
-      # - name: lint
-      #   run: pre-commit run --all-files
+      - name: lint
+        run: pre-commit run --all-files
 
   publish-to-pypi-and-github-release:
     runs-on: ubuntu-latest

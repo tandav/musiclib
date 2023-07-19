@@ -18,7 +18,7 @@ from musiclib.svg.piano import Piano
 
 class Scale(NoteSet):
     intervals_to_name = {
-        # diatonic
+        # natural
         frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
         frozenset({0, 2, 3, 5, 7, 9, 10}): 'dorian',
         frozenset({0, 1, 3, 5, 7, 8, 10}): 'phrygian',
@@ -80,7 +80,7 @@ class Scale(NoteSet):
         for note, scale in zip(self.notes_ascending, scales, strict=True):
             self.note_scales[note] = scale
 
-        if self.kind == 'diatonic':
+        if self.kind == 'natural':
             self.triads = self._make_nths(frozenset({0, 2, 4}))
             self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
             self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
@@ -131,7 +131,7 @@ class ComparedScales:
         self.shared_notes = frozenset(left.notes) & frozenset(right.notes)
         self.new_notes = frozenset(right.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
-        if right.kind == 'diatonic':
+        if right.kind == 'natural':
             self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
 
     def _repr_svg_(self, **kwargs: Any) -> str:
@@ -151,7 +151,7 @@ class ComparedScales:
                     'onclick': f'play_chord("{chord}")',
                 }
                 for chord in self.right.triads
-            } if self.right.kind == 'diatonic' else {},
+            } if self.right.kind == 'natural' else {},
         )
 
         kwargs.setdefault('classes', ('card',))
@@ -170,13 +170,13 @@ class ComparedScales:
         return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-diatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.diatonic)}
+natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.natural)}
 harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.harmonic)}
 melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.melodic)}
 pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
 sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
 all_scales = {
-    'diatonic': diatonic,
+    'natural': natural,
     'harmonic': harmonic,
     'melodic': melodic,
     'pentatonic': pentatonic,
@@ -187,7 +187,7 @@ CIRCLE_OF_FIFTHS_CLOCKWISE = 'CGDAEBfdaebF'
 
 # circle of fifths clockwise
 majors = {
-    'diatonic': tuple(diatonic[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
+    'natural': tuple(natural[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
     'harmonic': tuple(harmonic[note, 'h_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
     'melodic': tuple(melodic[note, 'm_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
     'pentatonic': tuple(pentatonic[note, 'p_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),

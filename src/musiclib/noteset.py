@@ -4,6 +4,7 @@ import itertools
 import random
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import ClassVar
 from typing import TypeVar
 from typing import no_type_check
 from typing import overload
@@ -56,8 +57,8 @@ class NoteSet(Cached):
             Chord
     """
 
-    intervals_to_name: dict[frozenset[int], str] = {}
-    name_to_intervals: dict[str, frozenset[int]] = {}
+    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {}
+    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = {}
 
     notes: frozenset[Note]
     root: Note | None
