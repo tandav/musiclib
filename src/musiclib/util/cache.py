@@ -1,9 +1,10 @@
 from collections.abc import Hashable
 from typing import Any
+from typing import ClassVar
 
 
 class Cached:
-    _cache: dict[tuple[type, tuple[Hashable, ...], frozenset[tuple[str, Hashable]]], Any] = {}
+    _cache: ClassVar[dict[tuple[type, tuple[Hashable, ...], frozenset[tuple[str, Hashable]]], Any]] = {}
 
     def __new__(cls, *args: Hashable, **kwargs: Hashable) -> Any:
         key = cls, args, frozenset(kwargs.items())

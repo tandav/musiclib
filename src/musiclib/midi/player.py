@@ -63,7 +63,7 @@ def chord_to_midi(
     stop_time = int(n_bars * mid.ticks_per_beat * 4)
 
     for note in chord.notes_ascending:
-        track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))
+        track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))  # noqa: PERF401
     for i, note in enumerate(chord.notes_ascending):
         track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
 

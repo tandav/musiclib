@@ -37,8 +37,7 @@ class NoteRange(Sequence[SpecificNote]):
 
     def _getitem_int(self, item: int) -> SpecificNote:
         if 0 <= item < len(self):
-            q = self.noteset.add_note(self.start, item)
-            return q
+            return self.noteset.add_note(self.start, item)
         if -len(self) <= item < 0:
             return self.noteset.add_note(self.stop, item + 1)
         raise IndexError('index out of range')
