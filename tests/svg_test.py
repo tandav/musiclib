@@ -61,7 +61,7 @@ def test_html_noteset(noteset, title, subtitle, title_href, background_color):
     svg_helper(svg, classes, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize('kind', ['diatonic', 'harmonic', 'melodic', 'pentatonic', 'sudu'])
+@pytest.mark.parametrize('kind', ['natural', 'harmonic', 'melodic', 'pentatonic', 'sudu'])
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])

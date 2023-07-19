@@ -4,15 +4,15 @@ chromatic_notes = 'CdDeEFfGaAbB'  # todo make variable here, delete from config,
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
 is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010', strict=True)}
 
-neighsbors_min_shared = {'diatonic': 0, 'pentatonic': 0}
+neighsbors_min_shared = {'natural': 0, 'pentatonic': 0}
 
-diatonic = 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'
+natural = 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'
 pentatonic = 'p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'
 harmonic = 'h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'
 melodic = 'm_minor', 'm_locrian', 'm_major', 'm_dorian', 'm_phrygian', 'm_lydian', 'm_mixolydian'
 sudu = 's_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'
 kinds = (
-    {k: 'diatonic' for k in diatonic} |
+    {k: 'natural' for k in natural} |
     {k: 'harmonic' for k in harmonic} |
     {k: 'melodic' for k in melodic} |
     {k: 'pentatonic' for k in pentatonic} |

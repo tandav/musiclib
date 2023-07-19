@@ -189,7 +189,7 @@ def _make_keyboard(notes: Sequence[Note], octaves: Sequence[int]) -> tuple[Speci
 
 def _add_note_specific_generator():
     notesets = [NoteSet.from_str('CDEFGAB'), NoteSet.from_str('DEFGAbC')]
-    notesets += list(all_scales['diatonic'].values())
+    notesets += list(all_scales['natural'].values())
     notesets += [
         Scale.from_name('C', 'h_minor'),
         Scale.from_name('E', 'h_minor'),
