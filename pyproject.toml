@@ -1,6 +1,6 @@
 [project]
 name = "musiclib"
-version = "1.14.0"
+version = "1.14.1"
 authors = [
     {name = "Alexander Rodionov", email = "tandav@tandav.me"},
 ]
@@ -47,7 +47,7 @@ build-backend = "setuptools.build_meta"
 # ==============================================================================
 
 [tool.bumpver]
-current_version = "v1.14.0"
+current_version = "v1.14.1"
 version_pattern = "vMAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
