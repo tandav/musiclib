@@ -4,7 +4,7 @@ test:
 
 .PHONY: coverage
 coverage:
-	python -m pytest --asyncio-mode=strict --cov=musiclib --cov-report=html tests
+	python -m pytest --cov=musiclib --cov-report=html tests
 	open htmlcov/index.html
 
 .PHONY: profile
