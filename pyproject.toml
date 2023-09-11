@@ -139,9 +139,11 @@ force-single-line = true
 # ==============================================================================
 
 [tool.pylint.MASTER]
-load-plugins=[
-    "pylint_per_file_ignores",
-]
+# load-plugins=[
+#     "pylint_per_file_ignores",
+# ]
+
+ignore-paths = '^tests/*'
 
 [tool.pylint.messages-control]
 disable = [
@@ -165,8 +167,9 @@ disable = [
     "cyclic-import",
 ]
 
-[tool.pylint-per-file-ignores]
-"/tests/" = "redefined-outer-name,pointless-statement"
+# [tool.pylint-per-file-ignores]
+# "/tests/" = "redefined-outer-name,pointless-statement"
+# https://github.com/christopherpickering/pylint-per-file-ignores/issues/76
 
 # ==============================================================================
 

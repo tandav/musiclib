@@ -107,9 +107,7 @@ class Scale(NoteSet):
 
     def _repr_svg_(self, **kwargs: Any) -> str:
         kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.note_scales.items()})
-        if C_name := self.note_scales.get(Note('C'), ''):
-            C_name = f' | C {C_name}'
-        kwargs.setdefault('title', f'{self.root.name} {self.name}{C_name}')
+        kwargs.setdefault('title', f'{self.root.name} {self.name}')
         kwargs.setdefault('classes', ('card', self.name))
         return Piano(**kwargs)._repr_svg_()
 
