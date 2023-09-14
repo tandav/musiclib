@@ -10,6 +10,8 @@ from musiclib.util.cache import Cached
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+_is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '010100101010', strict=True)}
+
 
 @functools.total_ordering
 class Note(Cached):
@@ -22,7 +24,7 @@ class Note(Cached):
         """param name: one of CdDeEFfGaAbB"""
         self.name = name
         self.i = config.note_i[name]
-        self.is_black = config.is_black[name]
+        self.is_black = _is_black[name]
 
     @classmethod
     def from_i(cls, i: int) -> Note:
@@ -140,7 +142,3 @@ class SpecificNote(Cached):
 
     def __getnewargs__(self) -> tuple[Note, int]:
         return self.abstract, self.octave
-
-
-WHITE_NOTES = frozenset(map(Note, 'CDEFGAB'))
-BLACK_NOTES = frozenset(map(Note, 'defab'))

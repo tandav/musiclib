@@ -10,8 +10,6 @@ from musiclib.config import BLACK_BRIGHT
 from musiclib.config import BLACK_PALE
 from musiclib.config import WHITE_BRIGHT
 from musiclib.config import WHITE_PALE
-from musiclib.note import BLACK_NOTES
-from musiclib.note import WHITE_NOTES
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noterange import CHROMATIC_NOTESET
@@ -23,7 +21,7 @@ if TYPE_CHECKING:
 
 def note_color(note: Note | SpecificNote) -> Color:
     def _note_color(note: Note) -> Color:
-        return WHITE_PALE if note in WHITE_NOTES else BLACK_PALE
+        return BLACK_PALE if note.is_black else WHITE_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
     if isinstance(note, Note):
@@ -123,8 +121,8 @@ class Piano:
             if black_small:
                 # ensure that start and stop are white keys
                 self.noterange = NoteRange(
-                    start=noterange.start + -1 if noterange.start.abstract in BLACK_NOTES else noterange.start,
-                    stop=noterange.stop + 1 if noterange.stop.abstract in BLACK_NOTES else noterange.stop,
+                    start=noterange.start + -1 if noterange.start.is_black else noterange.start,
+                    stop=noterange.stop + 1 if noterange.stop.abstract.is_black else noterange.stop,
                 )
             else:
                 self.noterange = noterange
@@ -132,13 +130,14 @@ class Piano:
             # render 2 octaves by default
             self.noterange = NoteRange(SpecificNote('C', 0), SpecificNote('B', 1))
 
-        self.white_notes = tuple(note for note in self.noterange if note.abstract in WHITE_NOTES)
-        self.black_notes = tuple(note for note in self.noterange if note.abstract in BLACK_NOTES)
+        self.white_notes = tuple(note for note in self.noterange if not note.is_black)
+        self.black_notes = tuple(note for note in self.noterange if note.is_black)
         self.piano_width = ww * len(self.white_notes) if self.black_small else ww * len(self.noterange)
         self.piano_height = wh
         self.elements: list[svg.Element] = []
         self.notes = self.white_notes + self.black_notes if black_small else self.noterange
         self.make_piano()
+        self.init_sizes()
 
         if title_href is not None and title is None:
             raise ValueError('title_href requires title')
@@ -301,23 +300,25 @@ class Piano:
         sy = self.y(self.wh - self.square_size - self.square_white_offset)
         return self.x(x), y, self.ww, self.wh, c, sx, sy
 
+    def init_sizes(self) -> None:
+        self.w_pp = self.padding[1] + self.padding[3] + self.piano_width
+        self.h_pp = self.padding[0] + self.padding[2] + self.piano_height
+        self.svg_width = self.margin[1] + self.margin[3] + self.w_pp + self.shadow_offset
+        self.svg_height = self.margin[0] + self.margin[2] + self.h_pp + self.shadow_offset
+
     # @functools.cache
     def _repr_svg_(self) -> str:
-        w_pp = self.padding[1] + self.padding[3] + self.piano_width
-        h_pp = self.padding[0] + self.padding[2] + self.piano_height
-        svg_width = self.margin[1] + self.margin[3] + w_pp + self.shadow_offset
-        svg_height = self.margin[0] + self.margin[2] + h_pp + self.shadow_offset
         elements: list[svg.Element] = []
         if self.debug_rect:
-            debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=svg_width, height=svg_height, fill='red')
+            debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=self.svg_width, height=self.svg_height, fill='red')
             elements.append(debug_rect)
         if self.card:
             card_rect = svg.Rect(
                 class_=['card_rect'],
                 x=self.margin[3],
                 y=self.margin[0],
-                width=w_pp,
-                height=h_pp,
+                width=self.w_pp,
+                height=self.h_pp,
                 fill=self.background_color.css_hex,
                 rx=self.border_radius,
                 ry=self.border_radius,
@@ -330,13 +331,13 @@ class Piano:
                 self.shadow_offset,
                 y=self.margin[0] +
                 self.shadow_offset,
-                width=w_pp,
-                height=h_pp,
+                width=self.w_pp,
+                height=self.h_pp,
                 fill=BLACK_BRIGHT.css_hex,
                 rx=self.border_radius,
                 ry=self.border_radius,
             )
             elements += [shadow_rect, card_rect]
         elements += self.elements
-        _svg = svg.SVG(width=svg_width, height=svg_height, elements=elements, class_=list(self.classes), id=self.id)
+        _svg = svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.classes), id=self.id)
         return str(_svg)

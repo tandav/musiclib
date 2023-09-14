@@ -2,7 +2,7 @@ from colortool import Color
 
 chromatic_notes = 'CdDeEFfGaAbB'  # TODO make variable here, delete from config, reimport everywhere, maybe circular imports
 note_i = {note: i for i, note in enumerate(chromatic_notes)}
-is_black = {note: bool(int(x)) for note, x in zip(chromatic_notes, '010100101010', strict=True)}
+
 
 neighsbors_min_shared = {'natural': 0, 'pentatonic': 0}
 
@@ -27,7 +27,6 @@ RED = Color.from_hex(0xFF0000)
 GREEN = Color.from_hex(0x00FF00)
 BLUE = Color.from_hex(0x0000FF)
 
-# if change: also change in static/main.css
 scale_colors = {
     'major': WHITE_BRIGHT,
     'dorian': Color.from_hex(0x54E346),
@@ -73,8 +72,3 @@ chord_colors = {
     'major': scale_colors['major'],
     'diminished': scale_colors['locrian'],
 }
-
-beats_per_minute = 120
-beats_per_second = beats_per_minute / 60
-beats_per_bar = 4
-bar_seconds = beats_per_bar / beats_per_second
