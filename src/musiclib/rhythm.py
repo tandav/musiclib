@@ -7,7 +7,6 @@ import statistics
 
 import pipe21 as P  # noqa: N812
 
-from musiclib import config
 from musiclib.util.cache import Cached
 from musiclib.util.sequence_builder import SequenceBuilder
 
@@ -16,7 +15,7 @@ class Rhythm(Cached):
     def __init__(
         self,
         notes: tuple[int, ...],
-        beats_per_minute: int = config.beats_per_minute,
+        beats_per_minute: int = 120,
         beats_per_bar: int = 4,
         bar_notes: int = 16,  # kinda grid size
     ) -> None:
