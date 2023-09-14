@@ -1,5 +1,7 @@
+import collections
 import dataclasses
 import functools
+from typing import Literal
 
 import mido
 
@@ -12,7 +14,6 @@ class MidiNote:
     note: SpecificNote
     on: int
     off: int
-    track: int
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
@@ -25,38 +26,48 @@ class MidiNote:
         return self.on < other.on
 
     def __hash__(self) -> int:
-        return hash((self.note, self.track))
+        return hash((self.note, self.on, self.off))
 
 
-def parse_notes(m: mido.MidiFile) -> list[MidiNote]:
+@dataclasses.dataclass(frozen=True)
+class MidiPitch:
+    time: int
+    pitch: int
+
+
+@dataclasses.dataclass
+class Midi:
+    notes: list[MidiNote]
+    pitchbend: list[MidiPitch]
+    ticks_per_beat: int = 96
+
+
+def is_note(type_: Literal['on', 'off'], message: mido.Message) -> bool:
+    """https://stackoverflow.com/a/43322203/4204843"""
+    if type_ == 'on':
+        return message.type == 'note_on' and message.velocity > 0  # type: ignore[no-any-return]
+    if type_ == 'off':
+        return message.type == 'note_off' or (message.type == 'note_on' and message.velocity == 0)  # type: ignore[no-any-return]
+    raise ValueError
+
+
+def parse_midi(midi: mido.MidiFile) -> Midi:
+    if midi.type != 0:
+        raise ValueError('only type 0 midi files are supported')
+    track, = midi.tracks
     notes: list[MidiNote] = []
-    for track_i, track in enumerate(m.tracks):
-        t = 0
-        t_buffer = {}
-        for message in track:
-            t += message.time
-
-            if message.type == 'note_on' and message.velocity != 0:
-                t_buffer[message.note] = t
-
-            elif message.type == 'note_off' or (
-                message.type == 'note_on' and message.velocity == 0
-            ):  # https://stackoverflow.com/a/43322203/4204843
-                # TODO: heapq seems unnecessary here
-                # heapq.heappush(
-                # notes, MidiNote(
-                #     note=SpecificNote.from_i(message.note),
-                #     on=t_buffer.pop(message.note),
-                #     off=t,
-                #     track=track_i,
-                # ),
-                # )
-                notes.append(
-                    MidiNote(
-                        note=SpecificNote.from_i(message.note),
-                        on=t_buffer.pop(message.note),
-                        off=t,
-                        track=track_i,
-                    ),
-                )
-    return notes
+    pitchbend = []
+    playing_notes = collections.defaultdict(dict)  # type: ignore[var-annotated]
+    t = 0
+    for message in track:
+        t += message.time
+        if is_note('on', message):
+            playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
+        elif is_note('off', message):
+            note = playing_notes[message.note]
+            note['off'] = t
+            notes.append(MidiNote(**note))
+            del playing_notes[message.note]  # TODO: is this del necessary?
+        elif message.type == 'pitchwheel':
+            pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
+    return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)

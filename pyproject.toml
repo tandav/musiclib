@@ -13,6 +13,7 @@ dependencies = [
     "pipe21>=1.0.9",
     "svg.py",
     "tqdm",
+    "numpy",
 ]
 
 [project.optional-dependencies]
@@ -120,6 +121,7 @@ ignore = [
     "TD004",
     "FIX002",
     "FIX004",
+    "B028",
 ]
 
 [tool.ruff.per-file-ignores]
