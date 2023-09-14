@@ -16,3 +16,7 @@ profile:
 bumpver:
 	# usage: make bumpver PART=minor
 	bumpver update --no-fetch --$(PART)
+
+.PHONY: pitchbend-server
+pitchbend-server:
+	uvicorn pitchbend_server:app --reload

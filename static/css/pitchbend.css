@@ -1,0 +1,8 @@
+.selected_note {
+    fill: red;
+}
+
+#dashboard {
+    display: flex;
+    flex-direction: row;
+}

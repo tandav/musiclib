@@ -1,0 +1,32 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.min.css"/>
+    <link rel="stylesheet" href="/static/css/pitchbend.css">
+<script>
+let selected = null
+const select_note = note_id => {
+    console.log(note_id)
+    if (selected) {
+        document.getElementById(selected).classList.remove('selected_note')
+    }
+    if (selected == note_id) {
+        selected = null
+        return
+    }
+    console.log(document.getElementById(note_id))
+    document.getElementById(note_id).classList.add('selected_note')
+    selected = note_id
+}
+</script>
+</head>
+<body>
+    <h1>Pitchbend Editor</h1>
+    <div id="dashboard">
+        {{ pianoroll | safe }}
+        <div id="controls">
+        <p>controls</p>
+        <a href="/pitchbend/{{ song_id }}/new">new</a>
+        </div>
+    </div>
+</body>
+</html>
