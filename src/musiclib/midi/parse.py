@@ -42,6 +42,12 @@ class Midi:
     ticks_per_beat: int = 96
 
 
+@dataclasses.dataclass
+class IndexedMessage:
+    message: mido.Message
+    index: int
+
+
 def is_note(type_: Literal['on', 'off'], message: mido.Message) -> bool:
     """https://stackoverflow.com/a/43322203/4204843"""
     if type_ == 'on':

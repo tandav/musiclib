@@ -4,6 +4,7 @@ import dataclasses
 import mido
 import numpy as np
 
+from musiclib.midi.parse import IndexedMessage
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
 from musiclib.midi.parse import MidiPitch
@@ -74,54 +75,28 @@ def insert_pitch_pattern(
 
 
 def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
-    abs_messages = iter_abs_messages(midi, mido_format=True)
+    abs_messages = index_abs_messages(midi)
     t = 0
     messages = []
-    for message in abs_messages:
-        m = message.copy()  # type: ignore[union-attr]
-        m.time = message.time - t
+    for im in abs_messages:
+        m = im.message.copy()
+        m.time = im.message.time - t
         messages.append(m)
-        t = message.time
+        t = im.message.time
     track = mido.MidiTrack(messages)
     return mido.MidiFile(type=0, tracks=[track], ticks_per_beat=midi.ticks_per_beat)
 
 
-@dataclasses.dataclass
-class NoteMessage:
-    type: str  # noqa: A003
-    time: int
-    original_i: int
-
-
-@dataclasses.dataclass(frozen=True)
-class PitchMessage:
-    pitch: int
-    time: int
-    original_i: int
-    type: str = 'pitchwheel'  # noqa: A003
-
-
-def iter_abs_messages(
-    midi: Midi,
-    *,
-    mido_format: bool = False,
-) -> list[NoteMessage | PitchMessage | mido.Message]:
+def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
     """this are messages with absolute time, note real midi messages"""
     abs_messages = []
     for i, note in enumerate(midi.notes):
-        if mido_format:
-            abs_messages.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100))
-            abs_messages.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100))
-        else:
-            abs_messages.append(NoteMessage(type='note_on', time=note.on, original_i=i))
-            abs_messages.append(NoteMessage(type='note_off', time=note.off, original_i=i))
+        abs_messages.append(IndexedMessage(message=mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100), index=i))
+        abs_messages.append(IndexedMessage(message=mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100), index=i))
     for i, pitch in enumerate(midi.pitchbend):
-        if mido_format:
-            abs_messages.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))
-        else:
-            abs_messages.append(PitchMessage(pitch=pitch.pitch, time=pitch.time, original_i=i))
+        abs_messages.append(IndexedMessage(message=mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch), index=i))
     # Sort by time. If time is equal sort using type priority in following order: note_on, pitchwheel, note_off
-    abs_messages.sort(key=lambda m: (m.time, {'note_on': 0, 'pitchwheel': 1, 'note_off': 2}[m.type]))
+    abs_messages.sort(key=lambda m: (m.message.time, {'note_on': 0, 'pitchwheel': 1, 'note_off': 2}[m.message.type]))
     return abs_messages
 
 
@@ -130,19 +105,19 @@ def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
     interp_t = []
     for note in midi.notes:
         interp_t += [note.on, note.off]
-    interp_p = np.interp(interp_t, T, P, left=0)  # https://docs.scipy.org/doc/scipy/tutorial/interpolate/1D.html#piecewise-linear-interpolation
+    interp_p = np.interp(interp_t, T, P, left=0).astype(int).tolist()  # https://docs.scipy.org/doc/scipy/tutorial/interpolate/1D.html#piecewise-linear-interpolation
     interp_pitches = sorted(midi.pitchbend + [MidiPitch(time=t, pitch=p) for t, p in zip(interp_t, interp_p, strict=True)], key=lambda p: p.time)
     midi_tmp = Midi(notes=midi.notes, pitchbend=interp_pitches)
     notes_pitchbends = collections.defaultdict(list)
     playing_notes = set()
-    for message in iter_abs_messages(midi_tmp):
-        if isinstance(message, NoteMessage) and message.type in {'note_on', 'note_off'}:
-            note = midi.notes[message.original_i]
-            if message.type == 'note_on':
+    for im in index_abs_messages(midi_tmp):
+        if im.message.type in {'note_on', 'note_off'}:
+            note = midi.notes[im.index]
+            if im.message.type == 'note_on':
                 playing_notes.add(note)
-            elif message.type == 'note_off':
+            elif im.message.type == 'note_off':
                 playing_notes.remove(note)
-        elif isinstance(message, PitchMessage):
+        elif im.message.type == 'pitchwheel':
             for note in playing_notes:
-                notes_pitchbends[note].append(midi_tmp.pitchbend[message.original_i])
+                notes_pitchbends[note].append(midi_tmp.pitchbend[im.index])
     return dict(notes_pitchbends)
