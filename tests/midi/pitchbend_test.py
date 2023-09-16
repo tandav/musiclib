@@ -65,3 +65,10 @@ def test_insert_pitch_pattern(midi, pattern):
         ],
         ticks_per_beat=96,
     )
+
+
+def test_midiobj_to_midifile(midi, mido_midifile):
+    check = pitchbend.midiobj_to_midifile(midi)
+    assert check.type == mido_midifile.type
+    assert check.ticks_per_beat == mido_midifile.ticks_per_beat
+    assert check.tracks == mido_midifile.tracks
