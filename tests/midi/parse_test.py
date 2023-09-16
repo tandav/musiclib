@@ -1,6 +1,8 @@
 import mido
 import pytest
 from musiclib.midi import parse
+from musiclib.note import SpecificNote
+from musiclib.rhythm import Rhythm
 
 
 @pytest.mark.parametrize(
@@ -37,3 +39,25 @@ def test_index_abs_messages(midi):
         parse.IndexedMessage(message=mido.Message('pitchwheel', channel=0, pitch=0, time=216), index=2),
         parse.IndexedMessage(message=mido.Message('note_off', channel=0, note=67, velocity=100, time=216), index=2),
     ]
+
+
+def test_rhythm_to_midi():
+    rhythm = Rhythm((1, 0, 1, 1))
+    midi = parse.rhythm_to_midi(rhythm, note_=SpecificNote('C', 1))
+    expected = mido.MidiFile(
+        type=0,
+        ticks_per_beat=96,
+        tracks=[
+            mido.MidiTrack([
+                mido.Message('note_on', channel=0, note=24, velocity=100, time=0),
+                mido.Message('note_off', channel=0, note=24, velocity=100, time=24),
+                mido.Message('note_on', channel=0, note=24, velocity=100, time=24),
+                mido.Message('note_off', channel=0, note=24, velocity=100, time=24),
+                mido.Message('note_on', channel=0, note=24, velocity=100, time=0),
+                mido.Message('note_off', channel=0, note=24, velocity=100, time=24),
+            ]),
+        ],
+    )
+    assert midi.type == expected.type
+    assert midi.ticks_per_beat == expected.ticks_per_beat
+    assert midi.tracks == expected.tracks
