@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from musiclib.chord import SpecificChord
 from musiclib.midi.player import Player
@@ -12,19 +10,21 @@ def player():
 
 
 @pytest.mark.asyncio
-async def test_specific_note(player, capsys):
-    note = SpecificNote.from_i(60)
-    await player.play(note, seconds=0.0001)
+@pytest.mark.parametrize(
+    ('note_i', 'channel', 'velocity'), [
+        (60, 0, 100),
+        (64, 1, 3),
+    ],
+)
+async def test_specific_note(note_i, channel, velocity, player, capsys):
+    note = SpecificNote.from_i(note_i)
+    await player.play(note, seconds=0.0001, channel=channel, velocity=velocity)
     stdout, stderr = capsys.readouterr()
-
     lines = [
-        f'note_on note={note.i}, channel=0\n',
-        f'note_off note={note.i}, channel=0\n',
+        f'note_on channel={channel} note={note_i} velocity={velocity} time=0',
+        f'note_off channel={channel} note={note_i} velocity={velocity} time=0',
     ]
-
-    if 'MIDI_DEVICE' not in os.environ:
-        lines = ['MIDI_DEVICE not found | ' + line for line in lines]
-
+    lines = [f'MIDI_DEVICE not found | {line}\n' for line in lines]
     assert stdout == ''.join(lines)
 
 
@@ -38,5 +38,13 @@ async def test_specific_chord(player, capsys):
         assert line.startswith(prefix)
         stdout_.append(line.removeprefix(prefix))
     on, off = set(stdout_[:3]), set(stdout_[3:])
-    assert on == {'note_on note=24, channel=0', 'note_on note=28, channel=0', 'note_on note=43, channel=0'}
-    assert off == {'note_off note=24, channel=0', 'note_off note=28, channel=0', 'note_off note=43, channel=0'}
+    assert on == {
+        'note_on channel=0 note=24 velocity=100 time=0',
+        'note_on channel=0 note=28 velocity=100 time=0',
+        'note_on channel=0 note=43 velocity=100 time=0',
+    }
+    assert off == {
+        'note_off channel=0 note=24 velocity=100 time=0',
+        'note_off channel=0 note=28 velocity=100 time=0',
+        'note_off channel=0 note=43 velocity=100 time=0',
+    }

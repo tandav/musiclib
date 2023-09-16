@@ -2,6 +2,7 @@ import asyncio
 import functools
 
 import mido
+import mido.midifiles.midifiles
 
 from musiclib.chord import SpecificChord
 from musiclib.note import SpecificNote
@@ -17,28 +18,57 @@ class Player:
             self.port = mido.open_output(midi_device)
             self.send_message = self._send_message
 
-    def _print_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
-        print('MIDI_DEVICE not found |', *args, f'{note=},', ', '.join(f'{k}={v!r}' for k, v in kwargs.items()))  # noqa: T201
+    def _print_message(self, message: mido.Message) -> None:
+        print('MIDI_DEVICE not found |', message)  # noqa: T201
 
-    def _send_message(self, *args: str | int, note: int, **kwargs: str | int) -> None:
-        note += 24  # to match ableton octaves
-        self.port.send(mido.Message(*args, note=note, **kwargs))
+    def _send_message(self, message: mido.Message) -> None:
+        self.port.send(message)
 
     @functools.singledispatchmethod
-    async def play(self, obj: Playable, seconds: float = 1) -> None:  # pylint: disable=unused-argument
+    async def play(
+        self,
+        obj: Playable,  # pylint: disable=unused-argument
+        seconds: float = 1,  # pylint: disable=unused-argument
+        channel: int = 0,  # pylint: disable=unused-argument
+        velocity: int = 100,  # pylint: disable=unused-argument
+    ) -> None:
         ...
 
     @play.register
-    async def _(self, obj: SpecificNote, seconds: float = 1) -> None:
-        self.send_message('note_on', note=obj.i, channel=0)
+    async def _(
+        self,
+        obj: SpecificNote,
+        seconds: float = 1,
+        channel: int = 0,
+        velocity: int = 100,
+    ) -> None:
+        self.send_message(mido.Message(type='note_on', channel=channel, note=obj.i, velocity=velocity))
         await asyncio.sleep(seconds)
-        self.send_message('note_off', note=obj.i, channel=0)
+        self.send_message(mido.Message(type='note_off', channel=channel, note=obj.i, velocity=velocity))
 
     @play.register
-    async def _(self, obj: SpecificChord, seconds: float = 1, bass_octave: int | None = None) -> None:
-        tasks = [self.play(note, seconds) for note in obj.notes]
-        if bass_octave:
-            if obj.root is None:
-                raise ValueError('cannot play bass when root is None')
-            tasks.append(self.play(SpecificNote(obj.root, bass_octave), seconds))
+    async def _(
+        self,
+        obj: SpecificChord,
+        seconds: float = 1,
+        channel: int = 0,
+        velocity: int = 100,
+    ) -> None:
+        tasks = [self.play(note, seconds, channel, velocity) for note in obj.notes]
         await asyncio.gather(*tasks)
+
+    def play_midi(self, midi: mido.MidiFile, beats_per_minute: float = 120) -> None:
+        default_tempo = mido.midifiles.midifiles.DEFAULT_TEMPO
+        mido.midifiles.midifiles.DEFAULT_TEMPO = mido.bpm2tempo(beats_per_minute)
+        for message in midi.play():
+            self.send_message(message)
+        mido.midifiles.midifiles.DEFAULT_TEMPO = default_tempo
+
+    async def aio_play_midi(self, midi: mido.MidiFile, beats_per_minute: float = 120) -> None:
+        """For some reason this async method is playing with weird delays and time glitches unlike play_midi()"""
+        default_tempo = mido.midifiles.midifiles.DEFAULT_TEMPO
+        mido.midifiles.midifiles.DEFAULT_TEMPO = mido.bpm2tempo(beats_per_minute)
+        for message in midi:
+            self.send_message(message)
+            await asyncio.sleep(message.time)
+        mido.midifiles.midifiles.DEFAULT_TEMPO = default_tempo

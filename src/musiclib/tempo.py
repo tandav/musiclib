@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing as tp
 
+import mido
+
 DEFAULT_TICKS_PER_BEAT = 96
 DEFAULT_BEATS_PER_BAR = 4
 DEFAULT_BEATS_PER_MINUTE = 120
@@ -90,3 +92,7 @@ class Tempo:
     @property
     def ticks_per_bar(self) -> int:
         return self.ticks_per_beat * self.beats_per_bar
+
+    @property
+    def midi_tempo(self) -> int:
+        return mido.bpm2tempo(bpm=self.beats_per_minute, time_signature=(self.beats_per_bar, 4))  # type: ignore[no-any-return]
