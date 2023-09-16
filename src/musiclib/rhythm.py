@@ -15,17 +15,10 @@ class Rhythm(Cached):
     def __init__(
         self,
         notes: tuple[int, ...],
-        beats_per_minute: int = 120,
-        beats_per_bar: int = 4,
-        bar_notes: int = 16,  # kinda grid size
+        bar_notes: int = 16,  # grid size
     ) -> None:
         self.notes = notes
-        self.beats_per_minute = beats_per_minute
-        self.beats_per_second = beats_per_minute / 60
-        self.beats_per_bar = beats_per_bar
-        self.bar_seconds = beats_per_bar / self.beats_per_second
         self.bar_notes = bar_notes
-        self.note_seconds = self.bar_seconds / bar_notes
         self.bits = ''.join(map(str, self.notes))
 
     @classmethod

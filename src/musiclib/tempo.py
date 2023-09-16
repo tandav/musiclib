@@ -10,7 +10,7 @@ DEFAULT_BEATS_PER_MINUTE = 120
 class Tempo:
     def __init__(
         self,
-        ticks: int,
+        ticks: int = 0,
         ticks_per_beat: int = DEFAULT_TICKS_PER_BEAT,
         beats_per_bar: int = DEFAULT_BEATS_PER_BAR,
         beats_per_minute: float = DEFAULT_BEATS_PER_MINUTE,

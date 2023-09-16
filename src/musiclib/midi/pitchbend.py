@@ -4,10 +4,10 @@ import dataclasses
 import mido
 import numpy as np
 
-from musiclib.midi.etc import ticks_to_bars
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
 from musiclib.midi.parse import MidiPitch
+from musiclib.tempo import Tempo
 from musiclib.util.etc import increment_duplicates
 
 
@@ -48,7 +48,7 @@ def insert_pitch_pattern(
 ) -> Midi:
     if n_interp_points is not None:
         pattern = interpolate_pattern(pattern, n_interp_points)
-    time_bars = ticks_to_bars(time_ticks, midi.ticks_per_beat)
+    time_bars = Tempo(ticks=time_ticks, ticks_per_beat=midi.ticks_per_beat).bars
     pitchbend = [
         MidiPitch(
             time=int((time_bars + t) * midi.ticks_per_beat * 4),
