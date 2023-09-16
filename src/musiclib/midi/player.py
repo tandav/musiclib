@@ -2,6 +2,7 @@ import asyncio
 import functools
 
 import mido
+import mido.midifiles.midifiles
 
 from musiclib.chord import SpecificChord
 from musiclib.note import SpecificNote
@@ -56,5 +57,18 @@ class Player:
         tasks = [self.play(note, seconds, channel, velocity) for note in obj.notes]
         await asyncio.gather(*tasks)
 
-    async def play_midi(self, midi: mido.MidiTrack) -> None:
-        raise NotImplementedError
+    def play_midi(self, midi: mido.MidiFile, beats_per_minute: float = 120) -> None:
+        default_tempo = mido.midifiles.midifiles.DEFAULT_TEMPO
+        mido.midifiles.midifiles.DEFAULT_TEMPO = mido.bpm2tempo(beats_per_minute)
+        for message in midi.play():
+            self.send_message(message)
+        mido.midifiles.midifiles.DEFAULT_TEMPO = default_tempo
+
+    async def aio_play_midi(self, midi: mido.MidiFile, beats_per_minute: float = 120) -> None:
+        """For some reason this async method is playing with weird delays and time glitches unlike play_midi()"""
+        default_tempo = mido.midifiles.midifiles.DEFAULT_TEMPO
+        mido.midifiles.midifiles.DEFAULT_TEMPO = mido.bpm2tempo(beats_per_minute)
+        for message in midi:
+            self.send_message(message)
+            await asyncio.sleep(message.time)
+        mido.midifiles.midifiles.DEFAULT_TEMPO = default_tempo
