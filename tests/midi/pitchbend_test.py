@@ -1,11 +1,14 @@
 import pytest
-from musiclib.midi.pitchbend import PitchPattern
-from musiclib.midi.pitchbend import interpolate_pattern
+from musiclib.midi import pitchbend
+from musiclib.midi.parse import Midi
+from musiclib.midi.parse import MidiNote
+from musiclib.midi.parse import MidiPitch
+from musiclib.note import SpecificNote
 
 
 @pytest.fixture
 def pattern():
-    return PitchPattern(time_bars=[0, 1 / 16, 1 / 16], pitch_st=[0, 2, 0])
+    return pitchbend.PitchPattern(time_bars=[0, 1 / 16, 1 / 16], pitch_st=[0, 2, 0])
 
 
 @pytest.mark.parametrize(
@@ -14,21 +17,21 @@ def pattern():
         (3, ValueError),
         (
             4,
-            PitchPattern(
+            pitchbend.PitchPattern(
                 time_bars=(0.020833333333333332, 0, 0.0625, 0.0625),
                 pitch_st=(0.6666666666666666, 0, 2, 0),
             ),
         ),
         (
             5,
-            PitchPattern(
+            pitchbend.PitchPattern(
                 time_bars=(0.015625, 0.03125, 0, 0.0625, 0.0625),
                 pitch_st=(0.5, 1.0, 0, 2, 0),
             ),
         ),
         (
             9,
-            PitchPattern(
+            pitchbend.PitchPattern(
                 time_bars=(0.0078125, 0.015625, 0.0234375, 0.03125, 0.0390625, 0.046875, 0, 0.0625, 0.0625),
                 pitch_st=(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 0, 2, 0),
             ),
@@ -38,6 +41,27 @@ def pattern():
 def test_interpolate_pattern(pattern, n_interp_points, expected):
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
-            interpolate_pattern(pattern, n_interp_points)
+            pitchbend.interpolate_pattern(pattern, n_interp_points)
         return
-    assert interpolate_pattern(pattern, n_interp_points) == expected
+    assert pitchbend.interpolate_pattern(pattern, n_interp_points) == expected
+
+
+def test_insert_pitch_pattern(midi, pattern):
+    midi.pitchbend = []
+    assert pitchbend.insert_pitch_pattern(
+        midi,
+        time_ticks=midi.notes[1].on,
+        pattern=pattern,
+    ) == Midi(
+        notes=[
+            MidiNote(note=SpecificNote('C', 4), on=0, off=24),
+            MidiNote(note=SpecificNote('E', 4), on=96, off=202),
+            MidiNote(note=SpecificNote('G', 4), on=192, off=216),
+        ],
+        pitchbend=[
+            MidiPitch(time=96, pitch=0),
+            MidiPitch(time=120, pitch=8191),
+            MidiPitch(time=121, pitch=0),
+        ],
+        ticks_per_beat=96,
+    )
