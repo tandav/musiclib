@@ -16,6 +16,7 @@ class Config(tp.NamedTuple):
     ticks_per_second: float = 96 * 2
     bars_per_second: float = 0.5
     ticks_per_bar: int = 96 * 4
+    midi_tempo: int = 500000
 
 
 config = Config()
