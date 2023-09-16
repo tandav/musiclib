@@ -15,17 +15,10 @@ class Rhythm(Cached):
     def __init__(
         self,
         notes: tuple[int, ...],
-        beats_per_minute: int = 120,
-        beats_per_bar: int = 4,
-        bar_notes: int = 16,  # kinda grid size
+        bar_notes: int = 16,  # grid size
     ) -> None:
         self.notes = notes
-        self.beats_per_minute = beats_per_minute
-        self.beats_per_second = beats_per_minute / 60
-        self.beats_per_bar = beats_per_bar
-        self.bar_seconds = beats_per_bar / self.beats_per_second
         self.bar_notes = bar_notes
-        self.note_seconds = self.bar_seconds / bar_notes
         self.bits = ''.join(map(str, self.notes))
 
     @classmethod
@@ -63,18 +56,14 @@ class Rhythm(Cached):
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(*, n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
+    def all_rhythms(*, n_notes: int, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
         rhythms__ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
         )
-
-        if n_notes is not None:
-            rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
-
+        rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
         rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
-
         if sort_by_score:
             rhythms = (
                 rhythms

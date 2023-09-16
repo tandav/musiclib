@@ -25,7 +25,7 @@ WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
 BLACK_BRIGHT = Color.from_hex(0x000000)
 RED = Color.from_hex(0xFF0000)
 GREEN = Color.from_hex(0x00FF00)
-BLUE = Color.from_hex(0x0000FF)
+BLUE = Color.from_hex(0x4f88ea)
 
 scale_colors = {
     'major': WHITE_BRIGHT,
