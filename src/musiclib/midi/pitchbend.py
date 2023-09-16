@@ -14,8 +14,8 @@ from musiclib.util.etc import increment_duplicates
 
 @dataclasses.dataclass
 class PitchPattern:
-    time_bars: list[int]
-    pitch_st: list[int]
+    time_bars: list[float]
+    pitch_st: list[float]
 
 
 def interpolate_pattern(pattern: PitchPattern, n_interp_points: int) -> PitchPattern:
