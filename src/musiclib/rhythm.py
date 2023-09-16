@@ -6,9 +6,9 @@ import random
 import statistics
 
 import pipe21 as P  # noqa: N812
+from opseq import OpSeq
 
 from musiclib.util.cache import Cached
-from musiclib.util.sequence_builder import SequenceBuilder
 
 
 class Rhythm(Cached):
@@ -57,7 +57,7 @@ class Rhythm(Cached):
 
     @staticmethod
     def all_rhythms(*, n_notes: int, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
-        rhythms__ = SequenceBuilder(
+        rhythms__ = OpSeq(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
