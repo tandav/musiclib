@@ -1,5 +1,7 @@
 import collections
 import dataclasses
+import itertools
+from typing import no_type_check
 
 import numpy as np
 
@@ -94,3 +96,29 @@ def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
             for note in playing_notes:
                 notes_pitchbends[note].append(midi_tmp.pitchbend[im.index])
     return dict(notes_pitchbends)
+
+
+@no_type_check
+def add_pitchbend_from_overlapping_notes(midi: Midi, pitchbend_semitones: int = 2) -> Midi:
+    notes_to_delete = set()
+    pitchbend = []
+    new_notes = []
+    it = itertools.chain(midi.notes, [None])
+    for a, b in itertools.pairwise(it):
+        if b is None:
+            new_notes.append(a)
+            break
+        if a in notes_to_delete:
+            continue
+        if a.off < b.on:
+            new_notes.append(a)
+            continue
+        if b.note - a.note > pitchbend_semitones:
+            raise ValueError(f'note leap {b.note - a.note} is larger than {pitchbend_semitones=}. Increase pitchbend_semitones')
+        pitch = -int((b.note - a.note) / pitchbend_semitones * 8191)
+        pitchbend.append(MidiPitch(time=a.on, pitch=pitch))
+        pitchbend.append(MidiPitch(time=b.on, pitch=0))
+        pitchbend.append(MidiPitch(time=b.off, pitch=0))
+        new_notes.append(MidiNote(note=b.note, on=a.on, off=b.off))
+        notes_to_delete.add(b)
+    return Midi(notes=new_notes, pitchbend=pitchbend)

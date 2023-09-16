@@ -87,3 +87,22 @@ def test_make_notes_pitchbends(midi):
             MidiPitch(time=216, pitch=0),
         ],
     }
+
+
+def test_add_pitchbend_from_overlapping_notes(midi):
+    assert pitchbend.add_pitchbend_from_overlapping_notes(
+        midi,
+        pitchbend_semitones=3,
+    ) == Midi(
+        notes=[
+            MidiNote(note=SpecificNote('C', 4), on=0, off=24),
+            MidiNote(note=SpecificNote('G', 4), on=96, off=216),
+            MidiNote(note=SpecificNote('G', 4), on=192, off=216),
+        ],
+        pitchbend=[
+            MidiPitch(time=96, pitch=-8191),
+            MidiPitch(time=192, pitch=0),
+            MidiPitch(time=216, pitch=0),
+        ],
+        ticks_per_beat=96,
+    )
