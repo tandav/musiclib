@@ -65,3 +65,25 @@ def test_insert_pitch_pattern(midi, pattern):
         ],
         ticks_per_beat=96,
     )
+
+
+def test_make_notes_pitchbends(midi):
+    assert pitchbend.make_notes_pitchbends(midi) == {
+        MidiNote(note=SpecificNote('C', 4), on=0, off=24): [
+            MidiPitch(time=0, pitch=0),
+            MidiPitch(time=24, pitch=0),
+        ],
+        MidiNote(note=SpecificNote('E', 4), on=96, off=202): [
+            MidiPitch(time=96, pitch=236),
+            MidiPitch(time=192, pitch=7797),
+            MidiPitch(time=197, pitch=8191),
+            MidiPitch(time=202, pitch=6035),
+        ],
+        MidiNote(note=SpecificNote('G', 4), on=192, off=216): [
+            MidiPitch(time=192, pitch=7797),
+            MidiPitch(time=197, pitch=8191),
+            MidiPitch(time=202, pitch=6035),
+            MidiPitch(time=216, pitch=0),
+            MidiPitch(time=216, pitch=0),
+        ],
+    }

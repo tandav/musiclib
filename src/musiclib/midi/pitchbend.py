@@ -34,7 +34,7 @@ def interpolate_pattern(pattern: PitchPattern, n_interp_points: int) -> PitchPat
         new_points.add((t, p))
     new_points_sorted = sorted(new_points, key=lambda point: (original_points_indices.get(point, -1), point))
     new_t, new_p = zip(*new_points_sorted, strict=True)
-    return PitchPattern(time_bars=new_t, pitch_st=new_p)
+    return PitchPattern(time_bars=list(new_t), pitch_st=list(new_p))
 
 
 def insert_pitch_pattern(
