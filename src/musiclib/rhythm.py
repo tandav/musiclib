@@ -56,18 +56,14 @@ class Rhythm(Cached):
         return statistics.variance(spacings)
 
     @staticmethod
-    def all_rhythms(*, n_notes: int | None = None, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
+    def all_rhythms(*, n_notes: int, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
         rhythms__ = SequenceBuilder(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
         )
-
-        if n_notes is not None:
-            rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
-
+        rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
         rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
-
         if sort_by_score:
             rhythms = (
                 rhythms

@@ -57,10 +57,7 @@ def test_has_contiguous_ones(example_notes):
 
 
 def test_all_rhythms():
-    assert Rhythm.all_rhythms(
-        n_notes=3,
-        bar_notes=6,
-    ) == (
+    assert Rhythm.all_rhythms(n_notes=3, bar_notes=6) == (
         Rhythm((0, 1, 0, 1, 0, 1), bar_notes=6),
         Rhythm((1, 0, 0, 1, 0, 1), bar_notes=6),
         Rhythm((1, 0, 1, 0, 0, 1), bar_notes=6),
