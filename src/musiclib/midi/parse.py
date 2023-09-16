@@ -77,3 +77,29 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
         elif message.type == 'pitchwheel':
             pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
     return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)
+
+
+def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
+    abs_messages = index_abs_messages(midi)
+    t = 0
+    messages = []
+    for im in abs_messages:
+        m = im.message.copy()
+        m.time = im.message.time - t
+        messages.append(m)
+        t = im.message.time
+    track = mido.MidiTrack(messages)
+    return mido.MidiFile(type=0, tracks=[track], ticks_per_beat=midi.ticks_per_beat)
+
+
+def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
+    """this are messages with absolute time, note real midi messages"""
+    abs_messages = []
+    for i, note in enumerate(midi.notes):
+        abs_messages.append(IndexedMessage(message=mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100), index=i))
+        abs_messages.append(IndexedMessage(message=mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100), index=i))
+    for i, pitch in enumerate(midi.pitchbend):
+        abs_messages.append(IndexedMessage(message=mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch), index=i))
+    # Sort by time. If time is equal sort using type priority in following order: note_on, pitchwheel, note_off
+    abs_messages.sort(key=lambda m: (m.message.time, {'note_on': 0, 'pitchwheel': 1, 'note_off': 2}[m.message.type]))
+    return abs_messages

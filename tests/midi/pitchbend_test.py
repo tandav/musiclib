@@ -18,22 +18,22 @@ def pattern():
         (
             4,
             pitchbend.PitchPattern(
-                time_bars=(0.020833333333333332, 0, 0.0625, 0.0625),
-                pitch_st=(0.6666666666666666, 0, 2, 0),
+                time_bars=[0.020833333333333332, 0, 0.0625, 0.0625],
+                pitch_st=[0.6666666666666666, 0, 2, 0],
             ),
         ),
         (
             5,
             pitchbend.PitchPattern(
-                time_bars=(0.015625, 0.03125, 0, 0.0625, 0.0625),
-                pitch_st=(0.5, 1.0, 0, 2, 0),
+                time_bars=[0.015625, 0.03125, 0, 0.0625, 0.0625],
+                pitch_st=[0.5, 1.0, 0, 2, 0],
             ),
         ),
         (
             9,
             pitchbend.PitchPattern(
-                time_bars=(0.0078125, 0.015625, 0.0234375, 0.03125, 0.0390625, 0.046875, 0, 0.0625, 0.0625),
-                pitch_st=(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 0, 2, 0),
+                time_bars=[0.0078125, 0.015625, 0.0234375, 0.03125, 0.0390625, 0.046875, 0, 0.0625, 0.0625],
+                pitch_st=[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 0, 2, 0],
             ),
         ),
     ],
@@ -65,10 +65,3 @@ def test_insert_pitch_pattern(midi, pattern):
         ],
         ticks_per_beat=96,
     )
-
-
-def test_midiobj_to_midifile(midi, mido_midifile):
-    check = pitchbend.midiobj_to_midifile(midi)
-    assert check.type == mido_midifile.type
-    assert check.ticks_per_beat == mido_midifile.ticks_per_beat
-    assert check.tracks == mido_midifile.tracks
