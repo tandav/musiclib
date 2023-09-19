@@ -30,8 +30,11 @@ class Note(Cached):
     def from_i(cls, i: int) -> Note:
         return cls(config.chromatic_notes[i % 12])
 
+    def __str__(self) -> str:
+        return self.name
+
     def __repr__(self) -> str:
-        return f'Note(name={self.name})'
+        return f'Note(name={self.name!r})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
