@@ -28,13 +28,30 @@ GREEN = Color.from_hex(0x00FF00)
 BLUE = Color.from_hex(0x4f88ea)
 
 scale_colors = {
-    'major': WHITE_BRIGHT,
-    'dorian': Color.from_hex(0x54E346),
-    'phrygian': Color.from_hex(0x00FFCC),
-    'lydian': Color.from_hex(0x68A6FC),
-    'mixolydian': Color.from_hex(0xFFF47D),
-    'minor': Color.from_hex(0xD83A56),
-    'locrian': Color.from_hex(0xB980F0),
+    'major': Color(0xFF0000),
+    'dorian': Color.from_hex(0xFFB014),
+    'phrygian': Color.from_hex(0xEFE600),
+    'lydian': Color.from_hex(0x00D300),
+    'mixolydian': Color.from_hex(0x4800FF),
+    'minor': Color.from_hex(0xB800E5),
+    'locrian': Color.from_hex(0xFF00CB),
+}
+
+interval_colors = {
+    0: Color(0xFF0000),
+    1: Color.from_hex(0xFFB014),
+    2: Color.from_hex(0xEFE600),
+    3: Color.from_hex(0x00D300),
+    4: Color.from_hex(0x4800FF),
+    5: Color.from_hex(0xB800E5),
+    6: Color.from_hex(0xFF00CB),
+    7: Color.from_hex(0xFF0000),
+    8: Color.from_hex(0xFFB014),
+    9: Color.from_hex(0xEFE600),
+    10: Color.from_hex(0x00D300),
+    11: Color.from_hex(0x4800FF),
+    12: Color.from_hex(0xB800E5),
+    13: Color.from_hex(0xFF00CB),
 }
 
 scale_colors['h_major'] = scale_colors['major']
