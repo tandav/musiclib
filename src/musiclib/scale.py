@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import functools
 import itertools
+from typing import TYPE_CHECKING
+
 from collections import defaultdict
 from typing import Any
-
+from typing import ClassVar
+from typing import TypeVar
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 from musiclib import config
 from musiclib.chord import Chord
 from musiclib.config import BLACK_BRIGHT
@@ -12,12 +17,21 @@ from musiclib.config import BLUE
 from musiclib.config import GREEN
 from musiclib.config import RED
 from musiclib.note import Note
-from musiclib.noteset import NoteSet
 from musiclib.svg.piano import Piano
+from musiclib.noteset import NoteSet
+from musiclib.util.cache import Cached
+
+Self = TypeVar('Self', bound='Scale')
+
+def intervals_to_bits(intervals: frozenset[int]) -> str:
+    bits = ['0'] * 12
+    for i in intervals:
+        bits[i] = '1'
+    return ''.join(bits)
 
 
-class Scale(NoteSet):
-    intervals_to_name = {
+class Scale(Cached):
+    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {
         # natural
         frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
         frozenset({0, 2, 3, 5, 7, 9, 10}): 'dorian',
@@ -55,58 +69,111 @@ class Scale(NoteSet):
         frozenset({0, 2, 4, 7, 9, 11}): 's_lydian',
         frozenset({0, 2, 5, 7, 9, 10}): 's_mixolydian',
         frozenset({0, 3, 5, 7, 8, 10}): 's_minor',
+
+        # chords: all have c_ prefix to distinguish from scales
+        # triads
+        frozenset({0, 4, 7}): 'c_major',
+        frozenset({0, 3, 7}): 'c_minor',
+        frozenset({0, 3, 6}): 'c_diminished',
+        # 7th
+        frozenset({0, 4, 7, 11}): 'c_maj7',
+        frozenset({0, 4, 7, 10}): 'c_7',
+        frozenset({0, 3, 7, 10}): 'c_min7',
+        frozenset({0, 3, 6, 10}): 'c_half-dim7',
+        frozenset({0, 3, 6, 9}): 'c_dim7',
+        # 6th
+        frozenset({0, 4, 7, 9}): 'c_6',
+        frozenset({0, 3, 7, 9}): 'c_m6',
+        # etc
+        frozenset({0, 4, 8}): 'c_aug',
+        frozenset({0, 2, 7}): 'c_sus2',
+        frozenset({0, 5, 7}): 'c_sus4',
     }
-    name_to_intervals = {v: k for k, v in intervals_to_name.items()}
+    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = {v: k for k, v in intervals_to_name.items()}
     root: Note
     name: str
 
-    def __init__(
-        self,
-        notes: frozenset[Note],
-        *,
-        root: Note,
-    ):
-        # if not isinstance(root, str | Note):
+    def __init__(self, root: Note, intervals: frozenset[int]):
+        self.root = root
+        self.intervals = intervals
+        self.notes = frozenset({root + interval for interval in intervals})
+        self.name = self.__class__.intervals_to_name.get(intervals)
+        self.kind = config.kinds.get(self.name)
 
-        super().__init__(notes, root=root)
+        _notes_octave_fit = sorted(self.notes)
+        _root_i = _notes_octave_fit.index(root)
+        self.notes_ascending = _notes_octave_fit[_root_i:] + _notes_octave_fit[:_root_i]
+        self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)                   
+        self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
+        self.bits = intervals_to_bits(self.intervals)
+        self.bits_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
+        self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
+        self.key = self.root, self.intervals
 
-        if self.name is None:
-            raise TypeError(f'unknown scale name {self.name}')
-        self.kind = config.kinds[self.name]
-        scales = getattr(config, self.kind)
-        _scale_i = scales.index(self.name)
-        scales = scales[_scale_i:] + scales[:_scale_i]
-        self.note_scales = {}
-        for note, scale in zip(self.notes_ascending, scales, strict=True):
-            self.note_scales[note] = scale
+        if self.kind is not None: # TODO: refactor this
+            scales = getattr(config, self.kind)
+            _scale_i = scales.index(self.name)
+            scales = scales[_scale_i:] + scales[:_scale_i]
+            self.note_scales = {}
+            for note, scale in zip(self.notes_ascending, scales, strict=True):
+                self.note_scales[note] = scale
+        else:
+            self.note_scales = None
 
-        if self.kind == 'natural':
-            self.triads = self._make_nths(frozenset({0, 2, 4}))
-            self.sevenths = self._make_nths(frozenset({0, 2, 4, 6}))
-            self.ninths = self._make_nths(frozenset({0, 2, 4, 6, 8}))
-            self.notes_to_triad_root = {triad.notes: triad.root for triad in self.triads}
-            self.notes_to_seventh_root = {seventh.notes: seventh.root for seventh in self.sevenths}
-            self.notes_to_ninth_root = {ninth.notes: ninth.root for ninth in self.ninths}
+    @classmethod
+    def from_name(cls: type[Self], root: str | Note, name: str) -> Self:
+        if isinstance(root, str):
+            root = Note(root)
+        elif not isinstance(root, Note):
+            raise TypeError(f'expected str | Note, got {type(root)}')
+        return cls(root, cls.name_to_intervals[name])
+    
+    @classmethod
+    def from_notes(cls: type[Self], root: Note, notes: frozenset[Note]) -> Self:
+        if not isinstance(root, Note):
+            raise TypeError(f'expected Note, got {type(root)}')
+        return cls(root, frozenset(note - root for note in notes))
+    
+    @classmethod
+    def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:
+        return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
 
-    def _make_nths(self, ns: frozenset[int]) -> tuple[Chord, ...]:
-        return tuple(
-            Chord(frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns), root=self.notes_ascending[i])
-            for i in range(len(self))
-        )
+    def transpose_to_note(self, note: Note) -> Scale:
+        return Scale.from_intervals(note, self.intervals)
 
-    def parallel(self, parallel_name: str) -> Scale:
-        """same root, changes set of notess"""
-        return Scale.from_name(self.root, parallel_name)
+    @functools.cached_property
+    def noteset(self) -> NoteSet:
+        return NoteSet(self.notes)
+    
+    def __len__(self) -> int:
+        return len(self.intervals)
 
-    def relative(self, relative_name: str) -> Scale:
-        """same set of notes, changes root"""
-        for note, name in self.note_scales.items():
-            if name == relative_name:
-                return Scale.from_name(note, name)
-        raise KeyError(f'relative {relative_name} scale not found')
+    def __getitem__(self, item: int) -> Note:
+        return self.notes_ascending[item]
+
+    def __iter__(self) -> Iterator[Note]:
+        return iter(self.notes_ascending)
+
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, Note):
+            return NotImplemented
+        return item in self.notes
+
+    def __str__(self) -> str:
+        if self.name is not None:
+            return f"{self.root} {self.name}"
+        return f"{''.join(note.name for note in self)}/{self.root}"
+
+    def __repr__(self) -> str:
+        if self.name is not None:
+            return f"Scale.from_name('{self.root}', '{self.name}')"
+        return f'Scale(root={self.root!r}, intervals={self.intervals!r})'
+    
+    def __getnewargs__(self) -> tuple[Note, frozenset[int]]:
+        return (self.root, self.intervals)
 
     def _repr_svg_(self, **kwargs: Any) -> str:
-        kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.note_scales.items()})
+        kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         kwargs.setdefault('title', f'{self.root.name} {self.name}')
         kwargs.setdefault('classes', ('card', self.name))
         return Piano(**kwargs)._repr_svg_()
