@@ -71,7 +71,7 @@ class Scale(NoteSet):
         super().__init__(notes, root=root)
 
         if self.name is None:
-            raise TypeError('scale is not supported')
+            raise TypeError(f'unknown scale name {self.name}')
         self.kind = config.kinds[self.name]
         scales = getattr(config, self.kind)
         _scale_i = scales.index(self.name)
