@@ -84,7 +84,7 @@ class NoteSet(Cached):
             raise TypeError('expected frozenset of Note')
 
         self.notes_ascending = tuple(sorted(self.notes))
-        self.note_to_intervals = {note: frozenset(note - other for other in self.notes) for note in self.notes}
+        self.note_to_intervals = {left: frozenset(right - left for right in self.notes) for left in self.notes}
         self.intervals_key = frozenset(self.note_to_intervals.values())
         self.name = self.__class__.intervals_key_to_name.get(self.intervals_key)
         self._note_i = {note: i for i, note in enumerate(self.notes_ascending)}

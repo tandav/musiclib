@@ -2,10 +2,35 @@ import operator
 
 import pytest
 from musiclib import config
-from musiclib.chord import Chord
 from musiclib.note import Note
 from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
+
+
+@pytest.mark.parametrize(
+    ('string', 'expected'), [
+        ('CDEFGAB/C', Scale(frozenset(map(Note, 'CDEFGAB')), root=Note('C'))),
+        ('CDEFGAB', Scale(frozenset(map(Note, 'CDEFGAB')))),
+        ('CdeFGab/e', Scale(frozenset(map(Note, 'CdeFGab')), root=Note('e'))),
+        ('CEG/C', Scale(frozenset(map(Note, 'CEG')), root=Note('C'))),
+        ('fa/a', Scale(frozenset(map(Note, 'fa')), root=Note('a'))),
+        ('', Scale(frozenset())),
+    ],
+)
+def test_from_str(string, expected):
+    assert Scale.from_str(string) == expected
+
+
+@pytest.mark.parametrize(
+    ('noteset', 'intervals'), [
+        (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
+        (Scale.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
+        (Scale(frozenset()), ()),
+    ],
+)
+def test_intervals(noteset, intervals):
+    assert noteset.intervals_ascending == intervals
+    assert noteset.intervals == frozenset(intervals)
 
 
 @pytest.mark.parametrize(
