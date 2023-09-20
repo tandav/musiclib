@@ -130,6 +130,12 @@ class Scale(Cached):
         return cls(root, frozenset(note - root for note in notes))
     
     @classmethod
+    def from_str(cls: type[Self], string: str) -> Self:
+        if string[-2] != '/':
+            raise ValueError('scale string must ends with scale root, example "CDEFGAB/C"')
+        return cls.from_notes(Note(string[-1]), frozenset(Note(note) for note in string[:-2]))
+    
+    @classmethod
     def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:
         return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
 
