@@ -7,7 +7,7 @@ from typing import Literal
 
 import mido
 
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
 from musiclib.rhythm import Rhythm
 from musiclib.tempo import Tempo
@@ -110,8 +110,8 @@ def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
     return abs_messages
 
 
-def chord_to_midi(
-    chord: SpecificChord,
+def specific_note_set_to_midi(
+    noteset: SpecificNoteSet,
     path: str | Path | None = None,
     n_bars: int = 1,
 ) -> mido.MidiFile | None:
@@ -120,18 +120,18 @@ def chord_to_midi(
     track.append(mido.MetaMessage(type='track_name', name='test_name'))
     track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
     track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
-    if chord.root is not None:
-        track.append(mido.MetaMessage(type='marker', text=chord.root.name))
+    if noteset.root is not None:
+        track.append(mido.MetaMessage(type='marker', text=noteset.root.name))
 
     stop_time = int(n_bars * mid.ticks_per_beat * 4)
 
-    for note in chord.notes_ascending:
+    for note in noteset.notes_ascending:
         track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))  # noqa: PERF401
-    for i, note in enumerate(chord.notes_ascending):
+    for i, note in enumerate(noteset.notes_ascending):
         track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
 
     mid.tracks.append(track)
-    mid.meta = {'chord': chord}
+    mid.meta = {'noteset': noteset}
     if path is None:
         return mid
     mid.save(path)
@@ -145,19 +145,19 @@ def rhythm_to_midi(  # noqa: C901
     rhythm: Rhythm,
     path: str | Path | None = None,
     note_: SpecificNote | None = None,
-    chord: SpecificChord | None = None,
-    progression: Iterable[SpecificChord] | None = None,
+    noteset: SpecificNoteSet | None = None,
+    progression: Iterable[SpecificNoteSet] | None = None,
 ) -> mido.MidiFile:
 
-    if note_ is not None and chord is not None:
+    if note_ is not None and noteset is not None:
         raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
 
-    if chord is None:
+    if noteset is None:
         if note_ is None:
             raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
         note__ = note_
 
-    if note_ is None and chord is None:
+    if note_ is None and noteset is None:
         raise TO_MIDI_MUTUAL_EXCLUSIVE_ERROR
 
     tempo = Tempo()
@@ -167,11 +167,11 @@ def rhythm_to_midi(  # noqa: C901
     track = mido.MidiTrack()
     t = 0
 
-    def append_bar(chord: SpecificChord | None) -> None:
+    def append_bar(noteset: SpecificNoteSet | None) -> None:
         nonlocal t
         for is_play in rhythm.notes:
             if is_play:
-                notes = [note__.i] if chord is None else [note.i for note in chord.notes]
+                notes = [note__.i] if noteset is None else [note.i for note in noteset.notes]
                 for i, note in enumerate(notes):
                     track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                 for i, note in enumerate(notes):
@@ -181,10 +181,10 @@ def rhythm_to_midi(  # noqa: C901
                 t += ticks_per_note
 
     if progression is None:
-        append_bar(chord)
+        append_bar(noteset)
     else:
-        for _chord in progression:
-            append_bar(_chord)
+        for _noteset in progression:
+            append_bar(_noteset)
 
     mid.tracks.append(track)
     if path is not None:

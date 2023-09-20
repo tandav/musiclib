@@ -11,7 +11,6 @@ from typing import TypeVar
 if TYPE_CHECKING:
     from collections.abc import Iterator
 from musiclib import config
-from musiclib.chord import Chord
 from musiclib.config import BLACK_BRIGHT
 from musiclib.config import BLUE
 from musiclib.config import GREEN

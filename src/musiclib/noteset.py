@@ -9,12 +9,11 @@ from typing import ClassVar
 from typing import TypeVar
 from typing import overload
 
-from musiclibi import config
+from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
-from musiclib.noterange import NoteRange
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -264,6 +263,7 @@ class SpecificNoteSet(Cached):
 
     def _repr_svg_(self, **kwargs: Any) -> str:
         from musiclib.svg.piano import Piano
+        from musiclib.noterange import NoteRange
         kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('title', repr(self))
