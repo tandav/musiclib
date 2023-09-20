@@ -29,6 +29,16 @@ def test_from_str(string, expected):
     assert Scale.from_str(string) == expected
 
 
+@pytest.mark.parametrize(
+    ('root', 'name', 'expected'), [
+        (Note('C'), 'major', Scale.from_str('CDEFGAB/C')),
+        (Note('C'), 'minor', Scale.from_str('CDeFGab/C')),
+        (Note('C'), 'c_major', Scale.from_str('CEG/C')),
+    ],
+)
+def test_from_name(root, name, expected):
+    assert Scale.from_name(root, name) == expected
+
 # @pytest.mark.parametrize(
 #     ('scale', 'intervals'), [
 #         (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
