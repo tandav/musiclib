@@ -89,6 +89,10 @@ class Scale(Cached):
     name: str
 
     def __init__(self, root: Note, intervals: frozenset[int]):
+        if not isinstance(root, Note):
+            raise TypeError(f'expected Note, got {type(root)}')
+        if not isinstance(intervals, frozenset):
+            raise TypeError(f'expected frozenset, got {type(intervals)}')
         self.root = root
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
@@ -127,13 +131,19 @@ class Scale(Cached):
     def from_notes(cls: type[Self], root: Note, notes: frozenset[Note]) -> Self:
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
+        if not root in notes:
+            raise ValueError('scale root must be in scale notes')
         return cls(root, frozenset(note - root for note in notes))
     
     @classmethod
     def from_str(cls: type[Self], string: str) -> Self:
+        if string == '':
+            raise ValueError('scale string must not be empty')
         if string[-2] != '/':
             raise ValueError('scale string must ends with scale root, example "CDEFGAB/C"')
-        return cls.from_notes(Note(string[-1]), frozenset(Note(note) for note in string[:-2]))
+        root = Note(string[-1])
+        notes = frozenset(Note(note) for note in string[:-2])
+        return cls.from_notes(root, notes)
     
     @classmethod
     def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:

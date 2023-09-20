@@ -11,9 +11,14 @@ from musiclib.scale import Scale
 @pytest.mark.parametrize(
     ('root', 'notes', 'expected'), [
         (Note('C'), frozenset(map(Note, 'CEG')), Scale(Note('C'), frozenset({0, 4, 7}))),
+        (Note('E'), frozenset(map(Note, 'AB')), ValueError),
     ],
 )
 def test_from_notes(root, notes, expected):
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            Scale.from_notes(root, notes)
+        return
     assert Scale.from_notes(root, notes) is expected
 
 
@@ -28,6 +33,14 @@ def test_from_notes(root, notes, expected):
 def test_from_str(string, expected):
     assert Scale.from_str(string) == expected
 
+@pytest.mark.parametrize('string', [
+    '',
+    'CDE',
+])
+def test_from_str_validation(string):
+    with pytest.raises(ValueError):
+        Scale.from_str(string)
+
 
 @pytest.mark.parametrize(
     ('root', 'name', 'expected'), [
@@ -39,36 +52,35 @@ def test_from_str(string, expected):
 def test_from_name(root, name, expected):
     assert Scale.from_name(root, name) == expected
 
-# @pytest.mark.parametrize(
-#     ('scale', 'intervals'), [
-#         (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
-#         (Scale.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
-#         (Scale(frozenset()), ()),
-#     ],
-# )
-# def test_intervals(scale, intervals):
-#     assert scale.intervals_ascending == intervals
-#     assert scale.intervals == frozenset(intervals)
 
-# @pytest.mark.parametrize(
-#     ('scale', 'note_to_interval'), [
-#         (Scale.from_str('CDE'), {}),
-#         (Scale.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
-#     ],
-# )
-# def test_note_to_interval(scale, note_to_interval):
-#     assert scale.note_to_interval == note_to_interval
+@pytest.mark.parametrize(
+    ('scale', 'intervals'), [
+        (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
+        (Scale.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
+    ],
+)
+def test_intervals(scale, intervals):
+    assert scale.intervals_ascending == intervals
+    assert scale.intervals == frozenset(intervals)
 
 
-# @pytest.mark.parametrize(
-#     ('notes', 'bits'), [
-#         ('CDEFGAB/C', '101011010101'),
-#         ('dfb/d', '100001000100'),
-#         ('', '000000000000'),
-#     ],
-# )
-# def test_bits(notes, bits):
-#     assert Scale.from_str(notes).bits == bits
+@pytest.mark.parametrize(
+    ('scale', 'note_to_interval'), [
+        (Scale.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
+    ],
+)
+def test_note_to_interval(scale, note_to_interval):
+    assert scale.note_to_interval == note_to_interval
+
+
+@pytest.mark.parametrize(
+    ('notes', 'bits'), [
+        ('CDEFGAB/C', '101011010101'),
+        ('dfb/d', '100001000100'),
+    ],
+)
+def test_bits(notes, bits):
+    assert Scale.from_str(notes).bits == bits
 
 
 # @pytest.mark.parametrize(
@@ -82,9 +94,6 @@ def test_from_name(root, name, expected):
 
 
 
-# def test_root_validation():
-#     with pytest.raises(KeyError):
-#         Scale.from_str('AB/E')
 
 
 # @pytest.mark.parametrize(
