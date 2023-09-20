@@ -22,15 +22,62 @@ def test_from_str(string, expected):
 
 
 @pytest.mark.parametrize(
-    ('noteset', 'intervals'), [
+    ('scale', 'intervals'), [
         (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
         (Scale.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
         (Scale(frozenset()), ()),
     ],
 )
-def test_intervals(noteset, intervals):
-    assert noteset.intervals_ascending == intervals
-    assert noteset.intervals == frozenset(intervals)
+def test_intervals(scale, intervals):
+    assert scale.intervals_ascending == intervals
+    assert scale.intervals == frozenset(intervals)
+
+@pytest.mark.parametrize(
+    ('scale', 'note_to_interval'), [
+        (Scale.from_str('CDE'), {}),
+        (Scale.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
+    ],
+)
+def test_note_to_interval(scale, note_to_interval):
+    assert scale.note_to_interval == note_to_interval
+
+
+@pytest.mark.parametrize(
+    ('notes', 'bits'), [
+        ('CDEFGAB/C', '101011010101'),
+        ('dfb/d', '100001000100'),
+        ('', '000000000000'),
+    ],
+)
+def test_bits(notes, bits):
+    assert Scale.from_str(notes).bits == bits
+
+
+@pytest.mark.parametrize(
+    ('scale', 'bits'), [
+        (Scale.from_str('CDE'), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
+        (Scale.from_str('df'), (0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)),
+    ],
+)
+def test_bits_notes(scale, bits):
+    assert scale.bits_notes == bits
+
+
+@pytest.mark.parametrize(
+    ('intervals', 'root', 'expected'), [
+        (frozenset({0, 4, 7}), 'C', Scale.from_str('CEG/C')),
+        (frozenset({0, 1, 3, 5, 7, 8, 10}), 'E', Scale.from_str('CDEFGAB/E')),
+        (frozenset({0, 2, 3, 5, 7, 9, 10}), 'f', Scale.from_str('faABdeE/f')),
+        (frozenset(), None, Scale(frozenset(), root=None)),
+    ],
+)
+def test_from_intervals(intervals, root, expected):
+    assert Scale.from_intervals(intervals, root) is expected
+
+
+def test_root_validation():
+    with pytest.raises(KeyError):
+        Scale.from_str('AB/E')
 
 
 @pytest.mark.parametrize(
