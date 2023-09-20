@@ -19,14 +19,10 @@ from musiclib.note import Note
 from musiclib.svg.piano import Piano
 from musiclib.noteset import NoteSet
 from musiclib.util.cache import Cached
+from musiclib.util.etc import intervals_to_bits
 
 Self = TypeVar('Self', bound='Scale')
 
-def intervals_to_bits(intervals: frozenset[int]) -> str:
-    bits = ['0'] * 12
-    for i in intervals:
-        bits[i] = '1'
-    return ''.join(bits)
 
 
 class Scale(Cached):
