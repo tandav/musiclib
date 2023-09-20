@@ -1,17 +1,20 @@
 from __future__ import annotations
 
+import functools
 import itertools
+import random
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
 from typing import TypeVar
 from typing import overload
 
-from musiclib.config import RED
+from musiclibi import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
+from musiclib.noterange import NoteRange
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -23,13 +26,13 @@ Self = TypeVar('Self', bound='NoteSet')
 class NoteSet(Cached):
     name_to_intervals_key: ClassVar[dict[str, frozenset[frozenset[int]]]] = {
         'natural': frozenset({
-            frozenset({0, 1, 3, 5, 6, 8, 10}),
-            frozenset({0, 1, 3, 5, 7, 8, 10}),
-            frozenset({0, 2, 3, 5, 7, 8, 10}),
-            frozenset({0, 2, 3, 5, 7, 9, 10}),
-            frozenset({0, 2, 4, 5, 7, 9, 10}),
-            frozenset({0, 2, 4, 5, 7, 9, 11}),
-            frozenset({0, 2, 4, 6, 7, 9, 11}),
+            frozenset({0, 2, 4, 6, 7, 9, 11}), # lydian
+            frozenset({0, 2, 4, 5, 7, 9, 11}), # major
+            frozenset({0, 2, 4, 5, 7, 9, 10}), # mixolydian
+            frozenset({0, 2, 3, 5, 7, 9, 10}), # dorian
+            frozenset({0, 2, 3, 5, 7, 8, 10}), # minor
+            frozenset({0, 1, 3, 5, 7, 8, 10}), # phrygian
+            frozenset({0, 1, 3, 5, 6, 8, 10}), # locrian 
         }),
         'harmonic': frozenset({
             frozenset({0, 1, 3, 4, 6, 8, 9}),
@@ -168,12 +171,105 @@ class NoteSet(Cached):
     def _repr_svg_(self, **kwargs: Any) -> str:
         from musiclib.svg.piano import Piano  # hack to fix circular import
         kwargs.setdefault('title', str(self))
-        kwargs.setdefault('note_colors', {note: RED for note in self})
+        kwargs.setdefault('note_colors', {note: config.RED for note in self})
         kwargs.setdefault('classes', ('card',))
         return Piano(**kwargs)._repr_svg_()
 
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
+
+
+class SpecificNoteSet(Cached):
+    def __init__(self, notes: frozenset[SpecificNote]) -> None:
+        if not isinstance(notes, frozenset):
+            raise TypeError(f'expected frozenset, got {type(notes)}')
+        self.notes = notes
+        self.abstract = NoteSet(note.abstract for note in notes)
+        self.notes_ascending = tuple(sorted(notes))
+        self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending)  # from lowest note
+
+    @classmethod
+    def random(
+        cls, 
+        n_notes: int | None = None, 
+        notes: frozenset[Note] = frozenset(map(Note, config.chromatic_notes)),
+        octaves: frozenset[int] = frozenset({3, 4, 5}),
+    ) -> SpecificNoteSet:
+        if n_notes is None:
+            n_notes = random.randint(2, 5)
+        notes_space = tuple(
+            SpecificNote(note, octave)
+            for note, octave in itertools.product(notes, octaves)
+        )
+        notes = frozenset(random.sample(notes_space, n_notes))
+        return cls(notes)
+
+    @classmethod
+    def from_str(cls, string: str) -> SpecificNoteSet:
+        notes_ = string.split('_')
+        if len(notes_) != len(set(notes_)):
+            raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
+        notes = frozenset(SpecificNote.from_str(note) for note in notes_)
+        return cls(notes)
+    
+    def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
+        yield from itertools.combinations(self.notes_ascending, 2)
+
+    def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote], ...]:
+        return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
+
+    @functools.cached_property
+    def transposed_to_note(self, note: SpecificNote) -> SpecificNoteSet:
+        return self + (note - self[0])
+    
+    def __len__(self) -> int:
+        return len(self.notes)
+
+    def __getitem__(self, item: int) -> SpecificNote:
+        return self.notes_ascending[item]
+
+    def __iter__(self) -> Iterator[SpecificNote]:
+        return iter(self.notes_ascending)
+
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, SpecificNote):
+            return NotImplemented
+        return item in self.notes
+
+    def __str__(self) -> str:
+        return '_'.join(str(note) for note in self.notes_ascending)
+
+    def __repr__(self) -> str:
+        return '_'.join(repr(note) for note in self.notes_ascending)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SpecificNoteSet):
+            return NotImplemented
+        return self.notes == other.notes
+
+    def __hash__(self) -> int:
+        return hash(self.notes)
+
+    def __sub__(self, other: SpecificNoteSet) -> int:
+        return sum(abs(a - b) for a, b in zip(self, other, strict=True))
+
+    def __add__(self, other: int) -> SpecificNoteSet:
+        """transpose"""
+        if not isinstance(other, int):
+            raise TypeError('only adding integers is allowed (transposition)')
+        return SpecificNoteSet(frozenset(note + other for note in self))
+
+    def __getnewargs__(self) -> tuple[frozenset[Note]]:
+        return (self.notes,)
+
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        from musiclib.svg.piano import Piano
+        kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
+        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('title', repr(self))
+        kwargs.setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
+        kwargs.setdefault('squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
+        return Piano(**kwargs)._repr_svg_()
 
 
 def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
