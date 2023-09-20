@@ -153,6 +153,7 @@ def test_add_note(chord, note, steps, result):
     ],
 )
 def test_transposed_to_C0(chord, expected):
+    """TODO: transposed_to_note instead of C0"""
     assert SpecificChord.from_str(chord).transposed_to_C0 == SpecificChord.from_str(expected)
 
 

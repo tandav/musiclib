@@ -81,6 +81,17 @@ def test_root_validation():
 
 
 @pytest.mark.parametrize(
+    ('scale', 'note', 'expected'), [
+        ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
+        ('CdeFGab/e', 'D', 'DEfGABC/D'),
+        ('Cd/C', 'd', 'dD/d'),
+    ],
+)
+def test_transposed_to_note(scale, note, expected):
+    assert Scale.from_str(scale).transposed_to_note(note) is Scale.from_str(expected)
+
+
+@pytest.mark.parametrize(
     ('notes', 'name'), [
         ('CDEFGAB', 'major'),
         ('CdeFGab', 'phrygian'),
