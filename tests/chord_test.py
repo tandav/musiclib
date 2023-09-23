@@ -47,7 +47,7 @@ def test_str_sort_2_octaves(chord, expected):
 @pytest.mark.parametrize(
     ('notes', 'root', 'expected'), [
         ('CEG', 'C', 'major'),
-        ('BDF', 'B', 'diminished'),
+        ('BDF', 'B', 'dim'),
         ('CefA', 'C', 'dim7'),
         ('DFaC', 'D', 'half-dim7'),
     ],

@@ -56,7 +56,7 @@ name_to_intervals_kind_grouped = {
     # triads
     'major': named_intervals_rotations(frozenset({0, 4, 7}), 'major'),
     'minor': named_intervals_rotations(frozenset({0, 3, 7}), 'minor'),
-    'diminished': named_intervals_rotations(frozenset({0, 3, 6}), 'diminished'),
+    'dim': named_intervals_rotations(frozenset({0, 3, 6}), 'dim'),
     # 7th
     'maj7': named_intervals_rotations(frozenset({0, 4, 7, 11}), 'maj7'),
     '7': named_intervals_rotations(frozenset({0, 4, 7, 10}), '7'),
