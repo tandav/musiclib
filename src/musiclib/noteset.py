@@ -124,7 +124,7 @@ class SpecificNoteSet(Cached):
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
         self.notes = notes
-        self.abstract = NoteSet(frozenset(note.abstract for note in notes))
+        self.noteset = NoteSet(frozenset(note.abstract for note in notes))
         self.notes_ascending = tuple(sorted(notes))
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending)  # from lowest note
 
@@ -148,7 +148,7 @@ class SpecificNoteSet(Cached):
     def from_str(cls, string: str) -> SpecificNoteSet:
         notes_ = string.split('_')
         if len(notes_) != len(set(notes_)):
-            raise NotImplementedError('SpecificChord_s with non unique notes are not supported')
+            raise ValueError('SpecificChord_s with non unique notes are not supported')
         notes = frozenset(SpecificNote.from_str(note) for note in notes_)
         return cls(notes)
     

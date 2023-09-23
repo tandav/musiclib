@@ -140,9 +140,5 @@ class SpecificNote(Cached):
         """C + 7 = G"""
         return SpecificNote.from_i(self.i + other)
 
-    @staticmethod
-    def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
-        return frozenset(note.abstract for note in notes)
-
     def __getnewargs__(self) -> tuple[Note, int]:
         return self.abstract, self.octave
