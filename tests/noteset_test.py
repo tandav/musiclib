@@ -5,7 +5,6 @@ import pytest
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
-from musiclib.noteset import SpecificNoteSet
 
 from musiclib.scale import Scale
 from musiclib.scale import all_scales
@@ -219,15 +218,3 @@ def test_subtract_types():
         noteset.subtract('C', SpecificNote('D', 1))  # type: ignore[arg-type]
     with pytest.raises(TypeError):
         noteset.subtract('D1', Note('C'))  # type: ignore[arg-type]
-
-
-# SpecificNoteSet
-
-@pytest.mark.parametrize(
-    ('noteset', 'note', 'expected'), [
-        (SpecificNoteSet.from_str('C1_E1_G1'), SpecificNote.from_str('A1'), SpecificNoteSet.from_str('A1_d2_E2')),
-        (SpecificNoteSet(frozenset()), SpecificNote.from_str('A1'), SpecificNoteSet(frozenset())),
-    ],
-)
-def test_transpose_to_note(noteset, note, expected):
-    assert noteset.transpose_to_note(note) == expected

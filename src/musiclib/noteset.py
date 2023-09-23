@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-import functools
 import itertools
 import random
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import ClassVar
 from typing import TypeVar
 from typing import overload
 
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.util import typeguards
 from musiclib.util.cache import Cached
 
 if TYPE_CHECKING:

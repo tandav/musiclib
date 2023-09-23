@@ -1,20 +1,21 @@
 import random
 
 import pytest
-from musiclib.chord import Chord
-from musiclib.chord import SpecificChord
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
+from musiclib.noteset import SpecificNoteSet
 
 
-def test_creation_from_notes():
-    assert str(Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))) == 'CEG/C'
+@pytest.mark.parametrize(
+    ('noteset', 'note', 'expected'), [
+        (SpecificNoteSet.from_str('C1_E1_G1'), SpecificNote.from_str('A1'), SpecificNoteSet.from_str('A1_d2_E2')),
+        (SpecificNoteSet(frozenset()), SpecificNote.from_str('A1'), SpecificNoteSet(frozenset())),
+    ],
+)
+def test_transpose_to_note(noteset, note, expected):
+    assert noteset.transpose_to_note(note) == expected
 
-
-def test_chord_root_validation():
-    with pytest.raises(TypeError):
-        Chord.from_str('CEG')
 
 
 @pytest.mark.parametrize('arg', ['C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')])
@@ -27,21 +28,6 @@ def test_specificchord_root_validation():
     assert isinstance(SpecificChord(frozenset({SpecificNote('A', 1)}), root='A').root, Note)
     with pytest.raises(KeyError):
         SpecificChord(frozenset({SpecificNote('A', 1)}), root='E')
-
-
-def test_notes():
-    assert Chord(frozenset(map(Note, 'CEG')), root=Note('C')).notes == frozenset({Note('C'), Note('E'), Note('G')})
-    assert Chord.from_name('C', 'major').notes == frozenset({Note('C'), Note('E'), Note('G')})
-
-
-@pytest.mark.parametrize(
-    ('chord', 'expected'), [
-        (Chord(frozenset(map(Note, 'BDF')), root=Note('B')), 'BDF/B'),
-        (Chord(frozenset(map(Note, 'DGBFCEA')), root=Note('B')), 'BCDEFGA/B'),
-    ],
-)
-def test_str_sort_2_octaves(chord, expected):
-    assert str(chord) == expected
 
 
 @pytest.mark.parametrize(

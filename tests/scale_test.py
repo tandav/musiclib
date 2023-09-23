@@ -23,6 +23,16 @@ def test_from_notes(root, notes, expected):
 
 
 @pytest.mark.parametrize(
+    ('scale', 'expected'), [
+        (Scale.from_notes(Note('B'), frozenset(map(Note, 'BDF'))), 'BDF/B'),
+        (Scale.from_notes(Note('B'), frozenset(map(Note, 'DGBFCEA'))), 'BCDEFGA/B'),
+    ],
+)
+def test_notes_str_sort_2_octaves(scale, expected):
+    assert scale.notes_str == expected
+
+
+@pytest.mark.parametrize(
     ('string', 'expected'), [
         ('CDEFGAB/C', Scale.from_notes(Note('C'), frozenset(map(Note, 'CDEFGAB')))),
         ('CdeFGab/e', Scale.from_notes(Note('e'), frozenset(map(Note, 'CdeFGab')))),
