@@ -128,34 +128,34 @@ def test_name(notes, name):
     (Scale.from_name('C', 'major_0'), 'major'),
     (Scale.from_name('C', 'major_1'), 'major'),
     (Scale.from_name('C', 'major_2'), 'major'),
-
     (Scale.from_name('C', 'minor_0'), 'minor'),
     (Scale.from_name('C', 'minor_1'), 'minor'),
     (Scale.from_name('C', 'minor_2'), 'minor'),
-
-    # (Scale.from_name('C', 'c_dim7'), 'c_dim7'),
-    # (Scale.from_name('C', 'c_7'), 'c_7'),
-    # (Scale.from_name('C', 'c_7_inv1'), 'c_7'),
-    # (Scale.from_name('C', 'c_7_inv2'), 'c_7'),
-    # (Scale.from_name('C', 'c_7_inv3'), 'c_7'),
-    # (Scale.from_name('C', 'c_dim7_inv1'), 'c_dim7'),
-    # (Scale.from_name('C', 'c_dim7_inv2'), 'c_dim7'),
-    # (Scale.from_name('C', 'c_dim7_inv3'), 'c_dim7'), # probably dim7 dont have inversions
+    (Scale.from_name('C', '7_0'), '7'),
+    (Scale.from_name('C', '7_1'), '7'),
+    (Scale.from_name('C', '7_2'), '7'),
+    (Scale.from_name('C', '7_3'), '7'),
+    (Scale.from_name('C', 'dim7_0'), 'dim7'),
+    (Scale.from_name('C', 'dim7_1'), 'dim7'),
+    (Scale.from_name('C', 'dim7_2'), 'dim7'),
+    (Scale.from_name('C', 'dim7_3'), 'dim7'),
 ])
 def test_kind(scale, expected):
     assert scale.kind == expected
 
 
-# @pytest.mark.parametrize(
-#     ('op', 'a', 'b'), [
-#         (operator.eq, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
-#         (operator.eq, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
-#         (operator.eq, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('C'), 'major')),
-#         (operator.ne, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('E'), 'major')),
-#     ],
-# )
-# def test_equal(op, a, b):
-#     assert op(a, b)
+@pytest.mark.parametrize(
+    ('op', 'a', 'b'), [
+        (operator.eq, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
+        (operator.eq, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
+        (operator.eq, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('C'), 'major')),
+        (operator.ne, Scale.from_name(Note('C'), 'major'), Scale.from_name(Note('E'), 'major')),
+    ],
+)
+def test_equal(op, a, b):
+    assert op(a, b)
+    if op is operator.eq:
+        assert operator.is_(a, b)
 
 
 # @pytest.mark.parametrize(
