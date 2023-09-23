@@ -1,8 +1,7 @@
 import operator
 
 import pytest
-from musiclib.chord import Chord
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
@@ -36,10 +35,6 @@ def test_specific_note(op, a, b):
     ('op', 'a', 'b'), [
         (operator.is_, NoteSet(frozenset(map(Note, 'CDe'))), NoteSet(frozenset(map(Note, 'CDe')))),
         (operator.is_, NoteSet(frozenset(map(Note, 'CDe'))), NoteSet.from_str('CDe')),
-        (operator.is_, NoteSet(frozenset(map(Note, 'CDe')), root=Note('C')), NoteSet(frozenset(map(Note, 'CDe')), root=Note('C'))),
-        (operator.is_, NoteSet(frozenset(map(Note, 'CDe')), root=Note('C')), NoteSet.from_str('CDe/C')),
-        (operator.is_, NoteSet.from_str('CDe/C'), NoteSet.from_str('CDe/C')),
-        (operator.is_not, NoteSet.from_str('CDe/C'), NoteSet.from_str('CDe/D')),
     ],
 )
 def test_noteset(op, a, b):
@@ -49,32 +44,27 @@ def test_noteset(op, a, b):
 @pytest.mark.parametrize(
     ('op', 'a', 'b'), [
         (operator.is_, Scale.from_str('CdeFGab/C'), Scale.from_str('CdeFGab/C')),
-        (operator.is_, Scale(frozenset(map(Note, 'CdeFGab')), root=Note('C')), Scale.from_str('CdeFGab/C')),
+        (operator.is_, Scale(Note('C'), frozenset({0, 1, 3, 5, 7, 8, 10})), Scale.from_notes(Note('C'), frozenset(map(Note, 'CdeFGab')))),
+        (operator.is_, Scale(Note('C'), frozenset({0, 1, 3, 5, 7, 8, 10})), Scale.from_str('CdeFGab/C')),
+        (operator.is_, Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG'))), Scale.from_str('CEG/C')),
+        (operator.is_, Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG'))), Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG')))),
         (operator.is_not, Scale.from_str('CdeFGab/C'), Scale.from_str('CdeFGab/d')),
         (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
         (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
         (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
         (operator.is_, Scale.from_name('C', 'major'), Scale.from_str('CDEFGAB/C')),
+        (operator.is_, Scale.from_name('C', 'dim7_0'), Scale.from_name('C', 'dim7_1')),
+        (operator.is_not, Scale.from_str('CEG/C'), Scale.from_str('CeG/C')),
+        (operator.is_not, Scale.from_str('CEG/C'), Scale.from_str('CEG/E')),
+        (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
+        (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
+        (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
     ],
 )
 def test_scale(op, a, b):
     assert op(a, b)
 
 
-@pytest.mark.parametrize(
-    ('op', 'a', 'b'), [
-        (operator.is_, Chord(frozenset(map(Note, 'CEG')), root=Note('C')), Chord(frozenset(map(Note, 'CEG')), root=Note('C'))),
-        (operator.is_, Chord(frozenset(map(Note, 'CEG')), root=Note('C')), Chord.from_str('CEG/C')),
-        (operator.is_, Chord.from_str('CEG/C'), Chord.from_str('CEG/C')),
-        (operator.is_not, Chord.from_str('CEG/C'), Chord.from_str('CeG/C')),
-        (operator.is_not, Chord.from_str('CEG/C'), Chord.from_str('CEG/E')),
-        (operator.is_, Chord.from_name('C', 'major'), Chord.from_name('C', 'major')),
-        (operator.is_not, Chord.from_name('C', 'major'), Chord.from_name('D', 'major')),
-        (operator.is_, Chord.from_name('C', 'major'), Chord.from_name(Note('C'), 'major')),
-    ],
-)
-def test_chord(op, a, b):
-    assert op(a, b)
 
 
 def test_specific_chord():
@@ -82,33 +72,30 @@ def test_specific_chord():
     b = SpecificNote('E', 5)
     c = SpecificNote('G', 5)
     d = SpecificNote('C', 6)
-    assert SpecificChord(frozenset({a, b, c})) is SpecificChord(frozenset({a, b, c}))
-    assert SpecificChord(frozenset({a, b, c}), root='C') is SpecificChord(frozenset({a, b, c}), root=Note('C'))
-    assert SpecificChord(frozenset({a, b, c}), root='C') is not SpecificChord(frozenset({a, b, d}), root=Note('C'))
-    assert SpecificChord(frozenset({a, b, c}), root='C') is not SpecificChord(frozenset({a, b, c}), root=Note('E'))
-    assert SpecificChord.from_str('C1_E1_G1/C') is SpecificChord.from_str('C1_E1_G1/C')
-    assert SpecificChord.from_str('C1_E1_G1/C') is not SpecificChord.from_str('C1_E1_G1/E')
-    assert SpecificChord.from_str('C1_E1_G1/C') is not SpecificChord.from_str('C1_e1_G1/C')
+    assert SpecificNoteSet(frozenset({a, b, c})) is SpecificNoteSet(frozenset({a, b, c}))
+    assert SpecificNoteSet(frozenset({a, b, c})) is not SpecificNoteSet(frozenset({a, b, d}))
+    assert SpecificNoteSet.from_str('C1_E1_G1') is SpecificNoteSet.from_str('C1_E1_G1')
+    assert SpecificNoteSet.from_str('C1_E1_G1') is not SpecificNoteSet.from_str('C1_e1_G1')
 
 
 def test_progression():
     p0 = Progression((
-        SpecificChord.from_str('G2_B2_e3'),
-        SpecificChord.from_str('A2_C3_E3'),
-        SpecificChord.from_str('B2_D3_f3'),
-        SpecificChord.from_str('C3_E3_G3'),
+        SpecificNoteSet.from_str('G2_B2_e3'),
+        SpecificNoteSet.from_str('A2_C3_E3'),
+        SpecificNoteSet.from_str('B2_D3_f3'),
+        SpecificNoteSet.from_str('C3_E3_G3'),
     ))
     p1 = Progression((
-        SpecificChord.from_str('G2_B2_e3'),
-        SpecificChord.from_str('A2_C3_E3'),
-        SpecificChord.from_str('B2_D3_f3'),
-        SpecificChord.from_str('C3_E3_G3'),
+        SpecificNoteSet.from_str('G2_B2_e3'),
+        SpecificNoteSet.from_str('A2_C3_E3'),
+        SpecificNoteSet.from_str('B2_D3_f3'),
+        SpecificNoteSet.from_str('C3_E3_G3'),
     ))
     p2 = Progression((
-        SpecificChord.from_str('C0_E0_a0'),
-        SpecificChord.from_str('D0_F0_A0'),
-        SpecificChord.from_str('E0_G0_B0'),
-        SpecificChord.from_str('F0_A0_C1'),
+        SpecificNoteSet.from_str('C0_E0_a0'),
+        SpecificNoteSet.from_str('D0_F0_A0'),
+        SpecificNoteSet.from_str('E0_G0_B0'),
+        SpecificNoteSet.from_str('F0_A0_C1'),
     ))
     assert p0 is p1
     assert p0 is not p2
