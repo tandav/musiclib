@@ -1,4 +1,5 @@
 import functools
+import collections
 import operator
 from colortool import Color
 from musiclib.util.etc import named_intervals_rotations
@@ -71,7 +72,10 @@ name_to_intervals_kind_grouped = {
 
 }
 name_to_intervals = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
-intervals_to_name = {v: k for k, v in name_to_intervals.items()}
+intervals_to_names = collections.defaultdict(set)
+for n, i in name_to_intervals.items():
+    intervals_to_names[i].add(n)
+intervals_to_names = {k: frozenset(v) for k, v in intervals_to_names.items()}
 name_to_intervals_key = {kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()}
 intervals_key_to_name = {v: k for k, v in name_to_intervals_key.items()}
 

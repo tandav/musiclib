@@ -32,8 +32,8 @@ class Scale(Cached):
         self.root = root
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
-        self.name = config.intervals_to_name.get(intervals)
-        self.kind = config.kinds.get(self.name)
+        self.names = config.intervals_to_names.get(intervals, frozenset())
+        self.name_kinds = {name: config.kinds[name] for name in self.names}
 
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
@@ -45,16 +45,15 @@ class Scale(Cached):
         self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self._key = self.root, self.intervals
+        self.note_scales = {}
 
-        if self.kind is not None: # TODO: refactor this
-            scales = config.scale_order[self.kind]
-            _scale_i = scales.index(self.name)
+        for name, kind in self.name_kinds.items():
+            scales = config.scale_order[kind]
+            _scale_i = scales.index(name)
             scales = scales[_scale_i:] + scales[:_scale_i]
-            self.note_scales = {}
+            self.note_scales[kind] = {}
             for note, scale in zip(self.notes_ascending, scales, strict=True):
-                self.note_scales[note] = scale
-        else:
-            self.note_scales = None
+                self.note_scales[kind][note] = scale
 
     @classmethod
     def from_name(cls: type[Self], root: str | Note, name: str) -> Self:

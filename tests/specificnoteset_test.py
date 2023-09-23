@@ -30,18 +30,6 @@ def test_specificchord_root_validation():
         SpecificChord(frozenset({SpecificNote('A', 1)}), root='E')
 
 
-@pytest.mark.parametrize(
-    ('notes', 'root', 'expected'), [
-        ('CEG', 'C', 'major'),
-        ('BDF', 'B', 'dim'),
-        ('CefA', 'C', 'dim7'),
-        ('DFaC', 'D', 'half-dim7'),
-    ],
-)
-def test_name(notes, root, expected):
-    assert Chord(frozenset(map(Note, notes)), root=Note(root)).name == expected
-
-
 def test_intervals():
     assert Chord.from_str('CEG/C').intervals == frozenset({0, 4, 7})
 
