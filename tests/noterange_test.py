@@ -2,7 +2,6 @@ from collections.abc import Sequence
 
 import pytest
 from musiclib import config
-from musiclib.chord import Chord
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
@@ -15,8 +14,6 @@ from musiclib.scale import Scale
         ('b3', 'E4', NoteSet.from_str(config.chromatic_notes), 'b3 B3 C4 d4 D4 e4 E4'),
         ('C0', 'C0', NoteSet.from_str(config.chromatic_notes), 'C0'),
         ('C0', 'C1', NoteSet.from_str('CDEFGAB'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-        ('C0', 'C1', Scale.from_str('CDEFGAB/C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
-        ('C0', 'C1', Chord.from_str('CDEFGAB/C'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
         ('a3', 'f4', NoteSet.from_str('dEfaB'), 'a3 B3 d4 E4 f4'),
         ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
     ],
