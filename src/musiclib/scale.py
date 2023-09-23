@@ -140,9 +140,6 @@ class Scale(Cached):
         return Piano(**kwargs)._repr_svg_()
 
 
-# flake8: noqa
-
-
 class ComparedScales:
     """
     this is compared scale
@@ -157,31 +154,39 @@ class ComparedScales:
         self.shared_notes = frozenset(left.notes) & frozenset(right.notes)
         self.new_notes = frozenset(right.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
-        if right.kind == 'natural':
-            self.shared_triads = frozenset(left.triads) & frozenset(right.triads)
+        self.left_triads = frozenset(left.nths(config.nths['triads']))
+        self.right_triads = frozenset(right.nths(config.nths['triads']))
+        self.shared_triads = self.left_triads & self.right_triads
 
     def _repr_svg_(self, **kwargs: Any) -> str:
-        if left_root_name := self.right.note_scales.get(self.left.root, ''):
-            kwargs.setdefault('background_color', config.scale_colors[left_root_name])
-            left_root_name = f' | {self.left.root.name} {left_root_name}'
+        if self.right.note_scales is not None and self.left.root in self.right.note_scales:
+            kwargs.setdefault('background_color', config.interval_colors[self.right.note_to_interval[self.left.root]])
 
-        kwargs.setdefault('note_colors', {note: config.scale_colors[scale] for note, scale in self.right.note_scales.items()})
+        chord_colors = {
+            'major_0': config.interval_colors[0],
+            'minor_0': config.interval_colors[8],
+            'dim_0': config.interval_colors[11],
+        }
+
+        kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.left.note_to_interval.items()})
         kwargs.setdefault('top_rect_colors', dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE))
         kwargs.setdefault(
             'squares', {
                 chord.root: {
-                    'fill_color': config.chord_colors[chord.name],
+                    'fill_color': chord_colors[chord.name],
                     'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     'text': chord.root.name,
                     'onclick': f'play_chord("{chord}")',
                 }
-                for chord in self.right.triads
+                for chord in self.right_triads
             } if self.right.kind == 'natural' else {},
         )
 
         kwargs.setdefault('classes', ('card',))
-        kwargs.setdefault('title', f'{self.right.root.name} {self.right.name}{left_root_name}')
+        left_title = f'{self.left.root.name} {self.left.name}' if self.left.name is not None else str(self.left)
+        right_title = f'{self.right.root.name} {self.right.name}' if self.right.name is not None else str(self.right)
+        kwargs.setdefault('title', f'{left_title} | {right_title}')
         return Piano(**kwargs)._repr_svg_()
 
     def __eq__(self, other: object) -> bool:

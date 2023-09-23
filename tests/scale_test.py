@@ -178,39 +178,12 @@ def test_note_scales(notes):
     assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.scale_order['natural'], strict=True))
 
 
-# def test_compared():
-#     left = Scale.from_name('C', 'major')
-#     right = Scale.from_name('A', 'minor')
-#     assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
+def test_compared():
+    left = Scale.from_name('C', 'major')
+    right = Scale.from_name('A', 'minor')
+    assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
 
-#     right = Scale.from_name('C', 'mixolydian')
-#     c = ComparedScales(left, right)
-#     assert c.new_notes == frozenset({Note('b')})
-#     assert c.del_notes == frozenset({Note('B')})
-
-
-# @pytest.mark.parametrize(
-#     ('scale', 'parallel_name', 'expected'), [
-#         (Scale.from_name('C', 'major'), 'minor', Scale.from_name('C', 'minor')),
-#         (Scale.from_name('C', 'minor'), 'major', Scale.from_name('C', 'major')),
-#         (Scale.from_name('f', 'minor'), 'major', Scale.from_name('f', 'major')),
-#         (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('C', 'phrygian')),
-#         (Scale.from_name('e', 'dorian'), 'locrian', Scale.from_name('e', 'locrian')),
-#     ],
-# )
-# def test_parallel(scale, parallel_name, expected):
-#     assert scale.parallel(parallel_name) is expected
-
-
-# @pytest.mark.parametrize(
-#     ('scale', 'relative_name', 'expected'), [
-#         (Scale.from_name('C', 'major'), 'minor', Scale.from_name('A', 'minor')),
-#         (Scale.from_name('A', 'minor'), 'major', Scale.from_name('C', 'major')),
-#         (Scale.from_name('f', 'minor'), 'major', Scale.from_name('A', 'major')),
-#         (Scale.from_name('A', 'major'), 'minor', Scale.from_name('f', 'minor')),
-#         (Scale.from_name('C', 'major'), 'phrygian', Scale.from_name('E', 'phrygian')),
-#         (Scale.from_name('A', 'major'), 'dorian', Scale.from_name('B', 'dorian')),
-#     ],
-# )
-# def test_relative(scale, relative_name, expected):
-#     assert scale.relative(relative_name) is expected
+    right = Scale.from_name('C', 'mixolydian')
+    c = ComparedScales(left, right)
+    assert c.new_notes == frozenset({Note('b')})
+    assert c.del_notes == frozenset({Note('B')})
