@@ -134,8 +134,8 @@ class Scale(Cached):
 
     def _repr_svg_(self, **kwargs: Any) -> str:
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
-        kwargs.setdefault('title', f'{self.root.name} {self.name}')
-        kwargs.setdefault('classes', ('card', self.name))
+        kwargs.setdefault('title', f'{self.str_names}')
+        kwargs.setdefault('classes', ('card', *self.names))
         return Piano(**kwargs)._repr_svg_()
 
 
@@ -162,9 +162,9 @@ class ComparedScales:
             kwargs.setdefault('background_color', config.interval_colors[self.right.note_to_interval[self.left.root]])
 
         chord_colors = {
-            'major_0': config.interval_colors[0],
-            'minor_0': config.interval_colors[8],
-            'dim_0': config.interval_colors[11],
+            frozenset({'major_0'}): config.interval_colors[0],
+            frozenset({'minor_0'}): config.interval_colors[8],
+            frozenset({'dim_0'}): config.interval_colors[11],
         }
 
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.left.note_to_interval.items()})
@@ -172,20 +172,17 @@ class ComparedScales:
         kwargs.setdefault(
             'squares', {
                 chord.root: {
-                    'fill_color': chord_colors[chord.name],
+                    'fill_color': chord_colors[chord.names],
                     'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
                     'text': chord.root.name,
                     'onclick': f'play_chord("{chord}")',
                 }
                 for chord in self.right_triads
-            } if self.right.kind == 'natural' else {},
+            } if set(self.right.name_kinds.values()) == {'natural'} else {},
         )
-
         kwargs.setdefault('classes', ('card',))
-        left_title = f'{self.left.root.name} {self.left.name}' if self.left.name is not None else str(self.left)
-        right_title = f'{self.right.root.name} {self.right.name}' if self.right.name is not None else str(self.right)
-        kwargs.setdefault('title', f'{left_title} | {right_title}')
+        kwargs.setdefault('title', f'{self.left.str_names} | {self.right.str_names}')
         return Piano(**kwargs)._repr_svg_()
 
     def __eq__(self, other: object) -> bool:
@@ -197,7 +194,7 @@ class ComparedScales:
         return hash(self.key)
 
     def __repr__(self) -> str:
-        return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
+        return f'ComparedScale({self.left.str_names} | {self.right.str_names})'
 
 
 natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['natural'])}

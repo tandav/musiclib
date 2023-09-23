@@ -2,8 +2,7 @@ import itertools
 
 import pytest
 from colortool import Color
-from musiclib.chord import Chord
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
 from musiclib.scale import ComparedScales
@@ -37,9 +36,7 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
 @pytest.mark.parametrize(
     'noteset', [
         NoteSet.from_str('CdeFGa'),
-        NoteSet.from_str('CdeFGa/e'),
         NoteSet.from_str('fa'),
-        NoteSet.from_str('fa/f'),
         NoteSet.from_str(''),
     ],
 )
@@ -47,7 +44,7 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_noteset(noteset, title, subtitle, title_href, background_color):
+def test_svg_noteset(noteset, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     classes = ('cls1', 'cls2')
@@ -66,11 +63,11 @@ def test_html_noteset(noteset, title, subtitle, title_href, background_color):
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_scale(kind, title, subtitle, title_href, background_color):
+def test_svg_scale(kind, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     for scale in all_scales[kind].values():
-        classes = (scale.name,)
+        classes = tuple(scale.names)
         svg = scale._repr_svg_(
             classes=classes,
             title=title,
@@ -91,7 +88,7 @@ def test_html_scale(kind, title, subtitle, title_href, background_color):
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_compared_scale(scale0, scale1, title, subtitle, title_href, background_color):
+def test_svg_compared_scale(scale0, scale1, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     classes = ('cls1', 'cls2')
@@ -105,41 +102,22 @@ def test_html_compared_scale(scale0, scale1, title, subtitle, title_href, backgr
     svg_helper(svg, classes, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize(('root', 'name'), itertools.product('Cf', Chord.name_to_intervals))
-@pytest.mark.parametrize('title', [None, TITLE])
-@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
-@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
-@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_chord(root, name, title, subtitle, title_href, background_color):
-    if title is None and title_href is not None:
-        pytest.skip('title_href requires title')
-    classes = ('cls1', 'cls2')
-    svg = Chord.from_name(root, name)._repr_svg_(
-        classes=classes,
-        title=title,
-        subtitle=subtitle,
-        title_href=title_href,
-        background_color=background_color,
-    )
-    svg_helper(svg, classes, title, subtitle, title_href, background_color)
-
-
 @pytest.mark.parametrize(
-    'chord', [
-        SpecificChord.from_str('C1_E1_f1'),
-        SpecificChord.from_str('C1_d3_A5'),
-        SpecificChord(frozenset()),
+    'sns', [
+        SpecificNoteSet.from_str('C1_E1_f1'),
+        SpecificNoteSet.from_str('C1_d3_A5'),
+        SpecificNoteSet(frozenset()),
     ],
 )
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_specific_chord(chord, title, subtitle, title_href, background_color):
+def test_svg_specific_noteset(sns, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     classes = ('cls1', 'cls2')
-    svg = chord._repr_svg_(
+    svg = sns._repr_svg_(
         classes=classes,
         title=title,
         subtitle=subtitle,
@@ -159,7 +137,7 @@ def test_html_specific_chord(chord, title, subtitle, title_href, background_colo
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_html_noterange(noterange, title, subtitle, title_href, background_color):
+def test_svg_noterange(noterange, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     classes = ('cls1', 'cls2')
