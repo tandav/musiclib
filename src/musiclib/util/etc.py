@@ -1,5 +1,4 @@
 from typing import no_type_check
-import pipe21 as P  # noqa: N812
 
 
 def increment_duplicates(a: list[int]) -> list[int]:
@@ -14,16 +13,9 @@ def increment_duplicates(a: list[int]) -> list[int]:
     return res
 
 
-@no_type_check
 def bits_to_intervals(bits: str) -> frozenset[int]:
-    return (
-        bits
-        | P.Map(int)
-        | P.Pipe(enumerate)
-        | P.FilterValues()
-        | P.Keys()
-        | P.Pipe(frozenset)
-    )
+    return frozenset(k for k, v in enumerate(map(int, bits)) if v)
+
 
 def intervals_to_bits(intervals: frozenset[int]) -> str:
     bits = ['0'] * 12

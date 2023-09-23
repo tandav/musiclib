@@ -51,23 +51,22 @@ name_to_intervals_kind_grouped = {
         's_mixolydian': frozenset({0, 2, 5, 7, 9, 10}),
         's_minor': frozenset({0, 3, 5, 7, 8, 10}),
     },
-    # chords: all have c_ prefix to distinguish from scales
+    # chords: all have inversion number suffix to distinguish from scales
     # triads
-    'c_major': {
-        'c_major': frozenset({0, 4, 7}),
-        'c_major_inv1': frozenset({0, 3, 8}),
-        'c_major_inv2': frozenset({0, 5, 9}),
+    'major': {
+        'major0': frozenset({0, 4, 7}),
+        'major1': frozenset({0, 3, 8}),
+        'major2': frozenset({0, 5, 9}),
     },
-    'c_minor': {
-        'c_minor': frozenset({0, 3, 7}),
-        'c_minor_inv1': frozenset({0, 4, 9}),
-        'c_minor_inv2': frozenset({0, 5, 8}),
+    'minor': {
+        'minor0': frozenset({0, 3, 7}),
+        'minor1': frozenset({0, 4, 9}),
+        'minor2': frozenset({0, 5, 8}),
     },
-#     # diminished
-    'c_diminished': {
-        'c_diminished': frozenset({0, 3, 6}),
-        'c_diminished_inv1': frozenset({0, 3, 9}),
-        'c_diminished_inv2': frozenset({0, 6, 9}),
+    'diminished': {
+        'diminished0': frozenset({0, 3, 6}),
+        'diminished1': frozenset({0, 3, 9}),
+        'diminished2': frozenset({0, 6, 9}),
     }
 #     # # 7th
 #     # 'c_maj7': frozenset({0, 4, 7, 11}),
