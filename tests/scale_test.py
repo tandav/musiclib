@@ -83,53 +83,66 @@ def test_bits(notes, bits):
     assert Scale.from_str(notes).bits == bits
 
 
-# @pytest.mark.parametrize(
-#     ('scale', 'bits'), [
-#         (Scale.from_str('CDE'), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
-#         (Scale.from_str('df'), (0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)),
-#     ],
-# )
-# def test_bits_notes(scale, bits):
-#     assert scale.bits_notes == bits
+@pytest.mark.parametrize(
+    ('scale', 'bits'), [
+        (Scale.from_str('CDE/D'), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
+        (Scale.from_str('df/f'), (0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)),
+    ],
+)
+def test_bits_chromatic_notes(scale, bits):
+    assert scale.bits_chromatic_notes == bits
 
 
 
+@pytest.mark.parametrize(
+    ('scale', 'note', 'expected'), [
+        ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
+        ('CdeFGab/e', 'D', 'DEfGABC/D'),
+        ('Cd/C', 'd', 'dD/d'),
+    ],
+)
+def test_transpose_to_note(scale, note, expected):
+    assert Scale.from_str(scale).transpose_to_note(Note(note)) is Scale.from_str(expected)
 
 
-# @pytest.mark.parametrize(
-#     ('scale', 'note', 'expected'), [
-#         ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
-#         ('CdeFGab/e', 'D', 'DEfGABC/D'),
-#         ('Cd/C', 'd', 'dD/d'),
-#     ],
-# )
-# def test_transposed_to_note(scale, note, expected):
-#     assert Scale.from_str(scale).transposed_to_note(note) is Scale.from_str(expected)
+@pytest.mark.parametrize(
+    ('notes', 'name'), [
+        ('CDEFGAB', 'major'),
+        ('CdeFGab', 'phrygian'),
+        ('DEFGAbC', 'minor'),
+        ('bdefa', 'p_phrygian'),
+    ],
+)
+def test_name(notes, name):
+    root = Note(notes[0])
+    notes = frozenset(map(Note, notes))
+    assert Scale.from_notes(root, notes).name == name
+    assert Scale.from_name(root, name).notes == notes
 
 
-# @pytest.mark.parametrize(
-#     ('notes', 'name'), [
-#         ('CDEFGAB', 'major'),
-#         ('CdeFGab', 'phrygian'),
-#         ('DEFGAbC', 'minor'),
-#         ('bdefa', 'p_phrygian'),
-#     ],
-# )
-# def test_name(notes, name):
-#     root = notes[0]
-#     notes = frozenset(map(Note, notes))
-#     assert Scale(notes, root=Note(root)).name == name
-#     assert Scale.from_name(root, name).notes == notes
+@pytest.mark.parametrize('scale, expected', [
+    (Scale.from_name('C', 'major'), 'natural'),
+    (Scale.from_name('C', 'p_major'), 'pentatonic'),
+    # chords
+    (Scale.from_name('C', 'c_major'), 'c_major'),
+    (Scale.from_name('C', 'c_major_inv1'), 'c_major'),
+    (Scale.from_name('C', 'c_major_inv2'), 'c_major'),
 
+    (Scale.from_name('C', 'c_minor'), 'c_minor'),
+    (Scale.from_name('C', 'c_minor_inv1'), 'c_minor'),
+    (Scale.from_name('C', 'c_minor_inv2'), 'c_minor'),
 
-# def test_kind():
-#     s = Scale.from_name('C', 'major')
-#     assert s.kind == 'natural'
-#     assert {'note_scales', 'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} <= vars(s).keys()
-#     s = Scale.from_name('C', 'p_major')
-#     assert s.kind == 'pentatonic'
-#     assert {'note_scales'} <= vars(s).keys()
-#     assert len({'triads', 'sevenths', 'ninths', 'notes_to_triad_root'} & vars(s).keys()) == 0
+    # (Scale.from_name('C', 'c_dim7'), 'c_dim7'),
+    # (Scale.from_name('C', 'c_7'), 'c_7'),
+    # (Scale.from_name('C', 'c_7_inv1'), 'c_7'),
+    # (Scale.from_name('C', 'c_7_inv2'), 'c_7'),
+    # (Scale.from_name('C', 'c_7_inv3'), 'c_7'),
+    # (Scale.from_name('C', 'c_dim7_inv1'), 'c_dim7'),
+    # (Scale.from_name('C', 'c_dim7_inv2'), 'c_dim7'),
+    # (Scale.from_name('C', 'c_dim7_inv3'), 'c_dim7'), # probably dim7 dont have inversions
+])
+def test_kind(scale, expected):
+    assert scale.kind == expected
 
 
 # @pytest.mark.parametrize(

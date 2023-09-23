@@ -20,73 +20,15 @@ from musiclib.svg.piano import Piano
 from musiclib.noteset import NoteSet
 from musiclib.util.cache import Cached
 from musiclib.util.etc import intervals_to_bits
+from musiclib.util import names
 
 Self = TypeVar('Self', bound='Scale')
 
 
 
 class Scale(Cached):
-    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {
-        # natural
-        frozenset({0, 2, 4, 5, 7, 9, 11}): 'major',
-        frozenset({0, 2, 3, 5, 7, 9, 10}): 'dorian',
-        frozenset({0, 1, 3, 5, 7, 8, 10}): 'phrygian',
-        frozenset({0, 2, 4, 6, 7, 9, 11}): 'lydian',
-        frozenset({0, 2, 4, 5, 7, 9, 10}): 'mixolydian',
-        frozenset({0, 2, 3, 5, 7, 8, 10}): 'minor',
-        frozenset({0, 1, 3, 5, 6, 8, 10}): 'locrian',
-        # harmonic
-        frozenset({0, 2, 3, 5, 7, 8, 11}): 'h_minor',
-        frozenset({0, 1, 3, 5, 6, 9, 10}): 'h_locrian',
-        frozenset({0, 2, 4, 5, 8, 9, 11}): 'h_major',
-        frozenset({0, 2, 3, 6, 7, 9, 10}): 'h_dorian',
-        frozenset({0, 1, 4, 5, 7, 8, 10}): 'h_phrygian',
-        frozenset({0, 3, 4, 6, 7, 9, 11}): 'h_lydian',
-        frozenset({0, 1, 3, 4, 6, 8, 9}): 'h_mixolydian',
-        # melodic
-        frozenset({0, 2, 3, 5, 7, 9, 11}): 'm_minor',
-        frozenset({0, 1, 3, 5, 7, 9, 10}): 'm_locrian',
-        frozenset({0, 2, 4, 6, 8, 9, 11}): 'm_major',
-        frozenset({0, 2, 4, 6, 7, 9, 10}): 'm_dorian',
-        frozenset({0, 2, 4, 5, 7, 8, 10}): 'm_phrygian',
-        frozenset({0, 2, 3, 5, 6, 8, 10}): 'm_lydian',
-        frozenset({0, 1, 3, 4, 6, 8, 10}): 'm_mixolydian',
-        # pentatonic
-        frozenset({0, 2, 4, 7, 9}): 'p_major',
-        frozenset({0, 2, 5, 7, 10}): 'p_dorian',
-        frozenset({0, 3, 5, 8, 10}): 'p_phrygian',
-        frozenset({0, 2, 5, 7, 9}): 'p_mixolydian',
-        frozenset({0, 3, 5, 7, 10}): 'p_minor',
-        # sudu
-        frozenset({0, 2, 4, 5, 7, 9}): 's_major',
-        frozenset({0, 2, 3, 5, 7, 10}): 's_dorian',
-        frozenset({0, 1, 3, 5, 8, 10}): 's_phrygian',
-        frozenset({0, 2, 4, 7, 9, 11}): 's_lydian',
-        frozenset({0, 2, 5, 7, 9, 10}): 's_mixolydian',
-        frozenset({0, 3, 5, 7, 8, 10}): 's_minor',
-
-        # chords: all have c_ prefix to distinguish from scales
-        # triads
-        frozenset({0, 4, 7}): 'c_major',
-        frozenset({0, 3, 7}): 'c_minor',
-        frozenset({0, 3, 6}): 'c_diminished',
-        # 7th
-        frozenset({0, 4, 7, 11}): 'c_maj7',
-        frozenset({0, 4, 7, 10}): 'c_7',
-        frozenset({0, 3, 7, 10}): 'c_min7',
-        frozenset({0, 3, 6, 10}): 'c_half-dim7',
-        frozenset({0, 3, 6, 9}): 'c_dim7',
-        # 6th
-        frozenset({0, 4, 7, 9}): 'c_6',
-        frozenset({0, 3, 7, 9}): 'c_m6',
-        # etc
-        frozenset({0, 4, 8}): 'c_aug',
-        frozenset({0, 2, 7}): 'c_sus2',
-        frozenset({0, 5, 7}): 'c_sus4',
-    }
-    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = {v: k for k, v in intervals_to_name.items()}
-    root: Note
-    name: str
+    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = names.name_to_intervals
+    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {v: k for k, v in name_to_intervals.items()}
 
     def __init__(self, root: Note, intervals: frozenset[int]):
         if not isinstance(root, Note):
@@ -97,7 +39,7 @@ class Scale(Cached):
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
         self.name = self.__class__.intervals_to_name.get(intervals)
-        self.kind = config.kinds.get(self.name)
+        self.kind = names.kinds.get(self.name)
 
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
@@ -105,12 +47,12 @@ class Scale(Cached):
         self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)                   
         self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
         self.bits = intervals_to_bits(self.intervals)
-        self.bits_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
+        self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
-        self.key = self.root, self.intervals
+        self._key = self.root, self.intervals
 
         if self.kind is not None: # TODO: refactor this
-            scales = getattr(config, self.kind)
+            scales = names.scale_order[self.kind]
             _scale_i = scales.index(self.name)
             scales = scales[_scale_i:] + scales[:_scale_i]
             self.note_scales = {}
@@ -150,12 +92,20 @@ class Scale(Cached):
         return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
 
     def transpose_to_note(self, note: Note) -> Scale:
-        return Scale.from_intervals(note, self.intervals)
+        return Scale(note, self.intervals)
 
     @functools.cached_property
     def noteset(self) -> NoteSet:
         return NoteSet(self.notes)
     
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Scale):
+            return NotImplemented
+        return self._key == other._key
+
+    def __hash__(self) -> int:
+        return hash(self._key)
+
     def __len__(self) -> int:
         return len(self.intervals)
 
@@ -246,11 +196,11 @@ class ComparedScales:
         return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.natural)}
-harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.harmonic)}
-melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.melodic)}
-pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.pentatonic)}
-sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.sudu)}
+natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['natural'])}
+harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['harmonic'])}
+melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['melodic'])}
+pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['pentatonic'])}
+sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['sudu'])}
 all_scales = {
     'natural': natural,
     'harmonic': harmonic,

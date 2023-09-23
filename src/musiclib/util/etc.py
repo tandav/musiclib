@@ -30,3 +30,13 @@ def intervals_to_bits(intervals: frozenset[int]) -> str:
     for i in intervals:
         bits[i] = '1'
     return ''.join(bits)
+
+
+def intervals_rotations(intervals: frozenset[int]) -> frozenset[frozenset[int]]:
+    """TODO: refactor and add tests"""
+    out = set()
+    for j in range(12):
+        fs = frozenset((i + j) % 12 for i in intervals)
+        if 0 in fs:
+            out.add(fs)
+    return frozenset(out)

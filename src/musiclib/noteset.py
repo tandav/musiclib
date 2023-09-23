@@ -14,6 +14,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
+from musiclib.util.names import name_to_intervals_key
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -23,50 +24,7 @@ Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
-    name_to_intervals_key: ClassVar[dict[str, frozenset[frozenset[int]]]] = {
-        'natural': frozenset({
-            frozenset({0, 2, 4, 6, 7, 9, 11}), # lydian
-            frozenset({0, 2, 4, 5, 7, 9, 11}), # major
-            frozenset({0, 2, 4, 5, 7, 9, 10}), # mixolydian
-            frozenset({0, 2, 3, 5, 7, 9, 10}), # dorian
-            frozenset({0, 2, 3, 5, 7, 8, 10}), # minor
-            frozenset({0, 1, 3, 5, 7, 8, 10}), # phrygian
-            frozenset({0, 1, 3, 5, 6, 8, 10}), # locrian 
-        }),
-        'harmonic': frozenset({
-            frozenset({0, 1, 3, 4, 6, 8, 9}),
-            frozenset({0, 1, 3, 5, 6, 9, 10}),
-            frozenset({0, 1, 4, 5, 7, 8, 10}),
-            frozenset({0, 2, 3, 5, 7, 8, 11}),
-            frozenset({0, 2, 3, 6, 7, 9, 10}),
-            frozenset({0, 2, 4, 5, 8, 9, 11}),
-            frozenset({0, 3, 4, 6, 7, 9, 11}),
-        }),
-        'melodic': frozenset({
-            frozenset({0, 1, 3, 4, 6, 8, 10}),
-            frozenset({0, 1, 3, 5, 7, 9, 10}),
-            frozenset({0, 2, 3, 5, 6, 8, 10}),
-            frozenset({0, 2, 3, 5, 7, 9, 11}),
-            frozenset({0, 2, 4, 5, 7, 8, 10}),
-            frozenset({0, 2, 4, 6, 7, 9, 10}),
-            frozenset({0, 2, 4, 6, 8, 9, 11}),
-        }),
-        'pentatonic': frozenset({
-            frozenset({0, 2, 4, 7, 9}),
-            frozenset({0, 2, 5, 7, 9}),
-            frozenset({0, 2, 5, 7, 10}),
-            frozenset({0, 3, 5, 7, 10}),
-            frozenset({0, 3, 5, 8, 10}),
-        }),
-        'sudu': frozenset({
-            frozenset({0, 1, 3, 5, 8, 10}),
-            frozenset({0, 2, 3, 5, 7, 10}),
-            frozenset({0, 2, 4, 5, 7, 9}),
-            frozenset({0, 2, 4, 7, 9, 11}),
-            frozenset({0, 2, 5, 7, 9, 10}),
-            frozenset({0, 3, 5, 7, 8, 10}),
-        }),
-    }
+    name_to_intervals_key: ClassVar[dict[str, frozenset[frozenset[int]]]] = name_to_intervals_key
     intervals_key_to_name: ClassVar[dict[frozenset[frozenset[int]], str]] = {v: k for k, v in name_to_intervals_key.items()}
     notes: frozenset[Note]
     intervals_ascending: tuple[int, ...] | tuple[()]
