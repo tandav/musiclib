@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from collections import defaultdict
 from typing import Any
-from typing import ClassVar
 from typing import TypeVar
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -24,11 +23,7 @@ from musiclib.util.etc import intervals_to_bits
 Self = TypeVar('Self', bound='Scale')
 
 
-
 class Scale(Cached):
-    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = config.name_to_intervals
-    intervals_to_name: ClassVar[dict[frozenset[int], str]] = {v: k for k, v in name_to_intervals.items()}
-
     def __init__(self, root: Note, intervals: frozenset[int]):
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
@@ -37,7 +32,7 @@ class Scale(Cached):
         self.root = root
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
-        self.name = self.__class__.intervals_to_name.get(intervals)
+        self.name = config.intervals_to_name.get(intervals)
         self.kind = config.kinds.get(self.name)
 
         _notes_octave_fit = sorted(self.notes)
@@ -66,7 +61,7 @@ class Scale(Cached):
             root = Note(root)
         elif not isinstance(root, Note):
             raise TypeError(f'expected str | Note, got {type(root)}')
-        return cls(root, cls.name_to_intervals[name])
+        return cls(root, config.name_to_intervals[name])
     
     @classmethod
     def from_notes(cls: type[Self], root: Note, notes: frozenset[Note]) -> Self:

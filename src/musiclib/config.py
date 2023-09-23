@@ -71,9 +71,10 @@ name_to_intervals_kind_grouped = {
 #     # 'c_sus4': frozenset({0, 5, 7}),
 }
 name_to_intervals = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
-name_to_intervals_key = {
-    kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()
-}
+intervals_to_name = {v: k for k, v in name_to_intervals.items()}
+name_to_intervals_key = {kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()}
+intervals_key_to_name = {v: k for k, v in name_to_intervals_key.items()}
+
 
 
 scale_order = {}

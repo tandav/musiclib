@@ -14,7 +14,6 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
-from musiclib.config import name_to_intervals_key
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -24,8 +23,6 @@ Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
-    name_to_intervals_key: ClassVar[dict[str, frozenset[frozenset[int]]]] = name_to_intervals_key
-    intervals_key_to_name: ClassVar[dict[frozenset[frozenset[int]], str]] = {v: k for k, v in name_to_intervals_key.items()}
     notes: frozenset[Note]
     intervals_ascending: tuple[int, ...] | tuple[()]
 
@@ -36,7 +33,7 @@ class NoteSet(Cached):
         self.notes_ascending = tuple(sorted(self.notes))
         self.note_to_intervals = {left: frozenset(right - left for right in self.notes) for left in self.notes}
         self.intervals_key = frozenset(self.note_to_intervals.values())
-        self.name = self.__class__.intervals_key_to_name.get(self.intervals_key)
+        self.name = config.intervals_key_to_name.get(self.intervals_key)
         self._note_i = {note: i for i, note in enumerate(self.notes_ascending)}
 
     @classmethod
