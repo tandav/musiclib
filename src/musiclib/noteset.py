@@ -148,7 +148,7 @@ class SpecificNoteSet(Cached):
     def from_str(cls, string: str) -> SpecificNoteSet:
         notes_ = string.split('_')
         if len(notes_) != len(set(notes_)):
-            raise ValueError('SpecificChord_s with non unique notes are not supported')
+            raise ValueError('SpecificNoteSet with non unique notes are not supported')
         notes = frozenset(SpecificNote.from_str(note) for note in notes_)
         return cls(notes)
     

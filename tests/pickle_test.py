@@ -1,8 +1,7 @@
 import pickle
 
 import pytest
-from musiclib.chord import Chord
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
@@ -39,16 +38,15 @@ def test_note_container(container):
     assert container == pickle.loads(pickle.dumps(container))
 
 
-a = NoteSet.from_str('fa/a')
-b = NoteSet.from_str('fa/f')
+a = NoteSet.from_str('fa')
+b = NoteSet.from_str('Ba')
 
 
 @pytest.mark.parametrize(
     'noteset', [
-        NoteSet.from_str('CDEFGAB/C'),
         NoteSet.from_str('CDEFGAB'),
-        NoteSet.from_str('CdeFGab/e'),
-        NoteSet.from_str('CEG/C'),
+        NoteSet.from_str('CdeFGab'),
+        NoteSet.from_str('CEG'),
         a,
         *iter_containers(a, b),
     ],
@@ -57,25 +55,20 @@ def test_noteset(noteset):
     assert noteset == pickle.loads(pickle.dumps(noteset))
 
 
-c = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C'))
-d = Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('E'))
-e = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('C'))
-f = SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}), root=Note('E'))
+e = SpecificNoteSet(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}))
+f = SpecificNoteSet(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)}))
 
 
 @pytest.mark.parametrize(
-    'chord', [
-        Chord(frozenset({Note('C'), Note('E'), Note('G')}), root=Note('C')),
-        c,
-        SpecificChord(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)})),
+    'sns', [
+        SpecificNoteSet(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), SpecificNote('G', 5)})),
         e,
         f,
-        *iter_containers(c, d),
         *iter_containers(e, f),
     ],
 )
-def test_chord(chord):
-    assert chord == pickle.loads(pickle.dumps(chord))
+def test_sns(sns):
+    assert sns == pickle.loads(pickle.dumps(sns))
 
 
 @pytest.mark.parametrize(
@@ -89,11 +82,11 @@ def test_scale(scale):
     assert scale == pickle.loads(pickle.dumps(scale))
 
 
-g = SpecificChord.random()
-h = SpecificChord.random()
-i = SpecificChord.random()
-j = SpecificChord.random()
-k = SpecificChord.random()
+g = SpecificNoteSet.random()
+h = SpecificNoteSet.random()
+i = SpecificNoteSet.random()
+j = SpecificNoteSet.random()
+k = SpecificNoteSet.random()
 
 
 @pytest.mark.parametrize(
