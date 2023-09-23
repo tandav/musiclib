@@ -14,7 +14,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util import typeguards
 from musiclib.util.cache import Cached
-from musiclib.util.names import name_to_intervals_key
+from musiclib.config import name_to_intervals_key
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

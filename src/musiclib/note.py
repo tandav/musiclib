@@ -10,6 +10,7 @@ from musiclib.util.cache import Cached
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+_note_i = {note: i for i, note in enumerate(config.chromatic_notes)}
 _is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '010100101010', strict=True)}
 
 
@@ -23,7 +24,7 @@ class Note(Cached):
     def __init__(self, name: str) -> None:
         """param name: one of CdDeEFfGaAbB"""
         self.name = name
-        self.i = config.note_i[name]
+        self.i = _note_i[name]
         self.is_black = _is_black[name]
 
     @classmethod
@@ -45,7 +46,7 @@ class Note(Cached):
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
-            return self.i <= config.note_i[other]
+            return self.i <= _note_i[other]
         if isinstance(other, Note):
             return self.i <= other.i
         return NotImplemented

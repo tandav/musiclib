@@ -20,14 +20,13 @@ from musiclib.svg.piano import Piano
 from musiclib.noteset import NoteSet
 from musiclib.util.cache import Cached
 from musiclib.util.etc import intervals_to_bits
-from musiclib.util import names
 
 Self = TypeVar('Self', bound='Scale')
 
 
 
 class Scale(Cached):
-    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = names.name_to_intervals
+    name_to_intervals: ClassVar[dict[str, frozenset[int]]] = config.name_to_intervals
     intervals_to_name: ClassVar[dict[frozenset[int], str]] = {v: k for k, v in name_to_intervals.items()}
 
     def __init__(self, root: Note, intervals: frozenset[int]):
@@ -39,7 +38,7 @@ class Scale(Cached):
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
         self.name = self.__class__.intervals_to_name.get(intervals)
-        self.kind = names.kinds.get(self.name)
+        self.kind = config.kinds.get(self.name)
 
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
@@ -52,7 +51,7 @@ class Scale(Cached):
         self._key = self.root, self.intervals
 
         if self.kind is not None: # TODO: refactor this
-            scales = names.scale_order[self.kind]
+            scales = config.scale_order[self.kind]
             _scale_i = scales.index(self.name)
             scales = scales[_scale_i:] + scales[:_scale_i]
             self.note_scales = {}
@@ -196,11 +195,11 @@ class ComparedScales:
         return f'ComparedScale({self.left.root} {self.left.name} | {self.right.root} {self.right.name})'
 
 
-natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['natural'])}
-harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['harmonic'])}
-melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['melodic'])}
-pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['pentatonic'])}
-sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, names.scale_order['sudu'])}
+natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['natural'])}
+harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['harmonic'])}
+melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['melodic'])}
+pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['pentatonic'])}
+sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['sudu'])}
 all_scales = {
     'natural': natural,
     'harmonic': harmonic,
