@@ -28,8 +28,6 @@ def test_transition(a, b, expected):
 
 @pytest.mark.parametrize(
     ('start', 'stop', 'noteset', 'chord_str', 'transitions', 'unique_abstract', 'same_length'), [
-        ('A0', 'D2', Scale.from_name('C', 'major'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False, True),
-        ('A0', 'D2', Scale.from_name('E', 'phrygian'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False, True),
         ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'C1_E1_G1', {'B0_E1_G1', 'C1_D1_G1', 'C1_E1_A1', 'C1_E1_F1', 'C1_F1_G1', 'D1_E1_G1'}, False, True),
         ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'C1_D1_E1', {'B0_D1_E1', 'C1_D1_F1'}, False, True),
         ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'B0_C1_D1', {'A0_C1_D1', 'B0_C1_E1'}, False, True),
@@ -57,8 +55,8 @@ def test_chord_transitions(start, stop, noteset, chord_str, transitions, unique_
 @pytest.mark.parametrize(
     'noteset', [
         NoteSet.from_str('CDEFGAB'),
-        Scale.from_name('C', 'major'),
-        Scale.from_name('E', 'phrygian'),
+        Scale.from_name('C', 'major').noteset,
+        Scale.from_name('E', 'phrygian').noteset,
     ],
 )
 def test_transition_graph(noteset):
@@ -69,7 +67,7 @@ def test_transition_graph(noteset):
 
 
 def test_transition_graph_same_length():
-    noteset = Scale.from_name('C', 'major')
+    noteset = Scale.from_name('C', 'major').noteset
     noterange = NoteRange(SpecificNote('A', 0), SpecificNote('D', 2), noteset)
     graph = transition.transition_graph(SpecificNoteSet.from_str('C1_E1_G1'), noterange, same_length=False)
     abstract_graph = transition.abstract_graph(graph)
