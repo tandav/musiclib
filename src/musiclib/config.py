@@ -2,7 +2,7 @@ import functools
 import itertools
 import operator
 from colortool import Color
-from musiclib.util.etc import intervals_rotations
+from musiclib.util.etc import named_intervals_rotations
 
 chromatic_notes = 'CdDeEFfGaAbB'  # TODO make variable here, delete from config, reimport everywhere, maybe circular imports
 
@@ -51,145 +51,37 @@ name_to_intervals_kind_grouped = {
         's_mixolydian': frozenset({0, 2, 5, 7, 9, 10}),
         's_minor': frozenset({0, 3, 5, 7, 8, 10}),
     },
+
     # chords: all have inversion number suffix to distinguish from scales
     # triads
-    'major': {f'major{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 4, 7})))},
-    'minor': {f'minor{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 3, 7})))},
-    'diminished': {f'diminished{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 3, 6})))},
-#     # # 7th
-#     # 'c_maj7': frozenset({0, 4, 7, 11}),
-#     # 'c_7': frozenset({0, 4, 7, 10}),
-#     # 'c_min7': frozenset({0, 3, 7, 10}),
-#     # 'c_half-dim7': frozenset({0, 3, 6, 10}),
-#     # 'c_dim7': frozenset({0, 3, 6, 9}),
-#     # # 6th
-#     # 'c_6': frozenset({0, 4, 7, 9}),
-#     # 'c_m6': frozenset({0, 3, 7, 9}),
-#     # # etc
-#     # 'c_aug': frozenset({0, 4, 8}),
-#     # 'c_sus2': frozenset({0, 2, 7}),
-#     # 'c_sus4': frozenset({0, 5, 7}),
+    'major': named_intervals_rotations(frozenset({0, 4, 7}), 'major'),
+    'minor': named_intervals_rotations(frozenset({0, 3, 7}), 'minor'),
+    'diminished': named_intervals_rotations(frozenset({0, 3, 6}), 'diminished'),
+    # 7th
+    'maj7': named_intervals_rotations(frozenset({0, 4, 7, 11}), 'maj7'),
+    '7': named_intervals_rotations(frozenset({0, 4, 7, 10}), '7'),
+    'min7': named_intervals_rotations(frozenset({0, 3, 7, 10}), 'min7'),
+    'half-dim7': named_intervals_rotations(frozenset({0, 3, 6, 10}), 'half-dim7'),
+    'dim7': named_intervals_rotations(frozenset({0, 3, 6, 9}), 'dim7'),
+    # 6th
+    '6': named_intervals_rotations(frozenset({0, 4, 7, 9}), '6'),
+    'm6': named_intervals_rotations(frozenset({0, 3, 7, 9}), 'm6'),
+    # other
+    'aug': named_intervals_rotations(frozenset({0, 4, 8}), 'aug'),
+    'sus2': named_intervals_rotations(frozenset({0, 2, 7}), 'sus2'),
+    'sus4': named_intervals_rotations(frozenset({0, 5, 7}), 'sus4'),
+
 }
 name_to_intervals = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
 intervals_to_name = {v: k for k, v in name_to_intervals.items()}
 name_to_intervals_key = {kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()}
 intervals_key_to_name = {v: k for k, v in name_to_intervals_key.items()}
 
-
-
 scale_order = {}
 kinds = {}
 for kind, kv in name_to_intervals_kind_grouped.items():
     scale_order[kind] = tuple(kv.keys())
     kinds.update(dict.fromkeys(kv.keys(), kind))
-
-# scale_order = {
-#     'natural': tuple(name_to_intervals_kind_grouped['natural'].keys()),
-#     'pentatonic': tuple(name_to_intervals_kind_grouped['pentatonic'].keys()),
-#     'harmonic': tuple(name_to_intervals_kind_grouped['harmonic'].keys()),
-#     'melodic': tuple(name_to_intervals_kind_grouped['melodic'].keys()),
-#     'sudu': tuple(name_to_intervals_kind_grouped['sudu'].keys()),
-#     'c_major': tuple(name_to_intervals_kind_grouped['c_major'].keys()),
-#     'c_minor': tuple(name_to_intervals_kind_grouped['c_minor'].keys()),
-#     # 'natural': ('major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'),
-#     # 'pentatonic': ('p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'),
-#     # 'harmonic': ('h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'),
-#     # 'melodic': ('m_minor', 'm_locrian', 'm_major', 'm_dorian', 'm_phrygian', 'm_lydian', 'm_mixolydian'),
-#     # 'sudu': ('s_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'),
-#     # 'c_major': ('c_major', 'c_major_inv1', 'c_major_inv2'),
-#     # 'c_minor': ('c_minor', 'c_minor_inv1', 'c_minor_inv2'),
-# }
-
-# todo: inversions for all chords must be here
-# c_major = 
-
-# kinds = (
-#     dict.fromkeys(scale_order['natural'], 'natural') |
-#     dict.fromkeys(scale_order['harmonic'], 'harmonic') |
-#     dict.fromkeys(scale_order['melodic'], 'melodic') |
-#     dict.fromkeys(scale_order['pentatonic'], 'pentatonic') |
-#     dict.fromkeys(scale_order['sudu'], 'sudu') |
-#     dict.fromkeys(scale_order['c_major'], 'c_major') |
-#     dict.fromkeys(scale_order['c_minor'], 'c_minor')
-#     # {
-#         # 'c_major': 'c_major',
-#         # 'c_minor': 'c_minor',
-#         # 'c_diminished': 'c_diminished',
-#         # 'c_maj7': 'c_maj7',
-#         # 'c_7': 'c_7',
-#         # 'c_min7': 'c_min7',
-#         # 'c_half-dim7': 'c_half-dim7',
-#         # 'c_dim7': 'c_dim7',
-#         # 'c_6': 'c_6',
-#         # 'c_m6': 'c_m6',
-#         # 'c_aug': 'c_aug',
-#         # 'c_sus2': 'c_sus2',
-#         # 'c_sus4': 'c_sus4',
-#     # }
-# )
-
-#     'natural': frozenset({
-#         name_to_intervals['major'],
-#         name_to_intervals['dorian'],
-#         name_to_intervals['phrygian'],
-#         name_to_intervals['lydian'],
-#         name_to_intervals['mixolydian'],
-#         name_to_intervals['minor'],
-#         name_to_intervals['locrian'],
-#     }),
-#     'harmonic': frozenset({
-#         name_to_intervals['h_major'],
-#         name_to_intervals['h_dorian'],
-#         name_to_intervals['h_phrygian'],
-#         name_to_intervals['h_lydian'],
-#         name_to_intervals['h_mixolydian'],
-#         name_to_intervals['h_minor'],
-#         name_to_intervals['h_locrian'],
-#     }),
-#     'melodic': frozenset({
-#         name_to_intervals['m_major'],
-#         name_to_intervals['m_dorian'],
-#         name_to_intervals['m_phrygian'],
-#         name_to_intervals['m_lydian'],
-#         name_to_intervals['m_mixolydian'],
-#         name_to_intervals['m_minor'],
-#         name_to_intervals['m_locrian'],
-#     }),
-#     'pentatonic': frozenset({
-#         name_to_intervals['p_major'],
-#         name_to_intervals['p_dorian'],
-#         name_to_intervals['p_phrygian'],
-#         name_to_intervals['p_mixolydian'],
-#         name_to_intervals['p_minor'],
-#     }),
-#     'sudu': frozenset({
-#         name_to_intervals['s_major'],
-#         name_to_intervals['s_dorian'],
-#         name_to_intervals['s_phrygian'],
-#         name_to_intervals['s_lydian'],
-#         name_to_intervals['s_mixolydian'],
-#         name_to_intervals['s_minor'],
-#     }),
-#     # 'c_major': intervals_rotations(name_to_intervals['c_major']),
-#     'c_major': frozenset({
-#         name_to_intervals['c_major'],
-#         name_to_intervals['c_major_inv1'],
-#         name_to_intervals['c_major_inv2'],
-#     }),
-#     # 'c_minor': intervals_rotations(name_to_intervals['c_minor']),
-#     # 'c_diminished': intervals_rotations(name_to_intervals['c_diminished']),
-#     # 'c_maj7': intervals_rotations(name_to_intervals['c_maj7']),
-#     # 'c_7': intervals_rotations(name_to_intervals['c_7']),
-#     # 'c_min7': intervals_rotations(name_to_intervals['c_min7']),
-#     # 'c_half-dim7': intervals_rotations(name_to_intervals['c_half-dim7']),
-#     # 'c_dim7': intervals_rotations(name_to_intervals['c_dim7']),
-#     # 'c_6': intervals_rotations(name_to_intervals['c_6']),
-#     # 'c_m6': intervals_rotations(name_to_intervals['c_m6']),
-#     # 'c_aug': intervals_rotations(name_to_intervals['c_aug']),
-#     # 'c_sus2': intervals_rotations(name_to_intervals['c_sus2']),
-#     # 'c_sus4': intervals_rotations(name_to_intervals['c_sus4']),
-# }
-
 
 # colors
 WHITE_PALE = Color.from_hex(0xAAAAAA)

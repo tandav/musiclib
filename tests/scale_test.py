@@ -46,7 +46,8 @@ def test_from_str_validation(string):
     ('root', 'name', 'expected'), [
         (Note('C'), 'major', Scale.from_str('CDEFGAB/C')),
         (Note('C'), 'minor', Scale.from_str('CDeFGab/C')),
-        (Note('C'), 'major0', Scale.from_str('CEG/C')),
+        (Note('C'), 'major_0', Scale.from_str('CEG/C')),
+        (Note('C'), '7_0', Scale.from_str('CEGb/C')),
     ],
 )
 def test_from_name(root, name, expected):
@@ -124,13 +125,13 @@ def test_name(notes, name):
     (Scale.from_name('C', 'major'), 'natural'),
     (Scale.from_name('C', 'p_major'), 'pentatonic'),
     # chords
-    (Scale.from_name('C', 'major0'), 'major'),
-    (Scale.from_name('C', 'major1'), 'major'),
-    (Scale.from_name('C', 'major2'), 'major'),
+    (Scale.from_name('C', 'major_0'), 'major'),
+    (Scale.from_name('C', 'major_1'), 'major'),
+    (Scale.from_name('C', 'major_2'), 'major'),
 
-    (Scale.from_name('C', 'minor0'), 'minor'),
-    (Scale.from_name('C', 'minor1'), 'minor'),
-    (Scale.from_name('C', 'minor2'), 'minor'),
+    (Scale.from_name('C', 'minor_0'), 'minor'),
+    (Scale.from_name('C', 'minor_1'), 'minor'),
+    (Scale.from_name('C', 'minor_2'), 'minor'),
 
     # (Scale.from_name('C', 'c_dim7'), 'c_dim7'),
     # (Scale.from_name('C', 'c_7'), 'c_7'),

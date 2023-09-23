@@ -23,9 +23,6 @@ Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached):
-    notes: frozenset[Note]
-    intervals_ascending: tuple[int, ...] | tuple[()]
-
     def __init__(self, notes: frozenset[Note]) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
