@@ -38,7 +38,6 @@ class Scale(Cached):
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
         self.notes_ascending = _notes_octave_fit[_root_i:] + _notes_octave_fit[:_root_i]
-        self.notes_str = f"{''.join(note.name for note in self.notes_ascending)}/{self.root}"
         self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)                   
         self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
         self.bits = intervals_to_bits(self.intervals)
@@ -120,15 +119,15 @@ class Scale(Cached):
             return NotImplemented
         return item in self.notes
     
+    @property
+    def str_names(self) -> str:
+        return f"{self.root} {' '.join(sorted(self.names))}"
+    
     def __str__(self) -> str:
-        if self.name is not None:
-            return f"{self.root} {self.name}"
-        return self.notes_str
+        return f"{''.join(note.name for note in self.notes_ascending)}/{self.root}"
 
     def __repr__(self) -> str:
-        if self.name is not None:
-            return f"Scale.from_name('{self.root}', '{self.name}')"
-        return f'Scale(root={self.root!r}, intervals={self.intervals!r})'
+        return f'Scale({self.root!r}, {self.intervals!r})'
     
     def __getnewargs__(self) -> tuple[Note, frozenset[int]]:
         return (self.root, self.intervals)

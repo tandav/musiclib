@@ -29,7 +29,7 @@ def test_from_notes(root, notes, expected):
     ],
 )
 def test_notes_str_sort_2_octaves(scale, expected):
-    assert scale.notes_str == expected
+    assert str(scale) == expected
 
 
 @pytest.mark.parametrize(
@@ -41,7 +41,20 @@ def test_notes_str_sort_2_octaves(scale, expected):
     ],
 )
 def test_from_str(string, expected):
-    assert Scale.from_str(string) == expected
+    assert Scale.from_str(string) is expected
+    assert Scale.from_str(str(expected)) is expected
+
+
+@pytest.mark.parametrize('scale, s, r, str_names', [
+    (Scale.from_str('CDEFGAB/C'), 'CDEFGAB/C', "Scale(Note(name='C'), frozenset({0, 2, 4, 5, 7, 9, 11}))", 'C major'),
+    (Scale.from_str('CEa/C'), 'CEa/C', "Scale(Note(name='C'), frozenset({0, 8, 4}))", 'C aug_0 aug_1 aug_2'),
+    (Scale.from_str('DFaC/D'), 'DFaC/D', "Scale(Note(name='D'), frozenset({0, 10, 3, 6}))", 'D half-dim7_0 m6_3'),
+])
+def test_str_repr(scale, s, r, str_names):
+    assert str(scale) == s
+    assert repr(scale) == r
+    assert scale.str_names == str_names
+
 
 @pytest.mark.parametrize('string', [
     '',

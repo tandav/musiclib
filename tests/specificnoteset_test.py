@@ -25,19 +25,16 @@ def test_specificchord_notes_type_is_frozenset(arg):
 
 
 
-# def test_from_str():
-#     assert SpecificChord.from_str('C1_E1_G1/C') == SpecificChord(frozenset({SpecificNote('C', 1), SpecificNote('E', 1), SpecificNote('G', 1)}), root=Note('C'))
-#     assert Chord.from_str('CEG/C') == Chord(frozenset(map(Note, 'CEG')), root=Note('C'))
-#     for _ in range(10):
-#         s_chord = SpecificChord.random()
-#         assert SpecificChord.from_str(str(s_chord)) == s_chord
-#         abstract_notes = SpecificNote.to_abstract(s_chord.notes)
-#         chord = Chord(notes=abstract_notes, root=random.choice(tuple(abstract_notes)))
-#         assert Chord.from_str(str(chord)) == chord
-#     with pytest.raises(NotImplementedError):
-#         SpecificChord.from_str('C1_C1')
-#     with pytest.raises(NotImplementedError):
-#         SpecificChord.from_str('C1_E1_E1')
+def test_from_str():
+    assert SpecificChord.from_str('C1_E1_G1/C') == SpecificChord(frozenset({SpecificNote('C', 1), SpecificNote('E', 1), SpecificNote('G', 1)}), root=Note('C'))
+    for _ in range(10):
+        s_chord = SpecificChord.random()
+        assert SpecificChord.from_str(str(s_chord)) == s_chord
+        abstract_notes = SpecificNote.to_abstract(s_chord.notes)
+    with pytest.raises(NotImplementedError):
+        SpecificChord.from_str('C1_C1')
+    with pytest.raises(NotImplementedError):
+        SpecificChord.from_str('C1_E1_E1')
 
 
 # def test_magic_methods():
