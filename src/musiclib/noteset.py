@@ -127,7 +127,7 @@ class SpecificNoteSet(Cached):
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
         self.notes = notes
-        self.abstract = NoteSet(note.abstract for note in notes)
+        self.abstract = NoteSet(frozenset(note.abstract for note in notes))
         self.notes_ascending = tuple(sorted(notes))
         self.intervals = tuple(note - self.notes_ascending[0] for note in self.notes_ascending)  # from lowest note
 
@@ -161,8 +161,9 @@ class SpecificNoteSet(Cached):
     def find_intervals(self, interval: int) -> tuple[tuple[SpecificNote, SpecificNote], ...]:
         return tuple((n, m) for n, m in self.notes_combinations() if abs(m - n) == interval)
 
-    @functools.cached_property
-    def transposed_to_note(self, note: SpecificNote) -> SpecificNoteSet:
+    def transpose_to_note(self, note: SpecificNote) -> SpecificNoteSet:
+        if len(self) == 0:
+            return self
         return self + (note - self[0])
     
     def __len__(self) -> int:
