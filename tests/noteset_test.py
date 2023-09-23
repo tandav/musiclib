@@ -74,7 +74,6 @@ def test_note_i():
     assert NoteSet(frozenset())._note_i == {}
 
 
-
 @pytest.mark.parametrize(
     ('noteset', 'note', 'steps', 'result'), [
         (NoteSet.from_str('CDEFGAB'), Note('C'), 3, Note('F')),

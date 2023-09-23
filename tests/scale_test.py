@@ -158,18 +158,19 @@ def test_equal(op, a, b):
         assert operator.is_(a, b)
 
 
-# @pytest.mark.parametrize(
-#     ('notes', 'name', 'nths'), [
-#         ('CDEFGAB', 'triads', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
-#         ('DEFGAbC', 'triads', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
-#         ('CDEFGAB', 'sevenths', 'CEGB/C DFAC/D EGBD/E FACE/F GBDF/G ACEG/A BDFA/B'),
-#         ('DEFGAbC', 'sevenths', 'DFAC/D EGbD/E FACE/F GbDF/G ACEG/A bDFA/b CEGb/C'),
-#         ('CDEFGAB', 'ninths', 'CEGBD/C DFACE/D EGBDF/E FACEG/F GBDFA/G ACEGB/A BDFAC/B'),
-#         ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
-#     ],
-# )
-# def test_nths(notes, name, nths):
-#     assert getattr(Scale.from_str(f'{notes}/{notes[0]}'), name) == tuple(Chord.from_str(s) for s in nths.split())
+@pytest.mark.parametrize(
+    ('notes', 'name', 'nths'), [
+        ('CDEFGAB', 'triads', 'CEG/C DFA/D EGB/E FAC/F GBD/G ACE/A BDF/B'),
+        ('DEFGAbC', 'triads', 'DFA/D EGb/E FAC/F GbD/G ACE/A bDF/b CEG/C'),
+        ('CDEFGAB', 'sixths', 'CEGA/C DFAB/D EGBC/E FACD/F GBDE/G ACEF/A BDFG/B'),
+        ('CDEFGAB', 'sevenths', 'CEGB/C DFAC/D EGBD/E FACE/F GBDF/G ACEG/A BDFA/B'),
+        ('DEFGAbC', 'sevenths', 'DFAC/D EGbD/E FACE/F GbDF/G ACEG/A bDFA/b CEGb/C'),
+        ('CDEFGAB', 'ninths', 'CEGBD/C DFACE/D EGBDF/E FACEG/F GBDFA/G ACEGB/A BDFAC/B'),
+        ('DEFGAbC', 'ninths', 'DFACE/D EGbDF/E FACEG/F GbDFA/G ACEGb/A bDFAC/b CEGbD/C'),
+    ],
+)
+def test_nths(notes, name, nths):
+    assert Scale.from_str(f'{notes}/{notes[0]}').nths(config.nths[name]) == tuple(Scale.from_str(s) for s in nths.split())
 
 
 # def test_notes_to_triad_root():

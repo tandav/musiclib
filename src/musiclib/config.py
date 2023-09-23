@@ -1,11 +1,9 @@
 import functools
-import itertools
 import operator
 from colortool import Color
 from musiclib.util.etc import named_intervals_rotations
 
 chromatic_notes = 'CdDeEFfGaAbB'  # TODO make variable here, delete from config, reimport everywhere, maybe circular imports
-
 
 
 name_to_intervals_kind_grouped = {
@@ -83,29 +81,36 @@ for kind, kv in name_to_intervals_kind_grouped.items():
     scale_order[kind] = tuple(kv.keys())
     kinds.update(dict.fromkeys(kv.keys(), kind))
 
+nths = {
+    'triads': frozenset({0, 2, 4}),
+    'sixths': frozenset({0, 2, 4, 5}),
+    'sevenths': frozenset({0, 2, 4, 6}),
+    'ninths': frozenset({0, 2, 4, 6, 8}),
+}
+
 # colors
-WHITE_PALE = Color.from_hex(0xAAAAAA)
-BLACK_PALE = Color.from_hex(0x505050)
-WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
-BLACK_BRIGHT = Color.from_hex(0x000000)
-RED = Color.from_hex(0xFF0000)
-GREEN = Color.from_hex(0x00FF00)
-BLUE = Color.from_hex(0x4f88ea)
+WHITE_PALE = Color(0xAAAAAA)
+BLACK_PALE = Color(0x505050)
+WHITE_BRIGHT = Color(0xFFFFFF)
+BLACK_BRIGHT = Color(0x000000)
+RED = Color(0xFF0000)
+GREEN = Color(0x00FF00)
+BLUE = Color(0x4f88ea)
 
 
 interval_colors = {
     0: Color(0xFF0000),
-    1: Color.from_hex(0xFFB014),
-    2: Color.from_hex(0xEFE600),
-    3: Color.from_hex(0x00D300),
-    4: Color.from_hex(0x4800FF),
-    5: Color.from_hex(0xB800E5),
-    6: Color.from_hex(0xFF00CB),
-    7: Color.from_hex(0xFF0000),
-    8: Color.from_hex(0xFFB014),
-    9: Color.from_hex(0xEFE600),
-    10: Color.from_hex(0x00D300),
-    11: Color.from_hex(0x4800FF),
-    12: Color.from_hex(0xB800E5),
-    13: Color.from_hex(0xFF00CB),
+    1: Color(0xFFB014),
+    2: Color(0xEFE600),
+    3: Color(0x00D300),
+    4: Color(0x4800FF),
+    5: Color(0xB800E5),
+    6: Color(0xFF00CB),
+    7: Color(0xFF0000),
+    8: Color(0xFFB014),
+    9: Color(0xEFE600),
+    10: Color(0x00D300),
+    11: Color(0x4800FF),
+    12: Color(0xB800E5),
+    13: Color(0xFF00CB),
 }

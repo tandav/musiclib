@@ -85,6 +85,12 @@ class Scale(Cached):
     def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:
         return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
 
+    def nths(self, ns: frozenset[int]) -> tuple[Scale, ...]:
+        return tuple(
+            Scale.from_notes(self.notes_ascending[i], frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns))
+            for i in range(len(self))
+        )
+
     def transpose_to_note(self, note: Note) -> Scale:
         return Scale(note, self.intervals)
 
