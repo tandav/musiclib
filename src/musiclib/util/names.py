@@ -4,44 +4,7 @@ import operator
 from musiclib.util.etc import intervals_rotations
 
 
-# todo: delete this and move to util/names.py
-scale_order = {
-    'natural': ('major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'),
-    'pentatonic': ('p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'),
-    'harmonic': ('h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'),
-    'melodic': ('m_minor', 'm_locrian', 'm_major', 'm_dorian', 'm_phrygian', 'm_lydian', 'm_mixolydian'),
-    'sudu': ('s_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'),
-    'c_major': ('c_major', 'c_major_inv1', 'c_major_inv2'),
-    'c_minor': ('c_minor', 'c_minor_inv1', 'c_minor_inv2'),
-}
 
-# todo: inversions for all chords must be here
-# c_major = 
-
-kinds = (
-    dict.fromkeys(scale_order['natural'], 'natural') |
-    dict.fromkeys(scale_order['harmonic'], 'harmonic') |
-    dict.fromkeys(scale_order['melodic'], 'melodic') |
-    dict.fromkeys(scale_order['pentatonic'], 'pentatonic') |
-    dict.fromkeys(scale_order['sudu'], 'sudu') |
-    dict.fromkeys(scale_order['c_major'], 'c_major') |
-    dict.fromkeys(scale_order['c_minor'], 'c_minor')
-    # {
-        # 'c_major': 'c_major',
-        # 'c_minor': 'c_minor',
-        # 'c_diminished': 'c_diminished',
-        # 'c_maj7': 'c_maj7',
-        # 'c_7': 'c_7',
-        # 'c_min7': 'c_min7',
-        # 'c_half-dim7': 'c_half-dim7',
-        # 'c_dim7': 'c_dim7',
-        # 'c_6': 'c_6',
-        # 'c_m6': 'c_m6',
-        # 'c_aug': 'c_aug',
-        # 'c_sus2': 'c_sus2',
-        # 'c_sus4': 'c_sus4',
-    # }
-)
 
 name_to_intervals_kind_grouped = {
     'natural': {
@@ -88,12 +51,12 @@ name_to_intervals_kind_grouped = {
     },
     # chords: all have c_ prefix to distinguish from scales
     # triads
-    'major': {
+    'c_major': {
         'c_major': frozenset({0, 4, 7}),
         'c_major_inv1': frozenset({0, 3, 8}),
         'c_major_inv2': frozenset({0, 5, 9}),
     },
-    'minor': {
+    'c_minor': {
         'c_minor': frozenset({0, 3, 7}),
         'c_minor_inv1': frozenset({0, 4, 9}),
         'c_minor_inv2': frozenset({0, 5, 8}),
@@ -119,15 +82,57 @@ name_to_intervals_key = {
     kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()
 }
 
-# name_to_intervals_key = {
-#     'natural': frozenset(name_to_intervals_kind_grouped['natural'].values()),
-#     'harmonic': frozenset(name_to_intervals_kind_grouped['harmonic'].values()),
-#     'melodic': frozenset(name_to_intervals_kind_grouped['melodic'].values()),
-#     'pentatonic': frozenset(name_to_intervals_kind_grouped['pentatonic'].values()),
-#     'sudu': frozenset(name_to_intervals_kind_grouped['sudu'].values()),
-#     'c_major': frozenset(name_to_intervals_kind_grouped['c_major'].values()),
+
+scale_order = {}
+kinds = {}
+for kind, kv in name_to_intervals_kind_grouped.items():
+    scale_order[kind] = tuple(kv.keys())
+    kinds.update(dict.fromkeys(kv.keys(), kind))
+
+# scale_order = {
+#     'natural': tuple(name_to_intervals_kind_grouped['natural'].keys()),
+#     'pentatonic': tuple(name_to_intervals_kind_grouped['pentatonic'].keys()),
+#     'harmonic': tuple(name_to_intervals_kind_grouped['harmonic'].keys()),
+#     'melodic': tuple(name_to_intervals_kind_grouped['melodic'].keys()),
+#     'sudu': tuple(name_to_intervals_kind_grouped['sudu'].keys()),
+#     'c_major': tuple(name_to_intervals_kind_grouped['c_major'].keys()),
+#     'c_minor': tuple(name_to_intervals_kind_grouped['c_minor'].keys()),
+#     # 'natural': ('major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'minor', 'locrian'),
+#     # 'pentatonic': ('p_major', 'p_dorian', 'p_phrygian', 'p_mixolydian', 'p_minor'),
+#     # 'harmonic': ('h_minor', 'h_locrian', 'h_major', 'h_dorian', 'h_phrygian', 'h_lydian', 'h_mixolydian'),
+#     # 'melodic': ('m_minor', 'm_locrian', 'm_major', 'm_dorian', 'm_phrygian', 'm_lydian', 'm_mixolydian'),
+#     # 'sudu': ('s_major', 's_dorian', 's_phrygian', 's_lydian', 's_mixolydian', 's_minor'),
+#     # 'c_major': ('c_major', 'c_major_inv1', 'c_major_inv2'),
+#     # 'c_minor': ('c_minor', 'c_minor_inv1', 'c_minor_inv2'),
 # }
 
+# todo: inversions for all chords must be here
+# c_major = 
+
+# kinds = (
+#     dict.fromkeys(scale_order['natural'], 'natural') |
+#     dict.fromkeys(scale_order['harmonic'], 'harmonic') |
+#     dict.fromkeys(scale_order['melodic'], 'melodic') |
+#     dict.fromkeys(scale_order['pentatonic'], 'pentatonic') |
+#     dict.fromkeys(scale_order['sudu'], 'sudu') |
+#     dict.fromkeys(scale_order['c_major'], 'c_major') |
+#     dict.fromkeys(scale_order['c_minor'], 'c_minor')
+#     # {
+#         # 'c_major': 'c_major',
+#         # 'c_minor': 'c_minor',
+#         # 'c_diminished': 'c_diminished',
+#         # 'c_maj7': 'c_maj7',
+#         # 'c_7': 'c_7',
+#         # 'c_min7': 'c_min7',
+#         # 'c_half-dim7': 'c_half-dim7',
+#         # 'c_dim7': 'c_dim7',
+#         # 'c_6': 'c_6',
+#         # 'c_m6': 'c_m6',
+#         # 'c_aug': 'c_aug',
+#         # 'c_sus2': 'c_sus2',
+#         # 'c_sus4': 'c_sus4',
+#     # }
+# )
 
 #     'natural': frozenset({
 #         name_to_intervals['major'],
