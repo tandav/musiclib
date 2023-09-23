@@ -53,21 +53,9 @@ name_to_intervals_kind_grouped = {
     },
     # chords: all have inversion number suffix to distinguish from scales
     # triads
-    'major': {
-        'major0': frozenset({0, 4, 7}),
-        'major1': frozenset({0, 3, 8}),
-        'major2': frozenset({0, 5, 9}),
-    },
-    'minor': {
-        'minor0': frozenset({0, 3, 7}),
-        'minor1': frozenset({0, 4, 9}),
-        'minor2': frozenset({0, 5, 8}),
-    },
-    'diminished': {
-        'diminished0': frozenset({0, 3, 6}),
-        'diminished1': frozenset({0, 3, 9}),
-        'diminished2': frozenset({0, 6, 9}),
-    }
+    'major': {f'major{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 4, 7})))},
+    'minor': {f'minor{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 3, 7})))},
+    'diminished': {f'diminished{i}': fs for i, fs in enumerate(intervals_rotations(frozenset({0, 3, 6})))},
 #     # # 7th
 #     # 'c_maj7': frozenset({0, 4, 7, 11}),
 #     # 'c_7': frozenset({0, 4, 7, 10}),
