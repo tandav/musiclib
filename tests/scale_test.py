@@ -58,6 +58,7 @@ def test_from_str_validation(string):
         (Note('C'), 'minor', Scale.from_str('CDeFGab/C')),
         (Note('C'), 'major_0', Scale.from_str('CEG/C')),
         (Note('C'), '7_0', Scale.from_str('CEGb/C')),
+        (Note('d'), '7_0', Scale.from_str('dFaB/d')),
     ],
 )
 def test_from_name(root, name, expected):
@@ -67,6 +68,7 @@ def test_from_name(root, name, expected):
 @pytest.mark.parametrize(
     ('scale', 'intervals'), [
         (Scale.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
+        (Scale.from_str('CEG/C'), (0, 4, 7)),
         (Scale.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
     ],
 )
