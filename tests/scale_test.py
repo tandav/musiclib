@@ -173,13 +173,9 @@ def test_nths(notes, name, nths):
     assert Scale.from_str(f'{notes}/{notes[0]}').nths(config.nths[name]) == tuple(Scale.from_str(s) for s in nths.split())
 
 
-# def test_notes_to_triad_root():
-#     assert Scale.from_str('DEFGAbC/D').notes_to_triad_root[frozenset(map(Note, 'GbD'))] == 'G'
-
-
-# @pytest.mark.parametrize('notes', ['CDEFGAB', 'BdeEfab', 'deFfabC'])
-# def test_note_scales(notes):
-#     assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.natural, strict=True))
+@pytest.mark.parametrize('notes', ['CDEFGAB', 'BdeEfab', 'deFfabC'])
+def test_note_scales(notes):
+    assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == dict(zip(notes, config.scale_order['natural'], strict=True))
 
 
 # def test_compared():
