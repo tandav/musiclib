@@ -32,15 +32,7 @@ class NoteSet(Cached):
     def __init__(self, notes: frozenset[Note]) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
-
-        # TODO: try to use just `self.notes = notes`
-        if len(notes) == 0:
-            self.notes = frozenset()
-        elif typeguards.is_frozenset_of_note(notes):
-            self.notes = notes
-        else:
-            raise TypeError('expected frozenset of Note')
-
+        self.notes = notes
         self.notes_ascending = tuple(sorted(self.notes))
         self.note_to_intervals = {left: frozenset(right - left for right in self.notes) for left in self.notes}
         self.intervals_key = frozenset(self.note_to_intervals.values())
