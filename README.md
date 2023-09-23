@@ -59,7 +59,7 @@ Scale.from_name('C', 'phrygian')
 ![](docs/svg_examples/C_phrygian.svg)
 
 ```py
-SpecificChord.from_str('C1_e1_G1_C2_b2_E3')
+SpecificNoteSet.from_str('C1_e1_G1_C2_b2_E3')
 ```
 ![](docs/svg_examples/C1_e1_G1_C2_b2_E3.svg)
 
