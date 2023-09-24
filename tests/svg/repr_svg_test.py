@@ -13,12 +13,13 @@ TITLE = 'title_fUYsZHfC'
 SUBTITLE = 'subtitle_EfrKTj'
 TITLE_HREF = 'title_href_TUMhv'
 BACKGROUND_COLOR = Color.from_hex(0xFACE45)
+KINDS = 'natural', 'pentatonic', 'h_minor', 'h_major', 'm_minor'
 
 
 @pytest.fixture
 def all_scales():
     out = {}
-    for kind in ('natural', 'harmonic', 'melodic', 'pentatonic', 'sudu'):
+    for kind in KINDS:
         out[kind] = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order[kind])}
     return out
 
@@ -66,7 +67,7 @@ def test_svg_noteset(noteset, title, subtitle, title_href, background_color):
     svg_helper(svg, classes, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize('kind', ['natural', 'harmonic', 'melodic', 'pentatonic', 'sudu'])
+@pytest.mark.parametrize('kind', KINDS)
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])

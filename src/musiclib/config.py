@@ -20,24 +20,6 @@ name_to_intervals_kind_grouped = {
         'minor': frozenset({0, 2, 3, 5, 7, 8, 10}),
         'locrian': frozenset({0, 1, 3, 5, 6, 8, 10}),
     },
-    'harmonic': {
-        'h_minor': frozenset({0, 2, 3, 5, 7, 8, 11}),
-        'h_locrian': frozenset({0, 1, 3, 5, 6, 9, 10}),
-        'h_major': frozenset({0, 2, 4, 5, 8, 9, 11}),
-        'h_dorian': frozenset({0, 2, 3, 6, 7, 9, 10}),
-        'h_phrygian': frozenset({0, 1, 4, 5, 7, 8, 10}),
-        'h_lydian': frozenset({0, 3, 4, 6, 7, 9, 11}),
-        'h_mixolydian': frozenset({0, 1, 3, 4, 6, 8, 9}),
-    },
-    'melodic': {
-        'm_minor': frozenset({0, 2, 3, 5, 7, 9, 11}),
-        'm_locrian': frozenset({0, 1, 3, 5, 7, 9, 10}),
-        'm_major': frozenset({0, 2, 4, 6, 8, 9, 11}),
-        'm_dorian': frozenset({0, 2, 4, 6, 7, 9, 10}),
-        'm_phrygian': frozenset({0, 2, 4, 5, 7, 8, 10}),
-        'm_lydian': frozenset({0, 2, 3, 5, 6, 8, 10}),
-        'm_mixolydian': frozenset({0, 1, 3, 4, 6, 8, 10}),
-    },
     'pentatonic': {
         'p_major': frozenset({0, 2, 4, 7, 9}),
         'p_dorian': frozenset({0, 2, 5, 7, 10}),
@@ -45,15 +27,9 @@ name_to_intervals_kind_grouped = {
         'p_mixolydian': frozenset({0, 2, 5, 7, 9}),
         'p_minor': frozenset({0, 3, 5, 7, 10}),
     },
-    'sudu': {
-        's_major': frozenset({0, 2, 4, 5, 7, 9}),
-        's_dorian': frozenset({0, 2, 3, 5, 7, 10}),
-        's_phrygian': frozenset({0, 1, 3, 5, 8, 10}),
-        's_lydian': frozenset({0, 2, 4, 7, 9, 11}),
-        's_mixolydian': frozenset({0, 2, 5, 7, 9, 10}),
-        's_minor': frozenset({0, 3, 5, 7, 8, 10}),
-    },
-
+    'h_minor': named_intervals_rotations(frozenset({0, 2, 3, 5, 7, 8, 11}), 'h_minor'),
+    'h_major': named_intervals_rotations(frozenset({0, 2, 4, 5, 7, 8, 11}), 'h_major'),
+    'm_minor': named_intervals_rotations(frozenset({0, 2, 3, 5, 7, 9, 11}), 'm_minor'),
     # chords: all have inversion number suffix to distinguish from scales
     # triads
     'major': named_intervals_rotations(frozenset({0, 4, 7}), 'major'),

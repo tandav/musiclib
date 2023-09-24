@@ -123,10 +123,10 @@ def _add_note_specific_generator():
     notesets = [NoteSet.from_str('CDEFGAB'), NoteSet.from_str('DEFGAbC')]
     notesets += [s.noteset for s in natural]
     notesets += [
-        Scale.from_name('C', 'h_minor').noteset,
-        Scale.from_name('E', 'h_minor').noteset,
-        Scale.from_name('d', 'm_minor').noteset,
-        Scale.from_name('f', 's_minor').noteset,
+        Scale.from_name('C', 'h_minor_1').noteset,
+        Scale.from_name('C', 'h_major_1').noteset,
+        Scale.from_name('E', 'h_minor_1').noteset,
+        Scale.from_name('d', 'm_minor_1').noteset,
         Scale.from_name('b', 'p_minor').noteset,
     ]
     for noteset in notesets:
