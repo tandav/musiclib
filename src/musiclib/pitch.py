@@ -53,3 +53,6 @@ class Pitch:
         """Convert pixel position to hz (assuming pixel using logarithmic scale)"""
         c = px / px_max
         return hz_min ** (1 - c) * hz_max ** c  # type: ignore[no-any-return]
+
+    def __repr__(self) -> str:
+        return f'Pitch(hz_tuning={self.hz_tuning!r}, origin_note={self.origin_note!r}, transpose={self.transpose!r})'

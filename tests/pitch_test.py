@@ -19,6 +19,20 @@ HZ_261 = 261.6255653005986
 
 
 @pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (
+            Pitch(),
+            "Pitch(hz_tuning=440, origin_note=SpecificNote('A', 4), transpose=0)",
+            "Pitch(hz_tuning=440, origin_note=SpecificNote('A', 4), transpose=0)",
+        ),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
+
+
+@pytest.mark.parametrize(
     ('i', 'hz'), [
         (-24, 110),
         (-12, HZ_220),
