@@ -69,6 +69,6 @@ repos:
       additional_dependencies: [svg.py]
 
   # - repo: https://github.com/RobertCraigie/pyright-python
-  #   rev: v1.1.302
+  #   rev: v1.1.327
   #   hooks:
   #   - id: pyright

@@ -184,11 +184,8 @@ aggressive = 3
 # ==============================================================================
 
 [tool.pyright]
-venvPath = "/Users/tandav/.cache/.virtualenvs"
+venvPath = "/Users/tandav/.cache/virtualenvs"
 venv = "musiclib"
-exclude = [
-    "src/musiclib/util/sequence_builder.py",
-]
 
 # ==============================================================================
 
