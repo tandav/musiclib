@@ -8,8 +8,8 @@ from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
 
-from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 from musiclib.util.cache import Cached
 
 CheckCallable = Callable[[SpecificNoteSet, SpecificNoteSet], bool]

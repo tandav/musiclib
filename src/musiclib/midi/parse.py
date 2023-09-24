@@ -7,8 +7,8 @@ from typing import Literal
 
 import mido
 
-from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 from musiclib.rhythm import Rhythm
 from musiclib.tempo import Tempo
 

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import functools
 import itertools
-from typing import TYPE_CHECKING
-
 from collections import defaultdict
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 from musiclib import config
@@ -15,8 +15,8 @@ from musiclib.config import BLUE
 from musiclib.config import GREEN
 from musiclib.config import RED
 from musiclib.note import Note
-from musiclib.svg.piano import Piano
 from musiclib.noteset import NoteSet
+from musiclib.svg.piano import Piano
 from musiclib.util.cache import Cached
 from musiclib.util.etc import intervals_to_bits
 
@@ -24,7 +24,7 @@ Self = TypeVar('Self', bound='Scale')
 
 
 class Scale(Cached):
-    def __init__(self, root: Note, intervals: frozenset[int]):
+    def __init__(self, root: Note, intervals: frozenset[int]) -> None:
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
         if not isinstance(intervals, frozenset):
@@ -38,7 +38,7 @@ class Scale(Cached):
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
         self.notes_ascending = _notes_octave_fit[_root_i:] + _notes_octave_fit[:_root_i]
-        self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)                   
+        self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
         self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
         self.bits = intervals_to_bits(self.intervals)
         self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
@@ -61,15 +61,15 @@ class Scale(Cached):
         elif not isinstance(root, Note):
             raise TypeError(f'expected str | Note, got {type(root)}')
         return cls(root, config.name_to_intervals[name])
-    
+
     @classmethod
     def from_notes(cls: type[Self], root: Note, notes: frozenset[Note]) -> Self:
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
-        if not root in notes:
+        if root not in notes:
             raise ValueError('scale root must be in scale notes')
         return cls(root, frozenset(note - root for note in notes))
-    
+
     @classmethod
     def from_str(cls: type[Self], string: str) -> Self:
         if string == '':
@@ -79,7 +79,7 @@ class Scale(Cached):
         root = Note(string[-1])
         notes = frozenset(Note(note) for note in string[:-2])
         return cls.from_notes(root, notes)
-    
+
     @classmethod
     def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:
         return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
@@ -96,7 +96,7 @@ class Scale(Cached):
     @functools.cached_property
     def noteset(self) -> NoteSet:
         return NoteSet(self.notes)
-    
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Scale):
             return NotImplemented
@@ -118,17 +118,17 @@ class Scale(Cached):
         if not isinstance(item, Note):
             return NotImplemented
         return item in self.notes
-    
+
     @property
     def str_names(self) -> str:
         return f"{self.root} {' '.join(sorted(self.names))}"
-    
+
     def __str__(self) -> str:
         return f"{''.join(note.name for note in self.notes_ascending)}/{self.root}"
 
     def __repr__(self) -> str:
         return f'Scale({self.root!r}, {self.intervals!r})'
-    
+
     def __getnewargs__(self) -> tuple[Note, frozenset[int]]:
         return (self.root, self.intervals)
 
@@ -146,7 +146,7 @@ class ComparedScales:
     left is kinda parent, right is kinda child
     """
 
-    def __init__(self, left: Scale, right: Scale):
+    def __init__(self, left: Scale, right: Scale) -> None:
         self.left = left
         self.right = right
         self.key = left, right

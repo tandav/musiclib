@@ -1,7 +1,4 @@
-import random
-
 import pytest
-from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
@@ -17,12 +14,10 @@ def test_transpose_to_note(noteset, note, expected):
     assert noteset.transpose_to_note(note) == expected
 
 
-
 @pytest.mark.parametrize('arg', ['C1_D1_E1', set('C1_D1_E1'), tuple('C1_D1_E1'), list('C1_D1_E1')])
 def test_notes_type_is_frozenset(arg):
     with pytest.raises(TypeError):
         SpecificNoteSet(arg)
-
 
 
 def test_from_str():
@@ -79,7 +74,6 @@ def test_find_intervals():
     assert SpecificNoteSet(frozenset({a, b, c})).find_intervals(7) == ((a, c),)
     assert SpecificNoteSet(frozenset({a, b, c, e})).find_intervals(7) == ((a, c), (c, e))
     assert SpecificNoteSet(frozenset({a, d})).find_intervals(12) == ((a, d),)
-
 
 
 @pytest.mark.parametrize(

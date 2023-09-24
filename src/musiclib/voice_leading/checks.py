@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Hashable
 
-    from musiclib.noteset import SpecificNoteSet
     from musiclib.note import SpecificNote
+    from musiclib.noteset import SpecificNoteSet
     from musiclib.scale import Scale
 
 

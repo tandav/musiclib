@@ -1,6 +1,3 @@
-from typing import no_type_check
-
-
 def increment_duplicates(a: list[int]) -> list[int]:
     if not a:
         return []

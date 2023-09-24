@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING
 from typing import overload
 
 from musiclib import config
 from musiclib.util.cache import Cached
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 _note_i = {note: i for i, note in enumerate(config.chromatic_notes)}
 _is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '010100101010', strict=True)}

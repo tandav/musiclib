@@ -1,7 +1,9 @@
-import functools
 import collections
+import functools
 import operator
+
 from colortool import Color
+
 from musiclib.util.etc import named_intervals_rotations
 
 chromatic_notes = 'CdDeEFfGaAbB'  # TODO make variable here, delete from config, reimport everywhere, maybe circular imports

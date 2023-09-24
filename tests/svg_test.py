@@ -1,10 +1,8 @@
-import itertools
-
 import pytest
 from colortool import Color
-from musiclib.noteset import SpecificNoteSet
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
+from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
 from musiclib.scale import all_scales

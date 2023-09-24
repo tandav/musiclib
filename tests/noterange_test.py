@@ -5,7 +5,6 @@ from musiclib import config
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
-from musiclib.scale import Scale
 
 
 @pytest.mark.parametrize(

@@ -130,9 +130,9 @@ class SpecificNoteSet(Cached):
 
     @classmethod
     def random(
-        cls, 
-        n_notes: int | None = None, 
-        notes: frozenset[Note] = frozenset(map(Note, config.chromatic_notes)),
+        cls,
+        n_notes: int | None = None,
+        notes: frozenset[Note] = frozenset({Note(n) for n in config.chromatic_notes}),  # noqa: B008
         octaves: frozenset[int] = frozenset({3, 4, 5}),
     ) -> SpecificNoteSet:
         if n_notes is None:
@@ -151,7 +151,7 @@ class SpecificNoteSet(Cached):
             raise ValueError('SpecificNoteSet with non unique notes are not supported')
         notes = frozenset(SpecificNote.from_str(note) for note in notes_)
         return cls(notes)
-    
+
     def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
         yield from itertools.combinations(self.notes_ascending, 2)
 
@@ -162,7 +162,7 @@ class SpecificNoteSet(Cached):
         if len(self) == 0:
             return self
         return self + (note - self[0])
-    
+
     def __len__(self) -> int:
         return len(self.notes)
 
@@ -204,8 +204,8 @@ class SpecificNoteSet(Cached):
         return (self.notes,)
 
     def _repr_svg_(self, **kwargs: Any) -> str:
-        from musiclib.svg.piano import Piano
         from musiclib.noterange import NoteRange
+        from musiclib.svg.piano import Piano
         kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('title', repr(self))

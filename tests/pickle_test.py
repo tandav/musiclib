@@ -1,10 +1,10 @@
 import pickle
 
 import pytest
-from musiclib.noteset import SpecificNoteSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
+from musiclib.noteset import SpecificNoteSet
 from musiclib.progression import Progression
 from musiclib.scale import Scale
 

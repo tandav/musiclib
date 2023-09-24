@@ -2,10 +2,10 @@ import itertools
 import textwrap
 
 import pytest
-from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
+from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import Scale
 from musiclib.voice_leading import transition
 

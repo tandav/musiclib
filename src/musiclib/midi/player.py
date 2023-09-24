@@ -4,8 +4,8 @@ import functools
 import mido
 import mido.midifiles.midifiles
 
-from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 
 Playable = SpecificNote | SpecificNoteSet
 
