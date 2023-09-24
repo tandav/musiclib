@@ -96,3 +96,6 @@ class Tempo:
     @property
     def midi_tempo(self) -> int:
         return mido.bpm2tempo(bpm=self.beats_per_minute, time_signature=(self.beats_per_bar, 4))  # type: ignore[no-any-return]
+
+    def __repr__(self) -> str:
+        return f'Tempo(ticks={self.ticks!r}, ticks_per_beat={self.ticks_per_beat!r}, beats_per_bar={self.beats_per_bar!r}, beats_per_minute={self.beats_per_minute!r})'

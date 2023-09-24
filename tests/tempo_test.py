@@ -57,3 +57,17 @@ def tempo(request):
 def test_units(tempo):
     for k, v in config._asdict().items():
         assert getattr(tempo, k) == v
+
+
+@pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (
+            Tempo(),
+            'Tempo(ticks=0, ticks_per_beat=96, beats_per_bar=4, beats_per_minute=120)',
+            'Tempo(ticks=0, ticks_per_beat=96, beats_per_bar=4, beats_per_minute=120)',
+        ),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
