@@ -23,7 +23,8 @@ pip install -e .[dev]
 
 ```py
 >>> from musiclib.scale import Scale
->>> from musiclib.chord import Chord
+>>> from musiclib.noteset import SpecificNoteSet
+>>> from musiclib.noterange import NoteRange
 
 >>> scale = Scale.from_name('C', 'major')
 
@@ -44,13 +45,6 @@ frozenset({Note(name=C),
 
 >>> scale.intervals
 frozenset({0, 2, 4, 5, 7, 9, 11})
-
->>> scale.triads
-(CEG/C, DFA/D, EGB/E, FAC/F, GBD/G, ACE/A, BDF/B)
-
->>> chord = Chord.from_str('CEG/C')
->>> chord == scale.triads[0]
-True
 ```
 
 ```py
