@@ -23,6 +23,25 @@ def progression4():
     return Progression((a, b, c, d))
 
 
+@pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (
+            Progression((
+                SpecificNoteSet.from_str('G2_B2_e3'),
+                SpecificNoteSet.from_str('A2_C3_E3'),
+                SpecificNoteSet.from_str('B2_D3_f3'),
+                SpecificNoteSet.from_str('C3_E3_G3'),
+            )),
+            "Progression('G2_B2_e3', 'A2_C3_E3', 'B2_D3_f3', 'C3_E3_G3')",
+            "Progression('G2_B2_e3', 'A2_C3_E3', 'B2_D3_f3', 'C3_E3_G3')",
+        ),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
+
+
 def test_validation():
     with pytest.raises(TypeError):
         Progression((0, 1, 2))  # type: ignore[arg-type]

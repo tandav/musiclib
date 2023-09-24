@@ -41,7 +41,8 @@ class Progression(Cached, Sequence[SpecificNoteSet]):
         return len(self.chords)
 
     def __repr__(self) -> str:
-        return f'Progression{self.chords}'
+        chords_str = ', '.join(f"'{c}'" for c in self.chords)
+        return f'Progression({chords_str})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Progression):
