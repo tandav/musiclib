@@ -80,10 +80,6 @@ class Scale(Cached):
         notes = frozenset(Note(note) for note in string[:-2])
         return cls.from_notes(root, notes)
 
-    @classmethod
-    def all_scales(cls: type[Self], kind: str) -> tuple[Self, ...]:
-        return frozenset(cls.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, getattr(config, kind)))
-
     def nths(self, ns: frozenset[int]) -> tuple[Scale, ...]:
         return tuple(
             Scale.from_notes(self.notes_ascending[i], frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns))
@@ -196,38 +192,3 @@ class ComparedScales:
     def __repr__(self) -> str:
         return f'ComparedScale({self.left.str_names} | {self.right.str_names})'
 
-
-natural = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['natural'])}
-harmonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['harmonic'])}
-melodic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['melodic'])}
-pentatonic = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['pentatonic'])}
-sudu = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['sudu'])}
-all_scales = {
-    'natural': natural,
-    'harmonic': harmonic,
-    'melodic': melodic,
-    'pentatonic': pentatonic,
-    'sudu': sudu,
-}
-
-CIRCLE_OF_FIFTHS_CLOCKWISE = 'CGDAEBfdaebF'
-
-# circle of fifths clockwise
-majors = {
-    'natural': tuple(natural[note, 'major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    'harmonic': tuple(harmonic[note, 'h_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    'melodic': tuple(melodic[note, 'm_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    'pentatonic': tuple(pentatonic[note, 'p_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-    'sudu': tuple(sudu[note, 's_major'] for note in CIRCLE_OF_FIFTHS_CLOCKWISE),
-}
-
-
-@functools.cache
-def neighbors(left: Scale) -> dict[int, list[ComparedScales]]:
-    neighs = defaultdict(list)
-    for right_ in all_scales[left.kind].values():
-        # if left == right:
-        #     continue
-        right = ComparedScales(left, right_)
-        neighs[len(right.shared_notes)].append(right)
-    return neighs

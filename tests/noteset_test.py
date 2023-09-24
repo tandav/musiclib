@@ -6,7 +6,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.scale import Scale
-from musiclib.scale import all_scales
+from musiclib import config
 
 
 def test_empty():
@@ -109,8 +109,9 @@ def _make_keyboard(notes: Sequence[Note], octaves: Sequence[int]) -> tuple[Speci
 
 
 def _add_note_specific_generator():
+    natural = [Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['natural'])]
     notesets = [NoteSet.from_str('CDEFGAB'), NoteSet.from_str('DEFGAbC')]
-    notesets += [s.noteset for s in all_scales['natural'].values()]
+    notesets += [s.noteset for s in natural]
     notesets += [
         Scale.from_name('C', 'h_minor').noteset,
         Scale.from_name('E', 'h_minor').noteset,

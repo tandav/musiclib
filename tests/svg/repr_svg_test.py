@@ -1,3 +1,4 @@
+import itertools
 import pytest
 from colortool import Color
 from musiclib.noterange import NoteRange
@@ -5,12 +6,20 @@ from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
-from musiclib.scale import all_scales
+from musiclib import config
+
 
 TITLE = 'title_fUYsZHfC'
 SUBTITLE = 'subtitle_EfrKTj'
 TITLE_HREF = 'title_href_TUMhv'
 BACKGROUND_COLOR = Color.from_hex(0xFACE45)
+
+@pytest.fixture
+def all_scales():
+    out = {}
+    for kind in ('natural', 'harmonic', 'melodic', 'pentatonic', 'sudu'):
+        out[kind] = {(root, name): Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order[kind])}
+    return out
 
 
 def svg_helper(html, classes, title, subtitle, title_href, background_color):
@@ -61,7 +70,7 @@ def test_svg_noteset(noteset, title, subtitle, title_href, background_color):
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_svg_scale(kind, title, subtitle, title_href, background_color):
+def test_svg_scale(kind, title, subtitle, title_href, background_color, all_scales):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     for scale in all_scales[kind].values():

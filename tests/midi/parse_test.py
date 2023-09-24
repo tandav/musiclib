@@ -6,7 +6,7 @@ from musiclib.noteset import SpecificNoteSet
 from musiclib.rhythm import Rhythm
 
 
-def midi_equal(a: mido.MidiFile, b: mido.MidiFile) -> bool:
+def is_midi_equal(a: mido.MidiFile, b: mido.MidiFile) -> bool:
     return a.type == b.type and a.ticks_per_beat == b.ticks_per_beat and a.tracks == b.tracks  # type: ignore[no-any-return]
 
 
@@ -27,7 +27,7 @@ def test_parse(mido_midifile, midi):
 
 def test_midiobj_to_midifile(midi, mido_midifile):
     check = parse.midiobj_to_midifile(midi)
-    assert midi_equal(check, mido_midifile)
+    assert is_midi_equal(check, mido_midifile)
 
 
 def test_index_abs_messages(midi):
@@ -47,7 +47,7 @@ def test_index_abs_messages(midi):
 def test_specific_note_set_to_midi():
     sns = SpecificNoteSet(frozenset({SpecificNote.from_str('C1'), SpecificNote.from_str('E1'), SpecificNote.from_str('G1')}))
     midi = parse.specific_note_set_to_midi(sns)
-    assert midi_equal(
+    assert is_midi_equal(
         midi, mido.MidiFile(
             type=0, ticks_per_beat=96, tracks=[
                 mido.MidiTrack([
@@ -80,4 +80,4 @@ def test_rhythm_to_midi():
             ]),
         ],
     )
-    assert midi_equal(midi, expected)
+    assert is_midi_equal(midi, expected)
