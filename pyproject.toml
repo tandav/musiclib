@@ -29,8 +29,8 @@ dev = [
 [project.urls]
 source = "https://github.com/tandav/musiclib"
 # docs = "https://tandav.github.io/musiclib"
-issues = "https://tandav.github.io/musiclib/issues"
-"release notes" = "https://tandav.github.io/musiclib/releases"
+issues = "https://notes.tandav.me/notes/?tags=musictool"
+"release notes" = "https://github.com/tandav/musiclib/releases"
 
 # ==============================================================================
 
