@@ -118,7 +118,7 @@ def specific_note_set_to_midi(
     track = mido.MidiTrack()
     stop_time = int(n_bars * mid.ticks_per_beat * 4)
     for note in noteset.notes_ascending:
-        track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))  # noqa: PERF401
+        track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))
     for i, note in enumerate(noteset.notes_ascending):
         track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
     mid.tracks.append(track)

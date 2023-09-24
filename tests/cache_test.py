@@ -56,9 +56,6 @@ def test_noteset(op, a, b):
         (operator.is_, Scale.from_name('C', 'dim7_0'), Scale.from_name('C', 'dim7_1')),
         (operator.is_not, Scale.from_str('CEG/C'), Scale.from_str('CeG/C')),
         (operator.is_not, Scale.from_str('CEG/C'), Scale.from_str('CEG/E')),
-        (operator.is_, Scale.from_name('C', 'major'), Scale.from_name('C', 'major')),
-        (operator.is_not, Scale.from_name('C', 'major'), Scale.from_name('D', 'major')),
-        (operator.is_, Scale.from_name('C', 'major'), Scale.from_name(Note('C'), 'major')),
     ],
 )
 def test_scale(op, a, b):

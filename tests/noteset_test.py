@@ -16,7 +16,6 @@ def test_empty():
 @pytest.mark.parametrize(
     ('string', 'expected'), [
         ('CDEFGAB', NoteSet(frozenset(map(Note, 'CDEFGAB')))),
-        ('CDEFGAB', NoteSet(frozenset(map(Note, 'CDEFGAB')))),
         ('CdeFGab', NoteSet(frozenset(map(Note, 'CdeFGab')))),
         ('CEG', NoteSet(frozenset(map(Note, 'CEG')))),
         ('fa', NoteSet(frozenset(map(Note, 'fa')))),
@@ -86,7 +85,6 @@ def test_note_i():
         (NoteSet.from_str('CeGb'), Note('e'), 25, Note('G')),
         (NoteSet.from_str('CEG'), Note('C'), -1, Note('G')),
         (NoteSet.from_str('CEG'), Note('C'), -2, Note('E')),
-        (NoteSet.from_str('CEG'), Note('C'), -3, Note('C')),
         (NoteSet.from_str('CEG'), Note('C'), -3, Note('C')),
         (NoteSet.from_str('CeGb'), Note('e'), -15, Note('G')),
     ],
