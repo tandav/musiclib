@@ -22,6 +22,16 @@ def test_note_range(start, stop, noteset, expected):
 
 
 @pytest.mark.parametrize(
+    ('note', 's', 'r'), [
+        (NoteRange('C1', 'C2'), "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')", "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')"),
+    ],
+)
+def test_str_repr(note, s, r):
+    assert str(note) == s
+    assert repr(note) == r
+
+
+@pytest.mark.parametrize(
     ('start', 'stop', 'noterange'), [
         ('C0', 'C1', NoteRange(SpecificNote('C', 0), SpecificNote('C', 1))),
         ('E1', 'f3', NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
