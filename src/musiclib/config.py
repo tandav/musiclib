@@ -78,20 +78,20 @@ WHITE_BRIGHT = Color(0xFFFFFF)
 BLACK_BRIGHT = Color(0x000000)
 RED = Color(0xFF0000)
 GREEN = Color(0x00FF00)
-BLUE = Color(0x4f88ea)
+BLUE = Color(0x4F88EA)
 
 
 interval_colors = {
     0: Color(0xFF0000),
-    1: Color(0xFF7F00),
-    2: Color(0xFFFF00),
-    3: Color(0x00FF00),
-    4: Color(0x008000),
-    5: Color(0x008B8B),
-    6: Color(0x87CEEB),
+    1: Color(0x8B4513),
+    2: Color(0xFF7F00),
+    3: Color(0xFFFF00),
+    4: Color(0x00FF00),
+    5: Color(0x228B22),
+    6: Color(0x8FBC8F),
     7: Color(0x00FFFF),
-    8: Color(0x0000FF),
-    9: Color(0x4B0082),
-    10: Color(0xFF00FF),
-    11: Color(0xFF69B4),
+    8: Color(0x1E90FF),
+    9: Color(0x0000FF),
+    10: Color(0x8C00FC),
+    11: Color(0xFF00FF),
 }
