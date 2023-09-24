@@ -31,7 +31,7 @@ class Note(Cached):
         return self.name
 
     def __repr__(self) -> str:
-        return f'Note(name={self.name!r})'
+        return f'Note({self.name!r})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -100,8 +100,11 @@ class SpecificNote(Cached):
     def from_str(cls, string: str) -> SpecificNote:
         return cls(Note(string[0]), int(string[1:]))
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f'{self.abstract.name}{self.octave}'
+
+    def __repr__(self) -> str:
+        return f'SpecificNote({self.abstract.name!r}, {self.octave})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):

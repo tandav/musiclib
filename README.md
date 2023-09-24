@@ -29,16 +29,16 @@ pip install -e .[dev]
 >>> scale = Scale.from_name('C', 'major')
 
 >>> scale.root
-Note(name=C)
+Note('C')
 
 >>> scale.notes
-frozenset({Note(name=C),
-           Note(name=D),
-           Note(name=E),
-           Note(name=F),
-           Note(name=G),
-           Note(name=A),
-           Note(name=B)})
+frozenset({Note('C'),
+           Note('D'),
+           Note('E'),
+           Note('F'),
+           Note('G'),
+           Note('A'),
+           Note('B')})
 
 >>> scale.bits
 '101011010101'
