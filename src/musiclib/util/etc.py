@@ -21,7 +21,7 @@ def intervals_to_bits(intervals: frozenset[int]) -> str:
     return ''.join(bits)
 
 
-def intervals_rotations(intervals: frozenset[int]) -> tuple[frozenset[int]]:
+def intervals_rotations(intervals: frozenset[int]) -> tuple[frozenset[int], ...]:
     out = [sorted(intervals)]
     for _ in range(len(intervals) - 1):
         x = out[-1]

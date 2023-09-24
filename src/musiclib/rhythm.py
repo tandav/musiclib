@@ -56,13 +56,13 @@ class Rhythm(Cached):
 
     @staticmethod
     def all_rhythms(*, n_notes: int, bar_notes: int = 16, sort_by_score: bool = False) -> tuple[Rhythm, ...]:
-        rhythms__ = OpSeq(
+        r0 = OpSeq(
             n=bar_notes,
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
         )
-        rhythms_ = (r for r in rhythms__ if sum(r) == n_notes)
-        rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
+        r1 = (r for r in r0 if sum(r) == n_notes)
+        r2 = (Rhythm(r, bar_notes=bar_notes) for r in r1)
         if sort_by_score:
-            rhythms = sorted(((r.score, r) for r in rhythms), key=lambda sr: (sr[0], sr[1].notes))
-        return tuple(rhythms)
+            r2 = sorted(((r.score, r) for r in r2), key=lambda sr: (sr[0], sr[1].notes))  # type: ignore[assignment]
+        return tuple(r2)

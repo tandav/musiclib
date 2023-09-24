@@ -141,8 +141,7 @@ class SpecificNoteSet(Cached):
             SpecificNote(note, octave)
             for note, octave in itertools.product(notes, octaves)
         )
-        notes = frozenset(random.sample(notes_space, n_notes))
-        return cls(notes)
+        return cls(frozenset(random.sample(notes_space, n_notes)))
 
     @classmethod
     def from_str(cls, string: str) -> SpecificNoteSet:
@@ -200,7 +199,7 @@ class SpecificNoteSet(Cached):
             raise TypeError('only adding integers is allowed (transposition)')
         return SpecificNoteSet(frozenset(note + other for note in self))
 
-    def __getnewargs__(self) -> tuple[frozenset[Note]]:
+    def __getnewargs__(self) -> tuple[frozenset[SpecificNote]]:
         return (self.notes,)
 
     def _repr_svg_(self, **kwargs: Any) -> str:

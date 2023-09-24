@@ -30,7 +30,7 @@ class Scale(Cached):
         self.root = root
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
-        self.names = config.intervals_to_names.get(intervals, frozenset())
+        self.names: frozenset[str] = config.intervals_to_names.get(intervals, frozenset())
         self.name_kinds = {name: config.kinds[name] for name in self.names}
 
         _notes_octave_fit = sorted(self.notes)
@@ -42,7 +42,7 @@ class Scale(Cached):
         self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self._key = self.root, self.intervals
-        self.note_scales = {}
+        self.note_scales: dict[str, dict[Note, str]] = {}
 
         for name, kind in self.name_kinds.items():
             scales = config.scale_order[kind]
