@@ -27,6 +27,16 @@ def test_from_str(string, expected):
 
 
 @pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (NoteSet.from_str('CEG'), 'CEG', "NoteSet('CEG')"),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
+
+
+@pytest.mark.parametrize(
     ('string', 'expected'), [
         ('fa', {Note('f'): frozenset({0, 2}), Note('a'): frozenset({0, 10})}),
         ('', {}),

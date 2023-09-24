@@ -29,14 +29,14 @@ def test_note_exists():
 
 
 @pytest.mark.parametrize(
-    ('note', 's', 'r'), [
+    ('x', 's', 'r'), [
         (Note('C'), 'C', "Note('C')"),
         (SpecificNote('C', 1), 'C1', "SpecificNote('C', 1)"),
     ],
 )
-def test_str_repr(note, s, r):
-    assert str(note) == s
-    assert repr(note) == r
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
 
 
 @pytest.mark.parametrize(

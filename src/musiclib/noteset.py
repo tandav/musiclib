@@ -106,7 +106,7 @@ class NoteSet(Cached):
         return ''.join(note.name for note in self)
 
     def __repr__(self) -> str:
-        return f'NoteSet(notes={self.notes})'
+        return f"NoteSet('{self}')"
 
     def _repr_svg_(self, **kwargs: Any) -> str:
         from musiclib.svg.piano import Piano  # hack to fix circular import

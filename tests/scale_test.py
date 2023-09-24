@@ -45,16 +45,16 @@ def test_from_str(string, expected):
 
 
 @pytest.mark.parametrize(
-    ('scale', 's', 'r', 'str_names'), [
+    ('x', 's', 'r', 'str_names'), [
         (Scale.from_str('CDEFGAB/C'), 'CDEFGAB/C', "Scale(Note('C'), frozenset({0, 2, 4, 5, 7, 9, 11}))", 'C major'),
         (Scale.from_str('CEa/C'), 'CEa/C', "Scale(Note('C'), frozenset({0, 8, 4}))", 'C aug_0 aug_1 aug_2'),
         (Scale.from_str('DFaC/D'), 'DFaC/D', "Scale(Note('D'), frozenset({0, 10, 3, 6}))", 'D half-dim7_0 m6_3'),
     ],
 )
-def test_str_repr(scale, s, r, str_names):
-    assert str(scale) == s
-    assert repr(scale) == r
-    assert scale.str_names == str_names
+def test_str_repr(x, s, r, str_names):
+    assert str(x) == s
+    assert repr(x) == r
+    assert x.str_names == str_names
 
 
 @pytest.mark.parametrize(
