@@ -1,5 +1,5 @@
 import pytest
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.voice_leading import checks
 
 
@@ -12,10 +12,10 @@ from musiclib.voice_leading import checks
     ],
 )
 def test_cache(f, extra_args):
-    a = SpecificChord.from_str('C5653_E2895_G1111')
-    b = SpecificChord.from_str('F5384_A5559_C6893')
-    c = SpecificChord.from_str('d5653_F2895_a1111')
-    d = SpecificChord.from_str('f5384_b5559_d6893')
+    a = SpecificNoteSet.from_str('C5653_E2895_G1111')
+    b = SpecificNoteSet.from_str('F5384_A5559_C6893')
+    c = SpecificNoteSet.from_str('d5653_F2895_a1111')
+    d = SpecificNoteSet.from_str('f5384_b5559_d6893')
 
     assert f._cache_info['hits'] == 0
     assert f._cache_info['misses'] == 0
@@ -36,13 +36,13 @@ def test_cache(f, extra_args):
 
 def test_parallel_interval():
     # fifths
-    a = SpecificChord.from_str('C5_E5_G5')
-    b = SpecificChord.from_str('F5_A5_C6')
-    c = SpecificChord.from_str('C5_F5_A5')
-    d = SpecificChord.from_str('C5_E5_B5')
-    h = SpecificChord.from_str('D5_F5_A5')
-    i = SpecificChord.from_str('C5_E5_G6')
-    j = SpecificChord.from_str('F5_A5_C7')
+    a = SpecificNoteSet.from_str('C5_E5_G5')
+    b = SpecificNoteSet.from_str('F5_A5_C6')
+    c = SpecificNoteSet.from_str('C5_F5_A5')
+    d = SpecificNoteSet.from_str('C5_E5_B5')
+    h = SpecificNoteSet.from_str('D5_F5_A5')
+    i = SpecificNoteSet.from_str('C5_E5_G6')
+    j = SpecificNoteSet.from_str('F5_A5_C7')
 
     assert checks.is_parallel_interval(a, b, 7)
     assert checks.is_parallel_interval(a, h, 7)
@@ -51,23 +51,23 @@ def test_parallel_interval():
     assert not checks.is_parallel_interval(a, d, 7)
 
     # octaves
-    e = SpecificChord.from_str('C5_E5_C6')
-    f = SpecificChord.from_str('D5_F5_D6')
-    g = SpecificChord.from_str('C5_E5_E6')
+    e = SpecificNoteSet.from_str('C5_E5_C6')
+    f = SpecificNoteSet.from_str('D5_F5_D6')
+    g = SpecificNoteSet.from_str('C5_E5_E6')
     assert checks.is_parallel_interval(e, f, 0)
     assert not checks.is_parallel_interval(g, f, 0)
 
 
 def test_hidden_parallel():
-    a = SpecificChord.from_str('E5_G5_C6')
-    b = SpecificChord.from_str('F5_A5_F6')
-    c = SpecificChord.from_str('F5_G5_C6')
-    d = SpecificChord.from_str('F5_A5_C6')
-    e = SpecificChord.from_str('C5_B5')
-    f = SpecificChord.from_str('D5_D7')
-    g = SpecificChord.from_str('C5_E5_F5')
-    h = SpecificChord.from_str('D5_F5_A5')
-    i = SpecificChord.from_str('D5_F5_A6')
+    a = SpecificNoteSet.from_str('E5_G5_C6')
+    b = SpecificNoteSet.from_str('F5_A5_F6')
+    c = SpecificNoteSet.from_str('F5_G5_C6')
+    d = SpecificNoteSet.from_str('F5_A5_C6')
+    e = SpecificNoteSet.from_str('C5_B5')
+    f = SpecificNoteSet.from_str('D5_D7')
+    g = SpecificNoteSet.from_str('C5_E5_F5')
+    h = SpecificNoteSet.from_str('D5_F5_A5')
+    i = SpecificNoteSet.from_str('D5_F5_A6')
     assert checks.is_hidden_parallel(a, b, 0)
     assert checks.is_hidden_parallel(e, f, 0)
     assert checks.is_hidden_parallel(g, h, 7)
@@ -77,7 +77,7 @@ def test_hidden_parallel():
 
 
 def test_voice_crossing():
-    assert checks.is_voice_crossing(SpecificChord.from_str('E3_E5_G5_B5'), SpecificChord.from_str('A3_C4_E4_A4'))
+    assert checks.is_voice_crossing(SpecificNoteSet.from_str('E3_E5_G5_B5'), SpecificNoteSet.from_str('A3_C4_E4_A4'))
 
 
 @pytest.mark.parametrize(
@@ -91,7 +91,7 @@ def test_voice_crossing():
     ],
 )
 def test_large_leaps(a, b, interval, expected):
-    assert checks.is_large_leaps(SpecificChord.from_str(a), SpecificChord.from_str(b), interval) == expected
+    assert checks.is_large_leaps(SpecificNoteSet.from_str(a), SpecificNoteSet.from_str(b), interval) == expected
 
 
 @pytest.mark.parametrize(
@@ -106,7 +106,7 @@ def test_large_leaps(a, b, interval, expected):
     ],
 )
 def test_large_spacing(chord_str, max_interval, expected):
-    assert checks.is_large_spacing(SpecificChord.from_str(chord_str), max_interval) == expected
+    assert checks.is_large_spacing(SpecificNoteSet.from_str(chord_str), max_interval) == expected
 
 
 @pytest.mark.parametrize(
@@ -121,18 +121,18 @@ def test_large_spacing(chord_str, max_interval, expected):
     ],
 )
 def test_small_spacing(chord_str, min_interval, expected):
-    assert checks.is_small_spacing(SpecificChord.from_str(chord_str), min_interval) == expected
+    assert checks.is_small_spacing(SpecificNoteSet.from_str(chord_str), min_interval) == expected
 
 
 @pytest.mark.parametrize('swap', [False, True])
 @pytest.mark.parametrize(
     ('a', 'b', 'n_notes', 'expected'), [
-        (SpecificChord(frozenset()), SpecificChord(frozenset()), 0, ()),
-        (SpecificChord(frozenset()), SpecificChord(frozenset()), 1, ()),
-        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 0, ()),
-        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 1, (0,)),
-        (SpecificChord(frozenset()), SpecificChord.from_str('C1'), 2, (0,)),
-        (SpecificChord.from_str('C3_E3_A3'), SpecificChord.from_str('d3_B3'), 3, (1,)),
+        (SpecificNoteSet(frozenset()), SpecificNoteSet(frozenset()), 0, ()),
+        (SpecificNoteSet(frozenset()), SpecificNoteSet(frozenset()), 1, ()),
+        (SpecificNoteSet(frozenset()), SpecificNoteSet.from_str('C1'), 0, ()),
+        (SpecificNoteSet(frozenset()), SpecificNoteSet.from_str('C1'), 1, (0,)),
+        (SpecificNoteSet(frozenset()), SpecificNoteSet.from_str('C1'), 2, (0,)),
+        (SpecificNoteSet.from_str('C3_E3_A3'), SpecificNoteSet.from_str('d3_B3'), 3, (1,)),
     ],
 )
 def test_find_paused_voices(a, b, n_notes, expected, swap):
@@ -159,4 +159,4 @@ def test_find_paused_voices(a, b, n_notes, expected, swap):
 
 def test_find_paused_voices_raises():
     with pytest.raises(ValueError):
-        checks.find_paused_voices(SpecificChord.from_str('C1_D1'), SpecificChord.from_str('C1'), 1)
+        checks.find_paused_voices(SpecificNoteSet.from_str('C1_D1'), SpecificNoteSet.from_str('C1'), 1)

@@ -25,7 +25,7 @@ class NoteRange(Sequence[SpecificNote]):
             stop = SpecificNote.from_str(stop)
 
         if start > stop:  # both ends included
-            raise ValueError('start should be less than stop')
+            raise ValueError('start should be <= stop')
 
         if not {start.abstract, stop.abstract} <= noteset.notes:
             raise KeyError('start and stop notes should be in the noteset')
@@ -71,7 +71,7 @@ class NoteRange(Sequence[SpecificNote]):
         return (self[i] for i in range(len(self)))
 
     def __repr__(self) -> str:
-        return f'NoteRange({self.start}, {self.stop}, noteset={self.noteset})'
+        return f"NoteRange('{self.start}', '{self.stop}', noteset='{self.noteset}')"
 
     def __len__(self) -> int:
         return self.noteset.subtract(self.stop, self.start) + 1

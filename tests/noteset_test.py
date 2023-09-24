@@ -2,90 +2,48 @@ import itertools
 from collections.abc import Sequence
 
 import pytest
+from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
-from musiclib.noteset import bits_to_intervals
-from musiclib.noteset import intervals_to_bits
 from musiclib.scale import Scale
-from musiclib.scale import all_scales
 
 
 def test_empty():
     NoteSet(frozenset())
-    with pytest.raises(KeyError):
-        NoteSet(frozenset(), root=Note('C'))
-
-
-@pytest.mark.parametrize(
-    ('bits', 'intervals'), [
-        ('101011010101', frozenset({0, 2, 4, 5, 7, 9, 11})),
-        ('110101101010', frozenset({0, 1, 3, 5, 6, 8, 10})),
-        ('101001010100', frozenset({0, 2, 5, 7, 9})),
-        ('101101010010', frozenset({0, 2, 3, 5, 7, 10})),
-        ('000000000000', frozenset()),
-    ],
-)
-def test_bits_intervals(bits, intervals):
-    assert bits_to_intervals(bits) == intervals
-    assert intervals_to_bits(intervals) == bits
 
 
 @pytest.mark.parametrize(
     ('string', 'expected'), [
-        ('CDEFGAB/C', NoteSet(frozenset(map(Note, 'CDEFGAB')), root=Note('C'))),
         ('CDEFGAB', NoteSet(frozenset(map(Note, 'CDEFGAB')))),
-        ('CdeFGab/e', NoteSet(frozenset(map(Note, 'CdeFGab')), root=Note('e'))),
-        ('CEG/C', NoteSet(frozenset(map(Note, 'CEG')), root=Note('C'))),
-        ('fa/a', NoteSet(frozenset(map(Note, 'fa')), root=Note('a'))),
+        ('CdeFGab', NoteSet(frozenset(map(Note, 'CdeFGab')))),
+        ('CEG', NoteSet(frozenset(map(Note, 'CEG')))),
+        ('fa', NoteSet(frozenset(map(Note, 'fa')))),
         ('', NoteSet(frozenset())),
     ],
 )
 def test_from_str(string, expected):
-    assert NoteSet.from_str(string) == expected
+    assert NoteSet.from_str(string) is expected
 
 
 @pytest.mark.parametrize(
-    ('noteset', 'intervals'), [
-        (NoteSet.from_str('CDEFGAB/C'), (0, 2, 4, 5, 7, 9, 11)),
-        (NoteSet.from_str('DeFGAbC/D'), (0, 1, 3, 5, 7, 8, 10)),
-        (NoteSet(frozenset()), ()),
+    ('x', 's', 'r'), [
+        (NoteSet.from_str('CEG'), 'CEG', "NoteSet('CEG')"),
     ],
 )
-def test_intervals(noteset, intervals):
-    assert noteset.intervals_ascending == intervals
-    assert noteset.intervals == frozenset(intervals)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
 
 
 @pytest.mark.parametrize(
-    ('noteset', 'note_to_interval'), [
-        (NoteSet.from_str('CDE'), {}),
-        (NoteSet.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
+    ('string', 'expected'), [
+        ('fa', {Note('f'): frozenset({0, 2}), Note('a'): frozenset({0, 10})}),
+        ('', {}),
     ],
 )
-def test_note_to_interval(noteset, note_to_interval):
-    assert noteset.note_to_interval == note_to_interval
-
-
-@pytest.mark.parametrize(
-    ('notes', 'bits'), [
-        ('CDEFGAB/C', '101011010101'),
-        ('dfb/d', '100001000100'),
-        ('', '000000000000'),
-    ],
-)
-def test_bits(notes, bits):
-    assert NoteSet.from_str(notes).bits == bits
-
-
-@pytest.mark.parametrize(
-    ('noteset', 'bits'), [
-        (NoteSet.from_str('CDE'), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0)),
-        (NoteSet.from_str('df'), (0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)),
-    ],
-)
-def test_bits_notes(noteset, bits):
-    assert noteset.bits_notes == bits
+def test_note_to_intervals(string, expected):
+    assert NoteSet.from_str(string).note_to_intervals == expected
 
 
 @pytest.mark.parametrize(
@@ -113,51 +71,15 @@ def test_contains():
     assert empty_noteset <= NoteSet.from_str('CDE')
 
 
-def test_root_validation():
-    with pytest.raises(KeyError):
-        NoteSet.from_str('AB/E')
-
-
 def test_note_i():
     fs = frozenset(map(Note, 'CDEfGaB'))
     noteset = NoteSet(fs)
-    assert fs == noteset.note_i.keys()
-    assert noteset.note_i[Note('C')] == 0
-    assert noteset.note_i[Note('B')] == 6
-    assert noteset.note_i[Note('f')] == 3
-    assert noteset.note_i[Note('G')] == 4
-    assert NoteSet(frozenset()).note_i == {}
-
-
-@pytest.mark.parametrize(
-    ('intervals', 'root', 'expected'), [
-        (frozenset({0, 4, 7}), 'C', NoteSet.from_str('CEG/C')),
-        (frozenset({0, 1, 3, 5, 7, 8, 10}), 'E', NoteSet.from_str('CDEFGAB/E')),
-        (frozenset({0, 2, 3, 5, 7, 9, 10}), 'f', NoteSet.from_str('faABdeE/f')),
-        (frozenset(), None, NoteSet(frozenset(), root=None)),
-    ],
-)
-def test_from_intervals(intervals, root, expected):
-    assert NoteSet.from_intervals(intervals, root) is expected
-
-
-def test_subclasses_names_unreachable():
-    with pytest.raises(KeyError):
-        NoteSet.from_name('C', 'major')  # test that Scale names are unreachable
-    with pytest.raises(KeyError):
-        NoteSet.from_name('e', 'aug')  # test that Chord names are unreachable
-
-
-@pytest.mark.parametrize(
-    ('noteset', 'notes_octave_fit'), [
-        (NoteSet.from_str('efGd'), 'defG'),
-        (NoteSet.from_str('efGd/e'), 'defG'),
-        (NoteSet.from_str('FGbBCd/F'), 'CdFGbB'),
-        (NoteSet(frozenset()), ''),
-    ],
-)
-def test_notes_octave_fit(noteset, notes_octave_fit):
-    assert noteset.notes_octave_fit == tuple(notes_octave_fit)
+    assert fs == noteset._note_i.keys()
+    assert noteset._note_i[Note('C')] == 0
+    assert noteset._note_i[Note('B')] == 6
+    assert noteset._note_i[Note('f')] == 3
+    assert noteset._note_i[Note('G')] == 4
+    assert NoteSet(frozenset())._note_i == {}
 
 
 @pytest.mark.parametrize(
@@ -166,6 +88,15 @@ def test_notes_octave_fit(noteset, notes_octave_fit):
         (NoteSet.from_str('CDEFGAB'), Note('C'), -2, Note('A')),
         (NoteSet.from_str('DEFGAbC'), Note('A'), 1, Note('b')),
         (NoteSet.from_str('DEFGAbC'), Note('A'), 0, Note('A')),
+        (NoteSet.from_str('CEG'), Note('C'), 1, Note('E')),
+        (NoteSet.from_str('CEG'), Note('C'), 2, Note('G')),
+        (NoteSet.from_str('CEG'), Note('C'), 3, Note('C')),
+        (NoteSet.from_str('CeGb'), Note('e'), 2, Note('b')),
+        (NoteSet.from_str('CeGb'), Note('e'), 25, Note('G')),
+        (NoteSet.from_str('CEG'), Note('C'), -1, Note('G')),
+        (NoteSet.from_str('CEG'), Note('C'), -2, Note('E')),
+        (NoteSet.from_str('CEG'), Note('C'), -3, Note('C')),
+        (NoteSet.from_str('CeGb'), Note('e'), -15, Note('G')),
     ],
 )
 def test_add_note_abstract(noteset, note, steps, result):
@@ -188,20 +119,18 @@ def _make_keyboard(notes: Sequence[Note], octaves: Sequence[int]) -> tuple[Speci
 
 
 def _add_note_specific_generator():
+    natural = [Scale.from_name(root, name) for root, name in itertools.product(config.chromatic_notes, config.scale_order['natural'])]
     notesets = [NoteSet.from_str('CDEFGAB'), NoteSet.from_str('DEFGAbC')]
-    notesets += list(all_scales['natural'].values())
+    notesets += [s.noteset for s in natural]
     notesets += [
-        Scale.from_name('C', 'h_minor'),
-        Scale.from_name('E', 'h_minor'),
-        Scale.from_name('d', 'm_minor'),
-        Scale.from_name('f', 's_minor'),
-        Scale.from_name('b', 'p_minor'),
+        Scale.from_name('C', 'h_minor_1').noteset,
+        Scale.from_name('C', 'h_major_1').noteset,
+        Scale.from_name('E', 'h_minor_1').noteset,
+        Scale.from_name('d', 'm_minor_1').noteset,
+        Scale.from_name('b', 'p_minor').noteset,
     ]
     for noteset in notesets:
-        noteset_str = f'NoteSet({noteset})'
-        if isinstance(noteset, Scale):
-            noteset_str = f'Scale({noteset.root.name}, {noteset.name})'
-        yield pytest.param(noteset, id=noteset_str)
+        yield pytest.param(noteset, id=f'NoteSet({noteset})')
 
 
 @pytest.mark.parametrize('noteset', _add_note_specific_generator())
@@ -215,36 +144,6 @@ def test_add_note_specific(noteset):
         note = SpecificNote(_note, octave)
         result = keyboard[keyboard.index(note) + steps]
         assert noteset.add_note(note, steps) == result
-
-
-@pytest.mark.parametrize(
-    ('noteset', 'root', 'expected'), [
-        ('CD/C', 'C', 'CD/C'),
-        ('CD/C', 'D', 'CD/D'),
-        ('CD/D', 'C', 'CD/C'),
-        ('CD', 'C', 'CD/C'),
-    ],
-)
-def test_with_root(noteset, root, expected):
-    assert NoteSet.from_str(noteset).with_root(Note(root)) == NoteSet.from_str(expected)
-
-
-def test_with_root_validation():
-    with pytest.raises(NotImplementedError):
-        NoteSet(frozenset()).with_root(Note('C'))
-    with pytest.raises(KeyError):
-        NoteSet.from_str('CD/D').with_root(Note('E'))
-
-
-@pytest.mark.parametrize(
-    ('noteset', 'note', 'expected'), [
-        ('CDEFGAB/C', 'A', 'ABdDEfa/A'),
-        ('CdeFGab/e', 'D', 'DEfGABC/D'),
-        ('Cd/C', 'd', 'dD/d'),
-    ],
-)
-def test_transpose_to(noteset, note, expected):
-    assert NoteSet.from_str(noteset).transpose_to(note) is NoteSet.from_str(expected)
 
 
 @pytest.mark.parametrize(

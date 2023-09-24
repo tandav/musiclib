@@ -1,7 +1,7 @@
 import pytest
-from musiclib.chord import SpecificChord
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ async def test_specific_note(note_i, channel, velocity, player, capsys):
 
 @pytest.mark.asyncio
 async def test_specific_chord(player, capsys):
-    await player.play(SpecificChord.from_str('C1_E1_G2'), seconds=0.0001)
+    await player.play(SpecificNoteSet.from_str('C1_E1_G2'), seconds=0.0001)
     stdout, stderr = capsys.readouterr()
     stdout_ = []
     prefix = 'MIDI_DEVICE not found | '

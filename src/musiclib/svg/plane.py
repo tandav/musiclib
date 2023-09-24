@@ -45,8 +45,9 @@ class JankoSquare:
         x = self.radius + self.radius * i
         y = self.radius + self.radius * j
 
-        if note.abstract in self.scale.note_scales:
-            color = config.scale_colors[self.scale.note_scales[note.abstract]]
+        # if self.scale.note_scales.keys() == {'natural'} and note.abstract in self.scale.note_scales:
+        if note.abstract in self.scale.note_to_interval:
+            color = config.interval_colors[self.scale.note_to_interval[note.abstract]]
         else:
             color = config.BLACK_PALE
 

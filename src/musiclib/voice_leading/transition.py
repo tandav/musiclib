@@ -1,16 +1,16 @@
 from collections import defaultdict
 
-from musiclib.chord import SpecificChord
 from musiclib.note import SpecificNote
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
+from musiclib.noteset import SpecificNoteSet
 
-SpecificChordGraph = dict[SpecificChord, frozenset[SpecificChord]]
+SpecificChordGraph = dict[SpecificNoteSet, frozenset[SpecificNoteSet]]
 AbstractChordGraph = dict[NoteSet, frozenset[NoteSet]]
 
 
 class Transition:
-    def __init__(self, a: SpecificChord, b: SpecificChord) -> None:
+    def __init__(self, a: SpecificNoteSet, b: SpecificNoteSet) -> None:
         self.a = a
         self.b = b
 
@@ -31,12 +31,12 @@ class Transition:
 
 
 def chord_transitions(
-    chord: SpecificChord,
+    chord: SpecificNoteSet,
     noterange: NoteRange,
     *,
     unique_abstract: bool = False,
     same_length: bool = True,
-) -> frozenset[SpecificChord]:
+) -> frozenset[SpecificNoteSet]:
     out = set()
     for note in chord:
         for add in (-1, 1):
@@ -47,20 +47,20 @@ def chord_transitions(
                 continue
             if unique_abstract and len(notes) > len({n.abstract for n in notes}):
                 continue
-            out.add(SpecificChord(notes))
+            out.add(SpecificNoteSet(notes))
     return frozenset(out)
 
 
 def transition_graph(
-    start_chord: SpecificChord,
+    start_chord: SpecificNoteSet,
     noterange: NoteRange,
     *,
     unique_abstract: bool = False,
     same_length: bool = True,
-) -> dict[SpecificChord, frozenset[SpecificChord]]:
-    graph: defaultdict[SpecificChord, set[SpecificChord]] = defaultdict(set)
+) -> dict[SpecificNoteSet, frozenset[SpecificNoteSet]]:
+    graph: defaultdict[SpecificNoteSet, set[SpecificNoteSet]] = defaultdict(set)
 
-    def _graph(chord: SpecificChord) -> None:
+    def _graph(chord: SpecificNoteSet) -> None:
         if chord in graph:
             return
         childs = chord_transitions(
@@ -81,6 +81,6 @@ def abstract_graph(g: SpecificChordGraph) -> AbstractChordGraph:
     graph: defaultdict[NoteSet, set[NoteSet]] = defaultdict(set)
 
     for k, v in g.items():
-        graph[k.abstract] |= {c.abstract for c in v}
+        graph[k.noteset] |= {c.noteset for c in v}
 
     return {k: frozenset(v) for k, v in graph.items()}

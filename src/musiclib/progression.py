@@ -8,40 +8,41 @@ from collections.abc import Iterator
 from collections.abc import Sequence
 from typing import overload
 
-from musiclib.chord import SpecificChord
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 from musiclib.util.cache import Cached
 
-CheckCallable = Callable[[SpecificChord, SpecificChord], bool]
+CheckCallable = Callable[[SpecificNoteSet, SpecificNoteSet], bool]
 
 
-class Progression(Cached, Sequence[SpecificChord]):
-    def __init__(self, chords: tuple[SpecificChord, ...], /) -> None:
-        if not all(isinstance(x, SpecificChord) for x in chords):
-            raise TypeError('only SpecificChord items allowed')
+class Progression(Cached, Sequence[SpecificNoteSet]):
+    def __init__(self, chords: tuple[SpecificNoteSet, ...], /) -> None:
+        if not all(isinstance(x, SpecificNoteSet) for x in chords):
+            raise TypeError('only SpecificNoteSet items allowed')
         self.chords = chords
 
     @overload
-    def __getitem__(self, i: int) -> SpecificChord:
+    def __getitem__(self, i: int) -> SpecificNoteSet:
         ...
 
     @overload
     def __getitem__(self, s: slice) -> Progression:
         ...
 
-    def __getitem__(self, item: int | slice) -> SpecificChord | Sequence[SpecificChord]:
+    def __getitem__(self, item: int | slice) -> SpecificNoteSet | Sequence[SpecificNoteSet]:
         if isinstance(item, slice):
             return Progression(self.chords[item])
         return self.chords[item]
 
-    def __iter__(self) -> Iterator[SpecificChord]:
+    def __iter__(self) -> Iterator[SpecificNoteSet]:
         return iter(self.chords)
 
     def __len__(self) -> int:
         return len(self.chords)
 
     def __repr__(self) -> str:
-        return f'Progression{self.chords}'
+        chords_str = ', '.join(f"'{c}'" for c in self.chords)
+        return f'Progression({chords_str})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Progression):
@@ -78,5 +79,5 @@ class Progression(Cached, Sequence[SpecificChord]):
     def transposed_to_C0(self) -> Progression:
         return self + (SpecificNote('C', 0) - self[0][0])  # pylint: disable=unsubscriptable-object
 
-    def __getnewargs__(self) -> tuple[tuple[SpecificChord, ...]]:
+    def __getnewargs__(self) -> tuple[tuple[SpecificNoteSet, ...]]:
         return (self.chords,)

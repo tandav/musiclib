@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING
 from typing import overload
 
 from musiclib import config
 from musiclib.util.cache import Cached
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
+_note_i = {note: i for i, note in enumerate(config.chromatic_notes)}
 _is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '010100101010', strict=True)}
 
 
@@ -23,15 +20,18 @@ class Note(Cached):
     def __init__(self, name: str) -> None:
         """param name: one of CdDeEFfGaAbB"""
         self.name = name
-        self.i = config.note_i[name]
+        self.i = _note_i[name]
         self.is_black = _is_black[name]
 
     @classmethod
     def from_i(cls, i: int) -> Note:
         return cls(config.chromatic_notes[i % 12])
 
+    def __str__(self) -> str:
+        return self.name
+
     def __repr__(self) -> str:
-        return f'Note(name={self.name})'
+        return f'Note({self.name!r})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -42,7 +42,7 @@ class Note(Cached):
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
-            return self.i <= config.note_i[other]
+            return self.i <= _note_i[other]
         if isinstance(other, Note):
             return self.i <= other.i
         return NotImplemented
@@ -100,8 +100,11 @@ class SpecificNote(Cached):
     def from_str(cls, string: str) -> SpecificNote:
         return cls(Note(string[0]), int(string[1:]))
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f'{self.abstract.name}{self.octave}'
+
+    def __repr__(self) -> str:
+        return f'SpecificNote({self.abstract.name!r}, {self.octave})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
@@ -135,10 +138,6 @@ class SpecificNote(Cached):
     def __add__(self, other: int) -> SpecificNote:
         """C + 7 = G"""
         return SpecificNote.from_i(self.i + other)
-
-    @staticmethod
-    def to_abstract(notes: Iterable[SpecificNote]) -> frozenset[Note]:
-        return frozenset(note.abstract for note in notes)
 
     def __getnewargs__(self) -> tuple[Note, int]:
         return self.abstract, self.octave

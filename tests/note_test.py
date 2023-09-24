@@ -29,6 +29,17 @@ def test_note_exists():
 
 
 @pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (Note('C'), 'C', "Note('C')"),
+        (SpecificNote('C', 1), 'C1', "SpecificNote('C', 1)"),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
+
+
+@pytest.mark.parametrize(
     ('op', 'a', 'b'), [
         (operator.eq, Note('C'), 'C'),
         (operator.eq, Note('C'), Note('C')),
@@ -94,10 +105,6 @@ def test_color():
     assert Note('d').is_black
     assert not SpecificNote('D', 1).is_black
     assert SpecificNote('f', -35).is_black
-
-
-def test_to_abstract():
-    assert SpecificNote.to_abstract({SpecificNote('C', 2), SpecificNote('G', 3)}) == frozenset({Note('C'), Note('G')})
 
 
 def test_midi_code():

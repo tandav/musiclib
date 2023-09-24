@@ -4,10 +4,10 @@ import functools
 import mido
 import mido.midifiles.midifiles
 
-from musiclib.chord import SpecificChord
 from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 
-Playable = SpecificNote | SpecificChord
+Playable = SpecificNote | SpecificNoteSet
 
 
 class Player:
@@ -49,7 +49,7 @@ class Player:
     @play.register
     async def _(
         self,
-        obj: SpecificChord,
+        obj: SpecificNoteSet,
         seconds: float = 1,
         channel: int = 0,
         velocity: int = 100,

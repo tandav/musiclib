@@ -1,32 +1,51 @@
 from collections.abc import Sequence
 
 import pytest
-from musiclib.chord import SpecificChord
+from musiclib.noteset import SpecificNoteSet
 from musiclib.progression import Progression
 
 
 @pytest.fixture
 def four_chords():
-    a = SpecificChord.random()
-    b = SpecificChord.random()
-    c = SpecificChord.random()
-    d = SpecificChord.random()
+    a = SpecificNoteSet.random()
+    b = SpecificNoteSet.random()
+    c = SpecificNoteSet.random()
+    d = SpecificNoteSet.random()
     return a, b, c, d
 
 
 @pytest.fixture
 def progression4():
-    a = SpecificChord.from_str('C1_E1_G1')
-    b = SpecificChord.from_str('D1_F1_A1')
-    c = SpecificChord.from_str('E1_G1_B1')
-    d = SpecificChord.from_str('F1_A1_C2')
+    a = SpecificNoteSet.from_str('C1_E1_G1')
+    b = SpecificNoteSet.from_str('D1_F1_A1')
+    c = SpecificNoteSet.from_str('E1_G1_B1')
+    d = SpecificNoteSet.from_str('F1_A1_C2')
     return Progression((a, b, c, d))
+
+
+@pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (
+            Progression((
+                SpecificNoteSet.from_str('G2_B2_e3'),
+                SpecificNoteSet.from_str('A2_C3_E3'),
+                SpecificNoteSet.from_str('B2_D3_f3'),
+                SpecificNoteSet.from_str('C3_E3_G3'),
+            )),
+            "Progression('G2_B2_e3', 'A2_C3_E3', 'B2_D3_f3', 'C3_E3_G3')",
+            "Progression('G2_B2_e3', 'A2_C3_E3', 'B2_D3_f3', 'C3_E3_G3')",
+        ),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
 
 
 def test_validation():
     with pytest.raises(TypeError):
         Progression((0, 1, 2))  # type: ignore[arg-type]
-    Progression((SpecificChord.random(), SpecificChord.random()))
+    Progression((SpecificNoteSet.random(), SpecificNoteSet.random()))
 
 
 def test_init(four_chords):
@@ -49,11 +68,11 @@ def test_distance(progression4):
 
 def test_transpose_unique_key(four_chords):
     a, b, c, d = four_chords
-    d_ = SpecificChord(frozenset((d.notes_ascending[0] + 12,) + d.notes_ascending[1:]))
+    d_ = SpecificNoteSet(frozenset((d.notes_ascending[0] + 12,) + d.notes_ascending[1:]))
     p0 = Progression((a, b, c, d))
     p1 = Progression((a, b, c, d_))
-    p2 = Progression(tuple(SpecificChord(frozenset(n + 12 for n in chord.notes)) for chord in p0))
-    p3 = Progression(tuple(SpecificChord(frozenset(n + 1 for n in chord.notes)) for chord in p0))
+    p2 = Progression(tuple(SpecificNoteSet(frozenset(n + 12 for n in chord.notes)) for chord in p0))
+    p3 = Progression(tuple(SpecificNoteSet(frozenset(n + 1 for n in chord.notes)) for chord in p0))
     assert p0.transpose_unique_key() != p1.transpose_unique_key()
     assert p0.transpose_unique_key() == p2.transpose_unique_key()
     assert p0.transpose_unique_key() != p3.transpose_unique_key()
@@ -62,16 +81,16 @@ def test_transpose_unique_key(four_chords):
 
 def test_add_transpose():
     p0 = Progression((
-        SpecificChord.from_str('G2_B2_e3'),
-        SpecificChord.from_str('A2_C3_E3'),
-        SpecificChord.from_str('B2_D3_f3'),
-        SpecificChord.from_str('C3_E3_G3'),
+        SpecificNoteSet.from_str('G2_B2_e3'),
+        SpecificNoteSet.from_str('A2_C3_E3'),
+        SpecificNoteSet.from_str('B2_D3_f3'),
+        SpecificNoteSet.from_str('C3_E3_G3'),
     ))
     p1 = Progression((
-        SpecificChord.from_str('C0_E0_a0'),
-        SpecificChord.from_str('D0_F0_A0'),
-        SpecificChord.from_str('E0_G0_B0'),
-        SpecificChord.from_str('F0_A0_C1'),
+        SpecificNoteSet.from_str('C0_E0_a0'),
+        SpecificNoteSet.from_str('D0_F0_A0'),
+        SpecificNoteSet.from_str('E0_G0_B0'),
+        SpecificNoteSet.from_str('F0_A0_C1'),
     ))
     assert p0 + -31 == p1
     with pytest.raises(TypeError):

@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Hashable
 
-    from musiclib.chord import SpecificChord
     from musiclib.note import SpecificNote
+    from musiclib.noteset import SpecificNoteSet
     from musiclib.scale import Scale
 
 
@@ -21,7 +21,7 @@ def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
     cache_info = {'hits': 0, 'misses': 0, 'currsize': 0}
 
     @functools.wraps(f)
-    def is_check_passed(a: SpecificChord, b: SpecificChord, *args: Any) -> bool:
+    def is_check_passed(a: SpecificNoteSet, b: SpecificNoteSet, *args: Any) -> bool:
         a, b = Progression((a, b)).transposed_to_C0
         key = a, b, *args
         cached = cache.get(key)
@@ -39,7 +39,7 @@ def chord_pair_check_cache(f: Callable[..., bool]) -> Callable[..., bool]:
 
 
 @chord_pair_check_cache
-def is_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_parallel_interval(a: SpecificNoteSet, b: SpecificNoteSet, interval: int, /) -> bool:
     """
     parallel in same voices!
     if there'are eg fifth in 1st and fifth in 2nd chord but not from same voices
@@ -57,7 +57,7 @@ def is_parallel_interval(a: SpecificChord, b: SpecificChord, interval: int, /) -
 
 
 @chord_pair_check_cache
-def is_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_hidden_parallel(a: SpecificNoteSet, b: SpecificNoteSet, interval: int, /) -> bool:
     """
     hidden/direct parallel/consecutive interval is when:
         1. outer voices (lower and higher) go in same direction (instead of oblique or contrary motion)
@@ -72,7 +72,7 @@ def is_hidden_parallel(a: SpecificChord, b: SpecificChord, interval: int, /) -> 
 
 
 @chord_pair_check_cache
-def is_voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
+def is_voice_crossing(a: SpecificNoteSet, b: SpecificNoteSet, /) -> bool:
     n = len(b)
     for i in range(n):
         upper = i < n - 1 and b[i] > a[i + 1]
@@ -83,33 +83,33 @@ def is_voice_crossing(a: SpecificChord, b: SpecificChord, /) -> bool:
 
 
 @chord_pair_check_cache
-def is_large_leaps(a: SpecificChord, b: SpecificChord, interval: int, /) -> bool:
+def is_large_leaps(a: SpecificNoteSet, b: SpecificNoteSet, interval: int, /) -> bool:
     return any(abs(an - bn) > interval for an, bn in zip(a, b, strict=True))
 
 
 @chord_pair_check_cache
 def is_make_major_scale_leading_tone_resolving_semitone_up(
-    a: SpecificChord,
-    b: SpecificChord,
+    a: SpecificNoteSet,
+    b: SpecificNoteSet,
     s: Scale,
     /,
 ) -> bool:
-    if s.name != 'major':
-        raise ValueError('not ero')
-    leading_tone = [note for note in a.notes if note.abstract == s.notes_ascending[-1]][0]
-    tonic = [note for note in b.notes if note.abstract == s.root][0]
+    if s.names != frozenset({'major'}):
+        raise ValueError('pass major scale')
+    leading_tone = next(note for note in a.notes if note.abstract == s.notes_ascending[-1])
+    tonic = next(note for note in b.notes if note.abstract == s.root)
     return tonic - leading_tone == 1
 
 
-def is_large_spacing(c: SpecificChord, max_interval: int = 12, /) -> bool:
+def is_large_spacing(c: SpecificNoteSet, max_interval: int = 12, /) -> bool:
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
-def is_small_spacing(c: SpecificChord, min_interval: int = 3, /) -> bool:
+def is_small_spacing(c: SpecificNoteSet, min_interval: int = 3, /) -> bool:
     return any(b - a < min_interval for a, b in itertools.pairwise(c))
 
 
-def find_paused_voices(a: SpecificChord, b: SpecificChord, n_notes: int) -> tuple[int, ...] | tuple[()]:
+def find_paused_voices(a: SpecificNoteSet, b: SpecificNoteSet, n_notes: int) -> tuple[int, ...] | tuple[()]:
     if n_notes == 0 or len(a) == len(b) == 0:
         return ()
     if max(len(a), len(b)) > n_notes:

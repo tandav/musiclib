@@ -23,34 +23,28 @@ pip install -e .[dev]
 
 ```py
 >>> from musiclib.scale import Scale
->>> from musiclib.chord import Chord
+>>> from musiclib.noteset import SpecificNoteSet
+>>> from musiclib.noterange import NoteRange
 
 >>> scale = Scale.from_name('C', 'major')
 
 >>> scale.root
-Note(name=C)
+Note('C')
 
 >>> scale.notes
-frozenset({Note(name=C),
-           Note(name=D),
-           Note(name=E),
-           Note(name=F),
-           Note(name=G),
-           Note(name=A),
-           Note(name=B)})
+frozenset({Note('C'),
+           Note('D'),
+           Note('E'),
+           Note('F'),
+           Note('G'),
+           Note('A'),
+           Note('B')})
 
 >>> scale.bits
 '101011010101'
 
 >>> scale.intervals
 frozenset({0, 2, 4, 5, 7, 9, 11})
-
->>> scale.triads
-(CEG/C, DFA/D, EGB/E, FAC/F, GBD/G, ACE/A, BDF/B)
-
->>> chord = Chord.from_str('CEG/C')
->>> chord == scale.triads[0]
-True
 ```
 
 ```py
@@ -59,7 +53,7 @@ Scale.from_name('C', 'phrygian')
 ![](docs/svg_examples/C_phrygian.svg)
 
 ```py
-SpecificChord.from_str('C1_e1_G1_C2_b2_E3')
+SpecificNoteSet.from_str('C1_e1_G1_C2_b2_E3')
 ```
 ![](docs/svg_examples/C1_e1_G1_C2_b2_E3.svg)
 
