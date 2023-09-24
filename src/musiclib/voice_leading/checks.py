@@ -94,8 +94,8 @@ def is_make_major_scale_leading_tone_resolving_semitone_up(
     s: Scale,
     /,
 ) -> bool:
-    if s.name != 'major':
-        raise ValueError('not ero')
+    if s.names != frozenset({'major'}):
+        raise ValueError('pass major scale')
     leading_tone = [note for note in a.notes if note.abstract == s.notes_ascending[-1]][0]
     tonic = [note for note in b.notes if note.abstract == s.root][0]
     return tonic - leading_tone == 1

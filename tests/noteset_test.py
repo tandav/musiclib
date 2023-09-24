@@ -121,10 +121,7 @@ def _add_note_specific_generator():
         Scale.from_name('b', 'p_minor').noteset,
     ]
     for noteset in notesets:
-        noteset_str = f'NoteSet({noteset})'
-        if isinstance(noteset, Scale):
-            noteset_str = f'Scale({noteset.root.name}, {noteset.name})'
-        yield pytest.param(noteset, id=noteset_str)
+        yield pytest.param(noteset, id=f'NoteSet({noteset})')
 
 
 @pytest.mark.parametrize('noteset', _add_note_specific_generator())

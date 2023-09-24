@@ -2,7 +2,6 @@ import collections
 import dataclasses
 import functools
 from collections.abc import Iterable
-from pathlib import Path
 from typing import Literal
 
 import mido
@@ -112,30 +111,21 @@ def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
 
 def specific_note_set_to_midi(
     noteset: SpecificNoteSet,
-    path: str | Path | None = None,
+    path: str | None = None,
     n_bars: int = 1,
-) -> mido.MidiFile | None:
+) -> mido.MidiFile:
     mid = mido.MidiFile(type=0, ticks_per_beat=96)
     track = mido.MidiTrack()
-    track.append(mido.MetaMessage(type='track_name', name='test_name'))
-    track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
-    track.append(mido.MetaMessage(type='time_signature', numerator=4, denominator=4, clocks_per_click=36))
-    if noteset.root is not None:
-        track.append(mido.MetaMessage(type='marker', text=noteset.root.name))
-
     stop_time = int(n_bars * mid.ticks_per_beat * 4)
-
     for note in noteset.notes_ascending:
         track.append(mido.Message('note_on', note=note.i, velocity=100, time=0))  # noqa: PERF401
     for i, note in enumerate(noteset.notes_ascending):
         track.append(mido.Message('note_off', note=note.i, velocity=100, time=stop_time if i == 0 else 0))
-
     mid.tracks.append(track)
     mid.meta = {'noteset': noteset}
-    if path is None:
-        return mid
-    mid.save(path)
-    return None
+    if path is not None:
+        mid.save(path)
+    return mid
 
 
 TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('note_, chord are mutually exclusive. Only 1 must be not None')
@@ -143,7 +133,7 @@ TO_MIDI_MUTUAL_EXCLUSIVE_ERROR = TypeError('note_, chord are mutually exclusive.
 
 def rhythm_to_midi(  # noqa: C901
     rhythm: Rhythm,
-    path: str | Path | None = None,
+    path: str | None = None,
     note_: SpecificNote | None = None,
     noteset: SpecificNoteSet | None = None,
     progression: Iterable[SpecificNoteSet] | None = None,
