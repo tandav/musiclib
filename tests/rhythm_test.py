@@ -9,6 +9,20 @@ def example_notes():
     return 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0
 
 
+@pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (
+            Rhythm((0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0)),
+            "Rhythm('0001000001111110')",
+            "Rhythm('0001000001111110')",
+        ),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
+
+
 @pytest.mark.parametrize('n_notes', range(1, 16 + 1))
 def test_n_notes(n_notes):
     assert sum(Rhythm.random_rhythm(n_notes).notes) == n_notes
