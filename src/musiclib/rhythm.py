@@ -5,7 +5,6 @@ import itertools
 import random
 import statistics
 
-import pipe21 as P  # noqa: N812
 from opseq import OpSeq
 
 from musiclib.util.cache import Cached
@@ -62,13 +61,8 @@ class Rhythm(Cached):
             options=(0, 1),
             curr_prev_constraint={-1: Rhythm.have_no_contiguous_ones},
         )
-        rhythms_ = rhythms__ | P.Filter(lambda r: sum(r) == n_notes)
+        rhythms_ = (r for r in rhythms__ if sum(r) == n_notes)
         rhythms = (Rhythm(r, bar_notes=bar_notes) for r in rhythms_)
         if sort_by_score:
-            rhythms = (
-                rhythms
-                | P.KeyBy(lambda rhythm: rhythm.score)
-                | P.Pipe(lambda x: sorted(x, key=lambda score_rhythm: (score_rhythm[0], score_rhythm[1].notes)))
-            )
-        out: tuple[Rhythm] = rhythms | P.Pipe(tuple)
-        return out
+            rhythms = sorted(((r.score, r) for r in rhythms), key=lambda sr: (sr[0], sr[1].notes))
+        return tuple(rhythms)
