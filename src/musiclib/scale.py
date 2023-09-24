@@ -30,9 +30,9 @@ class Scale(Cached):
         self.root = root
         self.intervals = intervals
         self.notes = frozenset({root + interval for interval in intervals})
+        self.noteset = NoteSet(self.notes)
         self.names: frozenset[str] = config.intervals_to_names.get(intervals, frozenset())
         self.name_kinds = {name: config.kinds[name] for name in self.names}
-
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
         self.notes_ascending = _notes_octave_fit[_root_i:] + _notes_octave_fit[:_root_i]
@@ -42,15 +42,6 @@ class Scale(Cached):
         self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self._key = self.root, self.intervals
-        self.note_scales: dict[str, dict[Note, str]] = {}
-
-        for name, kind in self.name_kinds.items():
-            scales = config.scale_order[kind]
-            _scale_i = scales.index(name)
-            scales = scales[_scale_i:] + scales[:_scale_i]
-            self.note_scales[kind] = {}
-            for note, scale in zip(self.notes_ascending, scales, strict=True):
-                self.note_scales[kind][note] = scale
 
     @classmethod
     def from_name(cls: type[Self], root: str | Note, name: str) -> Self:
@@ -78,6 +69,18 @@ class Scale(Cached):
         notes = frozenset(Note(note) for note in string[:-2])
         return cls.from_notes(root, notes)
 
+    @functools.cached_property
+    def note_scales(self) -> dict[str, dict[Note, str]]:
+        _note_scales: dict[str, dict[Note, str]] = {}
+        for name, kind in self.name_kinds.items():
+            scales = config.scale_order[kind]
+            _scale_i = scales.index(name)
+            scales = scales[_scale_i:] + scales[:_scale_i]
+            _note_scales[kind] = {}
+            for note, scale in zip(self.notes_ascending, scales, strict=True):
+                _note_scales[kind][note] = scale
+        return _note_scales
+
     def nths(self, ns: frozenset[int]) -> tuple[Scale, ...]:
         return tuple(
             Scale.from_notes(self.notes_ascending[i], frozenset(self.notes_ascending[(i + n) % len(self)] for n in ns))
@@ -86,10 +89,6 @@ class Scale(Cached):
 
     def transpose_to_note(self, note: Note) -> Scale:
         return Scale(note, self.intervals)
-
-    @functools.cached_property
-    def noteset(self) -> NoteSet:
-        return NoteSet(self.notes)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Scale):
