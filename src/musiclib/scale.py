@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import functools
-import itertools
-from collections import defaultdict
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
@@ -191,4 +189,3 @@ class ComparedScales:
 
     def __repr__(self) -> str:
         return f'ComparedScale({self.left.str_names} | {self.right.str_names})'
-

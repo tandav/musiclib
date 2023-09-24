@@ -2,11 +2,11 @@ import itertools
 from collections.abc import Sequence
 
 import pytest
+from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.scale import Scale
-from musiclib import config
 
 
 def test_empty():

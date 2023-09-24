@@ -1,18 +1,19 @@
 import itertools
+
 import pytest
 from colortool import Color
+from musiclib import config
 from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
-from musiclib import config
-
 
 TITLE = 'title_fUYsZHfC'
 SUBTITLE = 'subtitle_EfrKTj'
 TITLE_HREF = 'title_href_TUMhv'
 BACKGROUND_COLOR = Color.from_hex(0xFACE45)
+
 
 @pytest.fixture
 def all_scales():
