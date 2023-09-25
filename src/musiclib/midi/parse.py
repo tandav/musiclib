@@ -41,8 +41,8 @@ class MidiPitch:
 
 @dataclasses.dataclass
 class Midi:
-    notes: list[MidiNote]
-    pitchbend: list[MidiPitch]
+    notes: list[MidiNote] = dataclasses.field(default_factory=list)
+    pitchbend: list[MidiPitch] = dataclasses.field(default_factory=list)
     ticks_per_beat: int = 96
 
 
