@@ -138,8 +138,8 @@ def test_svg_specific_noteset(sns, title, subtitle, title_href, background_color
 
 @pytest.mark.parametrize(
     'noterange', [
-        NoteRange('C2', 'C5'),
-        NoteRange('D2', 'G2', noteset=NoteSet.from_str('CDG')),
+        NoteRange.from_str('C2', 'C5'),
+        NoteRange.from_str('D2', 'G2', noteset=NoteSet.from_str('CDG')),
     ],
 )
 @pytest.mark.parametrize('title', [None, TITLE])

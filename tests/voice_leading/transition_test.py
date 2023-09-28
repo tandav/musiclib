@@ -47,7 +47,7 @@ def test_transition(a, b, expected):
 )
 def test_chord_transitions(start, stop, noteset, chord_str, transitions, unique_abstract, same_length):
     chord = SpecificNoteSet.from_str(chord_str)
-    noterange = NoteRange(start, stop, noteset)
+    noterange = NoteRange.from_str(start, stop, noteset)
     assert set(map(str, transition.chord_transitions(chord, noterange, unique_abstract=unique_abstract, same_length=same_length))) == transitions
 
 
