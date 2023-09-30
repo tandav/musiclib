@@ -8,10 +8,6 @@ from typing import TypeVar
 if TYPE_CHECKING:
     from collections.abc import Iterator
 from musiclib import config
-from musiclib.config import BLACK_BRIGHT
-from musiclib.config import BLUE
-from musiclib.config import GREEN
-from musiclib.config import RED
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
 from musiclib.svg.piano import Piano
@@ -130,61 +126,3 @@ class Scale(Cached):
         kwargs.setdefault('title', f'{self.str_names}')
         kwargs.setdefault('classes', ('card', *self.names))
         return Piano(**kwargs)._repr_svg_()
-
-
-class ComparedScales:
-    """
-    this is compared scale
-    local terminology: left scale is compared to right
-    left is kinda parent, right is kinda child
-    """
-
-    def __init__(self, left: Scale, right: Scale) -> None:
-        self.left = left
-        self.right = right
-        self.key = left, right
-        self.shared_notes = frozenset(left.notes) & frozenset(right.notes)
-        self.new_notes = frozenset(right.notes) - frozenset(left.notes)
-        self.del_notes = frozenset(left.notes) - frozenset(right.notes)
-        self.left_triads = frozenset(left.nths(config.nths['triads']))
-        self.right_triads = frozenset(right.nths(config.nths['triads']))
-        self.shared_triads = self.left_triads & self.right_triads
-
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        if self.right.note_scales is not None and self.left.root in self.right.note_scales:
-            kwargs.setdefault('background_color', config.interval_colors[self.right.note_to_interval[self.left.root]])
-
-        chord_colors = {
-            frozenset({'major_0'}): config.interval_colors[0],
-            frozenset({'minor_0'}): config.interval_colors[8],
-            frozenset({'dim_0'}): config.interval_colors[11],
-        }
-
-        kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.left.note_to_interval.items()})
-        kwargs.setdefault('top_rect_colors', dict.fromkeys(self.del_notes, RED) | dict.fromkeys(self.new_notes, GREEN) | dict.fromkeys(self.shared_notes, BLUE))
-        kwargs.setdefault(
-            'squares', {
-                chord.root: {
-                    'fill_color': chord_colors[chord.names],
-                    'border_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    'text_color': BLUE if chord in self.shared_triads else BLACK_BRIGHT,
-                    'text': chord.root.name,
-                    'onclick': f'play_chord("{chord}")',
-                }
-                for chord in self.right_triads
-            } if set(self.right.name_kinds.values()) == {'natural'} else {},
-        )
-        kwargs.setdefault('classes', ('card',))
-        kwargs.setdefault('title', f'{self.left.str_names} | {self.right.str_names}')
-        return Piano(**kwargs)._repr_svg_()
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, ComparedScales):
-            return NotImplemented
-        return self.key == other.key
-
-    def __hash__(self) -> int:
-        return hash(self.key)
-
-    def __repr__(self) -> str:
-        return f'ComparedScale({self.left.str_names} | {self.right.str_names})'
