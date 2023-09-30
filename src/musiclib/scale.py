@@ -4,6 +4,7 @@ import functools
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
+import svg
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -117,8 +118,11 @@ class Scale(Cached):
     def __getnewargs__(self) -> tuple[Note, IntervalSet]:
         return (self.root, self.intervalset)
 
-    def _repr_svg_(self, **kwargs: Any) -> str:
+    def svg(self, **kwargs: Any) -> svg.SVG:
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         kwargs.setdefault('title', f'{self.str_names}')
         kwargs.setdefault('classes', ('card', *self.intervalset.names))
-        return Piano(**kwargs)._repr_svg_()
+        return Piano(**kwargs).svg
+
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        return str(self.svg(**kwargs))

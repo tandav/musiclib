@@ -306,8 +306,8 @@ class Piano:
         self.svg_width = self.margin[1] + self.margin[3] + self.w_pp + self.shadow_offset
         self.svg_height = self.margin[0] + self.margin[2] + self.h_pp + self.shadow_offset
 
-    # @functools.cache
-    def _repr_svg_(self) -> str:
+    @property
+    def svg(self) -> svg.SVG:
         elements: list[svg.Element] = []
         if self.debug_rect:
             debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=self.svg_width, height=self.svg_height, fill='red')
@@ -339,5 +339,7 @@ class Piano:
             )
             elements += [shadow_rect, card_rect]
         elements += self.elements
-        _svg = svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.classes), id=self.id)
-        return str(_svg)
+        return svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.classes), id=self.id)
+    
+    def _repr_svg_(self) -> str:
+        return str(self.svg)
