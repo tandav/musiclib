@@ -3,7 +3,6 @@ import operator
 import pytest
 from musiclib import config
 from musiclib.note import Note
-from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
 
 
@@ -234,14 +233,3 @@ def test_nths(notes, name, nths):
 @pytest.mark.parametrize('notes', ['CDEFGAB', 'BdeEfab', 'deFfabC'])
 def test_note_scales(notes):
     assert Scale.from_str(f'{notes}/{notes[0]}').note_scales == {'natural': dict(zip(map(Note, notes), config.scale_order['natural'], strict=True))}
-
-
-def test_compared():
-    left = Scale.from_name('C', 'major')
-    right = Scale.from_name('A', 'minor')
-    assert ComparedScales(left, right).shared_notes == frozenset(left.notes)
-
-    right = Scale.from_name('C', 'mixolydian')
-    c = ComparedScales(left, right)
-    assert c.new_notes == frozenset({Note('b')})
-    assert c.del_notes == frozenset({Note('B')})

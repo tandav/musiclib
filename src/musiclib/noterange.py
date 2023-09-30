@@ -15,14 +15,12 @@ CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 class NoteRange(Sequence[SpecificNote]):
     def __init__(
         self,
-        start: SpecificNote | str,
-        stop: SpecificNote | str,
+        start: SpecificNote,
+        stop: SpecificNote,
         noteset: NoteSet = CHROMATIC_NOTESET,
     ) -> None:
-        if isinstance(start, str):
-            start = SpecificNote.from_str(start)
-        if isinstance(stop, str):
-            stop = SpecificNote.from_str(stop)
+        if not (isinstance(start, SpecificNote) and isinstance(stop, SpecificNote)):
+            raise TypeError('start and stop should be SpecificNote instances')
 
         if start > stop:  # both ends included
             raise ValueError('start should be <= stop')
@@ -34,6 +32,10 @@ class NoteRange(Sequence[SpecificNote]):
         self.stop = stop
         self.noteset = noteset
         self._key = self.start, self.stop, self.noteset
+
+    @classmethod
+    def from_str(cls, start: str, stop: str, noteset: NoteSet = CHROMATIC_NOTESET) -> NoteRange:
+        return cls(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)
 
     def _getitem_int(self, item: int) -> SpecificNote:
         if 0 <= item < len(self):

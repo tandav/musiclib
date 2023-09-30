@@ -219,3 +219,44 @@ def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
         for notes in itertools.combinations(noteset, n_subset):
             out.add(NoteSet(frozenset(notes)))
     return frozenset(out)
+
+
+class ComparedNoteSets(Cached):
+    """
+    this is compared scale
+    local terminology: left scale is compared to right
+    left is kinda parent, right is kinda child
+    """
+
+    def __init__(self, left: NoteSet, right: NoteSet) -> None:
+        if not (isinstance(left, NoteSet) and isinstance(right, NoteSet)):
+            raise TypeError(f'expected NoteSet, got {type(left)} and {type(right)}')
+        self.left = left
+        self.right = right
+        self.key = left, right
+        self.shared_notes = frozenset(left.notes) & frozenset(right.notes)
+        self.new_notes = frozenset(right.notes) - frozenset(left.notes)
+        self.del_notes = frozenset(left.notes) - frozenset(right.notes)
+
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        from musiclib.svg.piano import Piano
+        kwargs.setdefault(
+            'note_colors',
+            dict.fromkeys(self.del_notes, config.RED) |
+            dict.fromkeys(self.new_notes, config.GREEN) |
+            dict.fromkeys(self.shared_notes, config.BLUE),
+        )
+        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('title', f'{self.left} | {self.right}')
+        return Piano(**kwargs)._repr_svg_()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ComparedNoteSets):
+            return NotImplemented
+        return self.key == other.key
+
+    def __hash__(self) -> int:
+        return hash(self.key)
+
+    def __repr__(self) -> str:
+        return f'ComparedNoteSets({self.left} | {self.right})'

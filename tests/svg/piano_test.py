@@ -125,8 +125,8 @@ def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload
 
 @pytest.mark.parametrize(
     ('noterange', 'black_small', 'start', 'stop'), [
-        (NoteRange('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
-        (NoteRange('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
+        (NoteRange.from_str('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
+        (NoteRange.from_str('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
     ],
 )
 def test_startswith_endswith_white_key(noterange, black_small, start, stop):

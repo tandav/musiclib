@@ -23,7 +23,7 @@ def test_note_range(start, stop, noteset, expected):
 
 @pytest.mark.parametrize(
     ('x', 's', 'r'), [
-        (NoteRange('C1', 'C2'), "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')", "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')"),
+        (NoteRange.from_str('C1', 'C2'), "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')", "NoteRange('C1', 'C2', noteset='CdDeEFfGaAbB')"),
     ],
 )
 def test_str_repr(x, s, r):
@@ -34,14 +34,10 @@ def test_str_repr(x, s, r):
 @pytest.mark.parametrize(
     ('start', 'stop', 'noterange'), [
         ('C0', 'C1', NoteRange(SpecificNote('C', 0), SpecificNote('C', 1))),
-        ('E1', 'f3', NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
-        (SpecificNote('E', 1), 'f3', NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
-        ('E1', SpecificNote('f', 3), NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
-        (SpecificNote('E', 1), SpecificNote('f', 3), NoteRange(SpecificNote('E', 1), SpecificNote('f', 3))),
     ],
 )
 def test_note_range_from_str(start, stop, noterange):
-    assert NoteRange(start, stop) == noterange
+    assert NoteRange.from_str(start, stop) == noterange
 
 
 def test_noterange_bounds():
@@ -93,9 +89,9 @@ def test_noterange_getitem():
     assert nr[0:1] == NoteRange(SpecificNote('C', 1), SpecificNote('d', 1))
     assert nr[0:2] == NoteRange(SpecificNote('C', 1), SpecificNote('D', 1))
     assert nr[0:12] == NoteRange(SpecificNote('C', 1), SpecificNote('C', 2))
-    assert nr[1:] == NoteRange('d1', 'C2')
-    assert nr[:4] == NoteRange('C1', 'E1')
-    assert nr[:] == NoteRange('C1', 'C2')
+    assert nr[1:] == NoteRange.from_str('d1', 'C2')
+    assert nr[:4] == NoteRange.from_str('C1', 'E1')
+    assert nr[:] == NoteRange.from_str('C1', 'C2')
 
     with pytest.raises(IndexError):
         nr[13]

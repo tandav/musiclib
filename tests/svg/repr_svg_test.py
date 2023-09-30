@@ -4,9 +4,9 @@ import pytest
 from colortool import Color
 from musiclib import config
 from musiclib.noterange import NoteRange
+from musiclib.noteset import ComparedNoteSets
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
-from musiclib.scale import ComparedScales
 from musiclib.scale import Scale
 
 TITLE = 'title_fUYsZHfC'
@@ -97,11 +97,11 @@ def test_svg_scale(kind, title, subtitle, title_href, background_color, all_scal
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
 @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_svg_compared_scale(scale0, scale1, title, subtitle, title_href, background_color):
+def test_svg_compared_notesets(scale0, scale1, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     classes = ('cls1', 'cls2')
-    svg = ComparedScales(scale0, scale1)._repr_svg_(
+    svg = ComparedNoteSets(scale0.noteset, scale1.noteset)._repr_svg_(
         classes=classes,
         title=title,
         subtitle=subtitle,
@@ -138,8 +138,8 @@ def test_svg_specific_noteset(sns, title, subtitle, title_href, background_color
 
 @pytest.mark.parametrize(
     'noterange', [
-        NoteRange('C2', 'C5'),
-        NoteRange('D2', 'G2', noteset=NoteSet.from_str('CDG')),
+        NoteRange.from_str('C2', 'C5'),
+        NoteRange.from_str('D2', 'G2', noteset=NoteSet.from_str('CDG')),
     ],
 )
 @pytest.mark.parametrize('title', [None, TITLE])

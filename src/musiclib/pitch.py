@@ -13,7 +13,7 @@ class Pitch:
         transpose: float = 0,
     ) -> None:
         """
-        origin_note: in midi format, A4 midi ~ A4 ableton ~ 440Hz
+        origin_note: in midi format, A4 midi (A3 in ableton) ~ 440Hz
         """
         self.hz_tuning = hz_tuning
         self.origin_note = origin_note

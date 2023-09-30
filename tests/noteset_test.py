@@ -5,6 +5,7 @@ import pytest
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
+from musiclib.noteset import ComparedNoteSets
 from musiclib.noteset import NoteSet
 from musiclib.scale import Scale
 
@@ -233,3 +234,14 @@ def test_subtract_types():
         noteset.subtract('C', SpecificNote('D', 1))  # type: ignore[arg-type]
     with pytest.raises(TypeError):
         noteset.subtract('D1', Note('C'))  # type: ignore[arg-type]
+
+
+def test_compared():
+    left = Scale.from_name('C', 'major').noteset
+    right = Scale.from_name('A', 'minor').noteset
+    assert ComparedNoteSets(left, right).shared_notes == frozenset(left.notes)
+
+    right = Scale.from_name('C', 'mixolydian').noteset
+    c = ComparedNoteSets(left, right)
+    assert c.new_notes == frozenset({Note('b')})
+    assert c.del_notes == frozenset({Note('B')})
