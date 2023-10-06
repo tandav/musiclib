@@ -10,31 +10,29 @@ if TYPE_CHECKING:
 from musiclib import config
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
+from musiclib.intervalset import IntervalSet
 from musiclib.svg.piano import Piano
 from musiclib.util.cache import Cached
-from musiclib.util.etc import intervals_to_bits
 
 Self = TypeVar('Self', bound='Scale')
 
 
 class Scale(Cached):
-    def __init__(self, root: Note, intervals: frozenset[int]) -> None:
+    def __init__(self, root: Note, intervalset: IntervalSet) -> None:
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
-        if not isinstance(intervals, frozenset):
+        if not isinstance(intervalset, IntervalSet):
             raise TypeError(f'expected frozenset, got {type(intervals)}')
         self.root = root
-        self.intervals = intervals
-        self.notes = frozenset({root + interval for interval in intervals})
+        self.intervalset = intervalset
+        self.notes = frozenset({root + interval for interval in intervalset})
         self.noteset = NoteSet(self.notes)
         self.names: frozenset[str] = config.intervals_to_names.get(intervals, frozenset())
         self.name_kinds = {name: config.kinds[name] for name in self.names}
         _notes_octave_fit = sorted(self.notes)
         _root_i = _notes_octave_fit.index(root)
         self.notes_ascending = _notes_octave_fit[_root_i:] + _notes_octave_fit[:_root_i]
-        self.intervals_ascending = tuple(note - self.root for note in self.notes_ascending)
         self.note_to_interval = dict(zip(self.notes_ascending, self.intervals_ascending, strict=False))
-        self.bits = intervals_to_bits(self.intervals)
         self.bits_chromatic_notes = tuple(int(Note(note) in self.notes) for note in config.chromatic_notes)
         self.note_i = {note: i for i, note in enumerate(self.notes_ascending)}
         self._key = self.root, self.intervals

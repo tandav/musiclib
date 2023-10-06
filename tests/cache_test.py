@@ -5,6 +5,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
+from musiclib.intervalset import IntervalSet
 from musiclib.progression import Progression
 from musiclib.scale import Scale
 from musiclib.util.cache import Cached
@@ -62,7 +63,7 @@ def test_scale(op, a, b):
     assert op(a, b)
 
 
-def test_specific_chord():
+def test_specificnoteset():
     a = SpecificNote('C', 5)
     b = SpecificNote('E', 5)
     c = SpecificNote('G', 5)
