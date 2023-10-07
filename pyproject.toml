@@ -12,7 +12,6 @@ dependencies = [
     "opseq>=0.1.2",
     "mido>=1.3.0",
     "svg.py",
-    "tqdm",
     "numpy",
 ]
 
@@ -191,3 +190,10 @@ venv = "musiclib"
 
 [tool.flake8]
 ignore = ['E501', 'W503', 'W504', 'FNE008']
+
+# ==============================================================================
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning", # TODO: remove this when tqdm will updated to python 3.12
+]
