@@ -247,13 +247,15 @@ class Piano(IsomorphicKeyboard):
         n_rows: int | None = None,
         n_cols: int = 13,
         radius: int = 30,
-        key_height: int = 100,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
+        key_height: int = 100,
+        offset_x: int = 0,
     ) -> None:
         if n_rows is not None:
             raise NotImplementedError('n_rows is not supported for Piano')
         self.key_height = key_height
+        self.offset_x = offset_x
         super().__init__(
             interval_colors=interval_colors,
             interval_parts_colors=interval_parts_colors,
@@ -266,7 +268,7 @@ class Piano(IsomorphicKeyboard):
         )
 
     def col_to_x(self, col: float) -> float:
-        return self.radius * (col * 2 + 1)
+        return self.radius * (col * 2 + 1) + self.offset_x
 
     def row_to_y(self, row: float) -> float:
         return self.key_height // 2
