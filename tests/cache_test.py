@@ -1,6 +1,7 @@
 import operator
 
 import pytest
+from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
@@ -43,9 +44,21 @@ def test_noteset(op, a, b):
 
 @pytest.mark.parametrize(
     ('op', 'a', 'b'), [
+        (operator.is_, IntervalSet(frozenset({0, 4, 7})), IntervalSet.from_name('major_0')),
+        (operator.is_, IntervalSet(frozenset({0, 4, 7})), IntervalSet.from_bits('100010010000')),
+        (operator.is_, IntervalSet(frozenset({0, 4, 7})), IntervalSet.from_base12(frozenset({'0', '4', '7'}))),
+        (operator.is_not, IntervalSet(frozenset({0, 4, 7})), IntervalSet(frozenset({0, 3, 7}))),
+    ],
+)
+def test_intervalset(op, a, b):
+    assert op(a, b)
+
+
+@pytest.mark.parametrize(
+    ('op', 'a', 'b'), [
         (operator.is_, Scale.from_str('CdeFGab/C'), Scale.from_str('CdeFGab/C')),
-        (operator.is_, Scale(Note('C'), frozenset({0, 1, 3, 5, 7, 8, 10})), Scale.from_notes(Note('C'), frozenset(map(Note, 'CdeFGab')))),
-        (operator.is_, Scale(Note('C'), frozenset({0, 1, 3, 5, 7, 8, 10})), Scale.from_str('CdeFGab/C')),
+        (operator.is_, Scale(Note('C'), IntervalSet(frozenset({0, 1, 3, 5, 7, 8, 10}))), Scale.from_notes(Note('C'), frozenset(map(Note, 'CdeFGab')))),
+        (operator.is_, Scale(Note('C'), IntervalSet(frozenset({0, 1, 3, 5, 7, 8, 10}))), Scale.from_str('CdeFGab/C')),
         (operator.is_, Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG'))), Scale.from_str('CEG/C')),
         (operator.is_, Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG'))), Scale.from_notes(Note('C'), frozenset(map(Note, 'CEG')))),
         (operator.is_not, Scale.from_str('CdeFGab/C'), Scale.from_str('CdeFGab/d')),
@@ -62,7 +75,7 @@ def test_scale(op, a, b):
     assert op(a, b)
 
 
-def test_specific_chord():
+def test_specificnoteset():
     a = SpecificNote('C', 5)
     b = SpecificNote('E', 5)
     c = SpecificNote('G', 5)

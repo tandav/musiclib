@@ -10,17 +10,6 @@ def increment_duplicates(a: list[int]) -> list[int]:
     return res
 
 
-def bits_to_intervals(bits: str) -> frozenset[int]:
-    return frozenset(k for k, v in enumerate(map(int, bits)) if v)
-
-
-def intervals_to_bits(intervals: frozenset[int]) -> str:
-    bits = ['0'] * 12
-    for i in intervals:
-        bits[i] = '1'
-    return ''.join(bits)
-
-
 def intervals_rotations(intervals: frozenset[int]) -> tuple[frozenset[int], ...]:
     out = [sorted(intervals)]
     for _ in range(len(intervals) - 1):
