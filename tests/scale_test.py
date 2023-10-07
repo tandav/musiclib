@@ -2,6 +2,7 @@ import operator
 
 import pytest
 from musiclib import config
+from musiclib.interval import AbstractInterval
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.scale import Scale
@@ -9,7 +10,7 @@ from musiclib.scale import Scale
 
 @pytest.mark.parametrize(
     ('root', 'notes', 'expected'), [
-        (Note('C'), frozenset(map(Note, 'CEG')), Scale(Note('C'), IntervalSet(frozenset({0, 4, 7})))),
+        (Note('C'), frozenset(map(Note, 'CEG')), Scale(Note('C'), IntervalSet(frozenset(map(AbstractInterval, {0, 4, 7}))))),
         (Note('E'), frozenset(map(Note, 'AB')), ValueError),
     ],
 )
@@ -83,7 +84,7 @@ def test_from_name(root, name, expected):
 
 @pytest.mark.parametrize(
     ('scale', 'note_to_interval'), [
-        (Scale.from_str('CDE/C'), {Note('C'): 0, Note('D'): 2, Note('E'): 4}),
+        (Scale.from_str('CDE/C'), {Note('C'): AbstractInterval(0), Note('D'): AbstractInterval(2), Note('E'): AbstractInterval(4)}),
     ],
 )
 def test_note_to_interval(scale, note_to_interval):

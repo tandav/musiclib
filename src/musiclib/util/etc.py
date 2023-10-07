@@ -1,3 +1,4 @@
+from musiclib.interval import AbstractInterval
 def increment_duplicates(a: list[int]) -> list[int]:
     if not a:
         return []
@@ -19,7 +20,7 @@ def intervals_rotations(intervals: frozenset[int]) -> tuple[frozenset[int], ...]
 
 
 def named_intervals_rotations(
-    intervals: frozenset[int],
+    intervals: frozenset[int | AbstractInterval] | set[int | AbstractInterval],
     name_prefix: str,
 ) -> dict[str, frozenset[int]]:
     return {f'{name_prefix}_{i}': fs for i, fs in enumerate(intervals_rotations(intervals))}

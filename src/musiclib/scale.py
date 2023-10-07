@@ -14,6 +14,7 @@ from musiclib.note import Note
 from musiclib.noteset import NoteSet
 from musiclib.svg.piano import Piano
 from musiclib.util.cache import Cached
+from musiclib.interval import AbstractInterval
 
 Self = TypeVar('Self', bound='Scale')
 
@@ -50,7 +51,7 @@ class Scale(Cached):
             raise TypeError(f'expected Note, got {type(root)}')
         if root not in notes:
             raise ValueError('scale root must be in scale notes')
-        return cls(root, IntervalSet(frozenset(note - root for note in notes)))
+        return cls(root, IntervalSet(frozenset(AbstractInterval(note - root) for note in notes)))
 
     @classmethod
     def from_str(cls: type[Self], string: str) -> Self:

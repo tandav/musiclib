@@ -13,18 +13,14 @@ import svg
 from colortool import Color
 
 from musiclib import config
-from musiclib.note import SpecificNote
-from musiclib.note import Note
-from musiclib.pitch import Pitch
+from musiclib.interval import AbstractInterval
 import numpy as np
-
-C4 = SpecificNote('C', 4)
 
 
 class IsomorphicKeyboard(abc.ABC):
     def __init__(
         self,
-        interval_colors: dict[int, Color] | None = None,
+        interval_colors: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int = 7,
         n_cols: int = 13,
         radius: int = 30,
@@ -68,9 +64,8 @@ class IsomorphicKeyboard(abc.ABC):
         interval = round(col)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
-        color = self.interval_colors.get(interval, config.BLACK_PALE)
+        color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), config.BLACK_PALE))
         points = self.key_points(x, y, self.radius)
-        print(len(points))
         if self.round_points:
             points = [round(p, 1) for p in points]
 

@@ -9,17 +9,20 @@ import numpy as np
 
 from musiclib import config
 from musiclib.util.cache import Cached
+from musiclib.interval import AbstractInterval
 
 Self = TypeVar('Self', bound='IntervalSet')
 
 
 class IntervalSet(Cached):
-    def __init__(self, intervals: frozenset[int]) -> None:
+    def __init__(self, intervals: frozenset[AbstractInterval]) -> None:
         if not isinstance(intervals, frozenset):
             raise TypeError(f'expected frozenset, got {type(intervals)}')
+        if any(not isinstance(interval, AbstractInterval) for interval in intervals):
+            raise TypeError(f'expected AbstractInterval items')
         self.intervals = intervals
         self.intervals_ascending = tuple(sorted(intervals))
-        self.bits = ''.join('1' if i in intervals else '0' for i in range(12))
+        self.bits = ''.join('1' if AbstractInterval(i) in intervals else '0' for i in range(12))
         self.names: frozenset[str] = config.intervals_to_names.get(intervals, frozenset())
         self.name_kinds = {name: config.kinds[name] for name in self.names}
 
@@ -29,11 +32,11 @@ class IntervalSet(Cached):
 
     @classmethod
     def from_bits(cls, bits: str) -> IntervalSet:
-        return cls(frozenset(i for i, v in enumerate(bits) if int(v)))
+        return cls(frozenset(AbstractInterval(i) for i, v in enumerate(bits) if int(v)))
 
     @classmethod
     def from_base12(cls, intervals: frozenset[str]) -> IntervalSet:
-        return cls(frozenset(int(i, 12) for i in intervals))
+        return cls(frozenset(AbstractInterval.from_str(i) for i in intervals))
 
     def __len__(self) -> int:
         return len(self.intervals)
@@ -44,8 +47,11 @@ class IntervalSet(Cached):
     def __getnewargs__(self) -> tuple[frozenset[int]]:
         return (self.intervals,)
 
+    def __str__(self) -> str:
+        return '_'.join(str(i) for i in self.intervals_ascending)
+
     def __repr__(self) -> str:
-        return f"IntervalSet({' '.join(np.base_repr(i, 12) for i in self.intervals_ascending)})"
+        return f"IntervalSet({' '.join(np.base_repr(i.interval, base=12) for i in self.intervals_ascending)})"
 
     # def _repr_svg_(self, **kwargs: Any) -> str:
     #     kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
