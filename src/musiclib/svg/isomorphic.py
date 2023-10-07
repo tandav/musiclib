@@ -21,12 +21,12 @@ class IsomorphicKeyboard(abc.ABC):
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
-        n_rows: int = 7,
+        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        n_rows: int | None = 7,
         n_cols: int = 13,
         radius: int = 30,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
-        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
     ) -> None:
         self.n_rows = n_rows
         self.n_cols = n_cols
@@ -38,6 +38,11 @@ class IsomorphicKeyboard(abc.ABC):
         self.round_points = round_points
         self.interval_parts_colors = interval_parts_colors or {}
 
+        if n_rows is None:
+            for col in range(-2, n_cols + 1):
+                self.add_key(0, col)
+            return
+        
         for row in range(-1, n_rows + 1):
             for col in range(-2, n_cols + 1, 2):
                 self.add_key(row, col + row % 2)
@@ -225,11 +230,35 @@ class Hex(IsomorphicKeyboard):
 
 
 class Piano(IsomorphicKeyboard):
+    def __init__(
+        self,
+        interval_colors: dict[AbstractInterval | int, Color] | None = None,
+        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        n_rows: int | None = None,
+        n_cols: int = 13,
+        radius: int = 30,
+        key_height: int = 100,
+        font_size_radius_ratio: float = 0.5,
+        round_points: bool = True,
+    ) -> None:
+        if n_rows is not None:
+            raise NotImplementedError('n_rows is not supported for Piano')
+        self.key_height = key_height
+        super().__init__(
+            interval_colors=interval_colors,
+            interval_parts_colors=interval_parts_colors,
+            n_rows=n_rows,
+            n_cols=n_cols,
+            radius=radius,
+            font_size_radius_ratio=font_size_radius_ratio,
+            round_points=round_points,
+        )
+
     def col_to_x(self, col: float) -> float:
-        return self.radius * (col + 1)
+        return self.radius * (col * 2 + 1)
 
     def row_to_y(self, row: float) -> float:
-        return self.radius * (row + 1)
+        return self.key_height // 2
 
     @property
     def width(self) -> int:
@@ -237,13 +266,25 @@ class Piano(IsomorphicKeyboard):
 
     @property
     def height(self) -> int:
-        return int(self.row_to_y(self.n_rows))
+        return self.key_height
+    
+    def key_part_points(self, x: float, y: float, part: int) -> list[float]:
+        raise NotImplementedError('TODO: split vertically')
 
     @staticmethod
-    def key_points(x: float, y: float, radius: float) -> list[float]:
+    def vertex(x: float, y: float, radius_w: float, i: int, radius_h: float) -> tuple[float, float]:
+        if i % 4 == 0:
+            return x - radius_w, y - radius_h
+        if i == 1:
+            return x + radius_w, y - radius_h
+        if i == 2:
+            return x + radius_w, y + radius_h
+        if i == 3:
+            return x - radius_w, y + radius_h
+        raise ValueError(f'invalid i={i}')
+
+    def key_points(self, x: float, y: float, radius: float) -> list[float]:
         points = []
-        for i in range(4):
-            theta = math.pi * i / 2
-            p = complex(y, x) + radius * cmath.exp(1j * theta)
-            points += [p.imag, p.real]
+        for i in range(5):
+            points += self.vertex(x, y, radius, i, self.key_height / 2)
         return points
