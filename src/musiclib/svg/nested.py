@@ -23,8 +23,8 @@ class NestedSVG:
                 svg.SVG(
                     x=x,
                     y=y,
-                    width=100,
-                    height=100,
+                    width=_svg.width,
+                    height=_svg.height,
                     viewBox=svg.ViewBoxSpec(0, 0, _svg.width, _svg.height),
                     elements=_svg.elements,
                 )
