@@ -76,7 +76,7 @@ def test_svg_scale(kind, title, subtitle, title_href, background_color, all_scal
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
     for scale in all_scales[kind].values():
-        classes = tuple(scale.names)
+        classes = tuple(scale.intervalset.names)
         svg = scale._repr_svg_(
             classes=classes,
             title=title,

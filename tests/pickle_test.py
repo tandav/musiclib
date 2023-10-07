@@ -1,6 +1,7 @@
 import pickle
 
 import pytest
+from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
@@ -69,6 +70,16 @@ f = SpecificNoteSet(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), Speci
 )
 def test_sns(sns):
     assert sns == pickle.loads(pickle.dumps(sns))
+
+
+@pytest.mark.parametrize(
+    'intervalset', [
+        IntervalSet.from_name('major'),
+        *iter_containers(IntervalSet.from_name('major'), IntervalSet.from_name('minor')),
+    ],
+)
+def test_intervalset(intervalset):
+    assert intervalset == pickle.loads(pickle.dumps(intervalset))
 
 
 @pytest.mark.parametrize(
