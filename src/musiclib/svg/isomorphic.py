@@ -22,6 +22,7 @@ class IsomorphicKeyboard(abc.ABC):
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
         n_rows: int | None = 7,
         n_cols: int = 13,
         radius: int = 30,
@@ -33,10 +34,10 @@ class IsomorphicKeyboard(abc.ABC):
         self.radius = radius
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
-        # self.pitch = Pitch(origin_note=origin_note)
+        self.interval_parts_colors = interval_parts_colors or {}
+        self.interval_text = interval_text
         self.font_size = int(radius * font_size_radius_ratio)
         self.round_points = round_points
-        self.interval_parts_colors = interval_parts_colors or {}
 
         if n_rows is None:
             for col in range(-2, n_cols + 1):
@@ -85,22 +86,32 @@ class IsomorphicKeyboard(abc.ABC):
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{x:.1f}{y:.1f}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{row}, {col}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
 
-        text = svg.Text(
-            x=x,
-            y=y,
-            text=f'{np.base_repr(interval, base=12)}',
-            font_size=self.font_size,
-            font_family='monospace',
-            text_anchor='middle',
-            dominant_baseline='middle',
-            pointer_events='none',  # probably not needed when using event.preventDefault() on transparent polygon
-            # onclick=f"play_note('{note}')",
-            # onmousedown=f"midi_message('note_on', '{note}')",
-            # onmouseup=f"midi_message('note_off', '{note}')",
-        )
-        # text.note = str(note)
-        # text.note_midi = note.i
-        self.elements.append(text)
+        if self.interval_text is None:
+            text = None
+        elif isinstance(self.interval_text, dict):
+            text = self.interval_text.get(interval, self.interval_text.get(AbstractInterval(interval), None))
+        elif isinstance(self.interval_text, str):
+            if self.interval_text == 'interval':
+                text = f'{np.base_repr(interval, base=12)}'
+            else:
+                raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval"')
+        else:
+            raise NotImplementedError(f'invalid self.interval_text={self.interval_text}')
+
+        if text is not None:
+            self.elements.append(svg.Text(
+                x=x,
+                y=y,
+                text=text,
+                font_size=self.font_size,
+                font_family='monospace',
+                text_anchor='middle',
+                dominant_baseline='middle',
+                pointer_events='none',  # probably not needed when using event.preventDefault() on transparent polygon
+                # onclick=f"play_note('{note}')",
+                # onmousedown=f"midi_message('note_on', '{note}')",
+                # onmouseup=f"midi_message('note_off', '{note}')",
+            ))
 
         # transparent polygon on top for mouse events
         polygon = svg.Polygon(
@@ -112,8 +123,6 @@ class IsomorphicKeyboard(abc.ABC):
             # onmousedown=f"midi_message('note_on', '{note}')",
             # onmouseup=f"midi_message('note_off', '{note}')",
         )
-        # polygon.note = str(note)
-        # polygon.note_midi = note.i
         self.elements.append(polygon)
 
         for part, color in self.interval_parts_colors.get(interval, {}).items():
@@ -234,6 +243,7 @@ class Piano(IsomorphicKeyboard):
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
         n_rows: int | None = None,
         n_cols: int = 13,
         radius: int = 30,
@@ -247,6 +257,7 @@ class Piano(IsomorphicKeyboard):
         super().__init__(
             interval_colors=interval_colors,
             interval_parts_colors=interval_parts_colors,
+            interval_text=interval_text,
             n_rows=n_rows,
             n_cols=n_cols,
             radius=radius,
