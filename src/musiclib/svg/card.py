@@ -1,5 +1,7 @@
 import svg
+from typing import Any
 from musiclib.svg.nested import NestedSVG
+from musiclib.svg.header import Header
 from musiclib.svg.isomorphic import Hex
 from musiclib.svg.isomorphic import Piano
 from musiclib.interval import AbstractInterval
@@ -18,6 +20,7 @@ class HexPiano:
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
         key_height: int | None = None,
+        header_kwargs: dict[str, Any] | None = None,
     ) -> None:
         self.hex = Hex(
             interval_colors=interval_colors,
@@ -40,13 +43,26 @@ class HexPiano:
             round_points=round_points,
             key_height = key_height or radius * 2,
         )
-        self.nested_svg = NestedSVG(
-            svgs=[self.hex.svg, self.piano.svg],
-            coordinates=[(0, 0), (0, self.hex.svg.height)],
-            width=self.hex.svg.width,
-            height=self.hex.svg.height + self.piano.svg.height,
-        )
-
+        if header_kwargs is None:
+            self.nested_svg = NestedSVG(
+                svgs=[self.hex.svg, self.piano.svg],
+                coordinates=[(0, 0), (0, self.hex.svg.height)],
+                width=self.hex.svg.width,
+                height=self.hex.svg.height + self.piano.svg.height,
+            )
+        else:
+            header_kwargs.setdefault('width', self.hex.svg.width)
+            # header_kwargs.setdefault('height', 30)
+            # header_kwargs.setdefault('margin', (0, 0, 0, 0))
+            # header_kwargs.setdefault('padding', (0, 0, 0, 0))
+            # header_kwargs.setdefault('border_radius', 0)
+            self.header = Header(**header_kwargs)
+            self.nested_svg = NestedSVG(
+                svgs=[self.header.svg, self.hex.svg, self.piano.svg],
+                coordinates=[(0, 0), (0, self.header.svg.height), (0, self.header.svg.height + self.hex.svg.height)],
+                width=self.hex.svg.width,
+                height=self.header.svg.height + self.hex.svg.height + self.piano.svg.height,
+            )
 
     @property
     def svg(self) -> svg.SVG:
