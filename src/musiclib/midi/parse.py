@@ -190,7 +190,7 @@ def unique_notesets(midi: mido.MidiFile):
     t = 0
     for message in track:
         if message.time > 0:
-            yield SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
+            yield t, SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
         t += message.time
         if is_note('on', message):
             playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
