@@ -180,7 +180,7 @@ class SpecificNoteSet(Cached):
         return '_'.join(str(note) for note in self.notes_ascending)
 
     def __repr__(self) -> str:
-        return '_'.join(repr(note) for note in self.notes_ascending)
+        return str(self)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNoteSet):

@@ -180,3 +180,21 @@ def rhythm_to_midi(  # noqa: C901
     if path is not None:
         mid.save(path)
     return mid
+
+
+def unique_notesets(midi: mido.MidiFile):
+    if midi.type != 0:
+        raise ValueError('only type 0 midi files are supported')
+    track, = midi.tracks
+    playing_notes = collections.defaultdict(dict)  # type: ignore[var-annotated]
+    t = 0
+    for message in track:
+        if message.time > 0:
+            yield SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
+        t += message.time
+        if is_note('on', message):
+            playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
+        elif is_note('off', message):
+            note = playing_notes[message.note]
+            note['off'] = t
+            del playing_notes[message.note]

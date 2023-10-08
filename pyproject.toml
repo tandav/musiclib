@@ -8,7 +8,7 @@ description = "set of tools to work with scales, modes, modulations, chord progr
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "colortool>=0.5.0",
+    "colortool>=0.5.1",
     "opseq>=0.1.2",
     "mido>=1.3.0",
     "svg.py",

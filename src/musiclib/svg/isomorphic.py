@@ -1,9 +1,5 @@
 """
-https://en.wikipedia.org/wiki/Jankó_keyboard
-https://shiverware.com/musixpro/
-http://rainboard.shiverware.com/Main_Page
-http://rainboard.shiverware.com/Research
-https://news.ycombinator.com/item?id=37620474
+https://notes.tandav.me/notes/3548
 """
 import abc
 import cmath
@@ -23,6 +19,7 @@ class IsomorphicKeyboard(abc.ABC):
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
         interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
+        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
         n_cols: int = 13,
         radius: int = 30,
@@ -38,6 +35,7 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_text = interval_text
         self.font_size = int(radius * font_size_radius_ratio)
         self.round_points = round_points
+        self.interval_strokes = interval_strokes or {}
 
         if n_rows is None:
             for col in range(-2, n_cols + 1):
@@ -46,6 +44,7 @@ class IsomorphicKeyboard(abc.ABC):
         
         for row in range(-1, n_rows + 1):
             for col in range(-2, n_cols + 1, 2):
+                self.add_key(row, col + row % 2)
                 self.add_key(row, col + row % 2)
 
     @abc.abstractmethod
@@ -75,13 +74,16 @@ class IsomorphicKeyboard(abc.ABC):
         if self.round_points:
             points = [round(p, 1) for p in points]
 
-        polygon = svg.Polygon(
+        polygon_kw = dict(
             class_=['polygon-colored'],
             fill=color.css_hex,
-            # stroke='black',
-            # stroke_width=1,
             points=points,
         )
+        stroke = self.interval_strokes.get(interval, self.interval_strokes.get(AbstractInterval(interval), None))
+        if stroke is not None:
+            polygon_kw['stroke'] = stroke['stroke'].css_hex
+            polygon_kw['stroke_width'] = stroke.get('stroke_width', 1)
+        polygon = svg.Polygon(**polygon_kw, stroke)
         self.elements.append(polygon)
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{x:.1f}{y:.1f}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{row}, {col}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
@@ -249,6 +251,7 @@ class Piano(IsomorphicKeyboard):
         radius: int = 30,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
+        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         key_height: int = 100,
         offset_x: int = 0,
     ) -> None:
@@ -265,6 +268,7 @@ class Piano(IsomorphicKeyboard):
             radius=radius,
             font_size_radius_ratio=font_size_radius_ratio,
             round_points=round_points,
+            interval_strokes=interval_strokes,
         )
 
     def col_to_x(self, col: float) -> float:
