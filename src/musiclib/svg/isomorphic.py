@@ -4,7 +4,7 @@ https://notes.tandav.me/notes/3548
 import abc
 import cmath
 import math
-
+import uuid
 import svg
 from colortool import Color
 
@@ -36,6 +36,9 @@ class IsomorphicKeyboard(abc.ABC):
         self.font_size = int(radius * font_size_radius_ratio)
         self.round_points = round_points
         self.interval_strokes = interval_strokes or {}
+        self.defs = svg.Defs(elements=[])
+        self.elements.append(self.defs)
+        self.id_suffix = str(uuid.uuid4()).split('-')[0]
 
         if n_rows is None:
             for col in range(-2, n_cols + 1):
@@ -44,7 +47,6 @@ class IsomorphicKeyboard(abc.ABC):
         
         for row in range(-1, n_rows + 1):
             for col in range(-2, n_cols + 1, 2):
-                self.add_key(row, col + row % 2)
                 self.add_key(row, col + row % 2)
 
     @abc.abstractmethod
@@ -67,6 +69,7 @@ class IsomorphicKeyboard(abc.ABC):
 
     def add_key(self, row: float, col: float) -> None:
         interval = round(col)
+        interval_base12 = np.base_repr(interval, base=12)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
         color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), config.BLACK_PALE))
@@ -78,13 +81,17 @@ class IsomorphicKeyboard(abc.ABC):
             class_=['polygon-colored'],
             fill=color.css_hex,
             points=points,
+            # clip_path='url(#key-clip)',
         )
+        id_ = f'row-{row}-col-{col}-{self.id_suffix}'
+        self.defs.elements.append(svg.ClipPath(id=id_, elements=[svg.Polygon(**polygon_kw)]))
         stroke = self.interval_strokes.get(interval, self.interval_strokes.get(AbstractInterval(interval), None))
         if stroke is not None:
             polygon_kw['stroke'] = stroke['stroke'].css_hex
-            polygon_kw['stroke_width'] = stroke.get('stroke_width', 1)
-        polygon = svg.Polygon(**polygon_kw, stroke)
-        self.elements.append(polygon)
+            polygon_kw['stroke_width'] = stroke.get('stroke_width', 1) * 2
+            polygon_kw['clip_path'] = f'url(#{id_})'
+        self.elements.append(svg.Polygon(**polygon_kw))
+
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{x:.1f}{y:.1f}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
 #       self.texts.append(svg.Text(x=x, y=y, text=f'{row}, {col}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
 
@@ -94,7 +101,7 @@ class IsomorphicKeyboard(abc.ABC):
             text = self.interval_text.get(interval, self.interval_text.get(AbstractInterval(interval), None))
         elif isinstance(self.interval_text, str):
             if self.interval_text == 'interval':
-                text = f'{np.base_repr(interval, base=12)}'
+                text = f'{interval_base12}'
             else:
                 raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval"')
         else:
@@ -116,16 +123,16 @@ class IsomorphicKeyboard(abc.ABC):
             ))
 
         # transparent polygon on top for mouse events
-        polygon = svg.Polygon(
-            class_=['polygon-transparent'],
-            points=points,
-            fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
-            # stroke='black',
-            # stroke_width=1,
-            # onmousedown=f"midi_message('note_on', '{note}')",
-            # onmouseup=f"midi_message('note_off', '{note}')",
-        )
-        self.elements.append(polygon)
+        # polygon = svg.Polygon(
+        #     class_=['polygon-transparent'],
+        #     points=points,
+        #     fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
+        #     # stroke='black',
+        #     # stroke_width=1,
+        #     # onmousedown=f"midi_message('note_on', '{note}')",
+        #     # onmouseup=f"midi_message('note_off', '{note}')",
+        # )
+        # self.elements.append(polygon)
 
         for part, color in self.interval_parts_colors.get(interval, {}).items():
             self.elements.append(
