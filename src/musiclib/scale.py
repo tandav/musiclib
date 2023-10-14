@@ -12,7 +12,6 @@ from musiclib import config
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
-from musiclib.svg.piano import Piano
 from musiclib.svg.card import HexPiano
 from musiclib.util.cache import Cached
 from musiclib.interval import AbstractInterval
@@ -52,7 +51,7 @@ class Scale(Cached):
             raise TypeError(f'expected Note, got {type(root)}')
         if root not in notes:
             raise ValueError('scale root must be in scale notes')
-        return cls(root, IntervalSet(frozenset(AbstractInterval(note - root) for note in notes)))
+        return cls(root, IntervalSet(frozenset(note - root for note in notes)))
 
     @classmethod
     def from_str(cls: type[Self], string: str) -> Self:
@@ -87,7 +86,7 @@ class Scale(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Scale):
-            raise TypeErrornted
+            raise TypeError
         return self._key == other._key
 
     def __hash__(self) -> int:
@@ -104,7 +103,7 @@ class Scale(Cached):
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, Note):
-            raise TypeErrornted
+            raise TypeError
         return item in self.notes
 
     @property
@@ -121,6 +120,7 @@ class Scale(Cached):
         return (self.root, self.intervalset)
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.piano import Piano
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         kwargs.setdefault('title', f'{self.str_names}')
         kwargs.setdefault('classes', ('card', *self.intervalset.names))

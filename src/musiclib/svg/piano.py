@@ -12,8 +12,8 @@ from musiclib.config import WHITE_BRIGHT
 from musiclib.config import WHITE_PALE
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noterange import CHROMATIC_NOTESET
-from musiclib.noterange import NoteRange
+from musiclib.noteset import CHROMATIC_NOTESET
+from musiclib.noteset import SpecificNoteSet
 
 if TYPE_CHECKING:
     from colortool import Color
@@ -53,7 +53,7 @@ class Piano:
         square_black_offset: int = 3,
         ww: int = 18,  # white key width
         wh: int = 85,  # white key height
-        noterange: NoteRange | None = None,
+        sns: SpecificNoteSet | None = None,
         black_small: bool = True,
         card: bool = True,
         title: str | None = None,
@@ -114,28 +114,25 @@ class Piano:
         self.shadow_offset = shadow_offset
         self.border_radius = border_radius
         self.debug_rect = debug_rect
-        if noterange is not None:
-            if noterange.noteset is not CHROMATIC_NOTESET:
-                raise ValueError  # maybe this is not necessary
-
+        if sns is not None:
             if black_small:
                 # ensure that start and stop are white keys
-                self.noterange = NoteRange(
-                    start=noterange.start + -1 if noterange.start.is_black else noterange.start,
-                    stop=noterange.stop + 1 if noterange.stop.abstract.is_black else noterange.stop,
+                self.sns = SpecificNoteSet.from_noterange(
+                    start=sns[0] + -1 if sns[0].is_black else sns[0],
+                    stop=sns[-1] + 1 if sns[-1].abstract.is_black else sns[-1],
                 )
             else:
-                self.noterange = noterange
+                self.sns = sns
         else:
             # render 2 octaves by default
-            self.noterange = NoteRange(SpecificNote('C', 0), SpecificNote('B', 1))
+            self.sns = SpecificNoteSet.from_noterange(SpecificNote('C', 0), SpecificNote('B', 1))
 
-        self.white_notes = tuple(note for note in self.noterange if not note.is_black)
-        self.black_notes = tuple(note for note in self.noterange if note.is_black)
-        self.piano_width = ww * len(self.white_notes) if self.black_small else ww * len(self.noterange)
+        self.white_notes = tuple(note for note in self.sns if not note.is_black)
+        self.black_notes = tuple(note for note in self.sns if note.is_black)
+        self.piano_width = ww * len(self.white_notes) if self.black_small else ww * len(self.sns)
         self.piano_height = wh
         self.elements: list[svg.Element] = []
-        self.notes = self.white_notes + self.black_notes if black_small else self.noterange
+        self.notes = self.white_notes + self.black_notes if black_small else self.sns
         self.make_piano()
         self.init_sizes()
 
@@ -295,7 +292,7 @@ class Piano:
                 sy = self.y(self.bh - self.square_size - self.square_black_offset)
                 return x, y, self.bw, self.bh, c, sx, sy
 
-        x = self.ww * self.noterange.index(note)
+        x = self.ww * self.sns.index(note)
         sx = self.x((x + x + self.ww) // 2 - self.square_size // 2)
         sy = self.y(self.wh - self.square_size - self.square_white_offset)
         return self.x(x), y, self.ww, self.wh, c, sx, sy

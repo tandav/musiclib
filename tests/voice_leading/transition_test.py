@@ -3,7 +3,6 @@ import textwrap
 
 import pytest
 from musiclib.note import SpecificNote
-from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import Scale
@@ -47,8 +46,8 @@ def test_transition(a, b, expected):
 )
 def test_chord_transitions(start, stop, noteset, chord_str, transitions, unique_abstract, same_length):
     chord = SpecificNoteSet.from_str(chord_str)
-    noterange = NoteRange.from_str(start, stop, noteset)
-    assert set(map(str, transition.chord_transitions(chord, noterange, unique_abstract=unique_abstract, same_length=same_length))) == transitions
+    space = SpecificNoteSet.from_noterange(SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)
+    assert set(map(str, transition.chord_transitions(chord, space, unique_abstract=unique_abstract, same_length=same_length))) == transitions
 
 
 @pytest.mark.parametrize(
@@ -59,16 +58,16 @@ def test_chord_transitions(start, stop, noteset, chord_str, transitions, unique_
     ],
 )
 def test_transition_graph(noteset):
-    noterange = NoteRange(SpecificNote('A', 0), SpecificNote('D', 2), noteset)
-    graph = transition.transition_graph(SpecificNoteSet.from_str('C1_E1_G1'), noterange)
+    space = SpecificNoteSet.from_noterange(SpecificNote('A', 0), SpecificNote('D', 2), noteset)
+    graph = transition.transition_graph(SpecificNoteSet.from_str('C1_E1_G1'), space)
     assert len(graph) == 165
     assert sum(map(len, graph.values())) == 720
 
 
 def test_transition_graph_same_length():
     noteset = Scale.from_name('C', 'major').noteset
-    noterange = NoteRange(SpecificNote('A', 0), SpecificNote('D', 2), noteset)
-    graph = transition.transition_graph(SpecificNoteSet.from_str('C1_E1_G1'), noterange, same_length=False)
+    space = SpecificNoteSet.from_noterange(SpecificNote('A', 0), SpecificNote('D', 2), noteset)
+    graph = transition.transition_graph(SpecificNoteSet.from_str('C1_E1_G1'), space, same_length=False)
     abstract_graph = transition.abstract_graph(graph)
     assert len(graph) == 231
 

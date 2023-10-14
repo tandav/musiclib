@@ -6,7 +6,7 @@ from colortool import Color
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noterange import NoteRange
+from musiclib.noteset import SpecificNoteSet
 from musiclib.svg.piano import Piano
 from musiclib.svg.piano import note_color
 
@@ -124,13 +124,13 @@ def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload
 
 
 @pytest.mark.parametrize(
-    ('noterange', 'black_small', 'start', 'stop'), [
-        (NoteRange.from_str('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
-        (NoteRange.from_str('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
+    ('sns', 'black_small', 'start', 'stop'), [
+        (SpecificNoteSet.from_noterange(SpecificNote('d', 2), SpecificNote('b', 2)), True, SpecificNote('C', 2), SpecificNote('B', 2)),
+        (SpecificNoteSet.from_noterange(SpecificNote('d', 2), SpecificNote('b', 2)), False, SpecificNote('d', 2), SpecificNote('b', 2)),
     ],
 )
-def test_startswith_endswith_white_key(noterange, black_small, start, stop):
-    svg = Piano(noterange=noterange, black_small=black_small)._repr_svg_()
+def test_startswith_endswith_white_key(sns, black_small, start, stop):
+    svg = Piano(sns=sns, black_small=black_small)._repr_svg_()
     notes = note_info(svg, element='rect', class_='note').keys()
     assert min(notes) == start
     assert max(notes) == stop

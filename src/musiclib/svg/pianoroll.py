@@ -11,8 +11,8 @@ from musiclib.config import BLACK_PALE
 from musiclib.config import BLUE
 from musiclib.config import GREEN
 from musiclib.midi.pitchbend import make_notes_pitchbends
-from musiclib.noterange import NoteRange
 from musiclib.svg.piano import Piano
+from musiclib.noteset import SpecificNoteSet
 
 if TYPE_CHECKING:
     from svg._types import Number
@@ -32,7 +32,7 @@ class PianoRoll:
         wh: int = 400,
         time_signature: tuple[int, int] = (4, 4),
         grid_denominator: int = 4,
-        noterange: NoteRange | None = None,
+        sns: SpecificNoteSet | None = None,
     ) -> None:
         if time_signature != (4, 4):
             raise NotImplementedError('only time_signature=(4, 4) is supported')
@@ -41,11 +41,11 @@ class PianoRoll:
             raise ValueError('grid_denominator should be >= 1')
         self.grid_denominator = grid_denominator
         if piano is None:
-            if noterange is None:
+            if sns is None:
                 start = min(midi.notes, key=operator.attrgetter('note')).note
                 stop = max(midi.notes, key=operator.attrgetter('note')).note
-                noterange = NoteRange(start=start, stop=stop)
-            self.piano = Piano(black_small=False, card=False, ww=ww, wh=wh, noterange=noterange)
+                sns = SpecificNoteSet.from_noterange(start=start, stop=stop)
+            self.piano = Piano(black_small=False, card=False, ww=ww, wh=wh, sns=sns)
         elif piano.black_small:
             raise ValueError('black_small should be False')
         else:
@@ -60,10 +60,10 @@ class PianoRoll:
 
     def add_notes_elements(self) -> None:
         for i, note in enumerate(self.midi.notes):
-            if note.note not in self.piano.noterange:
-                warnings.warn(f'note {note.note} is not in {self.piano.noterange}')
+            if note.note not in self.piano.sns:
+                warnings.warn(f'note {note.note} is not in {self.piano.sns}')
                 continue
-            x = self.piano.ww * self.piano.noterange.index(note.note)
+            x = self.piano.ww * self.piano.sns.index(note.note)
             h = (note.off - note.on) / self.duration * self.piano.wh
             y = note.on / self.duration * self.piano.wh
             y_svg = self.piano.wh - y - h
@@ -103,11 +103,11 @@ class PianoRoll:
         self.elements.append(defs)
 
         def note_pitch_x(note: MidiNote, p: MidiPitch) -> int:
-            return int(self.piano.ww * self.piano.noterange.index(note.note) + self.piano.ww // 2 + self.pitchbend_semitones * self.piano.ww * p.pitch / PITCHBEND_MAX)
+            return int(self.piano.ww * self.piano.sns.index(note.note) + self.piano.ww // 2 + self.pitchbend_semitones * self.piano.ww * p.pitch / PITCHBEND_MAX)
 
         for note, pitches in make_notes_pitchbends(self.midi).items():
-            if note.note not in self.piano.noterange:
-                warnings.warn(f'note {note.note} is not in {self.piano.noterange}')
+            if note.note not in self.piano.sns:
+                warnings.warn(f'note {note.note} is not in {self.piano.sns}')
                 continue
             polyline_points_notes: list[Number] = []
             for pitch in pitches:

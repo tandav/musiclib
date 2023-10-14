@@ -136,6 +136,7 @@ class NoteSet(Cached):
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
 
+CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
 class SpecificNoteSet(Cached):
     def __init__(self, notes: frozenset[SpecificNote]) -> None:
@@ -169,6 +170,25 @@ class SpecificNoteSet(Cached):
         notes = frozenset(SpecificNote.from_str(note) for note in notes_)
         return cls(notes)
 
+    @classmethod
+    def from_noterange(
+        cls,
+        start: SpecificNote,
+        stop: SpecificNote,
+        noteset: NoteSet = CHROMATIC_NOTESET,
+    ):
+        if not (isinstance(start, SpecificNote) and isinstance(stop, SpecificNote)):
+            raise TypeError('start and stop should be SpecificNote instances')
+        if start > stop:  # both ends included
+            raise ValueError('start should be <= stop')
+        if not {start.abstract, stop.abstract} <= noteset.notes:
+            raise KeyError('start and stop notes should be in the noteset')
+        return cls(frozenset(
+            noteset.add_note(start, i)
+            for i in range(noteset.subtract(stop, start) + 1)
+        ))
+        # return cls(frozenset(note for note in NoteRange(start, stop) if note.abstract in noteset)))
+
     def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
         yield from itertools.combinations(self.notes_ascending, 2)
 
@@ -185,6 +205,9 @@ class SpecificNoteSet(Cached):
 
     def __getitem__(self, item: int) -> SpecificNote:
         return self.notes_ascending[item]
+
+    def index(self, note: SpecificNote) -> int:
+        return self.notes_ascending.index(note)
 
     def __iter__(self) -> Iterator[SpecificNote]:
         return iter(self.notes_ascending)
@@ -221,9 +244,8 @@ class SpecificNoteSet(Cached):
         return (self.notes,)
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.noterange import NoteRange
         from musiclib.svg.piano import Piano
-        kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
+        kwargs.setdefault('sns', self if self.notes else None)
         kwargs.setdefault('classes', ('card',))
         kwargs.setdefault('title', str(self))
         kwargs.setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
