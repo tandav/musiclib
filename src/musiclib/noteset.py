@@ -220,16 +220,31 @@ class SpecificNoteSet(Cached):
     def __getnewargs__(self) -> tuple[frozenset[SpecificNote]]:
         return (self.notes,)
 
-    def _repr_svg_(self, **kwargs: Any) -> str:
+    def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.noterange import NoteRange
         from musiclib.svg.piano import Piano
         kwargs.setdefault('noterange', NoteRange(self[0], self[-1]) if self.notes else None)
         kwargs.setdefault('classes', ('card',))
-        kwargs.setdefault('title', repr(self))
+        kwargs.setdefault('title', str(self))
         kwargs.setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
         kwargs.setdefault('squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
-        return Piano(**kwargs)._repr_svg_()
+        return Piano(**kwargs).svg
 
+    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        kwargs.setdefault('interval_colors', {
+            i: config.RED
+            for i in self.intervals
+        })
+        kwargs.setdefault('interval_text', {
+            interval: str(note)
+            for interval, note in zip(self.intervals, self.notes_ascending)
+        })
+        kwargs.setdefault('n_cols', max(self) - min(self) + 1)
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        return HexPiano(**kwargs).svg
+
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        return str(self.svg_hex_piano(**kwargs))
 
 def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
     out = set()
