@@ -22,7 +22,7 @@ class AbstractInterval(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AbstractInterval):
-            return NotImplemented
+            raise TypeError
         return self.interval == other.interval
 
     def __hash__(self) -> int:
@@ -30,7 +30,7 @@ class AbstractInterval(Cached):
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, AbstractInterval):
-            return NotImplemented
+            raise TypeError
         return self.interval < other.interval
     
     def __getnewargs__(self) -> tuple[int]:

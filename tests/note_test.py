@@ -49,8 +49,6 @@ def test_str_repr(x, s, r):
         (operator.lt, Note('C'), Note('D')),
         (operator.gt, Note('D'), Note('d')),
         (operator.gt, Note('B'), Note('f')),
-        (operator.ne, SpecificNote.from_str('C1'), 'C1'),  # avoid implicit string comparison for SpecificNote
-        (operator.ne, SpecificNote.from_str('C1'), 'C2'),
     ],
 )
 def test_ordering(op, a, b):
@@ -111,3 +109,18 @@ def test_midi_code():
     A4 = SpecificNote(Note('A'), 4)
     assert A4.i == 69
     assert SpecificNote.from_i(69) == A4
+
+
+def test_eq_lt_validation():
+    with pytest.raises(TypeError):
+        Note('C') == 1
+    with pytest.raises(TypeError):
+        Note('C') == SpecificNote.from_str('C1')
+    with pytest.raises(TypeError):
+        Note('C') < 1
+    with pytest.raises(TypeError):
+        SpecificNote.from_str('C1') == Note('C')
+    with pytest.raises(TypeError):
+        SpecificNote.from_str('C1') == 'C1'
+    with pytest.raises(TypeError):
+        SpecificNote.from_str('C1') < Note('C')

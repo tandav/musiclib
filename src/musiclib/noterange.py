@@ -80,7 +80,7 @@ class NoteRange(Sequence[SpecificNote]):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, NoteRange):
-            return NotImplemented
+            raise TypeError
         return self._key == other._key
 
     def __hash__(self) -> int:

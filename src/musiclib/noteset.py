@@ -65,7 +65,7 @@ class NoteSet(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
-            return NotImplemented
+            raise TypeError
         return self.notes == other.notes
 
     def __hash__(self) -> int:
@@ -82,27 +82,27 @@ class NoteSet(Cached):
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, Note):
-            return NotImplemented
+            raise TypeError
         return item in self.notes
 
     def __le__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
-            return NotImplemented
+            raise TypeError
         return self.notes <= other.notes
 
     def __ge__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
-            return NotImplemented
+            raise TypeError
         return other.notes <= self.notes
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
-            return NotImplemented
+            raise TypeError
         return self.notes < other.notes
 
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, NoteSet):
-            return NotImplemented
+            raise TypeError
         return other.notes < self.notes
 
     def __str__(self) -> str:
@@ -191,7 +191,7 @@ class SpecificNoteSet(Cached):
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, SpecificNote):
-            return NotImplemented
+            raise TypeError
         return item in self.notes
 
     def __str__(self) -> str:
@@ -202,7 +202,7 @@ class SpecificNoteSet(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNoteSet):
-            return NotImplemented
+            raise TypeError
         return self.notes == other.notes
 
     def __hash__(self) -> int:
@@ -285,7 +285,7 @@ class ComparedNoteSets(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ComparedNoteSets):
-            return NotImplemented
+            raise TypeError
         return self.key == other.key
 
     def __hash__(self) -> int:

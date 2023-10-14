@@ -39,14 +39,14 @@ class Note(Cached):
             return self.name == other
         if isinstance(other, Note):
             return self.name == other.name
-        return NotImplemented
+        raise TypeError
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
             return self.i <= _note_i[other]
         if isinstance(other, Note):
             return self.i <= other.i
-        return NotImplemented
+        raise TypeError
 
     def __hash__(self) -> int:
         return hash(self.name)
@@ -119,7 +119,7 @@ class SpecificNote(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
-            return NotImplemented
+            raise TypeError
         return self._key == other._key
 
     def __hash__(self) -> int:
@@ -127,7 +127,7 @@ class SpecificNote(Cached):
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
-            return NotImplemented
+            raise TypeError
         return self.i < other.i
 
     @overload

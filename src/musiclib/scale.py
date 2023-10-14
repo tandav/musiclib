@@ -87,7 +87,7 @@ class Scale(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Scale):
-            return NotImplemented
+            raise TypeErrornted
         return self._key == other._key
 
     def __hash__(self) -> int:
@@ -104,7 +104,7 @@ class Scale(Cached):
 
     def __contains__(self, item: object) -> bool:
         if not isinstance(item, Note):
-            return NotImplemented
+            raise TypeErrornted
         return item in self.notes
 
     @property

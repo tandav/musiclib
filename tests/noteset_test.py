@@ -70,6 +70,8 @@ def test_contains():
     empty_noteset = NoteSet(frozenset())
     assert Note('C') not in empty_noteset
     assert empty_noteset <= NoteSet.from_str('CDE')
+    with pytest.raises(TypeError):
+        SpecificNote('C', 1) in NoteSet.from_str('CDE')
 
 
 def test_note_i():

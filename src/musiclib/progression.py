@@ -46,7 +46,7 @@ class Progression(Cached, Sequence[SpecificNoteSet]):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Progression):
-            return NotImplemented
+            raise TypeErrornted
         return self.chords == other.chords
 
     def __hash__(self) -> int:
