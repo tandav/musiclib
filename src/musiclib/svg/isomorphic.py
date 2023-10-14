@@ -251,32 +251,18 @@ class Hex(IsomorphicKeyboard):
 class Piano(IsomorphicKeyboard):
     def __init__(
         self,
-        interval_colors: dict[AbstractInterval | int, Color] | None = None,
-        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
         n_rows: int | None = None,
-        n_cols: int = 13,
-        radius: int = 30,
-        font_size_radius_ratio: float = 0.5,
-        round_points: bool = True,
-        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         key_height: int = 100,
         offset_x: int = 0,
+        **kwargs,
     ) -> None:
         if n_rows is not None:
             raise NotImplementedError('n_rows is not supported for Piano')
         self.key_height = key_height
         self.offset_x = offset_x
         super().__init__(
-            interval_colors=interval_colors,
-            interval_parts_colors=interval_parts_colors,
-            interval_text=interval_text,
             n_rows=n_rows,
-            n_cols=n_cols,
-            radius=radius,
-            font_size_radius_ratio=font_size_radius_ratio,
-            round_points=round_points,
-            interval_strokes=interval_strokes,
+            **kwargs,
         )
 
     def col_to_x(self, col: float) -> float:
