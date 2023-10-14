@@ -18,14 +18,13 @@ class IsomorphicKeyboard(abc.ABC):
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
+        interval_text: dict[AbstractInterval | int, str] | str | None = 'abstract_interval',
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
         n_cols: int = 13,
         radius: int = 30,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
-        abstract_intervals: bool = True,
     ) -> None:
         self.n_rows = n_rows
         self.n_cols = n_cols
@@ -36,7 +35,6 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_text = interval_text
         self.font_size = int(radius * font_size_radius_ratio)
         self.round_points = round_points
-        self.abstract_intervals = abstract_intervals
         self.interval_strokes = interval_strokes or {}
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
@@ -102,9 +100,11 @@ class IsomorphicKeyboard(abc.ABC):
             text = self.interval_text.get(interval, self.interval_text.get(AbstractInterval(interval), None))
         elif isinstance(self.interval_text, str):
             if self.interval_text == 'interval':
-                text = str(AbstractInterval(interval)) if self.abstract_intervals else np.base_repr(interval, base=12)
+                text = np.base_repr(interval, base=12)
+            elif self.interval_text == 'abstract_interval':
+                text = str(AbstractInterval(interval))
             else:
-                raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval"')
+                raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval" or "abstract_interval"')
         else:
             raise NotImplementedError(f'invalid self.interval_text={self.interval_text}')
 
