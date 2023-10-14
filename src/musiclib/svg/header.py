@@ -20,7 +20,7 @@ class Header:
         height: int = 35,
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
-        border_radius: int = 3,
+        border_radius: int = 0,
     ):
         self.width = width
         self.height = height
