@@ -22,7 +22,7 @@ class AbstractInterval(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AbstractInterval):
-            raise TypeError
+            return False
         return self.interval == other.interval
 
     def __hash__(self) -> int:

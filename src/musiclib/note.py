@@ -39,7 +39,7 @@ class Note(Cached):
             return self.name == other
         if isinstance(other, Note):
             return self.name == other.name
-        raise TypeError
+        return False
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
