@@ -25,6 +25,7 @@ class IsomorphicKeyboard(abc.ABC):
         radius: int = 30,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
+        abstract_intervals: bool = True,
     ) -> None:
         self.n_rows = n_rows
         self.n_cols = n_cols
@@ -35,6 +36,7 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_text = interval_text
         self.font_size = int(radius * font_size_radius_ratio)
         self.round_points = round_points
+        self.abstract_intervals = abstract_intervals
         self.interval_strokes = interval_strokes or {}
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
@@ -69,7 +71,6 @@ class IsomorphicKeyboard(abc.ABC):
 
     def add_key(self, row: float, col: float) -> None:
         interval = round(col)
-        interval_base12 = np.base_repr(interval, base=12)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
         color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), config.BLACK_PALE))
@@ -101,7 +102,7 @@ class IsomorphicKeyboard(abc.ABC):
             text = self.interval_text.get(interval, self.interval_text.get(AbstractInterval(interval), None))
         elif isinstance(self.interval_text, str):
             if self.interval_text == 'interval':
-                text = f'{interval_base12}'
+                text = str(AbstractInterval(interval)) if self.abstract_intervals else np.base_repr(interval, base=12)
             else:
                 raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval"')
         else:
