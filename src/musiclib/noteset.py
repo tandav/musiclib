@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 import random
+import svg
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
@@ -10,7 +11,9 @@ from typing import overload
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
+from musiclib.interval import AbstractInterval
 from musiclib.util.cache import Cached
+from musiclib.svg.card import HexPiano
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -107,13 +110,28 @@ class NoteSet(Cached):
 
     def __repr__(self) -> str:
         return f"NoteSet('{self}')"
-
-    def _repr_svg_(self, **kwargs: Any) -> str:
+    
+    def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.piano import Piano  # hack to fix circular import
         kwargs.setdefault('title', str(self))
         kwargs.setdefault('note_colors', {note: config.RED for note in self})
         kwargs.setdefault('classes', ('card',))
-        return Piano(**kwargs)._repr_svg_()
+        return Piano(**kwargs).svg
+    
+    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        kwargs.setdefault('interval_colors', {
+            AbstractInterval(i): config.RED
+            for i in self.note_to_intervals[self.notes_ascending[0]]
+        })
+        kwargs.setdefault('interval_text', {
+            AbstractInterval(note - self.notes_ascending[0]): str(note)
+            for note in self.notes_ascending
+        })
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        return HexPiano(**kwargs).svg
+
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        return str(self.svg_hex_piano(**kwargs))
 
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
