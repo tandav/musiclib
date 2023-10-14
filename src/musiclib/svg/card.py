@@ -23,6 +23,8 @@ class HexPiano:
         key_height: int | None = None,
         width: int | None = None,
         height: int | None = None,
+        class_: list[str] | None = None,
+        id: str | None = None,
         header_kwargs: dict[str, Any] | None = None,
     ) -> None:
         self.hex = Hex(
@@ -63,6 +65,8 @@ class HexPiano:
                 coordinates=[(0, 0), (0, self.header.svg.height), (0, self.header.svg.height + self.hex.svg.height)],
                 width=width or self.hex.svg.width,
                 height=height or self.header.svg.height + self.hex.svg.height + self.piano.svg.height,
+                class_=class_,
+                id=id,
             )
 
     @property
