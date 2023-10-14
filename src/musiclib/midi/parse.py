@@ -21,12 +21,12 @@ class MidiNote:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
-            raise TypeErrornted
+            raise TypeError
         return self.on == other.on
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
-            raise TypeErrornted
+            raise TypeError
         return self.on < other.on
 
     def __hash__(self) -> int:

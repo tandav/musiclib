@@ -120,11 +120,11 @@ class NoteSet(Cached):
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
         kwargs.setdefault('interval_colors', {
-            AbstractInterval(i): config.RED
+            i: config.RED
             for i in self.note_to_intervals[self.notes_ascending[0]]
         })
         kwargs.setdefault('interval_text', {
-            AbstractInterval(note - self.notes_ascending[0]): str(note)
+            note - self.notes_ascending[0]: str(note)
             for note in self.notes_ascending
         })
         kwargs.setdefault('header_kwargs', {'title': str(self)})

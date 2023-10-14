@@ -62,17 +62,23 @@ class Note(Cached):
     def __add__(self, other: int | AbstractInterval) -> Note:
         if isinstance(other, AbstractInterval):
             return  Note.from_i(self.i + other.interval)
-        return Note.from_i(self.i + other)
+        if isinstance(other, int):
+            return Note.from_i(self.i + other)
+        raise TypeError(f'Note.__add__ supports only int | AbstractInterval, got {type(other)}')
 
     @overload
-    def __sub__(self, other: Note) -> int:
+    def __sub__(self, other: Note) -> AbstractInterval:
+        ...
+
+    @overload
+    def __sub__(self, other: AbstractInterval) -> Note:
         ...
 
     @overload
     def __sub__(self, other: int) -> Note:
         ...
 
-    def __sub__(self, other: Note | int) -> int | Note:
+    def __sub__(self, other: Note | AbstractInterval | int) -> AbstractInterval | Note:
         """
         kinda constraint (maybe it will be changed later):
             if you're computing distance between abstract notes - then self considered above other
@@ -81,11 +87,13 @@ class Note(Cached):
         """
         if isinstance(other, Note):
             if other.i <= self.i:
-                return self.i - other.i
-            return 12 + self.i - other.i
+                return AbstractInterval(self.i - other.i)
+            return AbstractInterval(12 + self.i - other.i)
+        if isinstance(other, AbstractInterval):
+            return self + (-other)
         if isinstance(other, int):
             return self + (-other)
-        return None  # type: ignore[unreachable]
+        raise TypeError(f'Note.__sub__ supports only Note | AbstractInterval | int, got {type(other)}')
 
     def __getnewargs__(self) -> tuple[str]:
         return (self.name,)
@@ -119,7 +127,7 @@ class SpecificNote(Cached):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpecificNote):
-            raise TypeError
+            return False
         return self._key == other._key
 
     def __hash__(self) -> int:
