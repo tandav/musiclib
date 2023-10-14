@@ -13,6 +13,7 @@ from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
 from musiclib.svg.piano import Piano
+from musiclib.svg.card import HexPiano
 from musiclib.util.cache import Cached
 from musiclib.interval import AbstractInterval
 
@@ -119,11 +120,16 @@ class Scale(Cached):
     def __getnewargs__(self) -> tuple[Note, IntervalSet]:
         return (self.root, self.intervalset)
 
-    def svg(self, **kwargs: Any) -> svg.SVG:
+    def svg_piano(self, **kwargs: Any) -> svg.SVG:
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         kwargs.setdefault('title', f'{self.str_names}')
         kwargs.setdefault('classes', ('card', *self.intervalset.names))
         return Piano(**kwargs).svg
+    
+    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
+        kwargs.setdefault('header_kwargs', {'title': f'{self.str_names}'})
+        return HexPiano(**kwargs).svg
 
     def _repr_svg_(self, **kwargs: Any) -> str:
-        return str(self.svg(**kwargs))
+        return str(self.svg_hex_piano(**kwargs))
