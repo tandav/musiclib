@@ -219,9 +219,6 @@ class SpecificNoteSet(Cached, Sequence[SpecificNote]):
             return SpecificNoteSet(frozenset(self.notes_ascending[item]))
         return self.notes_ascending[item]
 
-    # def index(self, note: SpecificNote) -> int:
-    #     return self.notes_ascending.index(note)
-
     def __iter__(self) -> Iterator[SpecificNote]:
         return iter(self.notes_ascending)
 

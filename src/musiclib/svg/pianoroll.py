@@ -7,13 +7,12 @@ from typing import TYPE_CHECKING
 import svg
 from colortool import Color
 
-from musiclib.config import BLACK_PALE
-from musiclib.config import BLUE
-from musiclib.config import GREEN
+
 from musiclib.midi.pitchbend import make_notes_pitchbends
 from musiclib.svg.isomorphic import IsoPiano
 from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
+from musiclib import config
 
 if TYPE_CHECKING:
     from svg._types import Number
@@ -33,6 +32,7 @@ class PianoRoll:
         time_signature: tuple[int, int] = (4, 4),
         grid_denominator: int = 4,
         start_stop: tuple[SpecificNote, SpecificNote] | None = None,
+        note_font_size: int = 10,
     ) -> None:
         if time_signature != (4, 4):
             raise NotImplementedError('only time_signature=(4, 4) is supported')
@@ -48,10 +48,18 @@ class PianoRoll:
         self.sns = SpecificNoteSet.from_noterange(*start_stop)
         self.key_width = key_width
         self.key_height = key_height
-        self.piano = IsoPiano(radius=key_width, key_height=key_height)
+        self.piano = IsoPiano(
+            n_cols=len(self.sns),
+            interval_colors=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), config.WHITE_PALE),
+            interval_strokes=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), {'stroke': config.BLACK_PALE, 'stroke_width': 0.5}),
+            interval_text={i: str(n) for i, n in zip(self.sns.intervals, self.sns.notes_ascending, strict=True)},
+            radius=key_width//2,
+            key_height=key_height,
+        )
         self.midi = midi
         self.duration = max(self.midi.notes, key=operator.attrgetter('off')).off
         self.pitchbend_semitones = pitchbend_semitones
+        self.note_font_size = note_font_size
         self.elements = self.piano.elements.copy()
         self.draw_bar_lines()
         self.add_notes_elements()
@@ -62,22 +70,39 @@ class PianoRoll:
             if note.note not in self.sns:
                 warnings.warn(f'note {note.note} is not in {self.sns}')
                 continue
-            x = self.piano.width * self.sns.index(note.note)
-            h = (note.off - note.on) / self.duration * self.piano.height
-            y = note.on / self.duration * self.piano.height
-            y_svg = self.piano.height - y - h
+            x = self.key_width * self.sns.index(note.note)
+            h = (note.off - note.on) / self.duration * self.key_height
+            y = note.on / self.duration * self.key_height
+            y_svg = self.key_height - y - h
             self.elements.append(
                 svg.Rect(
                     id=f'note-{i}',
                     class_=['note', str(note.note)],
                     x=x,
                     y=y_svg,
-                    width=self.piano.width,
+                    width=self.key_width,
                     height=h,
                     fill=Color(0xFC7B7B).css_hex,
                     stroke_width=1,
-                    stroke=BLACK_PALE.css_hex,
+                    stroke=config.BLACK_PALE.css_hex,
                     onclick=f"select_note('note-{i}')",
+                ),
+            )
+            self.elements.append(
+                svg.Text(
+                    id=f'note-{i}-text',
+                    class_=['note-text', str(note.note)],
+                    x=x + self.key_width / 2,
+                    y=y_svg + h / 2,
+                    text=str(note.note),
+                    font_family='monospace',
+                    font_size=self.note_font_size,
+                    text_anchor='middle',
+                    dominant_baseline='middle',
+                    # fill=Color(0xFC7B7B).css_hex,
+                    # stroke_width=1,
+                    # stroke=config.BLACK_PALE.css_hex,
+                    # onclick=f"select_note('note-{i}')",
                 ),
             )
 
@@ -95,29 +120,29 @@ class PianoRoll:
                     markerHeight=4,
                     refX=2,
                     refY=2,
-                    elements=[svg.Circle(cx=2, cy=2, r=2, stroke='none', fill=BLUE.css_hex)],
+                    elements=[svg.Circle(cx=2, cy=2, r=2, stroke='none', fill=config.BLUE.css_hex)],
                 ),
             ],
         )
         self.elements.append(defs)
 
         def note_pitch_x(note: MidiNote, p: MidiPitch) -> int:
-            return int(self.piano.width * self.piano.sns.index(note.note) + self.piano.width // 2 + self.pitchbend_semitones * self.piano.width * p.pitch / PITCHBEND_MAX)
+            return int(self.key_width * self.sns.index(note.note) + self.key_width // 2 + self.pitchbend_semitones * self.key_width * p.pitch / PITCHBEND_MAX)
 
         for note, pitches in make_notes_pitchbends(self.midi).items():
-            if note.note not in self.piano.sns:
-                warnings.warn(f'note {note.note} is not in {self.piano.sns}')
+            if note.note not in self.sns:
+                warnings.warn(f'note {note.note} is not in {self.sns}')
                 continue
             polyline_points_notes: list[Number] = []
             for pitch in pitches:
                 x = note_pitch_x(note, pitch)
-                y = pitch.time / self.duration * self.piano.height
-                y_svg = self.piano.height - y
+                y = pitch.time / self.duration * self.key_height
+                y_svg = self.key_height - y
                 polyline_points_notes += [x, y_svg]
             self.elements.append(
                 svg.Polyline(
                     points=polyline_points_notes,
-                    stroke=GREEN.css_hex,
+                    stroke=config.GREEN.css_hex,
                     fill='none',
                     stroke_width=2,
                     marker_start='circle',
@@ -132,13 +157,13 @@ class PianoRoll:
         polyline_points: list[Number] = []
         for pitch in self.midi.pitchbend:
             x = pitch_x(pitch)
-            y = pitch.time / self.duration * self.piano.height
-            y_svg = self.piano.height - y
+            y = pitch.time / self.duration * self.key_height
+            y_svg = self.key_height - y
             polyline_points += [x, y_svg]
         self.elements.append(
             svg.Polyline(
                 points=polyline_points,
-                stroke=BLUE.css_hex,
+                stroke=config.BLUE.css_hex,
                 fill='none',
                 stroke_width=2,
                 marker_start='url(#circle)',
@@ -151,7 +176,7 @@ class PianoRoll:
         ticks_per_bar = self.midi.ticks_per_beat * self.time_signature[0]
         for i in range(0, self.duration, ticks_per_bar // self.grid_denominator):
             stroke_width = 0.5 if i % self.midi.ticks_per_beat == 0 else 0.125
-            y = self.piano.height - i / self.duration * self.piano.height
+            y = self.key_height - i / self.duration * self.piano.height
             self.elements.append(
                 svg.Line(
                     x1=0,
