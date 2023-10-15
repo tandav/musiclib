@@ -3,7 +3,7 @@ from typing import Any
 from musiclib.svg.nested import NestedSVG
 from musiclib.svg.header import Header
 from musiclib.svg.isomorphic import Hex
-from musiclib.svg.isomorphic import Piano
+from musiclib.svg.isomorphic import IsoPiano
 from musiclib.interval import AbstractInterval
 from colortool import Color
 
@@ -38,7 +38,7 @@ class HexPiano:
             font_size_radius_ratio=font_size_radius_ratio,
             round_points=round_points,
         )
-        self.piano = Piano(
+        self.piano = IsoPiano(
             interval_colors=interval_colors,
             interval_parts_colors=interval_parts_colors,
             interval_text=interval_text,

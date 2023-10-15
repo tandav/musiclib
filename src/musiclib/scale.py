@@ -123,7 +123,7 @@ class Scale(Cached):
         from musiclib.svg.piano import Piano
         kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         kwargs.setdefault('title', f'{self.str_names}')
-        kwargs.setdefault('classes', ('card', *self.intervalset.names))
+        kwargs.setdefault('class_', ('card', *self.intervalset.names))
         return Piano(**kwargs).svg
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:

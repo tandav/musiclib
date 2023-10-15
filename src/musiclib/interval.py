@@ -20,7 +20,7 @@ class AbstractInterval(Cached):
             raise ValueError('interval string must not be empty')
         return cls(int(string, base=12))
 
-    def __neg__(self) -> Self:
+    def __neg__(self: Self) -> Self:
         return self.__class__(-self.interval)
 
     def __eq__(self, other: object) -> bool:

@@ -248,7 +248,7 @@ class Hex(IsomorphicKeyboard):
         ]
 
 
-class Piano(IsomorphicKeyboard):
+class IsoPiano(IsomorphicKeyboard):
     def __init__(
         self,
         n_rows: int | None = None,

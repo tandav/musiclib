@@ -2,6 +2,7 @@ import collections
 import dataclasses
 import functools
 from collections.abc import Iterable
+from collections.abc import Generator
 from typing import Literal
 
 import mido
@@ -182,7 +183,7 @@ def rhythm_to_midi(  # noqa: C901
     return mid
 
 
-def unique_notesets(midi: mido.MidiFile):
+def unique_notesets(midi: mido.MidiFile) -> Generator[tuple[int, SpecificNoteSet], None, None]:
     if midi.type != 0:
         raise ValueError('only type 0 midi files are supported')
     track, = midi.tracks

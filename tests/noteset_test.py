@@ -7,6 +7,7 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import ComparedNoteSets
 from musiclib.noteset import NoteSet
+from musiclib.interval import AbstractInterval
 from musiclib.scale import Scale
 
 
@@ -39,7 +40,7 @@ def test_str_repr(x, s, r):
 
 @pytest.mark.parametrize(
     ('string', 'expected'), [
-        ('fa', {Note('f'): frozenset({0, 2}), Note('a'): frozenset({0, 10})}),
+        ('fa', {Note('f'): frozenset(map(AbstractInterval, {0, 2})), Note('a'): frozenset(map(AbstractInterval, {0, 10}))}),
         ('', {}),
     ],
 )

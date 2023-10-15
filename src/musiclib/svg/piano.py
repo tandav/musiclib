@@ -68,7 +68,7 @@ class Piano:
         title_y: int = 4,
         subtitle_y: int = 18,
         background_color: Color = WHITE_BRIGHT,
-        classes: tuple[str, ...] = (),
+        class_: tuple[str, ...] = (),
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
@@ -100,7 +100,7 @@ class Piano:
         self.note_onclicks = note_onclicks or {}
         self.card = card
         self.background_color = background_color
-        self.classes = classes
+        self.class_ = class_
         self.id = id
         self.title_font_size = title_font_size
         self.subtitle_font_size = subtitle_font_size
@@ -336,7 +336,7 @@ class Piano:
             )
             elements += [shadow_rect, card_rect]
         elements += self.elements
-        return svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.classes), id=self.id)
+        return svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.class_), id=self.id)
     
     def _repr_svg_(self) -> str:
         return str(self.svg)

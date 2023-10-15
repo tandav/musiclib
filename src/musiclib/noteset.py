@@ -116,7 +116,7 @@ class NoteSet(Cached):
         from musiclib.svg.piano import Piano  # hack to fix circular import
         kwargs.setdefault('title', str(self))
         kwargs.setdefault('note_colors', {note: config.RED for note in self})
-        kwargs.setdefault('classes', ('card',))
+        kwargs.setdefault('class_', ('card',))
         return Piano(**kwargs).svg
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:

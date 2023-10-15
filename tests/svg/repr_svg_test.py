@@ -23,9 +23,9 @@ def all_scales():
     return out
 
 
-def svg_helper(html, classes, title, subtitle, title_href, background_color):
-    classes = ' '.join(classes)
-    assert f'class="{classes}"' in html
+def svg_helper(html, class_, title, subtitle, title_href, background_color):
+    class_ = ' '.join(class_)
+    assert f'class="{class_}"' in html
     for item, constant in zip(
         (title, subtitle, title_href, background_color),
         (TITLE, SUBTITLE, TITLE_HREF, BACKGROUND_COLOR),
@@ -56,15 +56,17 @@ def svg_helper(html, classes, title, subtitle, title_href, background_color):
 def test_svg_noteset(noteset, svg_method, title, subtitle, title_href, background_color):
     if title is None and title_href is not None:
         pytest.skip('title_href requires title')
-    classes = ('cls1', 'cls2')
+    class_ = ('cls1', 'cls2')
     svg = str(getattr(noteset, svg_method)(
-        classes=classes,
-        title=title,
-        subtitle=subtitle,
-        title_href=title_href,
-        background_color=background_color,
+        class_=class_,
+        header_kwargs={
+            'title': title,
+            'subtitle': subtitle,
+            'title_href': title_href,
+            'background_color': background_color,
+        },
     ))
-    svg_helper(svg, classes, title, subtitle, title_href, background_color)
+    svg_helper(svg, class_, title, subtitle, title_href, background_color)
 
 
 @pytest.mark.parametrize('kind', KINDS)
