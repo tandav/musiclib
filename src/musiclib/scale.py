@@ -13,13 +13,14 @@ from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
 from musiclib.svg.card import HexPiano
+from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
-from musiclib.interval import AbstractInterval
+
 
 Self = TypeVar('Self', bound='Scale')
 
 
-class Scale(Cached):
+class Scale(Cached, ReprSVGMixin):
     def __init__(self, root: Note, intervalset: IntervalSet) -> None:
         if not isinstance(root, Note):
             raise TypeError(f'expected Note, got {type(root)}')
@@ -132,6 +133,3 @@ class Scale(Cached):
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
         kwargs.setdefault('header_kwargs', {'title': f'{self.str_names}'})
         return HexPiano(**kwargs).svg
-
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        return str(self.svg_hex_piano(**kwargs))

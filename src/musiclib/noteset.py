@@ -13,6 +13,8 @@ from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util.cache import Cached
+from musiclib.svg.reprsvg import ReprSVGMixin
+
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -21,7 +23,7 @@ if TYPE_CHECKING:
 Self = TypeVar('Self', bound='NoteSet')
 
 
-class NoteSet(Cached):
+class NoteSet(Cached, ReprSVGMixin):
     def __init__(self, notes: frozenset[Note]) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
@@ -132,15 +134,12 @@ class NoteSet(Cached):
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return HexPiano(**kwargs).svg
 
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        return str(self.svg_hex_piano(**kwargs))
-
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
 
 CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
-class SpecificNoteSet(Cached, Sequence[SpecificNote]):
+class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
     def __init__(self, notes: frozenset[SpecificNote]) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
@@ -279,8 +278,6 @@ class SpecificNoteSet(Cached, Sequence[SpecificNote]):
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return HexPiano(**kwargs).svg
 
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        return str(self.svg_hex_piano(**kwargs))
 
 def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
     out = set()
@@ -290,7 +287,7 @@ def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
     return frozenset(out)
 
 
-class ComparedNoteSets(Cached):
+class ComparedNoteSets(Cached, ReprSVGMixin):
     """
     this is compared scale
     local terminology: left scale is compared to right
@@ -345,6 +342,3 @@ class ComparedNoteSets(Cached):
         )
         kwargs.setdefault('interval_text', {n - C: str(n) for n in CHROMATIC_NOTESET})
         return HexPiano(**kwargs).svg
-    
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        return str(self.svg_hex_piano(**kwargs))

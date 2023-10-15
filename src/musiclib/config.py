@@ -96,3 +96,5 @@ interval_colors = {
     AbstractInterval(10): Color(0x8C00FC),
     AbstractInterval(11): Color(0xFF00FF),
 }
+
+repr_svg_method = 'svg_hex_piano'
