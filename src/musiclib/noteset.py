@@ -111,10 +111,11 @@ class NoteSet(Cached):
         return f"NoteSet('{self}')"
     
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.svg.piano import Piano  # hack to fix circular import
-        kwargs.setdefault('title', str(self))
-        kwargs.setdefault('note_colors', {note: config.RED for note in self})
-        kwargs.setdefault('class_', ('card',))
+        from musiclib.svg.card import Piano  # hack to fix circular import
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        kwargs.setdefault('regular_piano_kwargs', {
+            'note_colors': {note: config.RED for note in self},
+        })
         return Piano(**kwargs).svg
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
@@ -254,12 +255,13 @@ class SpecificNoteSet(Cached, Sequence[SpecificNote]):
         return (self.notes,)
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.svg.piano import Piano
-        kwargs.setdefault('sns', self if self.notes else None)
-        kwargs.setdefault('classes', ('card',))
-        kwargs.setdefault('title', str(self))
-        kwargs.setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
-        kwargs.setdefault('squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
+        from musiclib.svg.card import Piano
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        kwargs.setdefault('regular_piano_kwargs', {
+            'note_colors': dict.fromkeys(self.notes, config.RED),
+            'squares': {note: {'text': str(note), 'text_size': '8'} for note in self},
+            'start_stop': (self[0], self[1]) if self.notes else None,
+        })
         return Piano(**kwargs).svg
 
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
@@ -305,17 +307,6 @@ class ComparedNoteSets(Cached):
         self.new_notes = frozenset(right.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
 
-    def _repr_svg_(self, **kwargs: Any) -> str:
-        from musiclib.svg.piano import Piano
-        kwargs.setdefault(
-            'note_colors',
-            dict.fromkeys(self.del_notes, config.RED) |
-            dict.fromkeys(self.new_notes, config.GREEN) |
-            dict.fromkeys(self.shared_notes, config.BLUE),
-        )
-        kwargs.setdefault('classes', ('card',))
-        kwargs.setdefault('title', f'{self.left} | {self.right}')
-        return Piano(**kwargs)._repr_svg_()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ComparedNoteSets):
@@ -325,5 +316,35 @@ class ComparedNoteSets(Cached):
     def __hash__(self) -> int:
         return hash(self.key)
 
+    def __str__(self):
+        return f'{self.left} | {self.right}'
+
     def __repr__(self) -> str:
-        return f'ComparedNoteSets({self.left} | {self.right})'
+        return f'ComparedNoteSets({self})'
+
+    def svg_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import Piano
+        kwargs.setdefault('regular_piano_kwargs', {
+            'note_colors':
+            dict.fromkeys(self.del_notes, config.RED) |
+            dict.fromkeys(self.new_notes, config.GREEN) |
+            dict.fromkeys(self.shared_notes, config.BLUE),
+        })
+
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        return Piano(**kwargs).svg
+
+    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import HexPiano
+        C = Note('C')
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        kwargs.setdefault('interval_colors', 
+            dict.fromkeys([n - C for n in self.del_notes], config.RED) |
+            dict.fromkeys([n - C for n in self.new_notes], config.GREEN) |
+            dict.fromkeys([n - C for n in self.shared_notes], config.BLUE),
+        )
+        kwargs.setdefault('interval_text', {n - C: str(n) for n in CHROMATIC_NOTESET})
+        return HexPiano(**kwargs).svg
+    
+    def _repr_svg_(self, **kwargs: Any) -> str:
+        return str(self.svg_hex_piano(**kwargs))
