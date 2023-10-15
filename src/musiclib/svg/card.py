@@ -51,6 +51,7 @@ class HexPiano:
             font_size_radius_ratio=font_size_radius_ratio,
             round_points=round_points,
             key_height = key_height or radius * 2,
+            extra_radius_width_on_right=True,
         )
         if header_kwargs is None:
             self.nested_svg = NestedSVG(

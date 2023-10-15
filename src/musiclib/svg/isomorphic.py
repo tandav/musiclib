@@ -254,12 +254,14 @@ class IsoPiano(IsomorphicKeyboard):
         n_rows: int | None = None,
         key_height: int = 100,
         offset_x: int = 0,
+        extra_radius_width_on_right: bool = False,
         **kwargs,
     ) -> None:
         if n_rows is not None:
             raise NotImplementedError('n_rows is not supported for Piano')
         self.key_height = key_height
         self.offset_x = offset_x
+        self.extra_radius_width_on_right = extra_radius_width_on_right
         super().__init__(
             n_rows=n_rows,
             **kwargs,
@@ -273,7 +275,9 @@ class IsoPiano(IsomorphicKeyboard):
 
     @property
     def width(self) -> int:
-        return int(self.col_to_x(self.n_cols))
+        if self.extra_radius_width_on_right:
+            return int(self.col_to_x(self.n_cols))
+        return int(self.col_to_x(self.n_cols - 0.5))
 
     @property
     def height(self) -> int:

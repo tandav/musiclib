@@ -99,10 +99,6 @@ class PianoRoll:
                     font_size=self.note_font_size,
                     text_anchor='middle',
                     dominant_baseline='middle',
-                    # fill=Color(0xFC7B7B).css_hex,
-                    # stroke_width=1,
-                    # stroke=config.BLACK_PALE.css_hex,
-                    # onclick=f"select_note('note-{i}')",
                 ),
             )
 
