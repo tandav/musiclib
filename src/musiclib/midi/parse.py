@@ -78,7 +78,7 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
             note = playing_notes[message.note]
             note['off'] = t
             notes.append(MidiNote(**note))
-            del playing_notes[message.note]  # TODO: is this del necessary?
+            del playing_notes[message.note]
         elif message.type == 'pitchwheel':
             pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
     return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)

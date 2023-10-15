@@ -175,7 +175,6 @@ def test_from_noterange_getitem():
     assert sns[2] == sns[-11] == SpecificNote('D', 1)
     assert sns[12] == sns[-1] == SpecificNote('C', 2)
     assert sns[11] == sns[-2] == SpecificNote('B', 1)
-    # TODO: instabce of sequence[specificnote]
     assert sns[0:0] == SpecificNoteSet(frozenset())
     assert sns[0:1] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 1))
     assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('d', 1))
