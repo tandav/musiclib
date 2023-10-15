@@ -21,22 +21,26 @@ class Header:
         margin: tuple[int, int, int, int] = (3, 3, 3, 3),
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
         border_radius: int = 0,
+        header_rect: bool = True,
     ):
         self.width = width
         self.height = height
         self.elements = []
-        self.elements.append(svg.Rect(
-            x=0,
-            y=0,
-            width=width,
-            height=height,
-            fill=background_color.css_hex,
-            rx=border_radius,
-            ry=border_radius,
-            stroke_width=1,
-            stroke=config.BLACK_PALE.css_hex,
-        ))
-        if title:
+        if header_rect:
+            self.elements.append(svg.Rect(
+                class_=['header_rect'],
+                x=0,
+                y=0,
+                width=width,
+                height=height,
+                fill=background_color.css_hex,
+                rx=border_radius,
+                ry=border_radius,
+                stroke_width=1,
+                stroke=config.BLACK_PALE.css_hex,
+            ))
+
+        if title is not None:
             dominant_baseline: Literal['hanging', 'central']
             if subtitle is not None:
                 y = margin[0] + title_y
@@ -52,7 +56,7 @@ class Header:
                 font_weight='bold',
                 dominant_baseline=dominant_baseline,
             )
-            if title_href:
+            if title_href is not None:
                 self.elements.append(svg.A(href=title_href, elements=[text_title]))
             else:
                 self.elements.append(text_title)

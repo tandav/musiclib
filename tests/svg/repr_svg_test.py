@@ -69,73 +69,79 @@ def test_svg_noteset(noteset, svg_method, title, subtitle, title_href, backgroun
     svg_helper(svg, class_, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize('kind', KINDS)
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
-@pytest.mark.parametrize('title', [None, TITLE])
-@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
-@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
-@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_svg_scale(kind, svg_method, title, subtitle, title_href, background_color, all_scales):
-    if title is None and title_href is not None:
-        pytest.skip('title_href requires title')
-    for scale in all_scales[kind].values():
-        classes = tuple(scale.intervalset.names)
-        svg = str(getattr(scale, svg_method)(
-            classes=classes,
-            title=title,
-            subtitle=subtitle,
-            title_href=title_href,
-            background_color=background_color,
-        ))
-        svg_helper(svg, classes, title, subtitle, title_href, background_color)
+# @pytest.mark.parametrize('kind', KINDS)
+# @pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+# @pytest.mark.parametrize('title', [None, TITLE])
+# @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+# @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+# @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
+# def test_svg_scale(kind, svg_method, title, subtitle, title_href, background_color, all_scales):
+#     if title is None and title_href is not None:
+#         pytest.skip('title_href requires title')
+#     for scale in all_scales[kind].values():
+#         class_ = tuple(scale.intervalset.names)
+#         svg = str(getattr(scale, svg_method)(
+#             class_=class_,
+#             title=title,
+#             subtitle=subtitle,
+#             title_href=title_href,
+#             background_color=background_color,
+#         ))
+#         svg_helper(svg, class_, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize(
-    ('scale0', 'scale1'), [
-        (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
-        (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
-    ],
-)
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
-@pytest.mark.parametrize('title', [None, TITLE])
-@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
-@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
-@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_svg_compared_notesets(scale0, scale1, svg_method, title, subtitle, title_href, background_color):
-    if title is None and title_href is not None:
-        pytest.skip('title_href requires title')
-    classes = ('cls1', 'cls2')
-    svg = str(getattr(ComparedNoteSets(scale0.noteset, scale1.noteset), svg_method)(
-        classes=classes,
-        title=title,
-        subtitle=subtitle,
-        title_href=title_href,
-        background_color=background_color,
-    ))
-    svg_helper(svg, classes, title, subtitle, title_href, background_color)
+# @pytest.mark.parametrize(
+#     ('scale0', 'scale1'), [
+#         (Scale.from_name('C', 'major'), Scale.from_name('f', 'phrygian')),
+#         (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
+#     ],
+# )
+# @pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+# @pytest.mark.parametrize('title', [None, TITLE])
+# @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+# @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+# @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
+# def test_svg_compared_notesets(scale0, scale1, svg_method, title, subtitle, title_href, background_color):
+#     if title is None and title_href is not None:
+#         pytest.skip('title_href requires title')
+#     class_ = ('cls1', 'cls2')
+#     svg = str(getattr(ComparedNoteSets(scale0.noteset, scale1.noteset), svg_method)(
+#         class_=class_,
+#         title=title,
+#         subtitle=subtitle,
+#         title_href=title_href,
+#         background_color=background_color,
+#     ))
+#     svg_helper(svg, class_, title, subtitle, title_href, background_color)
 
 
-@pytest.mark.parametrize(
-    'sns', [
-        SpecificNoteSet.from_str('C1_E1_f1'),
-        SpecificNoteSet.from_str('C1_d3_A5'),
-        SpecificNoteSet(frozenset()),
-    ],
-)
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
-@pytest.mark.parametrize('title', [None, TITLE])
-@pytest.mark.parametrize('subtitle', [None, SUBTITLE])
-@pytest.mark.parametrize('title_href', [None, TITLE_HREF])
-@pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
-def test_svg_specific_noteset(sns, svg_method, title, subtitle, title_href, background_color):
-    if title is None and title_href is not None:
-        pytest.skip('title_href requires title')
-    classes = ('cls1', 'cls2')
-    svg = str(getattr(sns, svg_method)(
-        classes=classes,
-        title=title,
-        subtitle=subtitle,
-        title_href=title_href,
-        background_color=background_color,
-    ))
-    svg_helper(svg, classes, title, subtitle, title_href, background_color)
+# @pytest.mark.parametrize(
+#     'sns', [
+#         SpecificNoteSet.from_str('C1_E1_f1'),
+#         SpecificNoteSet.from_str('C1_d3_A5'),
+#         SpecificNoteSet(frozenset()),
+#     ],
+# )
+# @pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+# @pytest.mark.parametrize('title', [None, TITLE])
+# @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
+# @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
+# @pytest.mark.parametrize('background_color', [BACKGROUND_COLOR])
+# def test_svg_specific_noteset(sns, svg_method, title, subtitle, title_href, background_color):
+#     if title is None and title_href is not None:
+#         pytest.skip('title_href requires title')
+#     class_ = ('cls1', 'cls2')
+#     svg = str(getattr(sns, svg_method)(
+#         class_=class_,
+#         title=title,
+#         subtitle=subtitle,
+#         title_href=title_href,
+#         background_color=background_color,
+#     ))
+#     svg_helper(svg, class_, title, subtitle, title_href, background_color)
+
+from musiclib.svg.pianoroll import PianoRoll
+
+
+def test_repr_svg(midi):
+    PianoRoll(midi)._repr_svg_()

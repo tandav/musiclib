@@ -12,9 +12,7 @@ from collections.abc import Sequence
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.interval import AbstractInterval
 from musiclib.util.cache import Cached
-from musiclib.svg.card import HexPiano
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -120,6 +118,7 @@ class NoteSet(Cached):
         return Piano(**kwargs).svg
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import HexPiano
         if self.notes:
             kwargs.setdefault('interval_colors', {
                 i: config.RED
@@ -267,6 +266,7 @@ class SpecificNoteSet(Cached, Sequence[SpecificNote]):
         return Piano(**kwargs).svg
 
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import HexPiano
         if self.notes:
             kwargs.setdefault('interval_colors', {
                 i: config.RED
