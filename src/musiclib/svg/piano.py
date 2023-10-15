@@ -6,10 +6,8 @@ from typing import TypedDict
 
 import svg
 
-from musiclib.config import BLACK_BRIGHT
-from musiclib.config import BLACK_PALE
-from musiclib.config import WHITE_BRIGHT
-from musiclib.config import WHITE_PALE
+
+from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
@@ -20,7 +18,7 @@ if TYPE_CHECKING:
 
 def note_color(note: Note | SpecificNote) -> Color:
     def _note_color(note: Note) -> Color:
-        return BLACK_PALE if note.is_black else WHITE_PALE
+        return config.BLACK_PALE if note.is_black else config.WHITE_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
     if isinstance(note, Note):
@@ -96,23 +94,15 @@ class RegularPiano:
             x, y, w, h, c, sx, sy = self.coord_helper(note)
 
             note_rect = svg.Rect(
-                class_=[
-                    'note',
-                    str(note),
-                ],
+                class_=['note', str(note)],
                 x=x,
                 y=y,
                 width=w,
                 height=h,
                 fill=c.css_hex,
                 stroke_width=1,
-                stroke=BLACK_PALE.css_hex,
-                onclick=self.note_onclicks.get(
-                    note,
-                    self.note_onclicks.get(
-                        note.abstract,
-                    ),
-                ),
+                stroke=config.BLACK_PALE.css_hex,
+                onclick=self.note_onclicks.get(note, self.note_onclicks.get(note.abstract)),
             )
             # draw key
 
@@ -129,43 +119,25 @@ class RegularPiano:
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
                 sq_elements: list[svg.Element] = []
                 sq_rect = svg.Rect(
-                    class_=[
-                        'square',
-                        str(note),
-                    ],
+                    class_=['square', str(note)],
                     x=sx,
                     y=sy,
                     width=self.square_size,
                     height=self.square_size,
-                    fill=payload.get(
-                        'fill_color',
-                        WHITE_BRIGHT,
-                    ).css_hex,
+                    fill=payload.get('fill_color', config.WHITE_BRIGHT).css_hex,
                     stroke_width=1,
-                    stroke=payload.get(
-                        'border_color',
-                        BLACK_BRIGHT,
-                    ).css_hex,
+                    stroke=payload.get('border_color', config.BLACK_BRIGHT).css_hex,
                 )
                 sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
                     sq_text = svg.Text(
-                        class_=[
-                            'square',
-                            str(note),
-                        ],
+                        class_=['square', str(note)],
                         x=sx + self.square_size // 2,
                         y=sy + self.square_size // 2,
                         font_family=payload.get('square_font_family', 'monospace'),
-                        font_size=payload.get(
-                            'text_size',
-                            self.title_font_size,
-                        ),
-                        fill=payload.get(
-                            'text_color',
-                            BLACK_BRIGHT,
-                        ).css_hex,
+                        font_size=payload.get('text_size', 15),
+                        fill=payload.get('text_color', config.BLACK_BRIGHT).css_hex,
                         text=text,
                         text_anchor='middle',
                         dominant_baseline='central',
