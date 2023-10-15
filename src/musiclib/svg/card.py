@@ -94,7 +94,7 @@ class Piano:
         background_color: Color = config.WHITE_BRIGHT,
         header_kwargs: dict[str, Any] | None = None,
         regular_piano_kwargs: dict[str, Any] | None = None,
-        class_: tuple[str, ...] = (),
+        class_: list[str] | None = None,
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
     ):
         header_kwargs.setdefault('header_rect', False)
