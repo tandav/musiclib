@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 from typing import overload
+from collections.abc import Sequence
 
 from musiclib import config
 from musiclib.note import Note
@@ -119,14 +120,15 @@ class NoteSet(Cached):
         return Piano(**kwargs).svg
     
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
-        kwargs.setdefault('interval_colors', {
-            i: config.RED
-            for i in self.note_to_intervals[self.notes_ascending[0]]
-        })
-        kwargs.setdefault('interval_text', {
-            note - self.notes_ascending[0]: str(note)
-            for note in self.notes_ascending
-        })
+        if self.notes:
+            kwargs.setdefault('interval_colors', {
+                i: config.RED
+                for i in self.note_to_intervals[self.notes_ascending[0]]
+            })
+            kwargs.setdefault('interval_text', {
+                note - self.notes_ascending[0]: str(note)
+                for note in self.notes_ascending
+            })
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return HexPiano(**kwargs).svg
 
@@ -138,7 +140,7 @@ class NoteSet(Cached):
 
 CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
 
-class SpecificNoteSet(Cached):
+class SpecificNoteSet(Cached, Sequence[SpecificNote]):
     def __init__(self, notes: frozenset[SpecificNote]) -> None:
         if not isinstance(notes, frozenset):
             raise TypeError(f'expected frozenset, got {type(notes)}')
@@ -203,11 +205,23 @@ class SpecificNoteSet(Cached):
     def __len__(self) -> int:
         return len(self.notes)
 
-    def __getitem__(self, item: int) -> SpecificNote:
+
+    @overload
+    def __getitem__(self, i: int) -> SpecificNote:
+        ...
+
+    @overload
+    def __getitem__(self, s: slice) -> SpecificNoteSet:
+        ...
+
+    # TODO: try here SpecificNote | SpecificNoteSet
+    def __getitem__(self, item: int | slice) -> SpecificNote | Sequence[SpecificNote]:
+        if isinstance(item, slice):
+            return SpecificNoteSet(frozenset(self.notes_ascending[item]))
         return self.notes_ascending[item]
 
-    def index(self, note: SpecificNote) -> int:
-        return self.notes_ascending.index(note)
+    # def index(self, note: SpecificNote) -> int:
+    #     return self.notes_ascending.index(note)
 
     def __iter__(self) -> Iterator[SpecificNote]:
         return iter(self.notes_ascending)
@@ -253,15 +267,16 @@ class SpecificNoteSet(Cached):
         return Piano(**kwargs).svg
 
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
-        kwargs.setdefault('interval_colors', {
-            i: config.RED
-            for i in self.intervals
-        })
-        kwargs.setdefault('interval_text', {
-            interval: str(note)
-            for interval, note in zip(self.intervals, self.notes_ascending)
-        })
-        kwargs.setdefault('n_cols', max(self) - min(self) + 1)
+        if self.notes:
+            kwargs.setdefault('interval_colors', {
+                i: config.RED
+                for i in self.intervals
+            })
+            kwargs.setdefault('interval_text', {
+                interval: str(note)
+                for interval, note in zip(self.intervals, self.notes_ascending)
+            })
+            kwargs.setdefault('n_cols', max(self) - min(self) + 1)
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return HexPiano(**kwargs).svg
 

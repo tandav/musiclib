@@ -176,22 +176,20 @@ def test_from_noterange_getitem():
     assert sns[12] == sns[-1] == SpecificNote('C', 2)
     assert sns[11] == sns[-2] == SpecificNote('B', 1)
     # TODO: instabce of sequence[specificnote]
-    assert sns[0:0] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 1))
-    assert sns[0:1] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('d', 1))
-    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('D', 1))
-    assert sns[0:12] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert sns[0:0] == SpecificNoteSet(frozenset())
+    assert sns[0:1] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 1))
+    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('d', 1))
+    assert sns[0:12] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('B', 1))
+    assert sns[10:20] == SpecificNoteSet.from_noterange(SpecificNote('b', 1), SpecificNote('C', 2))
+    assert sns[20:30] == SpecificNoteSet(frozenset())
     assert sns[1:] == SpecificNoteSet.from_noterange(SpecificNote('d', 1), SpecificNote('C', 2))
-    assert sns[:4] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('E', 1))
+    assert sns[:4] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('e', 1))
     assert sns[:] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
 
     with pytest.raises(IndexError):
         sns[13]
     with pytest.raises(IndexError):
         sns[-14]
-    with pytest.raises(IndexError):
-        sns[-3: 1]
-    with pytest.raises(IndexError):
-        sns[5: 13]
 
     ns = NoteSet.from_str('fa')
     sns = SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
@@ -200,10 +198,10 @@ def test_from_noterange_getitem():
     assert sns[2] == sns[-8] == SpecificNote('f', 0)
     assert sns[9] == sns[-1] == SpecificNote('a', 3)
     assert sns[8] == sns[-2] == SpecificNote('f', 3)
-    assert sns[0:0] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('f', -1), ns)
-    assert sns[0:1] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
-    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('f', 0), ns)
-    assert sns[0:9] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
+    assert sns[0:0] == SpecificNoteSet(frozenset())
+    assert sns[0:1] == SpecificNoteSet(frozenset({SpecificNote('f', -1)}))
+    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
+    assert sns[0:9] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('f', 3), ns)
     with pytest.raises(IndexError):
         sns[10]
     with pytest.raises(IndexError):
