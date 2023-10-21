@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-yaml
@@ -29,7 +29,7 @@ repos:
       - id: add-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.13.0
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
 
@@ -44,7 +44,7 @@ repos:
       - id: autoflake
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.291
+    rev: v0.1.0
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -56,17 +56,17 @@ repos:
       additional_dependencies: [Flake8-pyproject, flake8-functions-names]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a7
+    rev: v3.0.1
     hooks:
       - id: pylint
         # additional_dependencies: ["pylint-per-file-ignores"]
         # https://github.com/christopherpickering/pylint-per-file-ignores/issues/76
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+    rev: v1.6.0
     hooks:
     - id: mypy
-      additional_dependencies: [svg.py]
+      additional_dependencies: [svg.py, numpy]
 
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.327

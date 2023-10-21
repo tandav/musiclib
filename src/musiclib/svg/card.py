@@ -2,8 +2,8 @@ import svg
 from typing import Any
 from musiclib.svg.nested import NestedSVG
 from musiclib.svg.header import Header
-from musiclib.svg.isomorphic import Hex
-from musiclib.svg.isomorphic import IsoPiano
+from musiclib.svg.isomorphic.hexagonal import Hexagonal
+from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.piano import RegularPiano
 from musiclib.interval import AbstractInterval
 from musiclib import config
@@ -29,7 +29,7 @@ class HexPiano:
         id: str | None = None,
         header_kwargs: dict[str, Any] | None = None,
     ) -> None:
-        self.hex = Hex(
+        self.hex = Hexagonal(
             interval_colors=interval_colors,
             interval_parts_colors=interval_parts_colors,
             interval_text=interval_text,
