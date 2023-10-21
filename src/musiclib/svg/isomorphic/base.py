@@ -27,8 +27,6 @@ class IsomorphicKeyboard(abc.ABC):
         round_points: bool = True,
         rotated: bool = False,
     ) -> None:
-        self.n_rows = n_rows
-        self.n_cols = n_cols
         self.radius = radius
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
@@ -41,6 +39,14 @@ class IsomorphicKeyboard(abc.ABC):
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
         self.id_suffix = str(uuid.uuid4()).split('-')[0]
+        self.n_rows = n_rows
+        self.n_cols = n_cols
+        if n_rows < 0:
+            raise ValueError(f'n_rows={n_rows} must be positive')
+        if n_cols < 0:
+            raise ValueError(f'n_cols={n_cols} must be positive')
+        if n_rows == 0 or n_cols == 0:
+            return
         self.add_keys()
 
     @abc.abstractmethod
