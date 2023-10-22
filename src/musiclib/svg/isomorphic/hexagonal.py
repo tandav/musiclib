@@ -14,12 +14,19 @@ class Hexagonal(IsomorphicKeyboard):
             for col in range(-2, self.n_cols + 1, 2):
                 self.add_key(row, col + row % 2)
 
+    def row_col_to_interval(self, row: float, col: float) -> int:
+        return round(col)
+
     def col_to_x(self, col: float) -> float:
         if self.rotated:
             return self._opposite_vertices_axis_index_to_px(col)
         return self._opposite_midpoints_axis_index_to_px(col)
 
-    def row_to_y(self, row: float) -> float:
+    def row_to_y(self, row: float, invert_axis: bool = True) -> float:
+        if invert_axis:
+            if self.rotated:
+                return self.height - self.row_to_y(row, invert_axis=False)
+            return self.height - self.row_to_y(row, invert_axis=False)
         if self.rotated:
             return self._opposite_midpoints_axis_index_to_px(row)
         return self._opposite_vertices_axis_index_to_px(row)
@@ -33,14 +40,15 @@ class Hexagonal(IsomorphicKeyboard):
     @property
     def height(self) -> int:
         if self.rotated:
-            return int(self.row_to_y(self.n_rows))
-        return int(self.row_to_y(self.n_rows) - 0.5 * self.radius)
+            return int(self.row_to_y(self.n_rows, invert_axis=False))
+        return int(self.row_to_y(self.n_rows, invert_axis=False) - 0.5 * self.radius)
     
     def _opposite_vertices_axis_index_to_px(self, i: int) -> float:
         return self.radius * (i * 1.5 + 1)
 
     def _opposite_midpoints_axis_index_to_px(self, i: int) -> float:
         return self.h * (i + 1)
+
 
     @property
     def h(self):
