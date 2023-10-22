@@ -1,6 +1,3 @@
-"""
-https://notes.tandav.me/notes/3548
-"""
 import abc
 import cmath
 import math
@@ -14,6 +11,9 @@ import numpy as np
 
 
 class IsomorphicKeyboard(abc.ABC):
+    """
+    https://notes.tandav.me/notes/3548
+    """
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
@@ -22,10 +22,13 @@ class IsomorphicKeyboard(abc.ABC):
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
         n_cols: int = 13,
+        ax0_step: int = 0,
+        ax1_step: int = 2,
         radius: int = 30,
         font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
         rotated: bool = False,
+        default_key_color: Color = config.BLACK_PALE,
     ) -> None:
         self.radius = radius
         self.elements: list[svg.Element] = []
@@ -41,6 +44,9 @@ class IsomorphicKeyboard(abc.ABC):
         self.id_suffix = str(uuid.uuid4()).split('-')[0]
         self.n_rows = n_rows
         self.n_cols = n_cols
+        self.ax0_step = ax0_step
+        self.ax1_step = ax1_step
+        self.default_key_color = default_key_color
         if n_rows < 0:
             raise ValueError(f'n_rows={n_rows} must be positive')
         if n_cols < 0:
@@ -71,12 +77,17 @@ class IsomorphicKeyboard(abc.ABC):
     def height(self) -> int:
         ...
 
+    @abc.abstractmethod
+    def row_col_to_interval(self, row: float, col: float) -> int:
+        ...
+
     def add_key(self, row: float, col: float) -> None:
-        interval = round(col)
+        # interval = round(col)
+        interval = self.row_col_to_interval(row, col)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
         # print(f'row={row}, col={col}, interval={interval}, x={x}, y={y}')
-        color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), config.BLACK_PALE))
+        color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), self.default_key_color))
         points = self.key_points(x, y, self.radius)
         if self.round_points:
             points = [round(p, 1) for p in points]
@@ -118,6 +129,7 @@ class IsomorphicKeyboard(abc.ABC):
                 x=x,
                 y=y,
                 text=text,
+                # text=f'{row} {col}│{text}',
                 font_size=self.font_size,
                 font_family='monospace',
                 text_anchor='middle',
