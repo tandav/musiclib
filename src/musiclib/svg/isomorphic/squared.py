@@ -15,14 +15,15 @@ class Squared(IsomorphicKeyboard):
                 self.add_key(row, col + row % 2)
         
     @staticmethod
-    def rotate_coordinates_45_degrees(x: int, y: int) -> tuple[int, int]:
+    def transform_coordinates(x: int, y: int) -> tuple[int, int]:
+        """rotate_coordinates_45_degrees"""
         return (x - y) // 2, (x + y) // 2
 
     def row_col_to_interval(self, row: float, col: float) -> int:
         if self.rotated:
             return (self.n_rows - round(row) - 1) * self.ax1_step + round(col) * self.ax0_step
-        r_col, r_row = self.rotate_coordinates_45_degrees(round(col), round(row))
-        return r_col * self.ax0_step + r_row * self.ax1_step
+        ax0, ax1 = self.transform_coordinates(round(col), round(row))
+        return ax0 * self.ax0_step + ax1 * self.ax1_step
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:

@@ -14,8 +14,16 @@ class Hexagonal(IsomorphicKeyboard):
             for col in range(-2, self.n_cols + 1, 2):
                 self.add_key(row, col + row % 2)
 
+    @staticmethod
+    def transform_coordinates(x: int, y: int) -> tuple[int, int]:
+        return (x - y) // 2, y
+
     def row_col_to_interval(self, row: float, col: float) -> int:
-        return round(col)
+        if self.rotated:
+            ax0, ax1 = self.transform_coordinates(round(row), round(col))
+        else:
+            ax0, ax1 = self.transform_coordinates(round(col), round(row))
+        return ax0 * self.ax0_step + ax1 * self.ax1_step
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:
