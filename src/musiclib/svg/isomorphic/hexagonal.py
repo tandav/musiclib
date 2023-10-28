@@ -6,12 +6,12 @@ from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 class Hexagonal(IsomorphicKeyboard):
     def add_keys(self) -> None:
         if self.rotated:
-            for col in range(-1, self.n_cols + 1):
-                for row in range(-2, self.n_rows + 1, 2):
+            for col in (self.col_range or range(-1, self.n_cols + 1)):
+                for row in (self.row_range or range(-2, self.n_rows + 1, 2)):
                     self.add_key(row + col % 2, col)
             return
-        for row in range(-1, self.n_rows + 1):
-            for col in range(-2, self.n_cols + 1, 2):
+        for row in (self.row_range or range(-1, self.n_rows + 1)):
+            for col in  (self.col_range or range(-2, self.n_cols + 1, 2)):
                 self.add_key(row, col + row % 2)
 
     @staticmethod
@@ -27,17 +27,15 @@ class Hexagonal(IsomorphicKeyboard):
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:
-            return self._opposite_vertices_axis_index_to_px(col)
-        return self._opposite_midpoints_axis_index_to_px(col)
+            return self._opposite_vertices_axis_index_to_px(col) + self.offset_x
+        return self._opposite_midpoints_axis_index_to_px(col) + self.offset_x
 
     def row_to_y(self, row: float, invert_axis: bool = True) -> float:
         if invert_axis:
-            if self.rotated:
-                return self.height - self.row_to_y(row, invert_axis=False)
-            return self.height - self.row_to_y(row, invert_axis=False)
+            return self.height - (self.row_to_y(row, invert_axis=False) + self.offset_y)
         if self.rotated:
-            return self._opposite_midpoints_axis_index_to_px(row)
-        return self._opposite_vertices_axis_index_to_px(row)
+            return self._opposite_midpoints_axis_index_to_px(row) + self.offset_y
+        return self._opposite_vertices_axis_index_to_px(row) + self.offset_y
 
     @property
     def width(self) -> int:

@@ -6,12 +6,12 @@ from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 class Squared(IsomorphicKeyboard):
     def add_keys(self) -> None:
         if self.rotated:
-            for row in range(-1, self.n_rows + 1):
-                for col in range(-2, self.n_cols + 1, 2):
+            for row in (self.row_range or range(-1, self.n_rows + 1)):
+                for col in (self.col_range or range(-2, self.n_cols + 1, 2)):
                     self.add_key(row, col + row % 2)
             return
-        for row in range(0, self.n_rows):
-            for col in range(0, self.n_cols):
+        for row in (self.row_range or range(0, self.n_rows)):
+            for col in (self.col_range or range(0, self.n_cols)):
                 self.add_key(row, col)
 
         
@@ -29,17 +29,15 @@ class Squared(IsomorphicKeyboard):
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:
-            return self.radius * (col + 1)
-        return self.h * (2 * col + 1)
+            return self.radius * (col + 1) + self.offset_x
+        return self.h * (2 * col + 1) + self.offset_x
 
     def row_to_y(self, row: float, invert_axis: bool = True) -> float:
         if invert_axis:
-            # if self.rotated:
-                # return self.height - self.row_to_y(row, invert_axis=False)
-            return self.height - self.row_to_y(row, invert_axis=False)
+            return self.height - (self.row_to_y(row, invert_axis=False) + self.offset_y)
         if self.rotated:
-            return self.radius * (row + 1)
-        return self.h * (2 * row + 1)
+            return self.radius * (row + 1) + self.offset_y
+        return self.h * (2 * row + 1) + self.offset_y
         
     @property
     def width(self) -> int:

@@ -1,6 +1,4 @@
 import abc
-import cmath
-import math
 import uuid
 import svg
 import typing as tp
@@ -13,7 +11,7 @@ import numpy as np
 
 
 SVG_TEXT_KW = dict[str, tp.Any]
-TEXT_CALLABLE: tp.TypeAlias = tp.Callable[[int, float, float], SVG_TEXT_KW | None]
+TEXT_CALLABLE: tp.TypeAlias = tp.Callable[[int, int, float, float], SVG_TEXT_KW | None]
 TEXT_DEFAULT_KW = {
     'font_family': 'monospace',
     'text_anchor': 'middle',
@@ -21,12 +19,11 @@ TEXT_DEFAULT_KW = {
     'pointer_events': 'none',  # probably not needed when using event.preventDefault() on transparent polygon
 }
 
-def middle_text_kw_abstract_interval(interval: int, x: float, y: float) -> SVG_TEXT_KW:
-    return {**TEXT_DEFAULT_KW, 'font_size': 15, 'text': str(AbstractInterval(interval)), 'x': x, 'y': y}
+def middle_text_kw_abstract_interval(interval: int, radius: int, x: float, y: float) -> SVG_TEXT_KW:
+    return {**TEXT_DEFAULT_KW, 'font_size': int(0.5 * radius), 'text': str(AbstractInterval(interval)), 'x': x, 'y': y}
 
-def sub_text_kw_interval(interval: int, x: float, y: float) -> SVG_TEXT_KW:
-    return {**TEXT_DEFAULT_KW, 'font_size': 10, 'text': np.base_repr(interval, base=12), 'x': x, 'y': y + 15}
-
+def sub_text_kw_interval(interval: int, radius: int, x: float, y: float) -> SVG_TEXT_KW:
+    return {**TEXT_DEFAULT_KW, 'font_size': int(0.3 * radius), 'text': np.base_repr(interval, base=12), 'x': x, 'y': y + int(0.4 * radius)}
 
 
 class IsomorphicKeyboard(abc.ABC):
@@ -42,15 +39,24 @@ class IsomorphicKeyboard(abc.ABC):
         interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
-        n_cols: int = 13,
-        ax0_step: int = 0,
-        ax1_step: int = 2,
-        radius: int = 30,
+        n_cols: int | None = 13,
+        row_range: range | None = None,
+        col_range: range | None = None,
+        ax0_step: int = 2,
+        ax1_step: int = 1,
+        radius: int = 18,
+        offset_x: int = 0,
+        offset_y: int = 0,
         round_points: bool = True,
         rotated: bool = False,
         default_key_color: Color = config.BLACK_PALE,
     ) -> None:
+        self.validate_dimensions(n_rows, n_cols, row_range, col_range)
+        if self.n_rows == 0 or self.n_cols == 0:
+            return
         self.radius = radius
+        self.offset_x = offset_x
+        self.offset_y = offset_y
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
         self.interval_parts_colors = interval_parts_colors or {}
@@ -63,18 +69,41 @@ class IsomorphicKeyboard(abc.ABC):
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
         self.id_suffix = str(uuid.uuid4()).split('-')[0]
-        self.n_rows = n_rows
-        self.n_cols = n_cols
         self.ax0_step = ax0_step
         self.ax1_step = ax1_step
         self.default_key_color = default_key_color
-        if n_rows < 0:
-            raise ValueError(f'n_rows={n_rows} must be positive')
-        if n_cols < 0:
-            raise ValueError(f'n_cols={n_cols} must be positive')
-        if n_rows == 0 or n_cols == 0:
-            return
         self.add_keys()
+
+
+    def validate_dimensions(
+        self,
+        n_rows: int | None, 
+        n_cols: int | None,
+        row_range: range | None,
+        col_range: range | None,
+    ) -> None:
+        if not ((n_rows is None) ^ (row_range is None)):
+            raise ValueError('Exactly one of n_rows or row_range must be provided')
+        if not ((n_cols is None) ^ (col_range is None)):
+            raise ValueError('Exactly one of n_cols or col_range must be provided')
+        
+        self.row_range = row_range
+        self.col_range = col_range
+
+        if n_rows is None:
+            self.n_rows = len(row_range)
+        elif n_rows < 0:
+            raise ValueError(f'n_rows={n_rows} must be positive')
+        else:
+            self.n_rows = n_rows
+
+        if n_cols is None:
+            self.n_cols = len(col_range)
+        elif n_cols < 0:
+            raise ValueError(f'n_cols={n_cols} must be positive')
+        else:
+            self.n_cols = n_cols
+
 
     @abc.abstractmethod
     def add_keys(self) -> None:
@@ -135,7 +164,7 @@ class IsomorphicKeyboard(abc.ABC):
         ):
             if text_callable is None:
                 continue
-            self.elements.append(svg.Text(**text_callable(interval, x, y)))
+            self.elements.append(svg.Text(**text_callable(interval, self.radius, x, y)))
 
         # transparent polygon on top for mouse events
         # polygon = svg.Polygon(
