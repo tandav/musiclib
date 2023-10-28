@@ -51,6 +51,7 @@ class IsomorphicKeyboard(abc.ABC):
         rotated: bool = False,
         default_key_color: Color = config.BLACK_PALE,
     ) -> None:
+        self.rotated = rotated
         self.validate_dimensions(n_rows, n_cols, row_range, col_range)
         if self.n_rows == 0 or self.n_cols == 0:
             return
@@ -64,7 +65,6 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_subtext = interval_subtext
         self.interval_extra_texts = interval_extra_texts
         self.round_points = round_points
-        self.rotated = rotated
         self.interval_strokes = interval_strokes or {}
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
