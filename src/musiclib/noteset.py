@@ -344,5 +344,5 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
             dict.fromkeys([n - C for n in self.new_notes], config.GREEN) |
             dict.fromkeys([n - C for n in self.shared_notes], config.BLUE),
         )
-        kwargs.setdefault('interval_text', {n - C: str(n) for n in CHROMATIC_NOTESET})
+        kwargs.setdefault('interval_text', FromIntervalDict({n - C: str(n) for n in CHROMATIC_NOTESET}, abstract=True))
         return HexagonalPiano(**kwargs).svg
