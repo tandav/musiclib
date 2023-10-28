@@ -3,11 +3,30 @@ import cmath
 import math
 import uuid
 import svg
+import typing as tp
+from collections.abc import Iterable
 from colortool import Color
 
 from musiclib import config
 from musiclib.interval import AbstractInterval
 import numpy as np
+
+
+SVG_TEXT_KW = dict[str, tp.Any]
+TEXT_CALLABLE: tp.TypeAlias = tp.Callable[[int, float, float], SVG_TEXT_KW | None]
+TEXT_DEFAULT_KW = {
+    'font_family': 'monospace',
+    'text_anchor': 'middle',
+    'dominant_baseline': 'middle',
+    'pointer_events': 'none',  # probably not needed when using event.preventDefault() on transparent polygon
+}
+
+def middle_text_kw_abstract_interval(interval: int, x: float, y: float) -> SVG_TEXT_KW:
+    return {**TEXT_DEFAULT_KW, 'font_size': 15, 'text': str(AbstractInterval(interval)), 'x': x, 'y': y}
+
+def sub_text_kw_interval(interval: int, x: float, y: float) -> SVG_TEXT_KW:
+    return {**TEXT_DEFAULT_KW, 'font_size': 10, 'text': np.base_repr(interval, base=12), 'x': x, 'y': y + 15}
+
 
 
 class IsomorphicKeyboard(abc.ABC):
@@ -18,14 +37,15 @@ class IsomorphicKeyboard(abc.ABC):
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_text: dict[AbstractInterval | int, str] | str | None = 'abstract_interval',
+        interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
+        interval_subtext: TEXT_CALLABLE | None = None,
+        interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
         n_cols: int = 13,
         ax0_step: int = 0,
         ax1_step: int = 2,
         radius: int = 30,
-        font_size_radius_ratio: float = 0.5,
         round_points: bool = True,
         rotated: bool = False,
         default_key_color: Color = config.BLACK_PALE,
@@ -35,7 +55,8 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_colors = interval_colors or {}
         self.interval_parts_colors = interval_parts_colors or {}
         self.interval_text = interval_text
-        self.font_size = int(radius * font_size_radius_ratio)
+        self.interval_subtext = interval_subtext
+        self.interval_extra_texts = interval_extra_texts
         self.round_points = round_points
         self.rotated = rotated
         self.interval_strokes = interval_strokes or {}
@@ -107,41 +128,14 @@ class IsomorphicKeyboard(abc.ABC):
             polygon_kw['clip_path'] = f'url(#{id_})'
         self.elements.append(svg.Polygon(**polygon_kw))
 
-#       self.texts.append(svg.Text(x=x, y=y, text=f'{x:.1f}{y:.1f}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
-#       self.texts.append(svg.Text(x=x, y=y, text=f'{row}, {col}', font_size=10, text_anchor='middle', dominant_baseline='middle'))
-
-        if self.interval_text is None:
-            text = None
-        elif isinstance(self.interval_text, dict):
-            text = self.interval_text.get(interval, self.interval_text.get(AbstractInterval(interval), None))
-        elif isinstance(self.interval_text, str):
-            if self.interval_text == 'interval':
-                text = np.base_repr(interval, base=12)
-            elif self.interval_text == 'abstract_interval':
-                text = str(AbstractInterval(interval))
-            else:
-                raise NotImplementedError(f'invalid self.interval_text={self.interval_text}, can be None, dict or "interval" or "abstract_interval"')
-        else:
-            raise NotImplementedError(f'invalid self.interval_text={self.interval_text}')
-
-        if text is not None:
-            self.elements.append(svg.Text(
-                x=x,
-                y=y,
-                text=text,
-                # text=f'{row} {col}│{text}',
-                # text=f'{col} {row}│{text}',
-                # text=f'{row} {col}',
-                # text=f'{col} {row}',
-                font_size=self.font_size,
-                font_family='monospace',
-                text_anchor='middle',
-                dominant_baseline='middle',
-                pointer_events='none',  # probably not needed when using event.preventDefault() on transparent polygon
-                # onclick=f"play_note('{note}')",
-                # onmousedown=f"midi_message('note_on', '{note}')",
-                # onmouseup=f"midi_message('note_off', '{note}')",
-            ))
+        for text_callable in (
+            self.interval_text, 
+            self.interval_subtext, 
+            *self.interval_extra_texts,
+        ):
+            if text_callable is None:
+                continue
+            self.elements.append(svg.Text(**text_callable(interval, x, y)))
 
         # transparent polygon on top for mouse events
         # polygon = svg.Polygon(
