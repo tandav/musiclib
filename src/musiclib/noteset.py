@@ -14,6 +14,8 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util.cache import Cached
 from musiclib.svg.reprsvg import ReprSVGMixin
+from musiclib.interval import AbstractInterval
+from musiclib.svg.isomorphic.text import TEXT_DEFAULT_KW
 
 
 if TYPE_CHECKING:
@@ -120,6 +122,7 @@ class NoteSet(Cached, ReprSVGMixin):
         })
         return Piano(**kwargs).svg
     
+
     def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import HexagonalPiano
         if self.notes:
@@ -127,10 +130,17 @@ class NoteSet(Cached, ReprSVGMixin):
                 i: config.RED
                 for i in self.note_to_intervals[self.notes_ascending[0]]
             })
-            kwargs.setdefault('interval_text', {
-                note - self.notes_ascending[0]: str(note)
+            kwargs.setdefault('interval_text', 
+                lambda interval, radius, x, y: {
+                note - self.notes_ascending[0]: {
+                    **TEXT_DEFAULT_KW, 
+                    'font_size': int(0.5 * radius), 
+                    'text': str(note), 
+                    'x': x,
+                    'y': y,
+                    }
                 for note in self.notes_ascending
-            })
+            }.get(AbstractInterval(interval)))
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return HexagonalPiano(**kwargs).svg
 

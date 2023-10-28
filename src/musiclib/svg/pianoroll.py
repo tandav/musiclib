@@ -9,7 +9,7 @@ from colortool import Color
 
 
 from musiclib.midi.pitchbend import make_notes_pitchbends
-from musiclib.svg.isomorphic import IsoPiano
+from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.noteset import SpecificNoteSet
 from musiclib.note import SpecificNote
 from musiclib import config

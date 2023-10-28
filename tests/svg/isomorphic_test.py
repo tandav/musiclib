@@ -1,8 +1,8 @@
 import pytest
-from musiclib.svg.isomorphic import Square
-from musiclib.svg.isomorphic import Hex
+from musiclib.svg.isomorphic.squared import Squared
+from musiclib.svg.isomorphic.hexagonal import Hexagonal
 
 
-@pytest.mark.parametrize('cls', [Square, Hex])
+@pytest.mark.parametrize('cls', [Squared, Hexagonal])
 def test_isomorphic(cls):
     cls()
