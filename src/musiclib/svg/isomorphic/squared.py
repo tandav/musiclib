@@ -6,13 +6,14 @@ from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 class Squared(IsomorphicKeyboard):
     def add_keys(self) -> None:
         if self.rotated:
-            for row in range(0, self.n_rows):
-                for col in range(0, self.n_cols):
-                    self.add_key(row, col)
+            for row in range(-1, self.n_rows + 1):
+                for col in range(-2, self.n_cols + 1, 2):
+                    self.add_key(row, col + row % 2)
             return
-        for row in range(-1, self.n_rows + 1):
-            for col in range(-2, self.n_cols + 1, 2):
-                self.add_key(row, col + row % 2)
+        for row in range(0, self.n_rows):
+            for col in range(0, self.n_cols):
+                self.add_key(row, col)
+
         
     @staticmethod
     def transform_coordinates(x: int, y: int) -> tuple[int, int]:
@@ -21,35 +22,36 @@ class Squared(IsomorphicKeyboard):
 
     def row_col_to_interval(self, row: float, col: float) -> int:
         if self.rotated:
-            return round(row) * self.ax1_step + round(col) * self.ax0_step
-        ax0, ax1 = self.transform_coordinates(round(col), round(row))
-        return ax0 * self.ax0_step + ax1 * self.ax1_step
+            ax0, ax1 = self.transform_coordinates(round(col), round(row))
+            return ax0 * self.ax0_step + ax1 * self.ax1_step
+        return round(row) * self.ax1_step + round(col) * self.ax0_step
+
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:
-            return self.h * (2 * col + 1)
-        return self.radius * (col + 1)
+            return self.radius * (col + 1)
+        return self.h * (2 * col + 1)
 
     def row_to_y(self, row: float, invert_axis: bool = True) -> float:
         if invert_axis:
-            if self.rotated:
-                return self.height - self.row_to_y(row, invert_axis=False)
+            # if self.rotated:
+                # return self.height - self.row_to_y(row, invert_axis=False)
             return self.height - self.row_to_y(row, invert_axis=False)
         if self.rotated:
-            return self.h * (2 * row + 1)
-        return self.radius * (row + 1)
+            return self.radius * (row + 1)
+        return self.h * (2 * row + 1)
         
     @property
     def width(self) -> int:
         if self.rotated:
-            return int(self.col_to_x(self.n_cols - 1 + 0.5))
-        return int(self.col_to_x(self.n_cols))
+            return int(self.col_to_x(self.n_cols))
+        return int(self.col_to_x(self.n_cols - 1 + 0.5))
 
     @property
     def height(self) -> int:
         if self.rotated:
-            return int(self.row_to_y(self.n_rows - 1 + 0.5, invert_axis=False))
-        return int(self.row_to_y(self.n_rows, invert_axis=False))
+            return int(self.row_to_y(self.n_rows, invert_axis=False))
+        return int(self.row_to_y(self.n_rows - 1 + 0.5, invert_axis=False))
     
     @property
     def h(self):
@@ -62,7 +64,7 @@ class Squared(IsomorphicKeyboard):
         return p.imag, p.real
 
     def key_points(self, x: float, y: float, radius: float) -> list[float]:
-        phase = math.pi / 4 if self.rotated else 0
+        phase = 0 if self.rotated else math.pi / 4
         points = []
         for i in range(4):
             points += self.vertex(x, y, radius, i, phase)
