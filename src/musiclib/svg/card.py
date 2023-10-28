@@ -3,27 +3,31 @@ from typing import Any
 from musiclib.svg.nested import NestedSVG
 from musiclib.svg.header import Header
 from musiclib.svg.isomorphic.hexagonal import Hexagonal
+from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.isomorphic.base import TEXT_CALLABLE
+from musiclib.svg.isomorphic.base import middle_text_kw_abstract_interval
 from musiclib.svg.isomorphic.squared import Squared
 from musiclib.svg.piano import RegularPiano
 from musiclib.interval import AbstractInterval
 from musiclib import config
 from colortool import Color
+from collections.abc import Iterable
 
 
 class HexagonalPiano:
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
-        # interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
+        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
+        interval_subtext: TEXT_CALLABLE | None = None,
+        interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
         # interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
-        # interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         # n_rows: int | None = 3,
         n_cols: int = 24,
         radius: int = 18,
         # font_size_radius_ratio: float = 0.5,
-        # round_points: bool = True,
-        # key_height: int | None = None,
         width: int | None = None,
         height: int | None = None,
         class_: list[str] | None = None,
@@ -36,32 +40,42 @@ class HexagonalPiano:
 
         hexagonal_kwargs = hexagonal_kwargs or {}
         hexagonal_kwargs.setdefault('interval_colors', interval_colors)
+        hexagonal_kwargs.setdefault('interval_strokes', interval_strokes)
+        hexagonal_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+        hexagonal_kwargs.setdefault('interval_text', interval_text)
+        hexagonal_kwargs.setdefault('interval_subtext', interval_subtext)
+        hexagonal_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
         hexagonal_kwargs.setdefault('radius', radius)
         hexagonal_kwargs.setdefault('ax0_step', 2)
         hexagonal_kwargs.setdefault('ax1_step', 1)
         hexagonal_kwargs.setdefault('n_cols', n_cols)
         self.hex = Hexagonal(**hexagonal_kwargs)
-            # interval_colors=interval_colors,
             # interval_parts_colors=interval_parts_colors,
             # interval_text=interval_text,
             # interval_strokes=interval_strokes,
             # n_rows=n_rows,
             # n_cols=n_cols,
             # font_size_radius_ratio=font_size_radius_ratio,
-            # round_points=round_points,
         # )
 
 
         piano_kwargs = piano_kwargs or {}
         piano_kwargs.setdefault('interval_colors', interval_colors)
-        piano_kwargs.setdefault('radius', self.hex.h / 2 * 2 ** 0.5)
+        piano_kwargs.setdefault('interval_strokes', interval_strokes)
+        piano_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+        piano_kwargs.setdefault('interval_text', interval_text)
+        piano_kwargs.setdefault('interval_subtext', interval_subtext)
+        piano_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
+        piano_kwargs.setdefault('radius', self.hex.h / 2)
+        piano_kwargs.setdefault('radius1', self.hex.h / 2)
         piano_kwargs.setdefault('offset_x', self.hex.h / 2)
         piano_kwargs.setdefault('ax0_step', 1)
         piano_kwargs.setdefault('ax1_step', 0)
         piano_kwargs.setdefault('n_rows', 1)
         piano_kwargs.setdefault('n_cols', None)
         piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
-        self.piano = Squared(**piano_kwargs)
+        # self.piano = Squared(**piano_kwargs)
+        self.piano = IsoPiano(**piano_kwargs)
         # self.piano = IsoPiano(
         #     interval_colors=interval_colors,
         #     interval_parts_colors=interval_parts_colors,

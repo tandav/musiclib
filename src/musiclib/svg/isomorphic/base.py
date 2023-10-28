@@ -33,11 +33,11 @@ class IsomorphicKeyboard(abc.ABC):
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
+        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
         interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
-        interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         n_rows: int | None = 7,
         n_cols: int | None = 13,
         row_range: range | None = None,
