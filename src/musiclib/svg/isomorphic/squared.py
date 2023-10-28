@@ -21,7 +21,7 @@ class Squared(IsomorphicKeyboard):
 
     def row_col_to_interval(self, row: float, col: float) -> int:
         if self.rotated:
-            return (self.n_rows - round(row) - 1) * self.ax1_step + round(col) * self.ax0_step
+            return round(row) * self.ax1_step + round(col) * self.ax0_step
         ax0, ax1 = self.transform_coordinates(round(col), round(row))
         return ax0 * self.ax0_step + ax1 * self.ax1_step
 
