@@ -60,14 +60,33 @@ class PlanePiano:
         piano_kwargs.setdefault('interval_text', interval_text)
         piano_kwargs.setdefault('interval_subtext', interval_subtext)
         piano_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
-        piano_kwargs.setdefault('radius', self.plane.h / 2)
-        piano_kwargs.setdefault('radius1', self.plane.h / 2)
-        piano_kwargs.setdefault('offset_x', self.plane.h / 2)
+        piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
+
+        if isinstance(self.plane, Hexagonal):
+            if self.plane.rotated:
+                piano_kwargs.setdefault('radius', self.plane.radius * 3 / 4)
+                piano_kwargs.setdefault('radius1', self.plane.radius * 3 / 4)
+                piano_kwargs.setdefault('offset_x', self.plane.radius / 4)
+            else:
+                piano_kwargs.setdefault('radius', self.plane.h / 2)
+                piano_kwargs.setdefault('radius1', self.plane.h / 2)
+                piano_kwargs.setdefault('offset_x', self.plane.h / 2)
+        elif isinstance(self.plane, Squared):
+            if self.plane.rotated:
+                piano_kwargs.setdefault('radius', self.plane.radius / 2)
+                piano_kwargs.setdefault('radius1', self.plane.radius / 2)
+                piano_kwargs.setdefault('offset_x', self.plane.radius / 2)
+            else:
+                piano_kwargs.setdefault('radius', self.plane.h)
+                piano_kwargs.setdefault('radius1', self.plane.h)
+                piano_kwargs.setdefault('col_range', range(0, n_cols))
+        else:
+            raise ValueError(f'Unsupported plane_cls: {plane_cls}, must be Hexagonal or Squared')
+
         piano_kwargs.setdefault('ax0_step', 1)
         piano_kwargs.setdefault('ax1_step', 0)
         piano_kwargs.setdefault('n_rows', 1)
         piano_kwargs.setdefault('n_cols', None)
-        piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
         self.piano = IsoPiano(**piano_kwargs)
 
 
