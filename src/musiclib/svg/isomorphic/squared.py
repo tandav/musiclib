@@ -60,12 +60,3 @@ class Squared(IsomorphicKeyboard):
         for i in range(4):
             points += vertex(x, y, self.radius, 4, i, phase)
         return points
-
-    def key_part_points(self, x: float, y: float, part: int) -> list[float]:
-        i = part // 2
-        return [
-            x,
-            y,
-            *vertex(x, y, self.h, 4, i, phase=2 * cmath.pi / 8),
-            *vertex(x, y, self.radius, 4, i + part % 2),
-        ]

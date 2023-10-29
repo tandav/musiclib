@@ -9,6 +9,7 @@ from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.svg.isomorphic.text import TEXT_CALLABLE
 from musiclib.svg.isomorphic.text import middle_text_kw_abstract_interval
+from musiclib.util.etc import vertex
 
 
 class IsomorphicKeyboard(abc.ABC):
@@ -48,7 +49,12 @@ class IsomorphicKeyboard(abc.ABC):
         self.offset_y = offset_y
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
-        self.interval_parts_colors = interval_parts_colors or {}
+        if interval_parts_colors is None:
+            self.interval_parts_colors = {}
+        elif n_parts is None:
+            raise ValueError('n_parts must be provided if interval_parts_colors is provided')
+        else:
+            self.interval_parts_colors = interval_parts_colors
         self.n_parts = n_parts
         self.interval_text = interval_text
         self.interval_subtext = interval_subtext
@@ -119,11 +125,9 @@ class IsomorphicKeyboard(abc.ABC):
         ...
 
     def add_key(self, row: float, col: float) -> None:
-        # interval = round(col)
         interval = self.row_col_to_interval(row, col)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
-        # print(f'row={row}, col={col}, interval={interval}, x={x}, y={y}')
         color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), self.default_key_color))
         points = self.key_points(x, y)
         if self.round_points:
@@ -143,6 +147,20 @@ class IsomorphicKeyboard(abc.ABC):
             polygon_kw['stroke_width'] = stroke.get('stroke_width', 1) * 2
             polygon_kw['clip_path'] = f'url(#{id_})'
         self.elements.append(svg.Polygon(**polygon_kw))
+
+        for part, color in self.interval_parts_colors.get(interval, {}).items():
+            p0 = vertex(x, y, self.radius, self.n_parts, part)
+            p1 = vertex(x, y, self.radius, self.n_parts, (part + 1) % self.n_parts)
+            self.elements.append(svg.Path(
+                d=[
+                    svg.MoveTo(x, y),
+                    svg.LineTo(*p0),
+                    svg.Arc(rx=self.radius, ry=self.radius, angle=360/self.n_parts, large_arc=False, sweep=False, x=p1[0], y=p1[1]),
+                    svg.ClosePath(),
+                ],
+                fill=color.css_hex,
+                clip_path=f'url(#{id_})',
+            ))
 
         for text_callable in (
             self.interval_text,
@@ -168,20 +186,9 @@ class IsomorphicKeyboard(abc.ABC):
         # )
         # self.elements.append(polygon)
 
-        for part, color in self.interval_parts_colors.get(interval, {}).items():
-            self.elements.append(
-                svg.Polygon(
-                    points=self.key_part_points(x, y, part),
-                    fill=Color.random().css_hex,
-                ),
-            )
 
     @abc.abstractmethod
     def key_points(self, x: float, y: float) -> list[float]:
-        ...
-
-    @abc.abstractmethod
-    def key_part_points(self, x: float, y: float, part: int) -> list[float]:
         ...
 
     @property
