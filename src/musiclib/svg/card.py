@@ -35,7 +35,14 @@ class PlanePiano:
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
         piano_kwargs: dict[str, Any] | None = None,
     ) -> None:
-        header_kwargs = header_kwargs.copy() if header_kwargs is not None else {}
+        
+        nested_svg_kw = {
+            'elements': [],
+            'coordinates': [],
+            'height': 0,
+            'class_': class_,
+            'id': id,
+        }
 
         plane_kwargs = plane_kwargs.copy() if plane_kwargs is not None else {}
         plane_kwargs.setdefault('interval_colors', interval_colors)
@@ -51,61 +58,62 @@ class PlanePiano:
         plane_kwargs.setdefault('n_cols', n_cols)
         self.plane = plane_cls(**plane_kwargs)
 
-        piano_kwargs = piano_kwargs.copy() if piano_kwargs is not None else {}
-        piano_kwargs.setdefault('interval_colors', interval_colors)
-        piano_kwargs.setdefault('interval_strokes', interval_strokes)
-        piano_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
-        piano_kwargs.setdefault('interval_text', interval_text)
-        piano_kwargs.setdefault('interval_subtext', interval_subtext)
-        piano_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
-        piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
-
-        if isinstance(self.plane, Hexagonal):
-            if self.plane.rotated:
-                piano_kwargs.setdefault('radius', self.plane.radius * 3 / 4)
-                piano_kwargs.setdefault('radius1', self.plane.radius * 3 / 4)
-                piano_kwargs.setdefault('offset_x', self.plane.radius / 4)
-            else:
-                piano_kwargs.setdefault('radius', self.plane.h / 2)
-                piano_kwargs.setdefault('radius1', self.plane.h / 2)
-                piano_kwargs.setdefault('offset_x', self.plane.h / 2)
-        elif isinstance(self.plane, Squared):
-            if self.plane.rotated:
-                piano_kwargs.setdefault('radius', self.plane.radius / 2)
-                piano_kwargs.setdefault('radius1', self.plane.radius / 2)
-                piano_kwargs.setdefault('offset_x', self.plane.radius / 2)
-            else:
-                piano_kwargs.setdefault('radius', self.plane.h)
-                piano_kwargs.setdefault('radius1', self.plane.h)
-                piano_kwargs.setdefault('col_range', range(0, n_cols))
-        else:
-            raise ValueError(f'Unsupported plane_cls: {plane_cls}, must be Hexagonal or Squared')
-
-        piano_kwargs.setdefault('ax0_step', 1)
-        piano_kwargs.setdefault('ax1_step', 0)
-        piano_kwargs.setdefault('n_rows', 1)
-        piano_kwargs.setdefault('n_cols', None)
-        self.piano = IsoPiano(**piano_kwargs)
-
-
-        if header_kwargs is None:
-            self.nested_svg = NestedSVG(
-                elements=[self.plane.svg, self.piano.svg],
-                coordinates=[(0, 0), (0, self.plane.svg.height)],
-                width=self.plane.svg.width,
-                height=self.plane.svg.height + self.piano.svg.height,
-            )
-        else:
+        if header_kwargs is not None:
+            header_kwargs = header_kwargs.copy()
             header_kwargs.setdefault('width', self.plane.svg.width)
             self.header = Header(**header_kwargs)
-            self.nested_svg = NestedSVG(
-                elements=[self.header.svg, self.plane.svg, self.piano.svg],
-                coordinates=[(0, 0), (0, self.header.svg.height), (0, self.header.svg.height + self.plane.svg.height)],
-                width=width or self.plane.svg.width,
-                height=height or self.header.height + self.plane.height + self.piano.svg.height,
-                class_=class_,
-                id=id,
-            )
+            nested_svg_kw['elements'].append(self.header.svg)
+            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
+            nested_svg_kw['height'] += self.header.svg.height
+
+        nested_svg_kw['elements'].append(self.plane.svg)
+        nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
+        nested_svg_kw['height'] += self.plane.svg.height
+
+        if piano_kwargs is not None:
+            piano_kwargs = piano_kwargs.copy()
+            piano_kwargs.setdefault('interval_colors', interval_colors)
+            piano_kwargs.setdefault('interval_strokes', interval_strokes)
+            piano_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+            piano_kwargs.setdefault('interval_text', interval_text)
+            piano_kwargs.setdefault('interval_subtext', interval_subtext)
+            piano_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
+            piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
+            piano_kwargs.setdefault('ax0_step', 1)
+            piano_kwargs.setdefault('ax1_step', 0)
+            piano_kwargs.setdefault('n_rows', 1)
+            piano_kwargs.setdefault('n_cols', None)
+
+            if isinstance(self.plane, Hexagonal):
+                if self.plane.rotated:
+                    piano_kwargs.setdefault('radius', self.plane.radius * 3 / 4)
+                    piano_kwargs.setdefault('radius1', self.plane.radius * 3 / 4)
+                    piano_kwargs.setdefault('offset_x', self.plane.radius / 4)
+                else:
+                    piano_kwargs.setdefault('radius', self.plane.h / 2)
+                    piano_kwargs.setdefault('radius1', self.plane.h / 2)
+                    piano_kwargs.setdefault('offset_x', self.plane.h / 2)
+            elif isinstance(self.plane, Squared):
+                if self.plane.rotated:
+                    piano_kwargs.setdefault('radius', self.plane.radius / 2)
+                    piano_kwargs.setdefault('radius1', self.plane.radius / 2)
+                    piano_kwargs.setdefault('offset_x', self.plane.radius / 2)
+                else:
+                    piano_kwargs.setdefault('radius', self.plane.h)
+                    piano_kwargs.setdefault('radius1', self.plane.h)
+                    piano_kwargs.setdefault('col_range', range(0, n_cols))
+            else:
+                raise ValueError(f'Unsupported plane_cls: {plane_cls}, must be Hexagonal or Squared')
+
+            self.piano = IsoPiano(**piano_kwargs)
+            nested_svg_kw['elements'].append(self.piano.svg)
+            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
+            nested_svg_kw['height'] += self.piano.svg.height
+
+        if height is not None:
+            nested_svg_kw['height'] = height
+        nested_svg_kw['width'] = width or self.plane.svg.width,
+        self.nested_svg = NestedSVG(**nested_svg_kw)
 
     @property
     def svg(self) -> svg.SVG:
