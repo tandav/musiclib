@@ -263,7 +263,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
         kwargs.setdefault('regular_piano_kwargs', {
             'note_colors': dict.fromkeys(self.notes, config.RED),
             'squares': {note: {'text': str(note), 'text_size': '8'} for note in self},
-            'start_stop': (self[0], self[1]) if self.notes else None,
+            'start_stop': (self[0], self[-1]) if self.notes else None,
         })
         return Piano(**kwargs).svg
 
