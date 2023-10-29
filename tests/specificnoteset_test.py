@@ -1,8 +1,9 @@
 from collections.abc import Sequence
+
 import pytest
+from musiclib import config
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
-from musiclib import config
 from musiclib.noteset import SpecificNoteSet
 
 
@@ -24,7 +25,7 @@ def test_notes_type_is_frozenset(arg):
 
 @pytest.mark.parametrize(
     ('x', 's', 'r'), [
-        (SpecificNoteSet.from_str('C1_C2'), "C1_C2", "C1_C2"),
+        (SpecificNoteSet.from_str('C1_C2'), 'C1_C2', 'C1_C2'),
     ],
 )
 def test_str_repr(x, s, r):
@@ -125,8 +126,10 @@ def test_add(sns, add, expected):
     ],
 )
 def test_from_noterange(start, stop, noteset, expected):
-    assert list(SpecificNoteSet.from_noterange(
-        SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset)
+    assert list(
+        SpecificNoteSet.from_noterange(
+            SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset,
+        ),
     ) == [SpecificNote.from_str(s) for s in expected.split()]
 
 
@@ -206,6 +209,7 @@ def test_from_noterange_getitem():
     with pytest.raises(IndexError):
         sns[-11]
 
+
 @pytest.mark.parametrize(
     ('noterange', 'expected'), [
         (SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2)), 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'),
@@ -214,7 +218,6 @@ def test_from_noterange_getitem():
 )
 def test_from_noterange_list(noterange, expected):
     assert list(noterange) == [SpecificNote.from_str(s) for s in expected.split()]
-
 
 
 def test_sequence():

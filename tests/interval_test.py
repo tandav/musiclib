@@ -18,15 +18,16 @@ def test_init(interval):
         ('11', AbstractInterval(1)),
         ('1A', AbstractInterval(10)),
         ('A3', AbstractInterval(3)),
-])
+    ],
+)
 def test_from_str(string, expected):
     assert AbstractInterval.from_str(string) == expected
 
 
 @pytest.mark.parametrize(
     ('x', 's', 'r'), [
-        (AbstractInterval(3), '3', "AbstractInterval(3)"),
-        (AbstractInterval(10), 'A', "AbstractInterval(A)"),
+        (AbstractInterval(3), '3', 'AbstractInterval(3)'),
+        (AbstractInterval(10), 'A', 'AbstractInterval(A)'),
     ],
 )
 def test_str_repr(x, s, r):

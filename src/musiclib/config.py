@@ -6,6 +6,7 @@ from colortool import Color
 
 from musiclib.interval import AbstractInterval
 from musiclib.util.etc import named_intervals_rotations
+
 chromatic_notes = 'CdDeEFfGaAbB'
 circle_of_fifths_clockwise = 'CGDAEBfdaebF'
 
@@ -117,7 +118,7 @@ repr_svg_plane_config_complex_example = {
             'ax0_step': 1,
             'ax1_step': 7,
             'rotated': True,
-        }
+        },
     },
 }
 

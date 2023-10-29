@@ -1,6 +1,6 @@
 import pytest
-from musiclib.svg.isomorphic.squared import Squared
 from musiclib.svg.isomorphic.hexagonal import Hexagonal
+from musiclib.svg.isomorphic.squared import Squared
 
 
 @pytest.mark.parametrize('cls', [Squared, Hexagonal])

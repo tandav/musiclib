@@ -41,10 +41,11 @@ def svg_helper(svg, class_, title, subtitle, title_href, background_color):
                 print(svg)  # noqa: T201
             assert constant in svg
 
+
 def kw_helper(class_, title, subtitle, title_href, background_color, svg_method):
     kw = {
         'class_': class_,
-        'header_kwargs' : {
+        'header_kwargs': {
             'title': title,
             'subtitle': subtitle,
             'title_href': title_href,
@@ -133,7 +134,6 @@ def test_svg_specific_noteset(sns, svg_method, title, subtitle, title_href, back
     kw = kw_helper(class_, title, subtitle, title_href, background_color, svg_method)
     svg = str(getattr(sns, svg_method)(**kw))
     svg_helper(svg, class_, title, subtitle, title_href, background_color)
-
 
 
 def test_repr_svg(midi):

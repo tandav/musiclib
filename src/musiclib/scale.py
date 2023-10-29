@@ -4,6 +4,7 @@ import functools
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
+
 import svg
 
 if TYPE_CHECKING:
@@ -15,7 +16,6 @@ from musiclib.noteset import NoteSet
 from musiclib.svg.card import PlanePiano
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
-
 
 Self = TypeVar('Self', bound='Scale')
 
@@ -124,11 +124,13 @@ class Scale(Cached, ReprSVGMixin):
         from musiclib.svg.card import Piano
         kwargs.setdefault('class_', tuple(self.intervalset.names))
         kwargs.setdefault('header_kwargs', {'title': f'{self.str_names}'})
-        kwargs.setdefault('regular_piano_kwargs', {
-            'note_colors': {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()},
-        })
+        kwargs.setdefault(
+            'regular_piano_kwargs', {
+                'note_colors': {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()},
+            },
+        )
         return Piano(**kwargs).svg
-    
+
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
         kwargs.setdefault('header_kwargs', {'title': f'{self.str_names}'})

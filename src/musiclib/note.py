@@ -4,8 +4,8 @@ import functools
 from typing import overload
 
 from musiclib import config
-from musiclib.util.cache import Cached
 from musiclib.interval import AbstractInterval
+from musiclib.util.cache import Cached
 
 _note_i = {note: i for i, note in enumerate(config.chromatic_notes)}
 _is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '010100101010', strict=True)}
@@ -58,10 +58,10 @@ class Note(Cached):
     @overload
     def __add__(self, other: AbstractInterval) -> Note:
         ...
-    
+
     def __add__(self, other: int | AbstractInterval) -> Note:
         if isinstance(other, AbstractInterval):
-            return  Note.from_i(self.i + other.interval)
+            return Note.from_i(self.i + other.interval)
         if isinstance(other, int):
             return Note.from_i(self.i + other)
         raise TypeError(f'Note.__add__ supports only int | AbstractInterval, got {type(other)}')

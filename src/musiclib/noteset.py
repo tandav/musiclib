@@ -2,20 +2,20 @@ from __future__ import annotations
 
 import itertools
 import random
-import svg
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 from typing import overload
-from collections.abc import Sequence
+
+import svg
 
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.util.cache import Cached
-from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.svg.isomorphic.text import FromIntervalDict
-
+from musiclib.svg.reprsvg import ReprSVGMixin
+from musiclib.util.cache import Cached
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -112,34 +112,43 @@ class NoteSet(Cached, ReprSVGMixin):
 
     def __repr__(self) -> str:
         return f"NoteSet('{self}')"
-    
+
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano  # hack to fix circular import
         kwargs.setdefault('header_kwargs', {'title': str(self)})
-        kwargs.setdefault('regular_piano_kwargs', {
-            'note_colors': {note: config.RED for note in self},
-        })
+        kwargs.setdefault(
+            'regular_piano_kwargs', {
+                'note_colors': {note: config.RED for note in self},
+            },
+        )
         return Piano(**kwargs).svg
-    
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
         if self.notes:
-            kwargs.setdefault('interval_colors', {
-                i: config.RED
-                for i in self.note_to_intervals[self.notes_ascending[0]]
-            })
-            kwargs.setdefault('interval_text', FromIntervalDict({
-                note - self.notes_ascending[0]: str(note)
-                for note in self.notes_ascending
-            }, abstract=True))
+            kwargs.setdefault(
+                'interval_colors', {
+                    i: config.RED
+                    for i in self.note_to_intervals[self.notes_ascending[0]]
+                },
+            )
+            kwargs.setdefault(
+                'interval_text', FromIntervalDict(
+                    {
+                        note - self.notes_ascending[0]: str(note)
+                        for note in self.notes_ascending
+                    }, abstract=True,
+                ),
+            )
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return PlanePiano(**kwargs).svg
 
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
 
+
 CHROMATIC_NOTESET = NoteSet.from_str(config.chromatic_notes)
+
 
 class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
     def __init__(self, notes: frozenset[SpecificNote]) -> None:
@@ -186,10 +195,12 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
             raise ValueError('start should be <= stop')
         if not {start.abstract, stop.abstract} <= noteset.notes:
             raise KeyError('start and stop notes should be in the noteset')
-        return cls(frozenset(
-            noteset.add_note(start, i)
-            for i in range(noteset.subtract(stop, start) + 1)
-        ))
+        return cls(
+            frozenset(
+                noteset.add_note(start, i)
+                for i in range(noteset.subtract(stop, start) + 1)
+            ),
+        )
         # return cls(frozenset(note for note in NoteRange(start, stop) if note.abstract in noteset)))
 
     def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
@@ -205,7 +216,6 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
 
     def __len__(self) -> int:
         return len(self.notes)
-
 
     @overload
     def __getitem__(self, i: int) -> SpecificNote:
@@ -258,24 +268,30 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
         kwargs.setdefault('header_kwargs', {'title': str(self)})
-        kwargs.setdefault('regular_piano_kwargs', {
-            'note_colors': dict.fromkeys(self.notes, config.RED),
-            'squares': {note: {'text': str(note), 'text_size': '8'} for note in self},
-            'start_stop': (self[0], self[-1]) if self.notes else None,
-        })
+        kwargs.setdefault(
+            'regular_piano_kwargs', {
+                'note_colors': dict.fromkeys(self.notes, config.RED),
+                'squares': {note: {'text': str(note), 'text_size': '8'} for note in self},
+                'start_stop': (self[0], self[-1]) if self.notes else None,
+            },
+        )
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
         if self.notes:
-            kwargs.setdefault('interval_colors', {
-                i: config.RED
-                for i in self.intervals
-            })
-            kwargs.setdefault('interval_text', FromIntervalDict({
-                interval: str(note)
-                for interval, note in zip(self.intervals, self.notes_ascending)
-            }))
+            kwargs.setdefault(
+                'interval_colors', {
+                    i: config.RED
+                    for i in self.intervals
+                },
+            )
+            kwargs.setdefault(
+                'interval_text', FromIntervalDict({
+                    interval: str(note)
+                    for interval, note in zip(self.intervals, self.notes_ascending)
+                }),
+            )
             kwargs.setdefault('n_cols', max(self) - min(self) + 1)
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return PlanePiano(**kwargs).svg
@@ -306,7 +322,6 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
         self.new_notes = frozenset(right.notes) - frozenset(left.notes)
         self.del_notes = frozenset(left.notes) - frozenset(right.notes)
 
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ComparedNoteSets):
             raise TypeError
@@ -323,12 +338,14 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
-        kwargs.setdefault('regular_piano_kwargs', {
-            'note_colors':
-            dict.fromkeys(self.del_notes, config.RED) |
-            dict.fromkeys(self.new_notes, config.GREEN) |
-            dict.fromkeys(self.shared_notes, config.BLUE),
-        })
+        kwargs.setdefault(
+            'regular_piano_kwargs', {
+                'note_colors':
+                dict.fromkeys(self.del_notes, config.RED) |
+                dict.fromkeys(self.new_notes, config.GREEN) |
+                dict.fromkeys(self.shared_notes, config.BLUE),
+            },
+        )
 
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return Piano(**kwargs).svg
@@ -337,7 +354,8 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
         from musiclib.svg.card import PlanePiano
         C = Note('C')
         kwargs.setdefault('header_kwargs', {'title': str(self)})
-        kwargs.setdefault('interval_colors', 
+        kwargs.setdefault(
+            'interval_colors',
             dict.fromkeys([n - C for n in self.del_notes], config.RED) |
             dict.fromkeys([n - C for n in self.new_notes], config.GREEN) |
             dict.fromkeys([n - C for n in self.shared_notes], config.BLUE),

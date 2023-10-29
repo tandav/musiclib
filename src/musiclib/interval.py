@@ -1,8 +1,9 @@
 import functools
 from typing import TypeVar
-import numpy as np
-from musiclib.util.cache import Cached
 
+import numpy as np
+
+from musiclib.util.cache import Cached
 
 Self = TypeVar('Self', bound='AbstractInterval')
 
@@ -35,10 +36,10 @@ class AbstractInterval(Cached):
         if not isinstance(other, AbstractInterval):
             raise TypeError
         return self.interval < other.interval
-    
+
     def __getnewargs__(self) -> tuple[int]:
         return (self.interval,)
-    
+
     def __str__(self) -> str:
         return np.base_repr(self.interval, base=12)
 

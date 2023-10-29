@@ -1,4 +1,5 @@
 from typing import Any
+
 from musiclib import config
 from musiclib.svg.isomorphic.hexagonal import Hexagonal
 from musiclib.svg.isomorphic.squared import Squared

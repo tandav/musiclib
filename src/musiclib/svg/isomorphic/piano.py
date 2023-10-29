@@ -16,10 +16,9 @@ class IsoPiano(IsomorphicKeyboard):
             kw.setdefault('n_cols', 12)
         super().__init__(**kw)
 
-  
     def validate_dimensions(
         self,
-        n_rows: int | None, 
+        n_rows: int | None,
         n_cols: int | None,
         row_range: range | None,
         col_range: range | None,
@@ -30,10 +29,9 @@ class IsoPiano(IsomorphicKeyboard):
             raise ValueError('n_rows must be 1 for IsoPiano')
         super().validate_dimensions(n_rows, n_cols, row_range, col_range)
 
-
     def add_keys(self) -> None:
-        for row in (self.row_range or range(0, self.n_rows)):
-            for col in (self.col_range or range(0, self.n_cols)):
+        for row in (self.row_range or range(self.n_rows)):
+            for col in (self.col_range or range(self.n_cols)):
                 self.add_key(row, col)
 
     def row_col_to_interval(self, row: float, col: float) -> int:
@@ -58,7 +56,7 @@ class IsoPiano(IsomorphicKeyboard):
     @property
     def height(self) -> int:
         return int(self.row_to_y(self.n_rows - 0.5))
-    
+
     def key_part_points(self, x: float, y: float, part: int) -> list[float]:
         raise NotImplementedError('TODO: split vertically')
 

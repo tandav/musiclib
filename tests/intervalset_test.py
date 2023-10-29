@@ -1,6 +1,6 @@
 import pytest
-from musiclib.intervalset import IntervalSet
 from musiclib.interval import AbstractInterval
+from musiclib.intervalset import IntervalSet
 
 
 @pytest.mark.parametrize(

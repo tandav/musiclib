@@ -1,8 +1,10 @@
-import svg
-from colortool import Color
 from typing import Literal
 
+import svg
+from colortool import Color
+
 from musiclib import config
+
 
 class Header:
     def __init__(
@@ -27,18 +29,20 @@ class Header:
         self.height = height
         self.elements = []
         if header_rect:
-            self.elements.append(svg.Rect(
-                class_=['header_rect'],
-                x=0,
-                y=0,
-                width=width,
-                height=height,
-                fill=background_color.css_hex,
-                rx=border_radius,
-                ry=border_radius,
-                stroke_width=1,
-                stroke=config.BLACK_PALE.css_hex,
-            ))
+            self.elements.append(
+                svg.Rect(
+                    class_=['header_rect'],
+                    x=0,
+                    y=0,
+                    width=width,
+                    height=height,
+                    fill=background_color.css_hex,
+                    rx=border_radius,
+                    ry=border_radius,
+                    stroke_width=1,
+                    stroke=config.BLACK_PALE.css_hex,
+                ),
+            )
 
         if title is not None:
             dominant_baseline: Literal['hanging', 'central']
@@ -73,7 +77,7 @@ class Header:
                 self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
             else:
                 self.elements.append(text_subtitle)
-    
+
     @property
     def svg(self) -> svg.SVG:
         return svg.SVG(width=self.width, height=self.height, elements=self.elements)

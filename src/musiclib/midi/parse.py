@@ -1,8 +1,8 @@
 import collections
 import dataclasses
 import functools
-from collections.abc import Iterable
 from collections.abc import Generator
+from collections.abc import Iterable
 from typing import Literal
 
 import mido

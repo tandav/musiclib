@@ -3,11 +3,11 @@ from collections.abc import Sequence
 
 import pytest
 from musiclib import config
+from musiclib.interval import AbstractInterval
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import ComparedNoteSets
 from musiclib.noteset import NoteSet
-from musiclib.interval import AbstractInterval
 from musiclib.scale import Scale
 
 

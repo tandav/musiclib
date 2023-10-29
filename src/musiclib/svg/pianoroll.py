@@ -7,13 +7,12 @@ from typing import TYPE_CHECKING
 import svg
 from colortool import Color
 
-
+from musiclib import config
 from musiclib.midi.pitchbend import make_notes_pitchbends
+from musiclib.note import SpecificNote
+from musiclib.noteset import SpecificNoteSet
 from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.isomorphic.text import FromIntervalDict
-from musiclib.noteset import SpecificNoteSet
-from musiclib.note import SpecificNote
-from musiclib import config
 
 if TYPE_CHECKING:
     from svg._types import Number
@@ -54,8 +53,8 @@ class PianoRoll:
             interval_colors=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), config.WHITE_PALE),
             interval_strokes=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), {'stroke': config.BLACK_PALE, 'stroke_width': 0.5}),
             interval_text=FromIntervalDict({i: str(n) for i, n in zip(self.sns.intervals, self.sns.notes_ascending, strict=True)}),
-            radius=key_width//2,
-            radius1=key_height//2,
+            radius=key_width // 2,
+            radius1=key_height // 2,
         )
         self.midi = midi
         self.duration = max(self.midi.notes, key=operator.attrgetter('off')).off

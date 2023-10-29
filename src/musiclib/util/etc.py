@@ -1,4 +1,6 @@
 from musiclib.interval import AbstractInterval
+
+
 def increment_duplicates(a: list[int]) -> list[int]:
     if not a:
         return []

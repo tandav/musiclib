@@ -8,8 +8,8 @@ if TYPE_CHECKING:
 import numpy as np
 
 from musiclib import config
-from musiclib.util.cache import Cached
 from musiclib.interval import AbstractInterval
+from musiclib.util.cache import Cached
 
 Self = TypeVar('Self', bound='IntervalSet')
 
@@ -19,7 +19,7 @@ class IntervalSet(Cached):
         if not isinstance(intervals, frozenset):
             raise TypeError(f'expected frozenset, got {type(intervals)}')
         if any(not isinstance(interval, AbstractInterval) for interval in intervals):
-            raise TypeError(f'expected AbstractInterval items')
+            raise TypeError('expected AbstractInterval items')
         self.intervals = intervals
         self.intervals_ascending = tuple(sorted(intervals))
         self.bits = ''.join('1' if AbstractInterval(i) in intervals else '0' for i in range(12))

@@ -1,5 +1,6 @@
 import cmath
 import math
+
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 
 
@@ -10,11 +11,10 @@ class Squared(IsomorphicKeyboard):
                 for col in (self.col_range or range(-2, self.n_cols + 1, 2)):
                     self.add_key(row, col + row % 2)
             return
-        for row in (self.row_range or range(0, self.n_rows)):
-            for col in (self.col_range or range(0, self.n_cols)):
+        for row in (self.row_range or range(self.n_rows)):
+            for col in (self.col_range or range(self.n_cols)):
                 self.add_key(row, col)
 
-        
     @staticmethod
     def transform_coordinates(x: int, y: int) -> tuple[int, int]:
         """rotate_coordinates_45_degrees"""
@@ -25,7 +25,6 @@ class Squared(IsomorphicKeyboard):
             ax0, ax1 = self.transform_coordinates(round(col), round(row))
             return ax0 * self.ax0_step + ax1 * self.ax1_step
         return round(row) * self.ax1_step + round(col) * self.ax0_step
-
 
     def col_to_x(self, col: float) -> float:
         if self.rotated:
@@ -38,7 +37,7 @@ class Squared(IsomorphicKeyboard):
         if self.rotated:
             return self.radius * (row + 1) + self.offset_y
         return self.h * (2 * row + 1) + self.offset_y
-        
+
     @property
     def width(self) -> int:
         if self.rotated:
@@ -50,7 +49,7 @@ class Squared(IsomorphicKeyboard):
         if self.rotated:
             return int(self.row_to_y(self.n_rows, invert_axis=False))
         return int(self.row_to_y(self.n_rows - 1 + 0.5, invert_axis=False))
-    
+
     @property
     def h(self):
         return 2 ** 0.5 / 2 * self.radius
@@ -67,13 +66,12 @@ class Squared(IsomorphicKeyboard):
         for i in range(4):
             points += self.vertex(x, y, radius, i, phase)
         return points
-    
+
     def key_part_points(self, x: float, y: float, part: int) -> list[float]:
         i = part // 2
         return [
-            x, 
-            y, 
-            *self.vertex(x, y, self.h, i, phase=2 * math.pi / 8), # todo: support 12 parts
+            x,
+            y,
+            *self.vertex(x, y, self.h, i, phase=2 * math.pi / 8),  # TODO: support 12 parts
             *self.vertex(x, y, self.radius, i + part % 2),
         ]
-

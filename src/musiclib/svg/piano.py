@@ -5,7 +5,6 @@ from typing import TypedDict
 
 import svg
 
-
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
@@ -77,7 +76,7 @@ class RegularPiano:
         else:
             # ensure that start and stop are white keys
             self.sns = SpecificNoteSet.from_noterange(
-                start=start_stop[0] -1 if start_stop[0].is_black else start_stop[0],
+                start=start_stop[0] - 1 if start_stop[0].is_black else start_stop[0],
                 stop=start_stop[1] + 1 if start_stop[1].abstract.is_black else start_stop[1],
             )
         self.white_notes = tuple(note for note in self.sns if not note.is_black)
@@ -175,6 +174,6 @@ class RegularPiano:
     @property
     def svg(self) -> svg.SVG:
         return svg.SVG(width=self.width, height=self.height, elements=self.elements, class_=list(self.class_), id=self.id)
-    
+
     def _repr_svg_(self) -> str:
         return str(self.svg)

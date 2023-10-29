@@ -1,17 +1,19 @@
-import svg
+from collections.abc import Iterable
 from typing import Any
-from musiclib.svg.nested import NestedSVG
+
+import svg
+from colortool import Color
+
+from musiclib import config
+from musiclib.interval import AbstractInterval
 from musiclib.svg.header import Header
-from musiclib.svg.isomorphic.hexagonal import Hexagonal
-from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.isomorphic.base import TEXT_CALLABLE
 from musiclib.svg.isomorphic.base import middle_text_kw_abstract_interval
+from musiclib.svg.isomorphic.hexagonal import Hexagonal
+from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.isomorphic.squared import Squared
+from musiclib.svg.nested import NestedSVG
 from musiclib.svg.piano import RegularPiano
-from musiclib.interval import AbstractInterval
-from musiclib import config
-from colortool import Color
-from collections.abc import Iterable
 
 
 class PlanePiano:
@@ -22,7 +24,7 @@ class PlanePiano:
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
-        interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
+        interval_extra_texts: Iterable[TEXT_CALLABLE] = (),
         n_rows: int = 4,
         n_cols: int = 24,
         radius: int = 18,
@@ -35,7 +37,7 @@ class PlanePiano:
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
         piano_kwargs: dict[str, Any] | None = None,
     ) -> None:
-        
+
         nested_svg_kw = {
             'elements': [],
             'coordinates': [],
@@ -101,7 +103,7 @@ class PlanePiano:
                 else:
                     piano_kwargs.setdefault('radius', self.plane.h)
                     piano_kwargs.setdefault('radius1', self.plane.h)
-                    piano_kwargs.setdefault('col_range', range(0, n_cols))
+                    piano_kwargs.setdefault('col_range', range(n_cols))
             else:
                 raise ValueError(f'Unsupported plane_cls: {plane_cls}, must be Hexagonal or Squared')
 
@@ -149,34 +151,38 @@ class Piano:
         card_height = self.header.svg.height + self.piano.height + padding[0] + padding[2]
         width = margin[3] + card_width + shadow_offset + margin[1]
         height = margin[0] + card_height + shadow_offset + margin[2]
-        self.shadow_rect = svg.SVG(elements=[
-            svg.Rect(
-                class_=['shadow_rect'],
-                x=margin[3] + shadow_offset,
-                y=margin[0] + shadow_offset,
-                width=card_width,
-                height=card_height,
-                fill=config.BLACK_BRIGHT.css_hex,
-                rx=border_radius,
-                ry=border_radius,
-            )],
+        self.shadow_rect = svg.SVG(
+            elements=[
+                svg.Rect(
+                    class_=['shadow_rect'],
+                    x=margin[3] + shadow_offset,
+                    y=margin[0] + shadow_offset,
+                    width=card_width,
+                    height=card_height,
+                    fill=config.BLACK_BRIGHT.css_hex,
+                    rx=border_radius,
+                    ry=border_radius,
+                ),
+            ],
             class_=['shadow_rect_svg'],
             width=width,
             height=height,
         )
-        self.card_rect = svg.SVG(elements=[
-            svg.Rect(
-                x=margin[3],
-                y=margin[0],
-                class_=['card_rect'],
-                width=card_width,
-                height=card_height,
-                fill=background_color.css_hex,
-                rx=border_radius,
-                ry=border_radius,
-                stroke_width=1,
-                stroke=config.BLACK_PALE.css_hex,
-            )],
+        self.card_rect = svg.SVG(
+            elements=[
+                svg.Rect(
+                    x=margin[3],
+                    y=margin[0],
+                    class_=['card_rect'],
+                    width=card_width,
+                    height=card_height,
+                    fill=background_color.css_hex,
+                    rx=border_radius,
+                    ry=border_radius,
+                    stroke_width=1,
+                    stroke=config.BLACK_PALE.css_hex,
+                ),
+            ],
             class_=['card_rect_svg'],
             width=width,
             height=height,
@@ -203,7 +209,7 @@ class Piano:
     @property
     def svg(self) -> svg.SVG:
         return self.nested_svg.svg
-    
+
     def __str__(self) -> str:
         return str(self.svg)
 

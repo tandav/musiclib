@@ -1,7 +1,8 @@
 import abc
 import uuid
-import svg
 from collections.abc import Iterable
+
+import svg
 from colortool import Color
 
 from musiclib import config
@@ -14,6 +15,7 @@ class IsomorphicKeyboard(abc.ABC):
     """
     https://notes.tandav.me/notes/3548
     """
+
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
@@ -21,7 +23,7 @@ class IsomorphicKeyboard(abc.ABC):
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
-        interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
+        interval_extra_texts: Iterable[TEXT_CALLABLE] = (),
         n_rows: int | None = 7,
         n_cols: int | None = 13,
         row_range: range | None = None,
@@ -58,10 +60,9 @@ class IsomorphicKeyboard(abc.ABC):
         self.default_key_color = default_key_color
         self.add_keys()
 
-
     def validate_dimensions(
         self,
-        n_rows: int | None, 
+        n_rows: int | None,
         n_cols: int | None,
         row_range: range | None,
         col_range: range | None,
@@ -70,7 +71,7 @@ class IsomorphicKeyboard(abc.ABC):
             raise ValueError('Exactly one of n_rows or row_range must be provided')
         if not ((n_cols is None) ^ (col_range is None)):
             raise ValueError('Exactly one of n_cols or col_range must be provided')
-        
+
         self.row_range = row_range
         self.col_range = col_range
 
@@ -87,7 +88,6 @@ class IsomorphicKeyboard(abc.ABC):
             raise ValueError(f'n_cols={n_cols} must be positive')
         else:
             self.n_cols = n_cols
-
 
     @abc.abstractmethod
     def add_keys(self) -> None:
@@ -142,8 +142,8 @@ class IsomorphicKeyboard(abc.ABC):
         self.elements.append(svg.Polygon(**polygon_kw))
 
         for text_callable in (
-            self.interval_text, 
-            self.interval_subtext, 
+            self.interval_text,
+            self.interval_subtext,
             *self.interval_extra_texts,
         ):
             if text_callable is None:
@@ -172,7 +172,6 @@ class IsomorphicKeyboard(abc.ABC):
                     fill=Color.random().css_hex,
                 ),
             )
-
 
     @abc.abstractmethod
     def key_points(self, x: float, y: float) -> list[float]:

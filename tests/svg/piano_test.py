@@ -7,6 +7,7 @@ from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
+
 # from musiclib.svg.piano import Piano
 from musiclib.svg.piano import RegularPiano
 from musiclib.svg.piano import note_color
