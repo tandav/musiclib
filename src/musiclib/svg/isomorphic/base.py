@@ -22,6 +22,7 @@ class IsomorphicKeyboard(abc.ABC):
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        n_parts: int | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
         interval_extra_texts: Iterable[TEXT_CALLABLE] = (),
@@ -48,6 +49,7 @@ class IsomorphicKeyboard(abc.ABC):
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
         self.interval_parts_colors = interval_parts_colors or {}
+        self.n_parts = n_parts
         self.interval_text = interval_text
         self.interval_subtext = interval_subtext
         self.interval_extra_texts = interval_extra_texts
@@ -123,7 +125,7 @@ class IsomorphicKeyboard(abc.ABC):
         y = self.row_to_y(row)
         # print(f'row={row}, col={col}, interval={interval}, x={x}, y={y}')
         color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), self.default_key_color))
-        points = self.key_points(x, y, self.radius)
+        points = self.key_points(x, y)
         if self.round_points:
             points = [round(p, 1) for p in points]
 

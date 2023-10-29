@@ -69,11 +69,11 @@ class IsoPiano(IsomorphicKeyboard):
             3: (x - radius_w, y + radius_h),
         }[i % 4]
 
-    def key_points(self, x: float, y: float, radius: float) -> list[float]:
+    def key_points(self, x: float, y: float) -> list[float]:
         points = []
         for i in range(5):
             if self.rotated:
-                points += self.vertex(x, y, self.radius1, i, radius)
+                points += self.vertex(x, y, self.radius1, i, self.radius)
             else:
-                points += self.vertex(x, y, radius, i, self.radius1)
+                points += self.vertex(x, y, self.radius, i, self.radius1)
         return points

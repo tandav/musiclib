@@ -59,11 +59,11 @@ class Hexagonal(IsomorphicKeyboard):
     def h(self):
         return 3 ** 0.5 / 2 * self.radius
 
-    def key_points(self, x: float, y: float, radius: float) -> list[float]:
+    def key_points(self, x: float, y: float) -> list[float]:
         points = []
         phase = cmath.pi / 6 if self.rotated else 0
         for i in range(7):
-            points += vertex(x, y, radius, 6, i, phase)
+            points += vertex(x, y, self.radius, 6, i, phase)
         return points
 
     def key_part_points(self, x: float, y: float, part: int) -> list[float]:

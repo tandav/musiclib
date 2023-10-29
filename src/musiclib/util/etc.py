@@ -40,3 +40,58 @@ def vertex(
     theta = phase + 2 * cmath.pi * i / n
     p = complex(y, x) + radius * cmath.exp(1j * theta)
     return p.imag, p.real
+
+
+def line_intersection(x00, y00, x01, y01, x10, y10, x11, y11):
+    """
+    computes coordinates of intersection of 2 lines.
+    Each line is defined by 2 points:
+    input arguments:
+    x00 - x coordinate of 1st point of 1st line
+    y00 - y coordinate of 1st point of 1st line
+    x01 - x coordinate of 2nd point of 1st line
+    y01 - y coordinate of 2nd point of 1st line
+    x10 - x coordinate of 1st point of 2nd line
+    y10 - y coordinate of 1st point of 2nd line
+    x11 - x coordinate of 2nd point of 2nd line
+    y11 - y coordinate of 2nd point of 2nd line
+
+    output: x, y - coordinates of intersection of 2 lines
+    """
+    # Calculate the slope and y-intercept of the first line
+    if x01 - x00 != 0:
+        m1 = (y01 - y00) / (x01 - x00)
+        b1 = y00 - m1 * x00
+    else:
+        m1 = None
+        b1 = x00
+
+    # Calculate the slope and y-intercept of the second line
+    if x11 - x10 != 0:
+        m2 = (y11 - y10) / (x11 - x10)
+        b2 = y10 - m2 * x10
+    else:
+        m2 = None
+        b2 = x10
+
+    # Check if the lines are parallel
+    if m1 == m2:
+        return None, None  # The lines are parallel, so no intersection
+
+    # If the first line is vertical
+    if m1 is None:
+        x = b1
+        y = m2 * x + b2
+        return x, y
+
+    # If the second line is vertical
+    if m2 is None:
+        x = b2
+        y = m1 * x + b1
+        return x, y
+
+    # Calculate the intersection point
+    x = (b2 - b1) / (m1 - m2)
+    y = m1 * x + b1
+
+    return x, y
