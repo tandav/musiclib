@@ -1,3 +1,4 @@
+import cmath
 from musiclib.interval import AbstractInterval
 
 
@@ -26,3 +27,16 @@ def named_intervals_rotations(
     name_prefix: str,
 ) -> dict[str, frozenset[int]]:
     return {f'{name_prefix}_{i}': fs for i, fs in enumerate(intervals_rotations(intervals))}
+
+
+def vertex(
+    x: float,
+    y: float,
+    radius: float,
+    n: int,
+    i: int,
+    phase: float = 0,
+) -> tuple[float, float]:
+    theta = phase + 2 * cmath.pi * i / n
+    p = complex(y, x) + radius * cmath.exp(1j * theta)
+    return p.imag, p.real

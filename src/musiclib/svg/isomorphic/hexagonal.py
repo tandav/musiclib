@@ -1,8 +1,7 @@
 import cmath
-import math
 
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
-
+from musiclib.util.etc import vertex
 
 class Hexagonal(IsomorphicKeyboard):
     def add_keys(self) -> None:
@@ -60,17 +59,11 @@ class Hexagonal(IsomorphicKeyboard):
     def h(self):
         return 3 ** 0.5 / 2 * self.radius
 
-    @staticmethod
-    def vertex(x: float, y: float, radius: float, i: int, phase: float = 0) -> tuple[float, float]:
-        theta = phase + 2 * math.pi * i / 6
-        p = complex(y, x) + radius * cmath.exp(1j * theta)
-        return p.imag, p.real
-
     def key_points(self, x: float, y: float, radius: float) -> list[float]:
         points = []
-        phase = math.pi / 6 if self.rotated else 0
+        phase = cmath.pi / 6 if self.rotated else 0
         for i in range(7):
-            points += self.vertex(x, y, radius, i, phase)
+            points += vertex(x, y, radius, 6, i, phase)
         return points
 
     def key_part_points(self, x: float, y: float, part: int) -> list[float]:
@@ -78,6 +71,6 @@ class Hexagonal(IsomorphicKeyboard):
         return [
             x,
             y,
-            *self.vertex(x, y, self.h, i, phase=2 * math.pi / 12),
-            *self.vertex(x, y, self.radius, i + part % 2),
+            *vertex(x, y, self.h, 6, i, phase=2 * cmath.pi / 12),
+            *vertex(x, y, self.radius, 6, i + part % 2),
         ]

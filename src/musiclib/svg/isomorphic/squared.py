@@ -1,7 +1,7 @@
 import cmath
-import math
 
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
+from musiclib.util.etc import vertex
 
 
 class Squared(IsomorphicKeyboard):
@@ -54,17 +54,12 @@ class Squared(IsomorphicKeyboard):
     def h(self):
         return 2 ** 0.5 / 2 * self.radius
 
-    @staticmethod
-    def vertex(x: float, y: float, radius: float, i: int, phase: float = 0) -> tuple[float, float]:
-        theta = phase + 2 * math.pi * i / 4
-        p = complex(y, x) + radius * cmath.exp(1j * theta)
-        return p.imag, p.real
 
     def key_points(self, x: float, y: float, radius: float) -> list[float]:
-        phase = 0 if self.rotated else math.pi / 4
+        phase = 0 if self.rotated else cmath.pi / 4
         points = []
         for i in range(4):
-            points += self.vertex(x, y, radius, i, phase)
+            points += vertex(x, y, radius, 4, i, phase)
         return points
 
     def key_part_points(self, x: float, y: float, part: int) -> list[float]:
@@ -72,6 +67,6 @@ class Squared(IsomorphicKeyboard):
         return [
             x,
             y,
-            *self.vertex(x, y, self.h, i, phase=2 * math.pi / 8),  # TODO: support 12 parts
-            *self.vertex(x, y, self.radius, i + part % 2),
+            *vertex(x, y, self.h, 4, i, phase=2 * cmath.pi / 8),
+            *vertex(x, y, self.radius, 4, i + part % 2),
         ]
