@@ -8,8 +8,6 @@ from typing import Any
 from typing import TypeVar
 from typing import overload
 
-import svg
-
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
@@ -19,6 +17,8 @@ from musiclib.util.cache import Cached
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    import svg
 
 
 Self = TypeVar('Self', bound='NoteSet')
@@ -188,7 +188,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
         start: SpecificNote,
         stop: SpecificNote,
         noteset: NoteSet = CHROMATIC_NOTESET,
-    ):
+    ) -> SpecificNoteSet:
         if not (isinstance(start, SpecificNote) and isinstance(stop, SpecificNote)):
             raise TypeError('start and stop should be SpecificNote instances')
         if start > stop:  # both ends included
@@ -289,7 +289,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
             kwargs.setdefault(
                 'interval_text', FromIntervalDict({
                     interval: str(note)
-                    for interval, note in zip(self.intervals, self.notes_ascending)
+                    for interval, note in zip(self.intervals, self.notes_ascending, strict=True)
                 }),
             )
             kwargs.setdefault('n_cols', max(self) - min(self) + 1)
@@ -330,7 +330,7 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
     def __hash__(self) -> int:
         return hash(self.key)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.left} | {self.right}'
 
     def __repr__(self) -> str:
@@ -352,7 +352,7 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        C = Note('C')
+        C = Note('C')  # noqa: N806
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         kwargs.setdefault(
             'interval_colors',

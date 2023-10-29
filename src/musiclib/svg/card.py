@@ -17,8 +17,9 @@ from musiclib.svg.piano import RegularPiano
 
 
 class PlanePiano:
-    def __init__(
+    def __init__(  # noqa: PLR0915
         self,
+        *,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
@@ -31,7 +32,7 @@ class PlanePiano:
         width: int | None = None,
         height: int | None = None,
         class_: list[str] | None = None,
-        id: str | None = None,
+        id: str | None = None,  # noqa: A002
         header_kwargs: dict[str, Any] | None = None,
         plane_kwargs: dict[str, Any] | None = None,
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
@@ -114,7 +115,7 @@ class PlanePiano:
 
         if height is not None:
             nested_svg_kw['height'] = height
-        nested_svg_kw['width'] = width or self.plane.svg.width,
+        nested_svg_kw['width'] = width or self.plane.svg.width
         self.nested_svg = NestedSVG(**nested_svg_kw)
 
     @property
@@ -141,7 +142,7 @@ class Piano:
         regular_piano_kwargs: dict[str, Any] | None = None,
         class_: list[str] | None = None,
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
-    ):
+    ) -> None:
         header_kwargs.setdefault('header_rect', False)
         header_kwargs.setdefault('margin', (0, 0, 0, 0))
         header_kwargs.setdefault('height', 30)

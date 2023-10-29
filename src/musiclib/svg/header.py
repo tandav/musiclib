@@ -9,6 +9,7 @@ from musiclib import config
 class Header:
     def __init__(
         self,
+        *,
         title: str | None = None,
         subtitle: str | None = None,
         title_href: str | None = None,
@@ -24,7 +25,7 @@ class Header:
         padding: tuple[int, int, int, int] = (30, 2, 2, 2),
         border_radius: int = 0,
         header_rect: bool = True,
-    ):
+    ) -> None:
         self.width = width
         self.height = height
         self.elements = []

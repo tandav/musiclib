@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 
-import svg
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    import svg
+
 from musiclib import config
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note

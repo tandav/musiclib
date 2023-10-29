@@ -18,6 +18,7 @@ class IsomorphicKeyboard(abc.ABC):
 
     def __init__(
         self,
+        *,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
         interval_parts_colors: dict[int, dict[int, Color]] | None = None,
@@ -126,12 +127,12 @@ class IsomorphicKeyboard(abc.ABC):
         if self.round_points:
             points = [round(p, 1) for p in points]
 
-        polygon_kw = dict(
-            class_=['polygon-colored'],
-            fill=color.css_hex,
-            points=points,
+        polygon_kw = {
+            'class_': ['polygon-colored'],
+            'fill': color.css_hex,
+            'points': points,
             # clip_path='url(#key-clip)',
-        )
+        }
         id_ = f'row-{row}-col-{col}-{self.id_suffix}'
         self.defs.elements.append(svg.ClipPath(id=id_, elements=[svg.Polygon(**polygon_kw)]))
         stroke = self.interval_strokes.get(interval, self.interval_strokes.get(AbstractInterval(interval), None))
