@@ -111,10 +111,10 @@ repr_svg_plane_config_complex_example = {
         'n_rows': 10,
         'n_cols': 24,
         'plane_cls': 'Squared',
-        'rotated': True,
         'plane_kwargs': {
             'ax0_step': 1,
             'ax1_step': 7,
+            'rotated': True,
         }
     },
 }

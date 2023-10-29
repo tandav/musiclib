@@ -32,9 +32,8 @@ class PlanePiano:
         id: str | None = None,
         header_kwargs: dict[str, Any] | None = None,
         plane_kwargs: dict[str, Any] | None = None,
-        piano_kwargs: dict[str, Any] | None = None,
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
-        rotated: bool = False,
+        piano_kwargs: dict[str, Any] | None = None,
     ) -> None:
         header_kwargs = header_kwargs.copy() if header_kwargs is not None else {}
 
@@ -50,7 +49,6 @@ class PlanePiano:
         plane_kwargs.setdefault('ax1_step', 1)
         plane_kwargs.setdefault('n_rows', n_rows)
         plane_kwargs.setdefault('n_cols', n_cols)
-        plane_kwargs.setdefault('rotated', rotated)
         self.plane = plane_cls(**plane_kwargs)
 
         piano_kwargs = piano_kwargs.copy() if piano_kwargs is not None else {}
