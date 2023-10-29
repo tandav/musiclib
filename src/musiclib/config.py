@@ -6,7 +6,6 @@ from colortool import Color
 
 from musiclib.interval import AbstractInterval
 from musiclib.util.etc import named_intervals_rotations
-
 chromatic_notes = 'CdDeEFfGaAbB'
 circle_of_fifths_clockwise = 'CGDAEBfdaebF'
 
@@ -97,4 +96,27 @@ interval_colors = {
     AbstractInterval(11): Color(0xFF00FF),
 }
 
-repr_svg_method = 'svg_plane_piano'
+repr_svg_piano_config = {
+    'method': 'svg_piano',
+    'kwargs': {},
+}
+repr_svg_plane_config = {
+    'method': 'svg_plane_piano',
+    'kwargs': {},
+}
+
+repr_svg_plane_config_complex_example = {
+    'method': 'svg_plane_piano',
+    'kwargs': {
+        'n_rows': 10,
+        'n_cols': 24,
+        'plane_cls': 'Squared',
+        'rotated': True,
+        'plane_kwargs': {
+            'ax0_step': 1,
+            'ax1_step': 7,
+        }
+    },
+}
+
+repr_svg_config = repr_svg_plane_config
