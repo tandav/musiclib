@@ -1,7 +1,6 @@
 import abc
 import uuid
 import svg
-import typing as tp
 from collections.abc import Iterable
 from colortool import Color
 
@@ -9,9 +8,6 @@ from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.svg.isomorphic.text import TEXT_CALLABLE
 from musiclib.svg.isomorphic.text import middle_text_kw_abstract_interval
-
-
-
 
 
 class IsomorphicKeyboard(abc.ABC):

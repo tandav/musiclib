@@ -102,7 +102,9 @@ repr_svg_piano_config = {
 }
 repr_svg_plane_config = {
     'method': 'svg_plane_piano',
-    'kwargs': {},
+    'kwargs': {
+        'piano_kwargs': {},
+    },
 }
 
 repr_svg_plane_config_complex_example = {
