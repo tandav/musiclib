@@ -14,8 +14,6 @@ from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.util.cache import Cached
 from musiclib.svg.reprsvg import ReprSVGMixin
-from musiclib.interval import AbstractInterval
-from musiclib.svg.isomorphic.text import TEXT_DEFAULT_KW
 from musiclib.svg.isomorphic.text import FromIntervalDict
 
 
