@@ -12,7 +12,7 @@ from musiclib import config
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.noteset import NoteSet
-from musiclib.svg.card import HexagonalPiano
+from musiclib.svg.card import PlanePiano
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
 
@@ -129,7 +129,7 @@ class Scale(Cached, ReprSVGMixin):
         })
         return Piano(**kwargs).svg
     
-    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
+    def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
         kwargs.setdefault('header_kwargs', {'title': f'{self.str_names}'})
-        return HexagonalPiano(**kwargs).svg
+        return PlanePiano(**kwargs).svg

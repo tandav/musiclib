@@ -124,8 +124,8 @@ class NoteSet(Cached, ReprSVGMixin):
         return Piano(**kwargs).svg
     
 
-    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.svg.card import HexagonalPiano
+    def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import PlanePiano
         if self.notes:
             kwargs.setdefault('interval_colors', {
                 i: config.RED
@@ -136,7 +136,7 @@ class NoteSet(Cached, ReprSVGMixin):
                 for note in self.notes_ascending
             }, abstract=True))
         kwargs.setdefault('header_kwargs', {'title': str(self)})
-        return HexagonalPiano(**kwargs).svg
+        return PlanePiano(**kwargs).svg
 
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
         return (self.notes,)
@@ -267,8 +267,8 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
         })
         return Piano(**kwargs).svg
 
-    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.svg.card import HexagonalPiano
+    def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import PlanePiano
         if self.notes:
             kwargs.setdefault('interval_colors', {
                 i: config.RED
@@ -280,7 +280,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
             }))
             kwargs.setdefault('n_cols', max(self) - min(self) + 1)
         kwargs.setdefault('header_kwargs', {'title': str(self)})
-        return HexagonalPiano(**kwargs).svg
+        return PlanePiano(**kwargs).svg
 
 
 def subsets(noteset: NoteSet, min_notes: int = 1) -> frozenset[NoteSet]:
@@ -335,8 +335,8 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         return Piano(**kwargs).svg
 
-    def svg_hex_piano(self, **kwargs: Any) -> svg.SVG:
-        from musiclib.svg.card import HexagonalPiano
+    def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import PlanePiano
         C = Note('C')
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         kwargs.setdefault('interval_colors', 
@@ -345,4 +345,4 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
             dict.fromkeys([n - C for n in self.shared_notes], config.BLUE),
         )
         kwargs.setdefault('interval_text', FromIntervalDict({n - C: str(n) for n in CHROMATIC_NOTESET}, abstract=True))
-        return HexagonalPiano(**kwargs).svg
+        return PlanePiano(**kwargs).svg

@@ -5,10 +5,6 @@ class IsoPiano(IsomorphicKeyboard):
     def __init__(
         self,
         radius1: int = 36,
-    #     n_rows: int | None = None,
-    #     radius1: int = 100,
-    #     offset_x: int = 0,
-    #     extra_radius_width_on_right: bool = False,
         **kw,
     ) -> None:
         self.radius1 = radius1

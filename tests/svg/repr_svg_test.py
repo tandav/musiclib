@@ -64,7 +64,7 @@ def kw_helper(class_, title, subtitle, title_href, background_color, svg_method)
         NoteSet.from_str(''),
     ],
 )
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_plane_piano'])
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
@@ -79,7 +79,7 @@ def test_svg_noteset(noteset, svg_method, title, subtitle, title_href, backgroun
 
 
 @pytest.mark.parametrize('kind', KINDS)
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_plane_piano'])
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
@@ -100,7 +100,7 @@ def test_svg_scale(kind, svg_method, title, subtitle, title_href, background_col
         (Scale.from_name('A', 'major'), Scale.from_name('f', 'phrygian')),
     ],
 )
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_plane_piano'])
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])
@@ -121,7 +121,7 @@ def test_svg_compared_notesets(scale0, scale1, svg_method, title, subtitle, titl
         SpecificNoteSet(frozenset()),
     ],
 )
-@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_hex_piano'])
+@pytest.mark.parametrize('svg_method', ['svg_piano', 'svg_plane_piano'])
 @pytest.mark.parametrize('title', [None, TITLE])
 @pytest.mark.parametrize('subtitle', [None, SUBTITLE])
 @pytest.mark.parametrize('title_href', [None, TITLE_HREF])

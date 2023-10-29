@@ -14,7 +14,7 @@ from colortool import Color
 from collections.abc import Iterable
 
 
-class HexagonalPiano:
+class PlanePiano:
     def __init__(
         self,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
@@ -23,41 +23,35 @@ class HexagonalPiano:
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
         interval_extra_texts: Iterable[TEXT_CALLABLE] = (), 
-        # interval_text: dict[AbstractInterval | int, str] | str | None = 'interval',
-        # n_rows: int | None = 3,
+        n_rows: int = 4,
         n_cols: int = 24,
         radius: int = 18,
-        # font_size_radius_ratio: float = 0.5,
         width: int | None = None,
         height: int | None = None,
         class_: list[str] | None = None,
         id: str | None = None,
         header_kwargs: dict[str, Any] | None = None,
-        hexagonal_kwargs: dict[str, Any] | None = None,
+        plane_kwargs: dict[str, Any] | None = None,
         piano_kwargs: dict[str, Any] | None = None,
+        plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
+        rotated: bool = False,
     ) -> None:
         header_kwargs = header_kwargs or {}
 
-        hexagonal_kwargs = hexagonal_kwargs or {}
-        hexagonal_kwargs.setdefault('interval_colors', interval_colors)
-        hexagonal_kwargs.setdefault('interval_strokes', interval_strokes)
-        hexagonal_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
-        hexagonal_kwargs.setdefault('interval_text', interval_text)
-        hexagonal_kwargs.setdefault('interval_subtext', interval_subtext)
-        hexagonal_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
-        hexagonal_kwargs.setdefault('radius', radius)
-        hexagonal_kwargs.setdefault('ax0_step', 2)
-        hexagonal_kwargs.setdefault('ax1_step', 1)
-        hexagonal_kwargs.setdefault('n_cols', n_cols)
-        self.hex = Hexagonal(**hexagonal_kwargs)
-            # interval_parts_colors=interval_parts_colors,
-            # interval_text=interval_text,
-            # interval_strokes=interval_strokes,
-            # n_rows=n_rows,
-            # n_cols=n_cols,
-            # font_size_radius_ratio=font_size_radius_ratio,
-        # )
-
+        plane_kwargs = plane_kwargs or {}
+        plane_kwargs.setdefault('interval_colors', interval_colors)
+        plane_kwargs.setdefault('interval_strokes', interval_strokes)
+        plane_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+        plane_kwargs.setdefault('interval_text', interval_text)
+        plane_kwargs.setdefault('interval_subtext', interval_subtext)
+        plane_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
+        plane_kwargs.setdefault('radius', radius)
+        plane_kwargs.setdefault('ax0_step', 2)
+        plane_kwargs.setdefault('ax1_step', 1)
+        plane_kwargs.setdefault('n_rows', n_rows)
+        plane_kwargs.setdefault('n_cols', n_cols)
+        plane_kwargs.setdefault('rotated', rotated)
+        self.plane = plane_cls(**plane_kwargs)
 
         piano_kwargs = piano_kwargs or {}
         piano_kwargs.setdefault('interval_colors', interval_colors)
@@ -66,46 +60,32 @@ class HexagonalPiano:
         piano_kwargs.setdefault('interval_text', interval_text)
         piano_kwargs.setdefault('interval_subtext', interval_subtext)
         piano_kwargs.setdefault('interval_extra_texts', interval_extra_texts)
-        piano_kwargs.setdefault('radius', self.hex.h / 2)
-        piano_kwargs.setdefault('radius1', self.hex.h / 2)
-        piano_kwargs.setdefault('offset_x', self.hex.h / 2)
+        piano_kwargs.setdefault('radius', self.plane.h / 2)
+        piano_kwargs.setdefault('radius1', self.plane.h / 2)
+        piano_kwargs.setdefault('offset_x', self.plane.h / 2)
         piano_kwargs.setdefault('ax0_step', 1)
         piano_kwargs.setdefault('ax1_step', 0)
         piano_kwargs.setdefault('n_rows', 1)
         piano_kwargs.setdefault('n_cols', None)
         piano_kwargs.setdefault('col_range', range(-1, n_cols + 1))
-        # self.piano = Squared(**piano_kwargs)
         self.piano = IsoPiano(**piano_kwargs)
-        # self.piano = IsoPiano(
-        #     interval_colors=interval_colors,
-        #     interval_parts_colors=interval_parts_colors,
-        #     interval_text=interval_text,
-        #     interval_strokes=interval_strokes,
-        #     n_cols=n_cols,
-        #     radius=self.hex.h/2,
-        #     offset_x=self.hex.h/2,
-        #     font_size_radius_ratio=font_size_radius_ratio,
-        #     round_points=round_points,
-        #     key_height = key_height or radius * 2,
-        #     extra_radius_width_on_right=True,
-        # )
 
 
         if header_kwargs is None:
             self.nested_svg = NestedSVG(
-                elements=[self.hex.svg, self.piano.svg],
-                coordinates=[(0, 0), (0, self.hex.svg.height)],
-                width=self.hex.svg.width,
-                height=self.hex.svg.height + self.piano.svg.height,
+                elements=[self.plane.svg, self.piano.svg],
+                coordinates=[(0, 0), (0, self.plane.svg.height)],
+                width=self.plane.svg.width,
+                height=self.plane.svg.height + self.piano.svg.height,
             )
         else:
-            header_kwargs.setdefault('width', self.hex.svg.width)
+            header_kwargs.setdefault('width', self.plane.svg.width)
             self.header = Header(**header_kwargs)
             self.nested_svg = NestedSVG(
-                elements=[self.header.svg, self.hex.svg, self.piano.svg],
-                coordinates=[(0, 0), (0, self.header.svg.height), (0, self.header.svg.height + self.hex.svg.height)],
-                width=width or self.hex.svg.width,
-                height=height or self.header.height + self.hex.height + self.piano.svg.height,
+                elements=[self.header.svg, self.plane.svg, self.piano.svg],
+                coordinates=[(0, 0), (0, self.header.svg.height), (0, self.header.svg.height + self.plane.svg.height)],
+                width=width or self.plane.svg.width,
+                height=height or self.header.height + self.plane.height + self.piano.svg.height,
                 class_=class_,
                 id=id,
             )

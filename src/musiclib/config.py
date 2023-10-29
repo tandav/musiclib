@@ -97,4 +97,4 @@ interval_colors = {
     AbstractInterval(11): Color(0xFF00FF),
 }
 
-repr_svg_method = 'svg_hex_piano'
+repr_svg_method = 'svg_plane_piano'
