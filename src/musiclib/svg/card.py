@@ -36,9 +36,9 @@ class PlanePiano:
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,
         rotated: bool = False,
     ) -> None:
-        header_kwargs = header_kwargs or {}
+        header_kwargs = header_kwargs.copy() if header_kwargs is not None else {}
 
-        plane_kwargs = plane_kwargs or {}
+        plane_kwargs = plane_kwargs.copy() if plane_kwargs is not None else {}
         plane_kwargs.setdefault('interval_colors', interval_colors)
         plane_kwargs.setdefault('interval_strokes', interval_strokes)
         plane_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
@@ -53,7 +53,7 @@ class PlanePiano:
         plane_kwargs.setdefault('rotated', rotated)
         self.plane = plane_cls(**plane_kwargs)
 
-        piano_kwargs = piano_kwargs or {}
+        piano_kwargs = piano_kwargs.copy() if piano_kwargs is not None else {}
         piano_kwargs.setdefault('interval_colors', interval_colors)
         piano_kwargs.setdefault('interval_strokes', interval_strokes)
         piano_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
