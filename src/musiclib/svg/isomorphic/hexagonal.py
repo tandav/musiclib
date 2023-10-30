@@ -3,6 +3,7 @@ import cmath
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 from musiclib.util.etc import vertex
 
+
 class Hexagonal(IsomorphicKeyboard):
     def add_keys(self) -> None:
         if self.rotated:
@@ -30,7 +31,7 @@ class Hexagonal(IsomorphicKeyboard):
             return self._opposite_vertices_axis_index_to_px(col) + self.offset_x
         return self._opposite_midpoints_axis_index_to_px(col) + self.offset_x
 
-    def row_to_y(self, row: float, invert_axis: bool = True) -> float:
+    def row_to_y(self, row: float, *, invert_axis: bool = True) -> float:
         if invert_axis:
             return self.height - (self.row_to_y(row, invert_axis=False) + self.offset_y)
         if self.rotated:
@@ -56,7 +57,7 @@ class Hexagonal(IsomorphicKeyboard):
         return self.h * (i + 1)
 
     @property
-    def h(self):
+    def h(self) -> float:
         return 3 ** 0.5 / 2 * self.radius
 
     def key_points(self, x: float, y: float) -> list[float]:

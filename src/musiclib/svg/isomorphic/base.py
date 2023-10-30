@@ -63,7 +63,7 @@ class IsomorphicKeyboard(abc.ABC):
         self.interval_strokes = interval_strokes or {}
         self.defs = svg.Defs(elements=[])
         self.elements.append(self.defs)
-        self.id_suffix = str(uuid.uuid4()).split('-')[0]
+        self.id_suffix = str(uuid.uuid4()).split('-', maxsplit=1)[0]
         self.ax0_step = ax0_step
         self.ax1_step = ax1_step
         self.default_key_color = default_key_color
@@ -76,9 +76,9 @@ class IsomorphicKeyboard(abc.ABC):
         row_range: range | None,
         col_range: range | None,
     ) -> None:
-        if not ((n_rows is None) ^ (row_range is None)):
+        if not (n_rows is None) ^ (row_range is None):
             raise ValueError('Exactly one of n_rows or row_range must be provided')
-        if not ((n_cols is None) ^ (col_range is None)):
+        if not (n_cols is None) ^ (col_range is None):
             raise ValueError('Exactly one of n_cols or col_range must be provided')
 
         self.row_range = row_range
@@ -151,16 +151,18 @@ class IsomorphicKeyboard(abc.ABC):
         for part, color in self.interval_parts_colors.get(interval, {}).items():
             p0 = vertex(x, y, self.radius, self.n_parts, part)
             p1 = vertex(x, y, self.radius, self.n_parts, (part + 1) % self.n_parts)
-            self.elements.append(svg.Path(
-                d=[
-                    svg.MoveTo(x, y),
-                    svg.LineTo(*p0),
-                    svg.Arc(rx=self.radius, ry=self.radius, angle=360/self.n_parts, large_arc=False, sweep=False, x=p1[0], y=p1[1]),
-                    svg.ClosePath(),
-                ],
-                fill=color.css_hex,
-                clip_path=f'url(#{id_})',
-            ))
+            self.elements.append(
+                svg.Path(
+                    d=[
+                        svg.MoveTo(x, y),
+                        svg.LineTo(*p0),
+                        svg.Arc(rx=self.radius, ry=self.radius, angle=360 / self.n_parts, large_arc=False, sweep=False, x=p1[0], y=p1[1]),
+                        svg.ClosePath(),
+                    ],
+                    fill=color.css_hex,
+                    clip_path=f'url(#{id_})',
+                ),
+            )
 
         for text_callable in (
             self.interval_text,
@@ -185,7 +187,6 @@ class IsomorphicKeyboard(abc.ABC):
         #     # onmouseup=f"midi_message('note_off', '{note}')",
         # )
         # self.elements.append(polygon)
-
 
     @abc.abstractmethod
     def key_points(self, x: float, y: float) -> list[float]:

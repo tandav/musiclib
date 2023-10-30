@@ -33,7 +33,7 @@ class PlanePiano:
         width: int | None = None,
         height: int | None = None,
         class_: list[str] | None = None,
-        id: str | None = None,  # noqa: A002
+        id: str | None = None,  # noqa: A002 pylint: disable=redefined-builtin
         header_kwargs: dict[str, Any] | None = None,
         plane_kwargs: dict[str, Any] | None = None,
         plane_cls: type[Hexagonal] | type[Squared] = Hexagonal,

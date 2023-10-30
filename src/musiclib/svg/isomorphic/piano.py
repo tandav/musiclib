@@ -1,3 +1,5 @@
+from typing import Any
+
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 
 
@@ -5,7 +7,7 @@ class IsoPiano(IsomorphicKeyboard):
     def __init__(
         self,
         radius1: int = 36,
-        **kw,
+        **kw: Any,
     ) -> None:
         self.radius1 = radius1
         if kw.get('rotated', False):

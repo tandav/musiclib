@@ -25,7 +25,7 @@ def sub_text_kw_interval(interval: int, radius: int, x: float, y: float) -> SVG_
 
 
 class FromIntervalDict:
-    def __init__(self, interval_dict: IntervalDict, abstract: bool = False) -> None:
+    def __init__(self, interval_dict: IntervalDict, *, abstract: bool = False) -> None:
         self.interval_dict = interval_dict
         self.abstract = abstract
 

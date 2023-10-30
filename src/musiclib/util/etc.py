@@ -1,4 +1,5 @@
 import cmath
+
 from musiclib.interval import AbstractInterval
 
 
@@ -42,7 +43,16 @@ def vertex(
     return p.imag, p.real
 
 
-def line_intersection(x00, y00, x01, y01, x10, y10, x11, y11):
+def line_intersection(
+    x00: float,
+    y00: float,
+    x01: float,
+    y01: float,
+    x10: float,
+    y10: float,
+    x11: float,
+    y11: float,
+) -> tuple[float, float]:
     """
     computes coordinates of intersection of 2 lines.
     Each line is defined by 2 points:

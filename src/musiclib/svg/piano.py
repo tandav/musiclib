@@ -54,7 +54,7 @@ class RegularPiano:
         square_black_offset: int = 3,
         class_: tuple[str, ...] = (),
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
-    ):
+    ) -> None:
         self.note_colors = note_colors or {}
         self.note_hrefs = note_hrefs or {}
         self.note_onclicks = note_onclicks or {}
@@ -170,6 +170,7 @@ class RegularPiano:
             sx = self.ww * self.white_notes.index(note + 1) - self.square_size // 2
             sy = self.bh - self.square_size - self.square_black_offset
             return x, y, self.bw, self.bh, c, sx, sy
+        raise ValueError(f'note {note} is not in {self.sns}')
 
     @property
     def svg(self) -> svg.SVG:

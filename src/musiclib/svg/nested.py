@@ -9,7 +9,7 @@ class NestedSVG:
         width: svg._types.Number = 600,
         height: svg._types.Number = 400,
         class_: list[str] | None = None,
-        id: str | None = None,
+        id: str | None = None,  # noqa: A002 pylint: disable=redefined-builtin
     ) -> None:
         self.elements = elements
         self.coordinates = coordinates

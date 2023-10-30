@@ -6,7 +6,6 @@ from colortool import Color
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noteset import SpecificNoteSet
 
 # from musiclib.svg.piano import Piano
 from musiclib.svg.piano import RegularPiano
@@ -123,11 +122,11 @@ def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload
 
 
 @pytest.mark.parametrize(
-    ('sns', 'start', 'stop'), [
-        (SpecificNoteSet.from_noterange(SpecificNote('d', 2), SpecificNote('b', 2)), SpecificNote('C', 2), SpecificNote('B', 2)),
+    ('start', 'stop'), [
+        (SpecificNote('C', 2), SpecificNote('B', 2)),
     ],
 )
-def test_startswith_endswith_white_key(sns, start, stop):
+def test_startswith_endswith_white_key(start, stop):
     svg = RegularPiano(start_stop=(start, stop))._repr_svg_()
     notes = note_info(svg, element='rect', class_='note').keys()
     assert min(notes) == start

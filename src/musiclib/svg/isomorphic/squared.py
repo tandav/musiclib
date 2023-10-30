@@ -31,7 +31,7 @@ class Squared(IsomorphicKeyboard):
             return self.radius * (col + 1) + self.offset_x
         return self.h * (2 * col + 1) + self.offset_x
 
-    def row_to_y(self, row: float, invert_axis: bool = True) -> float:
+    def row_to_y(self, row: float, *, invert_axis: bool = True) -> float:
         if invert_axis:
             return self.height - (self.row_to_y(row, invert_axis=False) + self.offset_y)
         if self.rotated:
@@ -51,7 +51,7 @@ class Squared(IsomorphicKeyboard):
         return int(self.row_to_y(self.n_rows - 1 + 0.5, invert_axis=False))
 
     @property
-    def h(self):
+    def h(self) -> float:
         return 2 ** 0.5 / 2 * self.radius
 
     def key_points(self, x: float, y: float) -> list[float]:

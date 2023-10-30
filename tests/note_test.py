@@ -128,6 +128,6 @@ def test_midi_code():
 
 def test_lt_validation():
     with pytest.raises(TypeError):
-        Note('C') < 1
+        assert Note('C') < 1
     with pytest.raises(TypeError):
-        SpecificNote.from_str('C1') < Note('C')
+        assert SpecificNote.from_str('C1') < Note('C')

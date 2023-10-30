@@ -9,7 +9,6 @@ from colortool import Color
 
 from musiclib import config
 from musiclib.midi.pitchbend import make_notes_pitchbends
-from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
 from musiclib.svg.isomorphic.piano import IsoPiano
 from musiclib.svg.isomorphic.text import FromIntervalDict
@@ -20,6 +19,7 @@ if TYPE_CHECKING:
     from musiclib.midi.parse import Midi
     from musiclib.midi.parse import MidiNote
     from musiclib.midi.parse import MidiPitch
+    from musiclib.note import SpecificNote
 
 
 class PianoRoll:
@@ -50,8 +50,8 @@ class PianoRoll:
         self.key_height = key_height
         self.piano = IsoPiano(
             n_cols=len(self.sns),
-            interval_colors=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), config.WHITE_PALE),
-            interval_strokes=dict.fromkeys(self.sns.intervals + (self.sns.intervals[-1] + 1,), {'stroke': config.BLACK_PALE, 'stroke_width': 0.5}),
+            interval_colors=dict.fromkeys(self.sns.intervals, config.WHITE_PALE),
+            interval_strokes=dict.fromkeys(self.sns.intervals, {'stroke': config.BLACK_PALE, 'stroke_width': 0.5}),
             interval_text=FromIntervalDict({i: str(n) for i, n in zip(self.sns.intervals, self.sns.notes_ascending, strict=True)}),
             radius=key_width // 2,
             radius1=key_height // 2,
