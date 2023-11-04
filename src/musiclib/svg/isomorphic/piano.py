@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Literal
 
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 
@@ -79,3 +80,24 @@ class IsoPiano(IsomorphicKeyboard):
             else:
                 points += self.vertex(x, y, self.radius, i, self.radius1)
         return points
+
+    def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
+        ax_split_len = self.radius if self.rotated else self.radius1
+        ax_other_len = self.radius1 if self.rotated else self.radius
+        z = ax_split_len * 2 / self.n_parts
+        if ax == 'vertical':
+            return {
+                'x': x - ax_other_len,
+                'y': y - ax_split_len + part * z,
+                'width': ax_other_len * 2,
+                'height': z,
+            }
+        if ax == 'horizontal':
+            ax_split_len, ax_other_len = ax_other_len, ax_split_len
+            z = ax_split_len * 2 / self.n_parts
+            return {
+                'x': x - ax_split_len + part * z,
+                'y': y - ax_other_len,
+                'width': z,
+                'height': ax_other_len * 2,
+            }
