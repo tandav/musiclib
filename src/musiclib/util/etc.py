@@ -1,8 +1,6 @@
 import cmath
 from typing import Any
 
-from musiclib.interval import AbstractInterval
-
 
 def are_all_none(*args: Any) -> bool:
     return all(arg is None for arg in args)
@@ -40,10 +38,10 @@ def intervals_rotations(intervals: frozenset[int]) -> tuple[frozenset[int], ...]
 
 
 def named_intervals_rotations(
-    intervals: frozenset[int | AbstractInterval] | set[int | AbstractInterval],
+    intervals: set[int] | frozenset[int],
     name_prefix: str,
 ) -> dict[str, frozenset[int]]:
-    return {f'{name_prefix}_{i}': fs for i, fs in enumerate(intervals_rotations(intervals))}
+    return {f'{name_prefix}_{i}': fs for i, fs in enumerate(intervals_rotations(frozenset(intervals)))}
 
 
 def vertex(
@@ -68,7 +66,7 @@ def line_intersection(
     y10: float,
     x11: float,
     y11: float,
-) -> tuple[float, float]:
+) -> tuple[float | None, float | None]:
     """
     computes coordinates of intersection of 2 lines.
     Each line is defined by 2 points:
@@ -107,7 +105,7 @@ def line_intersection(
     # If the first line is vertical
     if m1 is None:
         x = b1
-        y = m2 * x + b2
+        y = m2 * x + b2  # type: ignore[operator]
         return x, y
 
     # If the second line is vertical

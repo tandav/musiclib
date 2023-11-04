@@ -352,13 +352,14 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        C = Note('C')  # noqa: N806
+
+        n0 = Note(config.chromatic_notes[0])
         kwargs.setdefault('header_kwargs', {'title': str(self)})
         kwargs.setdefault(
             'interval_colors',
-            dict.fromkeys([n - C for n in self.del_notes], config.RED) |
-            dict.fromkeys([n - C for n in self.new_notes], config.GREEN) |
-            dict.fromkeys([n - C for n in self.shared_notes], config.BLUE),
+            dict.fromkeys([n - n0 for n in self.del_notes], config.RED) |
+            dict.fromkeys([n - n0 for n in self.new_notes], config.GREEN) |
+            dict.fromkeys([n - n0 for n in self.shared_notes], config.BLUE),
         )
-        kwargs.setdefault('interval_text', FromIntervalDict({n - C: str(n) for n in CHROMATIC_NOTESET}, abstract=True))
+        kwargs.setdefault('interval_text', FromIntervalDict({n - n0: str(n) for n in CHROMATIC_NOTESET}, abstract=True))
         return PlanePiano(**kwargs).svg

@@ -73,7 +73,7 @@ class IsoPiano(IsomorphicKeyboard):
         }[i % 4]
 
     def key_points(self, x: float, y: float) -> list[float]:
-        points = []
+        points: list[float] = []
         for i in range(5):
             if self.rotated:
                 points += self.vertex(x, y, self.radius1, i, self.radius)
@@ -84,7 +84,7 @@ class IsoPiano(IsomorphicKeyboard):
     def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
         ax_split_len = self.radius if self.rotated else self.radius1
         ax_other_len = self.radius1 if self.rotated else self.radius
-        z = ax_split_len * 2 / self.n_parts
+        z = ax_split_len * 2 / self.n_parts  # type: ignore[operator]
         if ax == 'vertical':
             return {
                 'x': x - ax_other_len,
@@ -94,7 +94,7 @@ class IsoPiano(IsomorphicKeyboard):
             }
         if ax == 'horizontal':
             ax_split_len, ax_other_len = ax_other_len, ax_split_len
-            z = ax_split_len * 2 / self.n_parts
+            z = ax_split_len * 2 / self.n_parts  # type: ignore[operator]
             return {
                 'x': x - ax_split_len + part * z,
                 'y': y - ax_other_len,

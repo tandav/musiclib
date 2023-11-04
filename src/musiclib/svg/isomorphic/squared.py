@@ -57,7 +57,7 @@ class Squared(IsomorphicKeyboard):
 
     def key_points(self, x: float, y: float) -> list[float]:
         phase = 0 if self.rotated else cmath.pi / 4
-        points = []
+        points: list[float] = []
         for i in range(4):
             points += vertex(x, y, self.radius, 4, i, phase)
         return points
@@ -65,7 +65,7 @@ class Squared(IsomorphicKeyboard):
     def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
         ax_split_len = self.radius if self.rotated else self.h
         ax_other_len = self.radius if self.rotated else self.h
-        z = ax_split_len * 2 / self.n_parts
+        z = ax_split_len * 2 / self.n_parts  # type: ignore[operator]
         if ax == 'vertical':
             return {
                 'x': x - ax_other_len,

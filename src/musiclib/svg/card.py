@@ -43,7 +43,7 @@ class PlanePiano:
     ) -> None:
 
         nested_svg_kw = {
-            'elements': [],
+            'svgs': [],
             'coordinates': [],
             'height': 0,
             'class_': class_,
@@ -71,13 +71,13 @@ class PlanePiano:
             header_kwargs = header_kwargs.copy()
             header_kwargs.setdefault('width', self.plane.svg.width)
             self.header = Header(**header_kwargs)
-            nested_svg_kw['elements'].append(self.header.svg)
-            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
-            nested_svg_kw['height'] += self.header.svg.height
+            nested_svg_kw['svgs'].append(self.header.svg)  # type: ignore[attr-defined]
+            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))  # type: ignore[attr-defined]
+            nested_svg_kw['height'] += self.header.svg.height  # type: ignore[operator]
 
-        nested_svg_kw['elements'].append(self.plane.svg)
-        nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
-        nested_svg_kw['height'] += self.plane.svg.height
+        nested_svg_kw['svgs'].append(self.plane.svg)  # type: ignore[attr-defined]
+        nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))  # type: ignore[attr-defined]
+        nested_svg_kw['height'] += self.plane.svg.height  # type: ignore[operator]
 
         if piano_kwargs is not None:
             piano_kwargs = piano_kwargs.copy()
@@ -118,14 +118,14 @@ class PlanePiano:
                 raise ValueError(f'Unsupported plane_cls: {plane_cls}, must be Hexagonal or Squared')
 
             self.piano = IsoPiano(**piano_kwargs)
-            nested_svg_kw['elements'].append(self.piano.svg)
-            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))
-            nested_svg_kw['height'] += self.piano.svg.height
+            nested_svg_kw['svgs'].append(self.piano.svg)  # type: ignore[attr-defined]
+            nested_svg_kw['coordinates'].append((0, nested_svg_kw['height']))  # type: ignore[attr-defined]
+            nested_svg_kw['height'] += self.piano.svg.height  # type: ignore[operator]
 
         if height is not None:
             nested_svg_kw['height'] = height
         nested_svg_kw['width'] = width or self.plane.svg.width
-        self.nested_svg = NestedSVG(**nested_svg_kw)
+        self.nested_svg = NestedSVG(**nested_svg_kw)  # type: ignore[arg-type]
 
     @property
     def svg(self) -> svg.SVG:
@@ -152,13 +152,14 @@ class Piano:
         class_: list[str] | None = None,
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
     ) -> None:
+        header_kwargs = header_kwargs.copy() if header_kwargs is not None else {}
         header_kwargs.setdefault('header_rect', False)
         header_kwargs.setdefault('margin', (0, 0, 0, 0))
         header_kwargs.setdefault('height', 30)
-        self.header = Header(**(header_kwargs or {}))
+        self.header = Header(**header_kwargs)
         self.piano = RegularPiano(**(regular_piano_kwargs or {}))
         card_width = self.piano.width + padding[1] + padding[3]
-        card_height = self.header.svg.height + self.piano.height + padding[0] + padding[2]
+        card_height = self.header.svg.height + self.piano.height + padding[0] + padding[2]  # type: ignore[operator]
         width = margin[3] + card_width + shadow_offset + margin[1]
         height = margin[0] + card_height + shadow_offset + margin[2]
         self.shadow_rect = svg.SVG(
@@ -198,7 +199,7 @@ class Piano:
             height=height,
         )
         self.nested_svg = NestedSVG(
-            elements=[
+            svgs=[
                 self.shadow_rect,
                 self.card_rect,
                 self.header.svg,
@@ -208,7 +209,7 @@ class Piano:
                 (0, 0),
                 (0, 0),
                 (margin[3] + padding[3], margin[0]),
-                (margin[3] + padding[3], margin[0] + padding[0] + self.header.svg.height),
+                (margin[3] + padding[3], margin[0] + padding[0] + self.header.svg.height),  # type: ignore[operator]
             ],
             width=width,
             height=height,

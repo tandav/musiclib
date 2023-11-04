@@ -1,17 +1,18 @@
 import svg
+from svg._types import Number
 
 
 class NestedSVG:
     def __init__(
         self,
-        elements: list[svg.SVG | svg.Element],
-        coordinates: list[tuple[svg._types.Number, svg._types.Number]],
-        width: svg._types.Number = 600,
-        height: svg._types.Number = 400,
+        svgs: list[svg.SVG],
+        coordinates: list[tuple[Number, Number]],
+        width: Number = 600,
+        height: Number = 400,
         class_: list[str] | None = None,
         id: str | None = None,  # noqa: A002 pylint: disable=redefined-builtin
     ) -> None:
-        self.elements = elements
+        self.svgs = svgs
         self.coordinates = coordinates
         self.width = width
         self.height = height
@@ -27,14 +28,14 @@ class NestedSVG:
                 svg.SVG(
                     x=x,
                     y=y,
-                    width=el.width,
-                    height=el.height,
-                    viewBox=svg.ViewBoxSpec(0, 0, el.width, el.height),
-                    elements=el.elements if isinstance(el, svg.SVG) else [el],
-                    class_=el.class_,
-                    id=el.id,
+                    width=_svg.width,
+                    height=_svg.height,
+                    viewBox=svg.ViewBoxSpec(0, 0, _svg.width, _svg.height),  # type: ignore[arg-type]
+                    elements=_svg.elements if isinstance(_svg, svg.SVG) else [_svg],
+                    class_=_svg.class_,
+                    id=_svg.id,
                 )
-                for el, (x, y) in zip(self.elements, self.coordinates, strict=True)
+                for _svg, (x, y) in zip(self.svgs, self.coordinates, strict=True)
             ],
             class_=self.class_,
             id=self.id,

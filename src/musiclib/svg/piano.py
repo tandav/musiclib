@@ -133,7 +133,7 @@ class RegularPiano:
                         class_=['square', str(note)],
                         x=sx + self.square_size // 2,
                         y=sy + self.square_size // 2,
-                        font_family=payload.get('square_font_family', 'monospace'),
+                        font_family=payload.get('square_font_family', 'monospace'),  # type: ignore[arg-type]
                         font_size=payload.get('text_size', 15),
                         fill=payload.get('text_color', config.BLACK_BRIGHT).css_hex,
                         text=text,

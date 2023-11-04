@@ -1,11 +1,14 @@
 import collections
 import functools
 import operator
+import typing as tp
 
 from colortool import Color
 
 from musiclib.interval import AbstractInterval
 from musiclib.util.etc import named_intervals_rotations
+
+NIDict: tp.TypeAlias = dict[str, frozenset[AbstractInterval]]
 
 chromatic_notes = 'CdDeEFfGaAbB'
 circle_of_fifths_clockwise = 'CGDAEBfdaebF'
@@ -50,20 +53,20 @@ name_to_intervals_kind_grouped = {
     'sus2': named_intervals_rotations({0, 2, 7}, 'sus2'),
     'sus4': named_intervals_rotations({0, 5, 7}, 'sus4'),
 }
-name_to_intervals_kind_grouped = {k: {kk: frozenset(map(AbstractInterval, v)) for kk, v in kv.items()} for k, kv in name_to_intervals_kind_grouped.items()}
-name_to_intervals: dict[str, frozenset[AbstractInterval]] = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
+name_to_intervals_kind_grouped: dict[str, NIDict] = {k: {kk: frozenset(map(AbstractInterval, v)) for kk, v in kv.items()} for k, kv in name_to_intervals_kind_grouped.items()}  # type: ignore[no-redef, attr-defined]
+name_to_intervals: NIDict = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())  # type: ignore[arg-type]
 _intervals_to_names = collections.defaultdict(set)
 for n, i in name_to_intervals.items():
     _intervals_to_names[i].add(n)
 intervals_to_names = {k: frozenset(v) for k, v in _intervals_to_names.items()}
-name_to_intervals_key = {kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()}
+name_to_intervals_key = {kind: frozenset(kv.values()) for kind, kv in name_to_intervals_kind_grouped.items()}  # type: ignore[attr-defined]
 intervals_key_to_name = {v: k for k, v in name_to_intervals_key.items()}
 
 scale_order = {}
 kinds = {}
 for kind, kv in name_to_intervals_kind_grouped.items():
-    scale_order[kind] = tuple(kv.keys())
-    kinds.update(dict.fromkeys(kv.keys(), kind))
+    scale_order[kind] = tuple(kv.keys())  # type: ignore[attr-defined]
+    kinds.update(dict.fromkeys(kv.keys(), kind))  # type: ignore[attr-defined]
 
 nths = {
     'triads': frozenset({0, 2, 4}),

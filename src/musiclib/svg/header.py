@@ -28,7 +28,7 @@ class Header:
     ) -> None:
         self.width = width
         self.height = height
-        self.elements = []
+        self.elements: list[svg.Element] = []
         if header_rect:
             self.elements.append(
                 svg.Rect(

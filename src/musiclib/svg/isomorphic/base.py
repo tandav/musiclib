@@ -116,6 +116,8 @@ class IsomorphicKeyboard(abc.ABC):
         self.col_range = col_range
 
         if n_rows is None:
+            if row_range is None:
+                raise ValueError('Exactly one of n_rows or row_range must be provided')
             self.n_rows = len(row_range)
         elif n_rows < 0:
             raise ValueError(f'n_rows={n_rows} must be positive')
@@ -123,6 +125,8 @@ class IsomorphicKeyboard(abc.ABC):
             self.n_rows = n_rows
 
         if n_cols is None:
+            if col_range is None:
+                raise ValueError('Exactly one of n_cols or col_range must be provided')
             self.n_cols = len(col_range)
         elif n_cols < 0:
             raise ValueError(f'n_cols={n_cols} must be positive')
@@ -155,7 +159,9 @@ class IsomorphicKeyboard(abc.ABC):
     def row_col_to_interval(self, row: float, col: float) -> int:
         ...
 
-    def add_parts(self, interval: int, x: float, y: float, id_: str) -> None:
+    def add_parts(self, interval: int, x: float, y: float, id_: str) -> None:  # noqa: C901
+        if self.n_parts is None:
+            raise ValueError('n_parts must be provided if any of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors is provided')
         if self.interval_radial_parts_colors is not None:
             for part, color in self.interval_radial_parts_colors.get(interval, {}).items():
                 if part >= self.n_parts:
@@ -181,7 +187,7 @@ class IsomorphicKeyboard(abc.ABC):
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 self.elements.append(
                     svg.Rect(
-                        **self.ax_split_part_rect_coordinates(x, y, part, 'horizontal'),
+                        **self.ax_split_part_rect_coordinates(x, y, part, 'horizontal'),  # type: ignore[arg-type]
                         fill=color.css_hex,
                         clip_path=f'url(#{id_})',
                     ),
@@ -193,7 +199,7 @@ class IsomorphicKeyboard(abc.ABC):
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 self.elements.append(
                     svg.Rect(
-                        **self.ax_split_part_rect_coordinates(x, y, part, 'vertical'),
+                        **self.ax_split_part_rect_coordinates(x, y, part, 'vertical'),  # type: ignore[arg-type]
                         fill=color.css_hex,
                         clip_path=f'url(#{id_})',
                     ),
@@ -219,7 +225,7 @@ class IsomorphicKeyboard(abc.ABC):
             # clip_path='url(#key-clip)',
         }
         id_ = f'row-{row}-col-{col}-{self.id_suffix}'
-        self.defs.elements.append(svg.ClipPath(id=id_, elements=[svg.Polygon(**polygon_kw)]))
+        self.defs.elements.append(svg.ClipPath(id=id_, elements=[svg.Polygon(**polygon_kw)]))  # type: ignore[union-attr]
         stroke = self.interval_strokes.get(interval, self.interval_strokes.get(AbstractInterval(interval), None))
         if stroke is not None:
             polygon_kw['stroke'] = stroke['stroke'].css_hex
@@ -227,7 +233,8 @@ class IsomorphicKeyboard(abc.ABC):
             polygon_kw['clip_path'] = f'url(#{id_})'
         self.elements.append(svg.Polygon(**polygon_kw))
 
-        self.add_parts(interval, x, y, id_)
+        if self.n_parts is not None:
+            self.add_parts(interval, x, y, id_)
 
         for text_callable in (
             self.interval_text,
