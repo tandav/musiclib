@@ -1,7 +1,7 @@
 import abc
 import uuid
 from collections.abc import Iterable
-
+from typing import Literal
 import svg
 from colortool import Color
 
@@ -174,31 +174,35 @@ class IsomorphicKeyboard(abc.ABC):
                         clip_path=f'url(#{id_})',
                     ),
                 )
+
+        if self.interval_horizontal_parts_colors is not None:
+            for part, color in self.interval_horizontal_parts_colors.get(interval, {}).items():
+                if part >= self.n_parts:
+                    raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
+                self.elements.append(
+                    svg.Rect(
+                        **self.ax_split_part_rect_coordinates(x, y, part, 'horizontal'),
+                        fill=color.css_hex,
+                        clip_path=f'url(#{id_})',
+                    ),
+                )
+
         if self.interval_vertical_parts_colors is not None:
             for part, color in self.interval_vertical_parts_colors.get(interval, {}).items():
                 if part >= self.n_parts:
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 self.elements.append(
                     svg.Rect(
-                        **self.vertical_split_rect_coordinates(x, y, part),
+                        **self.ax_split_part_rect_coordinates(x, y, part, 'vertical'),
                         fill=color.css_hex,
                         clip_path=f'url(#{id_})',
                     ),
                 )
 
-    def vertical_split_rect_coordinates(
-        self,
-        x: float,
-        y: float,
-        part: int,
-    ) -> dict[str, float]:
-        z = (self.h if self.rotated else self.radius) * 2 / self.n_parts
-        return {
-            'x': x - (self.radius if self.rotated else self.h),
-            'y': y - (self.h if self.rotated else self.radius) + part * z,
-            'width': (self.radius if self.rotated else self.h) * 2,
-            'height': z,
-        }
+
+    @abc.abstractmethod
+    def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
+        ...
 
     def add_key(self, row: float, col: float) -> None:
         interval = self.row_col_to_interval(row, col)
