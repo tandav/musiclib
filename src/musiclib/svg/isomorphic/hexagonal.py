@@ -1,8 +1,8 @@
 import cmath
+from typing import Literal
 
 from musiclib.svg.isomorphic.base import IsomorphicKeyboard
 from musiclib.util.etc import vertex
-from typing import Literal
 
 
 class Hexagonal(IsomorphicKeyboard):
@@ -75,7 +75,7 @@ class Hexagonal(IsomorphicKeyboard):
         if ax == 'vertical':
             return {
                 'x': x - ax_other_len,
-                'y': y - ax_split_len + part * z,
+                'y': y + ax_split_len - (part + 1) * z,
                 'width': ax_other_len * 2,
                 'height': z,
             }
@@ -88,3 +88,4 @@ class Hexagonal(IsomorphicKeyboard):
                 'width': z,
                 'height': ax_other_len * 2,
             }
+        raise ValueError(f'Unsupported ax: {ax}, must be horizontal or vertical')

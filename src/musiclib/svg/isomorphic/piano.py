@@ -88,7 +88,7 @@ class IsoPiano(IsomorphicKeyboard):
         if ax == 'vertical':
             return {
                 'x': x - ax_other_len,
-                'y': y - ax_split_len + part * z,
+                'y': y + ax_split_len - (part + 1) * z,
                 'width': ax_other_len * 2,
                 'height': z,
             }
@@ -101,3 +101,4 @@ class IsoPiano(IsomorphicKeyboard):
                 'width': z,
                 'height': ax_other_len * 2,
             }
+        raise ValueError(f'Unsupported ax: {ax}, must be horizontal or vertical')

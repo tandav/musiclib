@@ -2,6 +2,7 @@ import abc
 import uuid
 from collections.abc import Iterable
 from typing import Literal
+
 import svg
 from colortool import Color
 
@@ -9,10 +10,9 @@ from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.svg.isomorphic.text import TEXT_CALLABLE
 from musiclib.svg.isomorphic.text import middle_text_kw_abstract_interval
-from musiclib.util.etc import vertex
 from musiclib.util.etc import are_mutually_exclusive
-from musiclib.util.etc import are_all_none
-from musiclib.util.etc import any_not_none
+from musiclib.util.etc import is_any_not_none
+from musiclib.util.etc import vertex
 
 
 class IsomorphicKeyboard(abc.ABC):
@@ -87,14 +87,14 @@ class IsomorphicKeyboard(abc.ABC):
             interval_vertical_parts_colors,
         ):
             raise ValueError('Exactly one of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors must be provided')
-        
-        if any_not_none(
+
+        if is_any_not_none(
             interval_radial_parts_colors,
             interval_horizontal_parts_colors,
             interval_vertical_parts_colors,
         ) and n_parts is None:
             raise ValueError('n_parts must be provided if any of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors is provided')
-        
+
         self.interval_radial_parts_colors = interval_radial_parts_colors
         self.interval_horizontal_parts_colors = interval_horizontal_parts_colors
         self.interval_vertical_parts_colors = interval_vertical_parts_colors
@@ -199,7 +199,6 @@ class IsomorphicKeyboard(abc.ABC):
                     ),
                 )
 
-
     @abc.abstractmethod
     def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
         ...
@@ -229,8 +228,6 @@ class IsomorphicKeyboard(abc.ABC):
         self.elements.append(svg.Polygon(**polygon_kw))
 
         self.add_parts(interval, x, y, id_)
-
-
 
         for text_callable in (
             self.interval_text,
