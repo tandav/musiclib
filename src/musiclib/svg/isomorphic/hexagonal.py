@@ -69,10 +69,10 @@ class Hexagonal(IsomorphicKeyboard):
         return points
 
     def ax_split_part_rect_coordinates(self, x: float, y: float, part: int, ax: Literal['horizontal', 'vertical']) -> dict[str, float]:
+        ax_split_len = self.h if self.rotated else self.radius
+        ax_other_len = self.radius if self.rotated else self.h
+        z = ax_split_len * 2 / self.n_parts
         if ax == 'vertical':
-            ax_split_len = self.h if self.rotated else self.radius
-            ax_other_len = self.radius if self.rotated else self.h
-            z = ax_split_len * 2 / self.n_parts
             return {
                 'x': x - ax_other_len,
                 'y': y - ax_split_len + part * z,
@@ -80,8 +80,7 @@ class Hexagonal(IsomorphicKeyboard):
                 'height': z,
             }
         if ax == 'horizontal':
-            ax_split_len = self.radius if self.rotated else self.h
-            ax_other_len = self.h if self.rotated else self.radius
+            ax_split_len, ax_other_len = ax_other_len, ax_split_len
             z = ax_split_len * 2 / self.n_parts
             return {
                 'x': x - ax_split_len + part * z,
