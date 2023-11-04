@@ -51,7 +51,7 @@ name_to_intervals_kind_grouped = {
     'sus4': named_intervals_rotations({0, 5, 7}, 'sus4'),
 }
 name_to_intervals_kind_grouped = {k: {kk: frozenset(map(AbstractInterval, v)) for kk, v in kv.items()} for k, kv in name_to_intervals_kind_grouped.items()}
-name_to_intervals = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
+name_to_intervals: dict[str, frozenset[AbstractInterval]] = functools.reduce(operator.or_, name_to_intervals_kind_grouped.values())
 _intervals_to_names = collections.defaultdict(set)
 for n, i in name_to_intervals.items():
     _intervals_to_names[i].add(n)

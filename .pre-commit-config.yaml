@@ -7,7 +7,6 @@ repos:
     hooks:
       - id: check-added-large-files
       - id: check-yaml
-      - id: check-json
       - id: check-ast
       - id: check-byte-order-marker
       - id: check-builtin-literals
@@ -21,7 +20,6 @@ repos:
       - id: detect-private-key
       - id: double-quote-string-fixer
       - id: name-tests-test
-      - id: requirements-txt-fixer
 
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v3.1.0
