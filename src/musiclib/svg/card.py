@@ -22,7 +22,9 @@ class PlanePiano:
         *,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
-        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_radial_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_horizontal_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_vertical_parts_colors: dict[int, dict[int, Color]] | None = None,
         n_parts: int | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
@@ -51,7 +53,9 @@ class PlanePiano:
         plane_kwargs = plane_kwargs.copy() if plane_kwargs is not None else {}
         plane_kwargs.setdefault('interval_colors', interval_colors)
         plane_kwargs.setdefault('interval_strokes', interval_strokes)
-        plane_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+        plane_kwargs.setdefault('interval_radial_parts_colors', interval_radial_parts_colors)
+        plane_kwargs.setdefault('interval_horizontal_parts_colors', interval_horizontal_parts_colors)
+        plane_kwargs.setdefault('interval_vertical_parts_colors', interval_vertical_parts_colors)
         plane_kwargs.setdefault('n_parts', n_parts)
         plane_kwargs.setdefault('interval_text', interval_text)
         plane_kwargs.setdefault('interval_subtext', interval_subtext)
@@ -79,7 +83,9 @@ class PlanePiano:
             piano_kwargs = piano_kwargs.copy()
             piano_kwargs.setdefault('interval_colors', interval_colors)
             piano_kwargs.setdefault('interval_strokes', interval_strokes)
-            piano_kwargs.setdefault('interval_parts_colors', interval_parts_colors)
+            piano_kwargs.setdefault('interval_radial_parts_colors', interval_radial_parts_colors)
+            piano_kwargs.setdefault('interval_horizontal_parts_colors', interval_horizontal_parts_colors)
+            piano_kwargs.setdefault('interval_vertical_parts_colors', interval_vertical_parts_colors)
             piano_kwargs.setdefault('n_parts', n_parts)
             piano_kwargs.setdefault('interval_text', interval_text)
             piano_kwargs.setdefault('interval_subtext', interval_subtext)

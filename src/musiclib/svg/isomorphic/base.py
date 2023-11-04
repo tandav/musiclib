@@ -10,6 +10,9 @@ from musiclib.interval import AbstractInterval
 from musiclib.svg.isomorphic.text import TEXT_CALLABLE
 from musiclib.svg.isomorphic.text import middle_text_kw_abstract_interval
 from musiclib.util.etc import vertex
+from musiclib.util.etc import are_mutually_exclusive
+from musiclib.util.etc import are_all_none
+from musiclib.util.etc import any_not_none
 
 
 class IsomorphicKeyboard(abc.ABC):
@@ -22,7 +25,9 @@ class IsomorphicKeyboard(abc.ABC):
         *,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
-        interval_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_radial_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_horizontal_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_vertical_parts_colors: dict[int, dict[int, Color]] | None = None,
         n_parts: int | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
@@ -49,13 +54,13 @@ class IsomorphicKeyboard(abc.ABC):
         self.offset_y = offset_y
         self.elements: list[svg.Element] = []
         self.interval_colors = interval_colors or {}
-        if interval_parts_colors is None:
-            self.interval_parts_colors = {}
-        elif n_parts is None:
-            raise ValueError('n_parts must be provided if interval_parts_colors is provided')
-        else:
-            self.interval_parts_colors = interval_parts_colors
-        self.n_parts = n_parts
+
+        self.validate_parts_colors(
+            interval_radial_parts_colors,
+            interval_horizontal_parts_colors,
+            interval_vertical_parts_colors,
+            n_parts,
+        )
         self.interval_text = interval_text
         self.interval_subtext = interval_subtext
         self.interval_extra_texts = interval_extra_texts
@@ -69,6 +74,32 @@ class IsomorphicKeyboard(abc.ABC):
         self.default_key_color = default_key_color
         self.add_keys()
 
+    def validate_parts_colors(
+        self,
+        interval_radial_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_horizontal_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_vertical_parts_colors: dict[int, dict[int, Color]] | None = None,
+        n_parts: int | None = None,
+    ) -> None:
+        if not are_mutually_exclusive(
+            interval_radial_parts_colors,
+            interval_horizontal_parts_colors,
+            interval_vertical_parts_colors,
+        ):
+            raise ValueError('Exactly one of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors must be provided')
+        
+        if any_not_none(
+            interval_radial_parts_colors,
+            interval_horizontal_parts_colors,
+            interval_vertical_parts_colors,
+        ) and n_parts is None:
+            raise ValueError('n_parts must be provided if any of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors is provided')
+        
+        self.interval_radial_parts_colors = interval_radial_parts_colors
+        self.interval_horizontal_parts_colors = interval_horizontal_parts_colors
+        self.interval_vertical_parts_colors = interval_vertical_parts_colors
+        self.n_parts = n_parts
+
     def validate_dimensions(
         self,
         n_rows: int | None,
@@ -76,9 +107,9 @@ class IsomorphicKeyboard(abc.ABC):
         row_range: range | None,
         col_range: range | None,
     ) -> None:
-        if not (n_rows is None) ^ (row_range is None):
+        if not are_mutually_exclusive(n_rows, row_range):
             raise ValueError('Exactly one of n_rows or row_range must be provided')
-        if not (n_cols is None) ^ (col_range is None):
+        if not are_mutually_exclusive(n_cols, col_range):
             raise ValueError('Exactly one of n_cols or col_range must be provided')
 
         self.row_range = row_range
@@ -124,6 +155,51 @@ class IsomorphicKeyboard(abc.ABC):
     def row_col_to_interval(self, row: float, col: float) -> int:
         ...
 
+    def add_parts(self, interval: int, x: float, y: float, id_: str) -> None:
+        if self.interval_radial_parts_colors is not None:
+            for part, color in self.interval_radial_parts_colors.get(interval, {}).items():
+                if part >= self.n_parts:
+                    raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
+                p0 = vertex(x, y, self.radius, self.n_parts, part)
+                p1 = vertex(x, y, self.radius, self.n_parts, (part + 1) % self.n_parts)
+                self.elements.append(
+                    svg.Path(
+                        d=[
+                            svg.MoveTo(x, y),
+                            svg.LineTo(*p0),
+                            svg.Arc(rx=self.radius, ry=self.radius, angle=360 / self.n_parts, large_arc=False, sweep=False, x=p1[0], y=p1[1]),
+                            svg.ClosePath(),
+                        ],
+                        fill=color.css_hex,
+                        clip_path=f'url(#{id_})',
+                    ),
+                )
+        if self.interval_vertical_parts_colors is not None:
+            for part, color in self.interval_vertical_parts_colors.get(interval, {}).items():
+                if part >= self.n_parts:
+                    raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
+                self.elements.append(
+                    svg.Rect(
+                        **self.vertical_split_rect_coordinates(x, y, part),
+                        fill=color.css_hex,
+                        clip_path=f'url(#{id_})',
+                    ),
+                )
+
+    def vertical_split_rect_coordinates(
+        self,
+        x: float,
+        y: float,
+        part: int,
+    ) -> dict[str, float]:
+        z = (self.h if self.rotated else self.radius) * 2 / self.n_parts
+        return {
+            'x': x - (self.radius if self.rotated else self.h),
+            'y': y - (self.h if self.rotated else self.radius) + part * z,
+            'width': (self.radius if self.rotated else self.h) * 2,
+            'height': z,
+        }
+
     def add_key(self, row: float, col: float) -> None:
         interval = self.row_col_to_interval(row, col)
         x = self.col_to_x(col)
@@ -148,21 +224,9 @@ class IsomorphicKeyboard(abc.ABC):
             polygon_kw['clip_path'] = f'url(#{id_})'
         self.elements.append(svg.Polygon(**polygon_kw))
 
-        for part, color in self.interval_parts_colors.get(interval, {}).items():
-            p0 = vertex(x, y, self.radius, self.n_parts, part)
-            p1 = vertex(x, y, self.radius, self.n_parts, (part + 1) % self.n_parts)
-            self.elements.append(
-                svg.Path(
-                    d=[
-                        svg.MoveTo(x, y),
-                        svg.LineTo(*p0),
-                        svg.Arc(rx=self.radius, ry=self.radius, angle=360 / self.n_parts, large_arc=False, sweep=False, x=p1[0], y=p1[1]),
-                        svg.ClosePath(),
-                    ],
-                    fill=color.css_hex,
-                    clip_path=f'url(#{id_})',
-                ),
-            )
+        self.add_parts(interval, x, y, id_)
+
+
 
         for text_callable in (
             self.interval_text,

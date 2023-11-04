@@ -3,6 +3,22 @@ import cmath
 from musiclib.interval import AbstractInterval
 
 
+
+def are_all_none(*args) -> bool:
+    return all(arg is None for arg in args)
+
+
+def any_not_none(*args) -> bool:
+    return any(arg is not None for arg in args)
+
+
+def are_mutually_exclusive(*args, exactly_one: bool = False) -> bool:
+    n_not_none = sum(1 for arg in args if arg is not None)
+    if exactly_one:
+        return n_not_none == 1
+    return n_not_none <= 1
+
+
 def increment_duplicates(a: list[int]) -> list[int]:
     if not a:
         return []
