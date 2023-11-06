@@ -1,6 +1,7 @@
 import collections
 import dataclasses
 import functools
+from collections.abc import Generator
 from collections.abc import Iterable
 from typing import Literal
 
@@ -21,12 +22,12 @@ class MidiNote:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
-            return NotImplemented
+            raise TypeError
         return self.on == other.on
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
-            return NotImplemented
+            raise TypeError
         return self.on < other.on
 
     def __hash__(self) -> int:
@@ -77,7 +78,7 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
             note = playing_notes[message.note]
             note['off'] = t
             notes.append(MidiNote(**note))
-            del playing_notes[message.note]  # TODO: is this del necessary?
+            del playing_notes[message.note]
         elif message.type == 'pitchwheel':
             pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
     return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)
@@ -180,3 +181,21 @@ def rhythm_to_midi(  # noqa: C901
     if path is not None:
         mid.save(path)
     return mid
+
+
+def unique_notesets(midi: mido.MidiFile) -> Generator[tuple[int, SpecificNoteSet], None, None]:
+    if midi.type != 0:
+        raise ValueError('only type 0 midi files are supported')
+    track, = midi.tracks
+    playing_notes = collections.defaultdict(dict)  # type: ignore[var-annotated]
+    t = 0
+    for message in track:
+        if message.time > 0:
+            yield t, SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
+        t += message.time
+        if is_note('on', message):
+            playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
+        elif is_note('off', message):
+            note = playing_notes[message.note]
+            note['off'] = t
+            del playing_notes[message.note]

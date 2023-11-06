@@ -1,6 +1,7 @@
 import pickle
 
 import pytest
+from musiclib.interval import AbstractInterval
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
 from musiclib.note import SpecificNote
@@ -70,6 +71,18 @@ f = SpecificNoteSet(frozenset({SpecificNote('C', 5), SpecificNote('E', 5), Speci
 )
 def test_sns(sns):
     assert sns == pickle.loads(pickle.dumps(sns))
+
+
+@pytest.mark.parametrize(
+    'abstractinterval', [
+        AbstractInterval(0),
+        AbstractInterval(10),
+        AbstractInterval.from_str('A'),
+        *iter_containers(AbstractInterval(0), AbstractInterval(10)),
+    ],
+)
+def test_abstract_interval(abstractinterval):
+    assert abstractinterval == pickle.loads(pickle.dumps(abstractinterval))
 
 
 @pytest.mark.parametrize(

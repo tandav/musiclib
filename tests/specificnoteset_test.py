@@ -1,4 +1,7 @@
+from collections.abc import Sequence
+
 import pytest
+from musiclib import config
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
@@ -18,6 +21,16 @@ def test_transpose_to_note(noteset, note, expected):
 def test_notes_type_is_frozenset(arg):
     with pytest.raises(TypeError):
         SpecificNoteSet(arg)
+
+
+@pytest.mark.parametrize(
+    ('x', 's', 'r'), [
+        (SpecificNoteSet.from_str('C1_C2'), 'C1_C2', 'C1_C2'),
+    ],
+)
+def test_str_repr(x, s, r):
+    assert str(x) == s
+    assert repr(x) == r
 
 
 def test_from_str():
@@ -100,3 +113,113 @@ def test_add(sns, add, expected):
     assert SpecificNoteSet.from_str(sns) + add == SpecificNoteSet.from_str(expected)
     with pytest.raises(TypeError):
         sns + [1]  # noqa: RUF005
+
+
+@pytest.mark.parametrize(
+    ('start', 'stop', 'noteset', 'expected'), [
+        ('C0', 'C1', NoteSet.from_str(config.chromatic_notes), 'C0 d0 D0 e0 E0 F0 f0 G0 a0 A0 b0 B0 C1'),
+        ('b3', 'E4', NoteSet.from_str(config.chromatic_notes), 'b3 B3 C4 d4 D4 e4 E4'),
+        ('C0', 'C0', NoteSet.from_str(config.chromatic_notes), 'C0'),
+        ('C0', 'C1', NoteSet.from_str('CDEFGAB'), 'C0 D0 E0 F0 G0 A0 B0 C1'),
+        ('a3', 'f4', NoteSet.from_str('dEfaB'), 'a3 B3 d4 E4 f4'),
+        ('A0', 'D2', NoteSet.from_str('CDEFGAB'), 'A0 B0 C1 D1 E1 F1 G1 A1 B1 C2 D2'),
+    ],
+)
+def test_from_noterange(start, stop, noteset, expected):
+    assert list(
+        SpecificNoteSet.from_noterange(
+            SpecificNote.from_str(start), SpecificNote.from_str(stop), noteset,
+        ),
+    ) == [SpecificNote.from_str(s) for s in expected.split()]
+
+
+def test_from_noterange_bounds():
+    with pytest.raises(ValueError):
+        SpecificNoteSet.from_noterange(SpecificNote('D', 2), SpecificNote('C', 1))
+    with pytest.raises(KeyError):
+        SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2), noteset=NoteSet(frozenset()))
+    with pytest.raises(KeyError):
+        SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('Cd'))
+    with pytest.raises(KeyError):
+        SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dD'))
+    with pytest.raises(KeyError):
+        SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('dDeE'))
+
+
+def test_from_noterange_contains():
+    assert SpecificNote('D', 1) in SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 1) in SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 2) in SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('C', 3) not in SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert SpecificNote('D', 1) not in SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('F', 1), noteset=NoteSet.from_str('CEF'))
+
+
+@pytest.mark.parametrize(
+    ('start', 'stop', 'notes', 'length'), [
+        (SpecificNote('C', 1), SpecificNote('G', 1), 'CdDeEFfGaAbB', 8),
+        (SpecificNote('D', 1), SpecificNote('G', 3), 'CdDeEFfGaAbB', 30),
+        (SpecificNote('D', 1), SpecificNote('D', 1), 'CdDeEFfGaAbB', 1),
+        (SpecificNote('E', 1), SpecificNote('b', 1), 'CDEFGAb', 5),
+        (SpecificNote('b', 1), SpecificNote('G', 3), 'CDEFGAb', 13),
+        (SpecificNote('f', 1), SpecificNote('a', 1), 'fa', 2),
+        (SpecificNote('f', 1), SpecificNote('f', 2), 'fa', 3),
+        (SpecificNote('f', 1), SpecificNote('a', 3), 'fa', 6),
+        (SpecificNote('f', 1), SpecificNote('f', 3), 'f', 3),
+    ],
+)
+def test_from_noterange_len(start, stop, notes, length):
+    assert len(SpecificNoteSet.from_noterange(start, stop, NoteSet.from_str(notes))) == length
+
+
+def test_from_noterange_getitem():
+    sns = SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+    assert sns[0] == sns[-13] == SpecificNote('C', 1)
+    assert sns[1] == sns[-12] == SpecificNote('d', 1)
+    assert sns[2] == sns[-11] == SpecificNote('D', 1)
+    assert sns[12] == sns[-1] == SpecificNote('C', 2)
+    assert sns[11] == sns[-2] == SpecificNote('B', 1)
+    assert sns[0:0] == SpecificNoteSet(frozenset())
+    assert sns[0:1] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 1))
+    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('d', 1))
+    assert sns[0:12] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('B', 1))
+    assert sns[10:20] == SpecificNoteSet.from_noterange(SpecificNote('b', 1), SpecificNote('C', 2))
+    assert sns[20:30] == SpecificNoteSet(frozenset())
+    assert sns[1:] == SpecificNoteSet.from_noterange(SpecificNote('d', 1), SpecificNote('C', 2))
+    assert sns[:4] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('e', 1))
+    assert sns[:] == SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2))
+
+    with pytest.raises(IndexError):
+        sns[13]
+    with pytest.raises(IndexError):
+        sns[-14]
+
+    ns = NoteSet.from_str('fa')
+    sns = SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', 3), ns)
+    assert sns[0] == sns[-10] == SpecificNote('f', -1)
+    assert sns[1] == sns[-9] == SpecificNote('a', -1)
+    assert sns[2] == sns[-8] == SpecificNote('f', 0)
+    assert sns[9] == sns[-1] == SpecificNote('a', 3)
+    assert sns[8] == sns[-2] == SpecificNote('f', 3)
+    assert sns[0:0] == SpecificNoteSet(frozenset())
+    assert sns[0:1] == SpecificNoteSet(frozenset({SpecificNote('f', -1)}))
+    assert sns[0:2] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('a', -1), ns)
+    assert sns[0:9] == SpecificNoteSet.from_noterange(SpecificNote('f', -1), SpecificNote('f', 3), ns)
+    with pytest.raises(IndexError):
+        sns[10]
+    with pytest.raises(IndexError):
+        sns[-11]
+
+
+@pytest.mark.parametrize(
+    ('noterange', 'expected'), [
+        (SpecificNoteSet.from_noterange(SpecificNote('C', 1), SpecificNote('C', 2)), 'C1 d1 D1 e1 E1 F1 f1 G1 a1 A1 b1 B1 C2'),
+        (SpecificNoteSet.from_noterange(SpecificNote('b', 1), SpecificNote('D', 2), noteset=NoteSet.from_str('AbBCdDe')), 'b1 B1 C2 d2 D2'),
+    ],
+)
+def test_from_noterange_list(noterange, expected):
+    assert list(noterange) == [SpecificNote.from_str(s) for s in expected.split()]
+
+
+def test_sequence():
+    sns = SpecificNoteSet.random()
+    assert isinstance(sns, Sequence)

@@ -3,6 +3,7 @@ import operator
 import hypothesis.strategies as st
 import pytest
 from hypothesis import given
+from musiclib.interval import AbstractInterval
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 
@@ -49,12 +50,24 @@ def test_str_repr(x, s, r):
         (operator.lt, Note('C'), Note('D')),
         (operator.gt, Note('D'), Note('d')),
         (operator.gt, Note('B'), Note('f')),
-        (operator.ne, SpecificNote.from_str('C1'), 'C1'),  # avoid implicit string comparison for SpecificNote
-        (operator.ne, SpecificNote.from_str('C1'), 'C2'),
+        (operator.ne, Note('C'), 1),
+        (operator.ne, Note('C'), SpecificNote.from_str('C1')),
+        (operator.ne, SpecificNote.from_str('C1'), Note('C')),
+        (operator.ne, SpecificNote.from_str('C1'), 'C1'),
     ],
 )
 def test_ordering(op, a, b):
     assert op(a, b)
+
+
+def test_note_sub():
+    assert Note('C') - Note('C') == AbstractInterval(0)
+    assert Note('G') - Note('C') == AbstractInterval(7)
+    assert Note('C') - Note('G') == AbstractInterval(5)
+    assert Note('G') - 7 == Note('C')
+    assert Note('G') - AbstractInterval(7) == Note('C')
+    assert Note('C') - 5 == Note('G')
+    assert Note('C') - AbstractInterval(5) == Note('G')
 
 
 @given(st.integers())
@@ -111,3 +124,10 @@ def test_midi_code():
     A4 = SpecificNote(Note('A'), 4)
     assert A4.i == 69
     assert SpecificNote.from_i(69) == A4
+
+
+def test_lt_validation():
+    with pytest.raises(TypeError):
+        assert Note('C') < 1
+    with pytest.raises(TypeError):
+        assert SpecificNote.from_str('C1') < Note('C')

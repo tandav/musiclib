@@ -6,8 +6,9 @@ from colortool import Color
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noterange import NoteRange
-from musiclib.svg.piano import Piano
+
+# from musiclib.svg.piano import Piano
+from musiclib.svg.piano import RegularPiano
 from musiclib.svg.piano import note_color
 
 
@@ -62,9 +63,8 @@ def note_info(svg: str, element: str, class_: str) -> dict[SpecificNote, dict[st
         ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
     ],
 )
-@pytest.mark.parametrize('black_small', [True, False])
-def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
+def test_abstract(element, class_, info_part, keyarg, payload, expected, notes):
+    svg = RegularPiano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == i[notes[2]][info_part] == expected
 
@@ -86,9 +86,8 @@ def test_abstract(element, class_, info_part, keyarg, payload, expected, notes, 
         ('g', 'square', 'onclick', 'squares', {'onclick': 'T'}, 'T'),
     ],
 )
-@pytest.mark.parametrize('black_small', [True, False])
-def test_specific(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
+def test_specific(element, class_, info_part, keyarg, payload, expected, notes):
+    svg = RegularPiano(**{keyarg: {notes[0]: payload}})._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[0]][info_part] == expected
 
@@ -115,29 +114,20 @@ def test_specific(element, class_, info_part, keyarg, payload, expected, notes, 
         ('g', 'square', 'onclick', 'squares', ({'onclick': 'T'}, {'onclick': 'Q'}), ('T', 'Q')),
     ],
 )
-@pytest.mark.parametrize('black_small', [True, False])
-def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes, black_small):
-    svg = Piano(**{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}}, black_small=black_small)._repr_svg_()  # type: ignore[arg-type]
+def test_specific_overrides_abstract(element, class_, info_part, keyarg, payload, expected, notes):
+    svg = RegularPiano(**{keyarg: {notes[0]: payload[0], notes[2]: payload[1]}})._repr_svg_()  # type: ignore[arg-type]
     i = note_info(svg, element, class_)
     assert i[notes[1]][info_part] == expected[0]
     assert i[notes[2]][info_part] == expected[1]
 
 
 @pytest.mark.parametrize(
-    ('noterange', 'black_small', 'start', 'stop'), [
-        (NoteRange.from_str('d2', 'b2'), True, SpecificNote('C', 2), SpecificNote('B', 2)),
-        (NoteRange.from_str('d2', 'b2'), False, SpecificNote('d', 2), SpecificNote('b', 2)),
+    ('start', 'stop'), [
+        (SpecificNote('C', 2), SpecificNote('B', 2)),
     ],
 )
-def test_startswith_endswith_white_key(noterange, black_small, start, stop):
-    svg = Piano(noterange=noterange, black_small=black_small)._repr_svg_()
+def test_startswith_endswith_white_key(start, stop):
+    svg = RegularPiano(start_stop=(start, stop))._repr_svg_()
     notes = note_info(svg, element='rect', class_='note').keys()
     assert min(notes) == start
     assert max(notes) == stop
-
-
-def test_href_only_when_title():
-    with pytest.raises(ValueError):
-        Piano(title_href='T')
-    with pytest.raises(ValueError):
-        Piano(subtitle_href='T')

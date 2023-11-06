@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from musiclib.note import SpecificNote
-from musiclib.noterange import NoteRange
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 
@@ -32,7 +31,7 @@ class Transition:
 
 def chord_transitions(
     chord: SpecificNoteSet,
-    noterange: NoteRange,
+    space: SpecificNoteSet,
     *,
     unique_abstract: bool = False,
     same_length: bool = True,
@@ -40,7 +39,7 @@ def chord_transitions(
     out = set()
     for note in chord:
         for add in (-1, 1):
-            if (new_note := noterange.noteset.add_note(note, add)) not in noterange:
+            if (new_note := space.noteset.add_note(note, add)) not in space:
                 continue
             notes = chord.notes - {note} | {new_note}
             if same_length and len(notes) != len(chord.notes):
@@ -53,7 +52,7 @@ def chord_transitions(
 
 def transition_graph(
     start_chord: SpecificNoteSet,
-    noterange: NoteRange,
+    space: SpecificNoteSet,
     *,
     unique_abstract: bool = False,
     same_length: bool = True,
@@ -65,7 +64,7 @@ def transition_graph(
             return
         childs = chord_transitions(
             chord,
-            noterange,
+            space,
             unique_abstract=unique_abstract,
             same_length=same_length,
         )

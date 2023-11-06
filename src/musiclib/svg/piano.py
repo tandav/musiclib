@@ -1,19 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from typing import Literal
 from typing import TypedDict
 
 import svg
 
-from musiclib.config import BLACK_BRIGHT
-from musiclib.config import BLACK_PALE
-from musiclib.config import WHITE_BRIGHT
-from musiclib.config import WHITE_PALE
+from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote
-from musiclib.noterange import CHROMATIC_NOTESET
-from musiclib.noterange import NoteRange
+from musiclib.noteset import SpecificNoteSet
 
 if TYPE_CHECKING:
     from colortool import Color
@@ -21,7 +16,7 @@ if TYPE_CHECKING:
 
 def note_color(note: Note | SpecificNote) -> Color:
     def _note_color(note: Note) -> Color:
-        return BLACK_PALE if note.is_black else WHITE_PALE
+        return config.BLACK_PALE if note.is_black else config.WHITE_PALE
     if isinstance(note, SpecificNote):
         return _note_color(note.abstract)
     if isinstance(note, Note):
@@ -36,10 +31,11 @@ class SquaresPayload(TypedDict, total=False):
     text_size: Color
     text: str
     onclick: str
+    font_family: str
 
 
-class Piano:
-    def __init__(  # noqa: PLR0915,PLR0912,C901 # pylint: disable=too-many-branches,too-many-statements
+class RegularPiano:
+    def __init__(
         self,
         *,
         note_colors: dict[Note | SpecificNote, Color] | None = None,
@@ -47,165 +43,64 @@ class Piano:
         note_onclicks: dict[Note | SpecificNote, Color] | None = None,
         top_rect_colors: dict[Note | SpecificNote, Color] | None = None,
         squares: dict[Note | SpecificNote, SquaresPayload] | None = None,
+        start_stop: tuple[SpecificNote, SpecificNote] | None = None,
+        ww: int = 18,  # white key width
+        wh: int = 85,  # white key height
+        black_small_width_ratio: float = 0.6,
+        black_small_height_ratio: float = 0.6,
         top_rect_height: int = 5,
         square_size: int = 12,
         square_white_offset: int = 5,
         square_black_offset: int = 3,
-        ww: int = 18,  # white key width
-        wh: int = 85,  # white key height
-        noterange: NoteRange | None = None,
-        black_small: bool = True,
-        card: bool = True,
-        title: str | None = None,
-        subtitle: str | None = None,
-        title_href: str | None = None,
-        title_font_size: int = 15,
-        subtitle_href: str | None = None,
-        subtitle_font_size: int = 12,
-        title_font_family: str = 'sans-serif',
-        subtitle_font_family: str = 'sans-serif',
-        square_font_family: str = 'monospace',
-        title_y: int = 4,
-        subtitle_y: int = 18,
-        background_color: Color = WHITE_BRIGHT,
-        classes: tuple[str, ...] = (),
+        class_: tuple[str, ...] = (),
         id: str | None = None,  # noqa: A002 # pylint: disable=redefined-builtin
-        margin: tuple[int, int, int, int] = (3, 3, 3, 3),
-        padding: tuple[int, int, int, int] = (30, 2, 2, 2),
-        shadow_offset: int = 2,
-        border_radius: int = 3,
-        black_small_width_ratio: float = 0.6,
-        black_small_height_ratio: float = 0.6,
-        debug_rect: bool = False,
     ) -> None:
+        self.note_colors = note_colors or {}
+        self.note_hrefs = note_hrefs or {}
+        self.note_onclicks = note_onclicks or {}
+        self.top_rect_colors: dict[Note | SpecificNote, Color] = top_rect_colors or {}
+        self.squares = squares or {}
         self.ww = ww
         self.wh = wh
-        if black_small:
-            self.bw = int(ww * black_small_width_ratio)
-            self.bh = int(wh * black_small_height_ratio)
-        else:
-            self.bw = ww
-            self.bh = wh
-
+        self.bw = int(ww * black_small_width_ratio)
+        self.bh = int(wh * black_small_height_ratio)
         self.top_rect_height = top_rect_height
         self.square_size = square_size
         self.square_white_offset = square_white_offset
         self.square_black_offset = square_black_offset
-        self.black_small = black_small
-        self.note_colors = note_colors or {}
-        self.top_rect_colors: dict[Note | SpecificNote, Color]
-        self.top_rect_colors = top_rect_colors or {}
-        self.squares = squares or {}
-        self.note_hrefs = note_hrefs or {}
-        self.note_onclicks = note_onclicks or {}
-        self.card = card
-        self.background_color = background_color
-        self.classes = classes
+        self.class_ = class_
         self.id = id
-        self.title_font_size = title_font_size
-        self.subtitle_font_size = subtitle_font_size
-        self.square_font_family = square_font_family
-        if not card:
-            self.padding = (0, 0, 0, 0)
-            self.margin = (0, 0, 0, 0)
-        else:
-            self.padding = padding
-            self.margin = margin
-        self.shadow_offset = shadow_offset
-        self.border_radius = border_radius
-        self.debug_rect = debug_rect
-        if noterange is not None:
-            if noterange.noteset is not CHROMATIC_NOTESET:
-                raise ValueError  # maybe this is not necessary
-
-            if black_small:
-                # ensure that start and stop are white keys
-                self.noterange = NoteRange(
-                    start=noterange.start + -1 if noterange.start.is_black else noterange.start,
-                    stop=noterange.stop + 1 if noterange.stop.abstract.is_black else noterange.stop,
-                )
-            else:
-                self.noterange = noterange
-        else:
+        if start_stop is None:
             # render 2 octaves by default
-            self.noterange = NoteRange(SpecificNote('C', 0), SpecificNote('B', 1))
-
-        self.white_notes = tuple(note for note in self.noterange if not note.is_black)
-        self.black_notes = tuple(note for note in self.noterange if note.is_black)
-        self.piano_width = ww * len(self.white_notes) if self.black_small else ww * len(self.noterange)
-        self.piano_height = wh
+            self.sns = SpecificNoteSet.from_noterange(SpecificNote('C', 0), SpecificNote('B', 1))
+        else:
+            # ensure that start and stop are white keys
+            self.sns = SpecificNoteSet.from_noterange(
+                start=start_stop[0] - 1 if start_stop[0].is_black else start_stop[0],
+                stop=start_stop[1] + 1 if start_stop[1].abstract.is_black else start_stop[1],
+            )
+        self.white_notes = tuple(note for note in self.sns if not note.is_black)
+        self.black_notes = tuple(note for note in self.sns if note.is_black)
+        self.width = ww * len(self.white_notes)
+        self.height = wh
         self.elements: list[svg.Element] = []
-        self.notes = self.white_notes + self.black_notes if black_small else self.noterange
+        self.notes = self.white_notes + self.black_notes
         self.make_piano()
-        self.init_sizes()
-
-        if title_href is not None and title is None:
-            raise ValueError('title_href requires title')
-
-        if subtitle_href is not None and subtitle is None:
-            raise ValueError('subtitle_href requires subtitle')
-
-        if self.card:
-            if title is not None:
-                dominant_baseline: Literal['hanging', 'central']
-                if subtitle is not None:
-                    y = self.margin[0] + title_y
-                    dominant_baseline = 'hanging'
-                else:
-                    y = (self.margin[0] + self.padding[0]) // 2
-                    dominant_baseline = 'central'
-                text_title = svg.Text(
-                    x=self.margin[3] + self.padding[3], y=y, font_family=title_font_family, font_size=title_font_size,
-                    font_weight='bold', fill=BLACK_BRIGHT.css_hex, text=title, dominant_baseline=dominant_baseline,
-                )
-                if title_href:
-                    self.elements.append(svg.A(href=title_href, elements=[text_title]))
-                else:
-                    self.elements.append(text_title)
-
-            if subtitle is not None:
-                text_subtitle = svg.Text(
-                    x=self.margin[3] + self.padding[3],
-                    y=self.margin[0] + subtitle_y,
-                    font_family=subtitle_font_family,
-                    font_size=subtitle_font_size,
-                    fill=BLACK_BRIGHT.css_hex,
-                    text=subtitle,
-                    dominant_baseline='hanging',
-                )
-                if subtitle_href is not None:
-                    self.elements.append(svg.A(href=subtitle_href, elements=[text_subtitle]))
-                else:
-                    self.elements.append(text_subtitle)
-
-    def x(self, value: int) -> int:
-        return self.margin[3] + self.padding[3] + value
-
-    def y(self, value: int) -> int:
-        return self.margin[0] + self.padding[0] + value
 
     def make_piano(self) -> None:
         for note in self.notes:
             x, y, w, h, c, sx, sy = self.coord_helper(note)
 
             note_rect = svg.Rect(
-                class_=[
-                    'note',
-                    str(note),
-                ],
+                class_=['note', str(note)],
                 x=x,
                 y=y,
                 width=w,
                 height=h,
                 fill=c.css_hex,
                 stroke_width=1,
-                stroke=BLACK_PALE.css_hex,
-                onclick=self.note_onclicks.get(
-                    note,
-                    self.note_onclicks.get(
-                        note.abstract,
-                    ),
-                ),
+                stroke=config.BLACK_PALE.css_hex,
+                onclick=self.note_onclicks.get(note, self.note_onclicks.get(note.abstract)),
             )
             # draw key
 
@@ -222,43 +117,25 @@ class Piano:
             if payload := self.squares.get(note, self.squares.get(note.abstract)):
                 sq_elements: list[svg.Element] = []
                 sq_rect = svg.Rect(
-                    class_=[
-                        'square',
-                        str(note),
-                    ],
+                    class_=['square', str(note)],
                     x=sx,
                     y=sy,
                     width=self.square_size,
                     height=self.square_size,
-                    fill=payload.get(
-                        'fill_color',
-                        WHITE_BRIGHT,
-                    ).css_hex,
+                    fill=payload.get('fill_color', config.WHITE_BRIGHT).css_hex,
                     stroke_width=1,
-                    stroke=payload.get(
-                        'border_color',
-                        BLACK_BRIGHT,
-                    ).css_hex,
+                    stroke=payload.get('border_color', config.BLACK_BRIGHT).css_hex,
                 )
                 sq_elements.append(sq_rect)
 
                 if text := payload.get('text'):
                     sq_text = svg.Text(
-                        class_=[
-                            'square',
-                            str(note),
-                        ],
+                        class_=['square', str(note)],
                         x=sx + self.square_size // 2,
                         y=sy + self.square_size // 2,
-                        font_family=self.square_font_family,
-                        font_size=payload.get(
-                            'text_size',
-                            self.title_font_size,
-                        ),
-                        fill=payload.get(
-                            'text_color',
-                            BLACK_BRIGHT,
-                        ).css_hex,
+                        font_family=payload.get('square_font_family', 'monospace'),  # type: ignore[arg-type]
+                        font_size=payload.get('text_size', 15),
+                        fill=payload.get('text_color', config.BLACK_BRIGHT).css_hex,
                         text=text,
                         text_anchor='middle',
                         dominant_baseline='central',
@@ -281,63 +158,23 @@ class Piano:
         sy: x coordinate of square
         """
         c = self.note_colors.get(note, self.note_colors.get(note.abstract, note_color(note)))
-        x0 = self.x(0)
-        y = self.y(0)
-        if self.black_small:
-            if note in self.white_notes:
-                x = x0 + self.ww * self.white_notes.index(note)
-                sx = (x + x + self.ww) // 2 - self.square_size // 2
-                sy = self.y(self.wh - self.square_size - self.square_white_offset)
-                return x, y, self.ww, self.wh, c, sx, sy
-            if note in self.black_notes:
-                x = x0 + self.ww * self.white_notes.index(note + 1) - self.bw // 2
-                sx = self.x(self.ww * self.white_notes.index(note + 1) - self.square_size // 2)
-                sy = self.y(self.bh - self.square_size - self.square_black_offset)
-                return x, y, self.bw, self.bh, c, sx, sy
+        x0 = 0
+        y = 0
+        if note in self.white_notes:
+            x = x0 + self.ww * self.white_notes.index(note)
+            sx = (x + x + self.ww) // 2 - self.square_size // 2
+            sy = self.wh - self.square_size - self.square_white_offset
+            return x, y, self.ww, self.wh, c, sx, sy
+        if note in self.black_notes:
+            x = x0 + self.ww * self.white_notes.index(note + 1) - self.bw // 2
+            sx = self.ww * self.white_notes.index(note + 1) - self.square_size // 2
+            sy = self.bh - self.square_size - self.square_black_offset
+            return x, y, self.bw, self.bh, c, sx, sy
+        raise ValueError(f'note {note} is not in {self.sns}')
 
-        x = self.ww * self.noterange.index(note)
-        sx = self.x((x + x + self.ww) // 2 - self.square_size // 2)
-        sy = self.y(self.wh - self.square_size - self.square_white_offset)
-        return self.x(x), y, self.ww, self.wh, c, sx, sy
+    @property
+    def svg(self) -> svg.SVG:
+        return svg.SVG(width=self.width, height=self.height, elements=self.elements, class_=list(self.class_), id=self.id)
 
-    def init_sizes(self) -> None:
-        self.w_pp = self.padding[1] + self.padding[3] + self.piano_width
-        self.h_pp = self.padding[0] + self.padding[2] + self.piano_height
-        self.svg_width = self.margin[1] + self.margin[3] + self.w_pp + self.shadow_offset
-        self.svg_height = self.margin[0] + self.margin[2] + self.h_pp + self.shadow_offset
-
-    # @functools.cache
     def _repr_svg_(self) -> str:
-        elements: list[svg.Element] = []
-        if self.debug_rect:
-            debug_rect = svg.Rect(class_=['debug_rect'], x=0, y=0, width=self.svg_width, height=self.svg_height, fill='red')
-            elements.append(debug_rect)
-        if self.card:
-            card_rect = svg.Rect(
-                class_=['card_rect'],
-                x=self.margin[3],
-                y=self.margin[0],
-                width=self.w_pp,
-                height=self.h_pp,
-                fill=self.background_color.css_hex,
-                rx=self.border_radius,
-                ry=self.border_radius,
-                stroke_width=1,
-                stroke=BLACK_PALE.css_hex,
-            )
-            shadow_rect = svg.Rect(
-                class_=['shadow_rect'],
-                x=self.margin[3] +
-                self.shadow_offset,
-                y=self.margin[0] +
-                self.shadow_offset,
-                width=self.w_pp,
-                height=self.h_pp,
-                fill=BLACK_BRIGHT.css_hex,
-                rx=self.border_radius,
-                ry=self.border_radius,
-            )
-            elements += [shadow_rect, card_rect]
-        elements += self.elements
-        _svg = svg.SVG(width=self.svg_width, height=self.svg_height, elements=elements, class_=list(self.classes), id=self.id)
-        return str(_svg)
+        return str(self.svg)

@@ -5,21 +5,28 @@ from typing import TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import Any
+
+    import svg
 import numpy as np
 
 from musiclib import config
+from musiclib.interval import AbstractInterval
+from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
 
 Self = TypeVar('Self', bound='IntervalSet')
 
 
-class IntervalSet(Cached):
-    def __init__(self, intervals: frozenset[int]) -> None:
+class IntervalSet(Cached, ReprSVGMixin):
+    def __init__(self, intervals: frozenset[AbstractInterval]) -> None:
         if not isinstance(intervals, frozenset):
             raise TypeError(f'expected frozenset, got {type(intervals)}')
+        if any(not isinstance(interval, AbstractInterval) for interval in intervals):
+            raise TypeError('expected AbstractInterval items')
         self.intervals = intervals
         self.intervals_ascending = tuple(sorted(intervals))
-        self.bits = ''.join('1' if i in intervals else '0' for i in range(12))
+        self.bits = ''.join('1' if AbstractInterval(i) in intervals else '0' for i in range(12))
         self.names: frozenset[str] = config.intervals_to_names.get(intervals, frozenset())
         self.name_kinds = {name: config.kinds[name] for name in self.names}
 
@@ -29,26 +36,32 @@ class IntervalSet(Cached):
 
     @classmethod
     def from_bits(cls, bits: str) -> IntervalSet:
-        return cls(frozenset(i for i, v in enumerate(bits) if int(v)))
+        return cls(frozenset(AbstractInterval(i) for i, v in enumerate(bits) if int(v)))
 
     @classmethod
     def from_base12(cls, intervals: frozenset[str]) -> IntervalSet:
-        return cls(frozenset(int(i, 12) for i in intervals))
+        return cls(frozenset(AbstractInterval.from_str(i) for i in intervals))
 
     def __len__(self) -> int:
         return len(self.intervals)
 
-    def __iter__(self) -> Iterator[int]:
+    def __iter__(self) -> Iterator[AbstractInterval]:
         return iter(self.intervals_ascending)
 
-    def __getnewargs__(self) -> tuple[frozenset[int]]:
+    def __getnewargs__(self) -> tuple[frozenset[AbstractInterval]]:
         return (self.intervals,)
 
-    def __repr__(self) -> str:
-        return f"IntervalSet({' '.join(np.base_repr(i, 12) for i in self.intervals_ascending)})"
+    def __str__(self) -> str:
+        return '_'.join(str(i) for i in self.intervals_ascending)
 
-    # def _repr_svg_(self, **kwargs: Any) -> str:
-    #     kwargs.setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
-    #     kwargs.setdefault('title', f'{self.str_names}')
-    #     kwargs.setdefault('classes', ('card', *self.intervalset.names))
-    #     return Piano(**kwargs)._repr_svg_()
+    def __repr__(self) -> str:
+        return f"IntervalSet({' '.join(np.base_repr(i.interval, base=12) for i in self.intervals_ascending)})"
+
+    def svg_piano(self, **kwargs: Any) -> svg.SVG:
+        raise NotImplementedError('IntervalSet does not have a piano representation')
+
+    def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
+        from musiclib.svg.card import PlanePiano
+        kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervals})
+        kwargs.setdefault('header_kwargs', {'title': str(self)})
+        return PlanePiano(**kwargs).svg

@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import pytest
 from musiclib import config
+from musiclib.interval import AbstractInterval
 from musiclib.note import Note
 from musiclib.note import SpecificNote
 from musiclib.noteset import ComparedNoteSets
@@ -39,7 +40,7 @@ def test_str_repr(x, s, r):
 
 @pytest.mark.parametrize(
     ('string', 'expected'), [
-        ('fa', {Note('f'): frozenset({0, 2}), Note('a'): frozenset({0, 10})}),
+        ('fa', {Note('f'): frozenset(map(AbstractInterval, {0, 2})), Note('a'): frozenset(map(AbstractInterval, {0, 10}))}),
         ('', {}),
     ],
 )
@@ -70,6 +71,8 @@ def test_contains():
     empty_noteset = NoteSet(frozenset())
     assert Note('C') not in empty_noteset
     assert empty_noteset <= NoteSet.from_str('CDE')
+    with pytest.raises(TypeError):
+        assert SpecificNote('C', 1) in NoteSet.from_str('CDE')
 
 
 def test_note_i():
