@@ -42,6 +42,10 @@ class IntervalSet(Cached, ReprSVGMixin):
     def from_base12(cls, intervals: frozenset[str]) -> IntervalSet:
         return cls(frozenset(AbstractInterval.from_str(i) for i in intervals))
 
+    @property
+    def inverse(self) -> IntervalSet:
+        return IntervalSet(frozenset(-i for i in self.intervals))
+
     def __len__(self) -> int:
         return len(self.intervals)
 

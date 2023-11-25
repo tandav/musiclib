@@ -100,3 +100,16 @@ def test_names(intervalset, names):
 def test_name_kinds(intervalset, expected):
     intervalset = IntervalSet(frozenset(map(AbstractInterval, intervalset)))
     assert intervalset.name_kinds == expected
+
+
+@pytest.mark.parametrize(
+    ('intervalset', 'expected'), [
+        ({0, 2, 4, 5, 7, 9, 11}, {0, 1, 3, 5, 7, 8, 10}),
+        ({0, 2, 3, 5, 7, 9, 10}, {0, 2, 3, 5, 7, 9, 10}),
+    ],
+)
+def test_inverse(intervalset, expected):
+    intervalset = IntervalSet(frozenset(map(AbstractInterval, intervalset)))
+    expected = IntervalSet(frozenset(map(AbstractInterval, expected)))
+    assert intervalset.inverse == expected
+    assert intervalset.inverse.inverse == intervalset
