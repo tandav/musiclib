@@ -96,17 +96,17 @@ BLUE = Color(0x4F88EA)
 
 interval_colors = {
     AbstractInterval(0): Color(0xFF0000),
-    AbstractInterval(1): Color(0x8B4513),
-    AbstractInterval(2): Color(0xFF7F00),
-    AbstractInterval(3): Color(0xFFFF00),
-    AbstractInterval(4): Color(0x00FF00),
-    AbstractInterval(5): Color(0x228B22),
+    AbstractInterval(1): Color(0x800000),
+    AbstractInterval(2): Color(0xff60a0),
+    AbstractInterval(3): Color(0xfffd37),
+    AbstractInterval(4): Color(0x00ff59),
+    AbstractInterval(5): Color(0x00d5ff),
     AbstractInterval(6): Color(0x8FBC8F),
-    AbstractInterval(7): Color(0x00FFFF),
-    AbstractInterval(8): Color(0x1E90FF),
-    AbstractInterval(9): Color(0x0000FF),
-    AbstractInterval(10): Color(0x8C00FC),
-    AbstractInterval(11): Color(0xFF00FF),
+    AbstractInterval(7): Color(0x0000FF),
+    AbstractInterval(8): Color(0xff7000),
+    AbstractInterval(9): Color(0x007000),
+    AbstractInterval(10): Color(0x9c5c02),
+    AbstractInterval(11): Color(0xa000ff),
 }
 
 repr_svg_piano_config = {
