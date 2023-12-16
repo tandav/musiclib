@@ -30,6 +30,9 @@ class MidiNote:
             raise TypeError
         return self.on < other.on
 
+    def __len__(self) -> int:
+        return self.off - self.on
+
     def __hash__(self) -> int:
         return hash((self.note, self.on, self.off))
 
@@ -45,6 +48,9 @@ class Midi:
     notes: list[MidiNote] = dataclasses.field(default_factory=list)
     pitchbend: list[MidiPitch] = dataclasses.field(default_factory=list)
     ticks_per_beat: int = 96
+
+    def __len__(self) -> int:
+        return max(note.off for note in self.notes)
 
 
 @dataclasses.dataclass
@@ -183,16 +189,38 @@ def rhythm_to_midi(  # noqa: C901
     return mid
 
 
-def unique_notesets(midi: mido.MidiFile) -> Generator[tuple[int, SpecificNoteSet], None, None]:
+class SpecificNoteSetEvent:
+    def __init__(
+        self,
+        sns: SpecificNoteSet,
+        on: int,
+        off: int,
+    ) -> None:
+        self.sns = sns
+        self.on = on
+        self.off = off
+
+    def __len__(self) -> int:
+        return self.off - self.on
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(sns={self.sns}, on={self.on}, off={self.off})'
+
+
+def unique_notesets(midi: mido.MidiFile) -> Generator[SpecificNoteSetEvent, None, None]:
     if midi.type != 0:
         raise ValueError('only type 0 midi files are supported')
     track, = midi.tracks
     playing_notes = collections.defaultdict(dict)  # type: ignore[var-annotated]
     t = 0
+    t_sns = 0
     for message in track:
-        if message.time > 0:
-            yield t, SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
         t += message.time
+        if message.type not in {'note_on', 'note_off'}:
+            continue
+        sns = SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
+        yield SpecificNoteSetEvent(sns=sns, on=t_sns, off=t)
+        t_sns = t
         if is_note('on', message):
             playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
         elif is_note('off', message):
