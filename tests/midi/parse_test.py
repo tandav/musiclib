@@ -81,3 +81,7 @@ def test_rhythm_to_midi():
         ],
     )
     assert is_midi_equal(midi, expected)
+
+
+def test_dict(mido_midifile):
+    assert str(parse.from_dict(parse.to_dict(mido_midifile))) == str(mido_midifile)

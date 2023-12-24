@@ -227,3 +227,25 @@ def unique_notesets(midi: mido.MidiFile) -> Generator[SpecificNoteSetEvent, None
             note = playing_notes[message.note]
             note['off'] = t
             del playing_notes[message.note]
+
+
+def to_dict(midi: mido.MidiFile) -> dict:  # type: ignore[type-arg]
+    return {
+        'type': midi.type,
+        'ticks_per_beat': midi.ticks_per_beat,
+        'tracks': [[message.dict() | {'is_meta': message.is_meta} for message in track]for track in midi.tracks],
+    }
+
+
+def from_dict(midi: dict) -> mido.MidiFile:  # type: ignore[type-arg]
+    return mido.MidiFile(
+        type=midi['type'],
+        ticks_per_beat=midi['ticks_per_beat'],
+        tracks=[
+            mido.MidiTrack(
+                (mido.MetaMessage if message.pop('is_meta') else mido.Message).from_dict(message)
+                for message in track
+            )
+            for track in midi['tracks']
+        ],
+    )
