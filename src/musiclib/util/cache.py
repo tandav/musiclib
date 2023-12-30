@@ -4,6 +4,7 @@ from typing import ClassVar
 
 
 class Cached:
+    """https://gitlab.tandav.me/tandav/notes/-/issues/5570"""
     _cache: ClassVar[dict[tuple[type, tuple[Hashable, ...], frozenset[tuple[str, Hashable]]], Any]] = {}
 
     def __new__(cls, *args: Hashable, **kwargs: Hashable) -> Any:
