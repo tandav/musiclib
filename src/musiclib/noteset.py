@@ -127,20 +127,20 @@ class NoteSet(Cached, ReprSVGMixin):
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
         if self.notes:
-            deep_update(kwargs, {
-                'interval_colors': {
+            kwargs.setdefault(
+                'interval_colors', {
                     i: config.RED
                     for i in self.note_to_intervals[self.notes_ascending[0]]
                 },
-            })
-            deep_update(kwargs, {
-                'interval_text': FromIntervalDict(
+            )
+            kwargs.setdefault(
+                'interval_text', FromIntervalDict(
                     {
                         note - self.notes_ascending[0]: str(note)
                         for note in self.notes_ascending
                     }, abstract=True,
                 ),
-            })
+            )
         deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
         return PlanePiano(**kwargs).svg
 
@@ -281,19 +281,19 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
         if self.notes:
-            deep_update(kwargs, {
-                'interval_colors': {
+            kwargs.setdefault(
+                'interval_colors', {
                     i: config.RED
                     for i in self.intervals
                 },
-            })
-            deep_update(kwargs, {
-                'interval_text': FromIntervalDict({
+            )
+            kwargs.setdefault(
+                'interval_text', FromIntervalDict({
                     interval: str(note)
                     for interval, note in zip(self.intervals, self.notes_ascending, strict=True)
                 }),
-            })
-            deep_update(kwargs, {'n_cols': max(self) - min(self) + 1})
+            )
+            kwargs.setdefault('n_cols', max(self) - min(self) + 1)
         deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
         return PlanePiano(**kwargs).svg
 
@@ -356,11 +356,11 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
         n0 = Note(config.chromatic_notes[0])
         deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
-        deep_update(kwargs, {
-            'interval_colors':
+        kwargs.setdefault(
+            'interval_colors',
             dict.fromkeys([n - n0 for n in self.del_notes], config.RED) |
             dict.fromkeys([n - n0 for n in self.new_notes], config.GREEN) |
             dict.fromkeys([n - n0 for n in self.shared_notes], config.BLUE),
-        })
-        deep_update(kwargs, {'interval_text': FromIntervalDict({n - n0: str(n) for n in CHROMATIC_NOTESET}, abstract=True)})
+        )
+        kwargs.setdefault('interval_text', FromIntervalDict({n - n0: str(n) for n in CHROMATIC_NOTESET}, abstract=True))
         return PlanePiano(**kwargs).svg
