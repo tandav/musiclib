@@ -14,7 +14,6 @@ from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
-from musiclib.util.etc import deep_update
 
 Self = TypeVar('Self', bound='IntervalSet')
 
@@ -69,5 +68,5 @@ class IntervalSet(Cached, ReprSVGMixin):
         from musiclib.svg.card import PlanePiano
         kwargs = kwargs.copy()
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervals})
-        kwargs = deep_update(kwargs, {'header_kwargs', {'title': str(self)}})
+        kwargs['header_kwargs'].setdefault('title', str(self))
         return PlanePiano(**kwargs).svg

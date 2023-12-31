@@ -14,7 +14,6 @@ from musiclib.note import SpecificNote
 from musiclib.svg.isomorphic.text import FromIntervalDict
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
-from musiclib.util.etc import deep_update
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -117,12 +116,8 @@ class NoteSet(Cached, ReprSVGMixin):
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano  # hack to fix circular import
         kwargs = kwargs.copy()
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
-        kwargs = deep_update(kwargs, {
-            'regular_piano_kwargs': {
-                'note_colors': {note: config.RED for note in self},
-            },
-        })
+        kwargs['header_kwargs'].setdefault('title', str(self))
+        kwargs['regular_piano_kwargs'].setdefault('note_colors',  {note: config.RED for note in self})
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
@@ -143,7 +138,7 @@ class NoteSet(Cached, ReprSVGMixin):
                     }, abstract=True,
                 ),
             )
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
+        kwargs['header_kwargs'].setdefault('title', str(self))
         return PlanePiano(**kwargs).svg
 
     def __getnewargs__(self) -> tuple[frozenset[Note]]:
@@ -271,14 +266,10 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
         kwargs = kwargs.copy()
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
-        kwargs = deep_update(kwargs, {
-            'regular_piano_kwargs': {
-                'note_colors': dict.fromkeys(self.notes, config.RED),
-                'squares': {note: {'text': str(note), 'text_size': '8'} for note in self},
-                'start_stop': (self[0], self[-1]) if self.notes else None,
-            },
-        })
+        kwargs['header_kwargs'].setdefault('title', str(self))
+        kwargs['regular_piano_kwargs'].setdefault('note_colors', dict.fromkeys(self.notes, config.RED))
+        kwargs['regular_piano_kwargs'].setdefault('squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
+        kwargs['regular_piano_kwargs'].setdefault('start_stop', (self[0], self[-1]) if self.notes else None)
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
@@ -298,7 +289,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
                 }),
             )
             kwargs.setdefault('n_cols', max(self) - min(self) + 1)
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
+        kwargs['header_kwargs'].setdefault('title', str(self))
         return PlanePiano(**kwargs).svg
 
 
@@ -344,23 +335,20 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
         kwargs = kwargs.copy()
-        kwargs = deep_update(kwargs, {
-            'regular_piano_kwargs': {
-                'note_colors':
-                dict.fromkeys(self.del_notes, config.RED) |
-                dict.fromkeys(self.new_notes, config.GREEN) |
-                dict.fromkeys(self.shared_notes, config.BLUE),
-            },
-        })
-
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
+        kwargs['regular_piano_kwargs'].setdefault(
+            'note_colors',
+            dict.fromkeys(self.del_notes, config.RED) |
+            dict.fromkeys(self.new_notes, config.GREEN) |
+            dict.fromkeys(self.shared_notes, config.BLUE),
+        )
+        kwargs['header_kwargs'].setdefault('title', str(self))
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
         kwargs = kwargs.copy()
         n0 = Note(config.chromatic_notes[0])
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': str(self)}})
+        kwargs['header_kwargs'].setdefault('title', str(self))
         kwargs.setdefault(
             'interval_colors',
             dict.fromkeys([n - n0 for n in self.del_notes], config.RED) |

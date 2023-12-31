@@ -17,7 +17,6 @@ from musiclib.noteset import NoteSet
 from musiclib.svg.card import PlanePiano
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
-from musiclib.util.etc import deep_update
 
 Self = TypeVar('Self', bound='Scale')
 
@@ -126,16 +125,12 @@ class Scale(Cached, ReprSVGMixin):
         from musiclib.svg.card import Piano
         kwargs = kwargs.copy()
         kwargs.setdefault('class_', tuple(self.intervalset.names))
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': f'{self.str_names}'}})
-        kwargs = deep_update(kwargs, {
-            'regular_piano_kwargs': {
-                'note_colors': {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()},
-            },
-        })
+        kwargs['header_kwargs'].setdefault('title', self.str_names)
+        kwargs['regular_piano_kwargs'].setdefault('note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         kwargs = kwargs.copy()
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
-        kwargs = deep_update(kwargs, {'header_kwargs': {'title': f'{self.str_names}'}})
+        kwargs['header_kwargs'].setdefault('title', self.str_names)
         return PlanePiano(**kwargs).svg
