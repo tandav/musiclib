@@ -69,5 +69,5 @@ class IntervalSet(Cached, ReprSVGMixin):
         from musiclib.svg.card import PlanePiano
         kwargs = kwargs.copy()
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervals})
-        deep_update(kwargs, {'header_kwargs', {'title': str(self)}})
+        kwargs = deep_update(kwargs, {'header_kwargs', {'title': str(self)}})
         return PlanePiano(**kwargs).svg
