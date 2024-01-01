@@ -199,7 +199,6 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
                 for i in range(noteset.subtract(stop, start) + 1)
             ),
         )
-        # return cls(frozenset(note for note in NoteRange(start, stop) if note.abstract in noteset)))
 
     def notes_combinations(self) -> Iterator[tuple[SpecificNote, SpecificNote]]:
         yield from itertools.combinations(self.notes_ascending, 2)
