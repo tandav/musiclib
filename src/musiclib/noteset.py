@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+import pickle
 import random
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
@@ -116,14 +117,14 @@ class NoteSet(Cached, ReprSVGMixin):
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano  # hack to fix circular import
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         setdefault_path(kwargs, 'header_kwargs.title', str(self))
         setdefault_path(kwargs, 'regular_piano_kwargs.note_colors', {note: config.RED for note in self})
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         if self.notes:
             kwargs.setdefault(
                 'interval_colors', {
@@ -265,7 +266,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         setdefault_path(kwargs, 'header_kwargs.title', str(self))
         setdefault_path(kwargs, 'regular_piano_kwargs.note_colors', dict.fromkeys(self.notes, config.RED))
         setdefault_path(kwargs, 'regular_piano_kwargs.squares', {note: {'text': str(note), 'text_size': '8'} for note in self})
@@ -274,7 +275,7 @@ class SpecificNoteSet(Cached, ReprSVGMixin, Sequence[SpecificNote]):
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         if self.notes:
             kwargs.setdefault(
                 'interval_colors', {
@@ -334,7 +335,7 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         setdefault_path(
             kwargs,
             'regular_piano_kwargs.note_colors',
@@ -347,7 +348,7 @@ class ComparedNoteSets(Cached, ReprSVGMixin):
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         n0 = Note(config.chromatic_notes[0])
         setdefault_path(kwargs, 'header_kwargs.title', str(self))
         kwargs.setdefault(

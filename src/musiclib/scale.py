@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import pickle
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
@@ -124,14 +125,14 @@ class Scale(Cached, ReprSVGMixin):
 
     def svg_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import Piano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         kwargs.setdefault('class_', tuple(self.intervalset.names))
         setdefault_path(kwargs, 'header_kwargs.title', self.str_names)
         setdefault_path(kwargs, 'regular_piano_kwargs.note_colors', {note: config.interval_colors[interval] for note, interval in self.note_to_interval.items()})
         return Piano(**kwargs).svg
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervalset.intervals})
         setdefault_path(kwargs, 'header_kwargs.title', self.str_names)
         return PlanePiano(**kwargs).svg

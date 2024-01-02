@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 from typing import TYPE_CHECKING
 from typing import TypeVar
 
@@ -67,7 +68,7 @@ class IntervalSet(Cached, ReprSVGMixin):
 
     def svg_plane_piano(self, **kwargs: Any) -> svg.SVG:
         from musiclib.svg.card import PlanePiano
-        kwargs = kwargs.copy()
+        kwargs = pickle.loads(pickle.dumps(kwargs))  # faster than copy.deepcopy
         kwargs.setdefault('interval_colors', {i: config.interval_colors[i] for i in self.intervals})
         setdefault_path(kwargs, 'header_kwargs.title', str(self))
         return PlanePiano(**kwargs).svg
