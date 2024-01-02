@@ -207,7 +207,7 @@ class SpecificNoteSetEvent:
         return f'{self.__class__.__name__}(sns={self.sns}, on={self.on}, off={self.off})'
 
 
-def unique_notesets(midi: mido.MidiFile) -> Generator[SpecificNoteSetEvent, None, None]:
+def unique_notesets(midi: mido.MidiFile, *, drop_zero_duration: bool = True) -> Generator[SpecificNoteSetEvent, None, None]:
     if midi.type != 0:
         raise ValueError('only type 0 midi files are supported')
     track, = midi.tracks
@@ -219,7 +219,8 @@ def unique_notesets(midi: mido.MidiFile) -> Generator[SpecificNoteSetEvent, None
         if message.type not in {'note_on', 'note_off'}:
             continue
         sns = SpecificNoteSet(frozenset(n['note'] for n in playing_notes.values()))
-        yield SpecificNoteSetEvent(sns=sns, on=t_sns, off=t)
+        if not (drop_zero_duration and t - t_sns == 0):
+            yield SpecificNoteSetEvent(sns=sns, on=t_sns, off=t)
         t_sns = t
         if is_note('on', message):
             playing_notes[message.note].update({'note': SpecificNote.from_i(message.note), 'on': t})
