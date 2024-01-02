@@ -61,7 +61,7 @@ def test_intervals_rotations(intervals, expected):
         ({'a': {'b': {'c': {'d': 3}}}}, 'a.b.e', 4, {'a': {'b': {'c': {'d': 3}, 'e': 4}}}),
         ({'a': {'b': {'c': {'d': 3}}}}, 'a.b.e.f', 4, {'a': {'b': {'c': {'d': 3}, 'e': {'f': 4}}}}),
         ({'a': {'b': {'c': {'d': 3}}}}, 'a.b.e.f.g', 4, {'a': {'b': {'c': {'d': 3}, 'e': {'f': {'g': 4}}}}}),
-    ]
+    ],
 )
 def test_setdefault_path(mapping, path, value, expected):
     if isinstance(expected, type) and issubclass(expected, Exception):

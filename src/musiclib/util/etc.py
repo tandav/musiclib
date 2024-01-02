@@ -150,14 +150,13 @@ def deep_setdefault(mapping: dict[KeyType, Any], updating_mapping: dict[KeyType,
     return updated_mapping
 
 
-def setdefault_path(mapping: dict[KeyType, Any], path: str, value: Any) -> dict[KeyType, Any]:
-    updated_mapping = mapping.copy()
+def setdefault_path(mapping: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
     *prefix_keys, value_key = path.split('.')
-    _mapping = updated_mapping
+    _mapping = mapping
     for key in prefix_keys:
         _mapping.setdefault(key, {})
         _mapping = _mapping[key]
         if not isinstance(_mapping, dict):
             raise KeyError('non-dict value for path')
     _mapping.setdefault(value_key, value)
-    return updated_mapping
+    return mapping
