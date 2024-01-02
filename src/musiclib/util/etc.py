@@ -1,5 +1,6 @@
 import cmath
 from typing import Any
+from typing import TypeVar
 
 
 def are_all_none(*args: Any) -> bool:
@@ -119,3 +120,43 @@ def line_intersection(
     y = m1 * x + b1
 
     return x, y
+
+
+KeyType = TypeVar('KeyType')
+
+
+def deep_update(mapping: dict[KeyType, Any], updating_mapping: dict[KeyType, Any]) -> dict[KeyType, Any]:
+    """
+    based on:
+    https://github.com/pydantic/pydantic/blob/da468c48624b202685af4baebf0edf0df4402a81/pydantic/_internal/_utils.py#L103
+    https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+    """
+    updated_mapping = mapping.copy()
+    for k, v in updating_mapping.items():
+        if k in updated_mapping and isinstance(updated_mapping[k], dict) and isinstance(v, dict):
+            updated_mapping[k] = deep_update(updated_mapping[k], v)
+        else:
+            updated_mapping[k] = v
+    return updated_mapping
+
+
+def deep_setdefault(mapping: dict[KeyType, Any], updating_mapping: dict[KeyType, Any]) -> dict[KeyType, Any]:
+    updated_mapping = mapping.copy()
+    for k, v in updating_mapping.items():
+        if k in updated_mapping and isinstance(updated_mapping[k], dict) and isinstance(v, dict):
+            updated_mapping[k] = deep_setdefault(updated_mapping[k], v)
+        else:
+            updated_mapping.setdefault(k, v)
+    return updated_mapping
+
+
+def setdefault_path(mapping: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
+    *prefix_keys, value_key = path.split('.')
+    _mapping = mapping
+    for key in prefix_keys:
+        _mapping.setdefault(key, {})
+        _mapping = _mapping[key]
+        if not isinstance(_mapping, dict):
+            raise KeyError('non-dict value for path')
+    _mapping.setdefault(value_key, value)
+    return mapping

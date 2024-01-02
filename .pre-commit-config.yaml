@@ -42,7 +42,7 @@ repos:
       - id: autoflake
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.3
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -54,14 +54,14 @@ repos:
       additional_dependencies: [Flake8-pyproject, flake8-functions-names]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.1
+    rev: v3.0.3
     hooks:
       - id: pylint
         # additional_dependencies: ["pylint-per-file-ignores"]
         # https://github.com/christopherpickering/pylint-per-file-ignores/issues/76
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.1
+    rev: v1.8.0
     hooks:
     - id: mypy
       additional_dependencies: [svg.py, numpy]
