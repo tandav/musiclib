@@ -30,7 +30,6 @@ class FromIntervalDict:
         self.abstract = abstract
 
     def __call__(self, interval: int, radius: int, x: float, y: float) -> SVG_TEXT_KW:
-
         return {
             **TEXT_DEFAULT_KW,
             'font_size': int(0.5 * radius),

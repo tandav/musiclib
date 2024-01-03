@@ -231,7 +231,9 @@ class IsomorphicKeyboard(abc.ABC):
             polygon_kw['stroke'] = stroke['stroke'].css_hex
             polygon_kw['stroke_width'] = stroke.get('stroke_width', 1) * 2
             polygon_kw['clip_path'] = f'url(#{id_})'
-        self.elements.append(svg.Polygon(**polygon_kw))
+        polygon = svg.Polygon(**polygon_kw)
+        polygon.interval = interval  # type: ignore[attr-defined]
+        self.elements.append(polygon)
 
         if self.n_parts is not None:
             self.add_parts(interval, x, y, id_)
@@ -248,17 +250,14 @@ class IsomorphicKeyboard(abc.ABC):
                 continue
             self.elements.append(svg.Text(**value))
 
-        # transparent polygon on top for mouse events
-        # polygon = svg.Polygon(
-        #     class_=['polygon-transparent'],
-        #     points=points,
-        #     fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
-        #     # stroke='black',
-        #     # stroke_width=1,
-        #     # onmousedown=f"midi_message('note_on', '{note}')",
-        #     # onmouseup=f"midi_message('note_off', '{note}')",
-        # )
-        # self.elements.append(polygon)
+        # transparent polygon on top for mouse events and recoloring
+        polygon = svg.Polygon(
+            class_=['polygon-transparent'],
+            points=points,  # type: ignore[arg-type]
+            fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
+        )
+        polygon.interval = interval  # type: ignore[attr-defined]
+        self.elements.append(polygon)
 
     @abc.abstractmethod
     def key_points(self, x: float, y: float) -> list[float]:
