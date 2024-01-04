@@ -17,7 +17,7 @@ class Header:
         subtitle_href: str | None = None,
         subtitle_font_size: int = 12,
         title_y: int = 4,
-        subtitle_y: int = 18,
+        subtitle_y: int = 20,
         background_color: Color = config.WHITE_BRIGHT,
         width: int = 300,
         height: int = 35,
