@@ -17,7 +17,7 @@ from musiclib.util.etc import vertex
 
 class IsomorphicKeyboard(abc.ABC):
     """
-    https://notes.tandav.me/notes/3548
+    https://gitlab.tandav.me/tandav/notes/-/issues/3581
     """
 
     def __init__(
