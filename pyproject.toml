@@ -25,6 +25,10 @@ dev = [
     "pytest-cov",
 ]
 
+rtmidi = [
+    "python-rtmidi",
+]
+
 [project.urls]
 source = "https://github.com/tandav/musiclib"
 # docs = "https://tandav.github.io/musiclib"
