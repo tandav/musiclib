@@ -1,6 +1,13 @@
 import abc
+from typing import NamedTuple
 from musiclib.note import SpecificNote
 from musiclib.intervalset import IntervalSet
+
+
+class IntervalEvent(NamedTuple):
+    interval: int
+    on: int
+    off: int
 
 
 class Event(abc.ABC):
@@ -14,10 +21,17 @@ class Event(abc.ABC):
 
 
 class Header(Event):
-    def post_init(self, version: str, root: str, intervalset: str):
+    def post_init(
+        self,
+        version: str,
+        root: str, 
+        intervalset: str,
+        ticks_per_beat: str = '96',
+    ):
         self.version = version
         self.root = SpecificNote.from_str(root)
         self.intervalset = IntervalSet.from_name(intervalset)
+        self.ticks_per_beat = int(ticks_per_beat)
                     
 
 class Modulation(Event):
@@ -26,11 +40,34 @@ class Modulation(Event):
         self.intervalset = IntervalSet.from_name(intervalset)
                         
 
+
 class Voice:
     def __init__(self, code: str):
         self.name, intervals_str = code.split(maxsplit=1)
-        self.intervals = [None if i == '..' else int(i, base=12) for i in intervals_str.split()]
-
+        self.intervals = self.parse_intervals(intervals_str)
+        
+    def parse_intervals(self, intervals_str: str, ticks_per_beat: int = 96):
+        interval = None
+        on = 0
+        off = 0
+        interval_events = []
+        for interval_str in intervals_str.split():
+            if interval_str == '..':
+                if interval is None:
+                    on += ticks_per_beat
+                else:
+                    off += ticks_per_beat
+            elif interval_str == '--':
+                if interval is None:
+                    raise ValueError('Cannot have -- in the beginning of a voice')
+                off += ticks_per_beat
+            else:
+                if interval is not None:
+                    interval_events.append(IntervalEvent(interval, on, off))
+                    on = off
+                off += ticks_per_beat
+                interval = int(interval_str, base=12)
+        return interval_events
 
 class Bar:
     def __init__(self, code: str):
