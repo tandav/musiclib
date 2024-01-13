@@ -14,15 +14,15 @@ def test_voice_name(code, name):
 
 
 @pytest.mark.parametrize('code, intervals', [
-    # (
-    #     'flute  1  2  3  4',
-    #     [
-    #         IntervalEvent(interval=1, on=0, off=96),
-    #         IntervalEvent(interval=2, on=96, off=192),
-    #         IntervalEvent(interval=3, on=192, off=288),
-    #         IntervalEvent(interval=4, on=288, off=384),
-    #     ],
-    # ),
+    (
+        'flute  1  2  3  4',
+        [
+            IntervalEvent(interval=1, on=0, off=96),
+            IntervalEvent(interval=2, on=96, off=192),
+            IntervalEvent(interval=3, on=192, off=288),
+            IntervalEvent(interval=4, on=288, off=384),
+        ],
+    ),
     (
         'flute  15 -3 .. -10 26 17 28 -- 17 29 -15  27  -8  -5  25  23',
         [
