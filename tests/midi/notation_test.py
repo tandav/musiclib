@@ -10,6 +10,11 @@ from musiclib.midi import notation
         [18, 5, 28, 17, 0, 7, -6, 10, 4, -17, -11, 30, 14, 24, 18, -13],
     ),
     (
+        'flute  A   4 -15  -B  26  12  20  16 -11',
+        'flute',
+        [10, 4, -17, -11, 30, 14, 24, 18, -13],
+    ),
+    (
         'flute  15  -3     -10  26  17  28      17  29 -15  27  -8  -5  25  23',
         'flute',
         [17, -3, None, -12, 30, 19, 32, None, 19, 33, -17, 31, -8, -5, 29, 27],
@@ -32,6 +37,7 @@ def test_voice(code, name, intervals):
 
 
 code = '''\
+header
 version 2.2.1
 intervalset major
 root C1
