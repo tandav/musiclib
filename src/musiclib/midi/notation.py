@@ -25,19 +25,16 @@ class Header(Event):
         self,
         version: str,
         root: str, 
-        intervalset: str,
         ticks_per_beat: str = '96',
     ):
         self.version = version
         self.root = SpecificNote.from_str(root)
-        self.intervalset = IntervalSet.from_name(intervalset)
         self.ticks_per_beat = int(ticks_per_beat)
                     
 
 class Modulation(Event):
-    def post_init(self, root: str, intervalset: str):
+    def post_init(self, root: str):
         self.root = SpecificNote.from_str(root)
-        self.intervalset = IntervalSet.from_name(intervalset)
                         
 
 
@@ -67,6 +64,7 @@ class Voice:
                     on = off
                 off += ticks_per_beat
                 interval = int(interval_str, base=12)
+        interval_events.append(IntervalEvent(interval, on, off))
         return interval_events
 
 class Bar:

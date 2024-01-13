@@ -39,28 +39,9 @@ def test_voice_name(code, name):
             IntervalEvent(interval=-8, on=1152, off=1248), 
             IntervalEvent(interval=-5, on=1248, off=1344), 
             IntervalEvent(interval=29, on=1344, off=1440),
+            IntervalEvent(interval=27, on=1440, off=1536),
         ],
     ),
-    # (
-    #     'flute  16  5  24  15  0  7  -6  A  4  -15  -B  26  12  20  16  -11',
-    #     [18, 5, 28, 17, 0, 7, -6, 10, 4, -17, -11, 30, 14, 24, 18, -13],
-    # ),
-    # (
-    #     'flute  A   4 -15  -B  26  12  20  16 -11',
-    #     [10, 4, -17, -11, 30, 14, 24, 18, -13],
-    # ),
-    # (
-    #     'flute  15 -3 .. -10 26 17 28 .. 17 29 -15  27  -8  -5  25  23',
-    #     [17, -3, None, -12, 30, 19, 32, None, 19, 33, -17, 31, -8, -5, 29, 27],
-    # ),
-    # (
-    #     'bass    9   8  -7  17   4 -12   0  -6 -10  14  25   6  -3  13  -1  29',
-    #     [9, 8, -7, 19, 4, -14, 0, -6, -12, 16, 29, 6, -3, 15, -1, 33],
-    # ),
-    # (
-    #     'bass                    9   8  -7  17   4 -12   0  -6 -10  14  25   6  -3  13  -1  29',
-    #     [9, 8, -7, 19, 4, -14, 0, -6, -12, 16, 29, 6, -3, 15, -1, 33],
-    # ),
 ])
 def test_voice(code, intervals):
     assert notation.Voice(code).intervals == intervals
@@ -69,7 +50,6 @@ def test_voice(code, intervals):
 code = '''\
 header
 version 2.2.1
-intervalset major
 root C1
 ticks_per_beat 96
 
@@ -80,7 +60,6 @@ bass    9   8  -7  17   4 -12   0  -6 -10  14  25   6  -3  13  -1  29
 
 modulation
 root A0
-intervalset minor
 
 flute  16   5  24  15   0   7  -6   7   4 -15   2  26  12  20  16 -11
 flute  15  -3   0 -10  26  17  28  28  17  29 -15  27  -8  -5  25  23
