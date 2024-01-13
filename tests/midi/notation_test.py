@@ -4,10 +4,27 @@ from musiclib.midi import notation
 from musiclib.midi.notation import IntervalEvent
 
 
-@pytest.mark.parametrize('code, name, intervals', [
+
+@pytest.mark.parametrize('code, name', [
+    ('flute  1  2  3  4', 'flute'),
+    ('bass                    9   8  -7  17   4 -12   0', 'bass'),
+])
+def test_voice_name(code, name):
+    assert notation.Voice(code).name == name
+
+
+@pytest.mark.parametrize('code, intervals', [
+    # (
+    #     'flute  1  2  3  4',
+    #     [
+    #         IntervalEvent(interval=1, on=0, off=96),
+    #         IntervalEvent(interval=2, on=96, off=192),
+    #         IntervalEvent(interval=3, on=192, off=288),
+    #         IntervalEvent(interval=4, on=288, off=384),
+    #     ],
+    # ),
     (
         'flute  15 -3 .. -10 26 17 28 -- 17 29 -15  27  -8  -5  25  23',
-        'flute',
         [
             IntervalEvent(interval=17, on=0, off=96),
             IntervalEvent(interval=-3, on=96, off=288),
@@ -26,34 +43,27 @@ from musiclib.midi.notation import IntervalEvent
     ),
     # (
     #     'flute  16  5  24  15  0  7  -6  A  4  -15  -B  26  12  20  16  -11',
-    #     'flute',
     #     [18, 5, 28, 17, 0, 7, -6, 10, 4, -17, -11, 30, 14, 24, 18, -13],
     # ),
     # (
     #     'flute  A   4 -15  -B  26  12  20  16 -11',
-    #     'flute',
     #     [10, 4, -17, -11, 30, 14, 24, 18, -13],
     # ),
     # (
     #     'flute  15 -3 .. -10 26 17 28 .. 17 29 -15  27  -8  -5  25  23',
-    #     'flute',
     #     [17, -3, None, -12, 30, 19, 32, None, 19, 33, -17, 31, -8, -5, 29, 27],
     # ),
     # (
     #     'bass    9   8  -7  17   4 -12   0  -6 -10  14  25   6  -3  13  -1  29',
-    #     'bass',
     #     [9, 8, -7, 19, 4, -14, 0, -6, -12, 16, 29, 6, -3, 15, -1, 33],
     # ),
     # (
     #     'bass                    9   8  -7  17   4 -12   0  -6 -10  14  25   6  -3  13  -1  29',
-    #     'bass',
     #     [9, 8, -7, 19, 4, -14, 0, -6, -12, 16, 29, 6, -3, 15, -1, 33],
     # ),
 ])
-def test_voice(code, name, intervals):
-    voice = notation.Voice(code)
-    assert voice.name == name
-    assert voice.intervals == intervals
+def test_voice(code, intervals):
+    assert notation.Voice(code).intervals == intervals
 
 
 code = '''\
