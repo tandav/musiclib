@@ -1,4 +1,6 @@
 import abc
+import bisect
+import operator
 import collections
 from typing import NamedTuple
 import musiclib
@@ -77,15 +79,35 @@ class Bar:
 
     def to_midi(self, root: SpecificNote, figured_bass: bool = True):
         channels = collections.defaultdict(list)
-        for voice in self.voices:
-            for interval_event in voice.interval_events:
-                channels[voice.channel].append(MidiNote(
-                    note=root + interval_event.interval,
-                    on=interval_event.on,
-                    off=interval_event.off,
-                ))
-        return dict(channels)
+        if not figured_bass:
+            for voice in self.voices:
+                for interval_event in voice.interval_events:
+                    channels[voice.channel].append(MidiNote(
+                        note=root + interval_event.interval,
+                        on=interval_event.on,
+                        off=interval_event.off,
+                    ))
+            return dict(channels)
+        *voices, bass = self.voices
+        for bass_interval_event in bass.interval_events:
+            bass_note = root + bass_interval_event.interval
+            bass_on = bass_interval_event.on
+            bass_off = bass_interval_event.off
+            channels[bass.channel].append(MidiNote(bass_note, bass_on, bass_off))
 
+            for voice in voices:
+                above_bass_events = voice.interval_events[
+                    bisect.bisect_left(voice.interval_events, bass_interval_event.on, key=operator.attrgetter('on')):
+                    bisect.bisect_left(voice.interval_events, bass_interval_event.off, key=operator.attrgetter('on'))
+                ]
+                
+                for interval_event in above_bass_events:
+                    channels[voice.channel].append(MidiNote(
+                        note=bass_note + interval_event.interval,
+                        on=interval_event.on,
+                        off=interval_event.off,
+                    ))
+        return dict(channels)
 
 class Notation:
     def __init__(self, code: str) -> None:
