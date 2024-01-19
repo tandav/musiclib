@@ -84,7 +84,6 @@ def test_make_notes_pitchbends(midi):
             MidiPitch(time=197, pitch=8191),
             MidiPitch(time=202, pitch=6035),
             MidiPitch(time=216, pitch=0),
-            MidiPitch(time=216, pitch=0),
         ],
     }
 

@@ -53,12 +53,6 @@ class Midi:
         return max(note.off for note in self.notes)
 
 
-@dataclasses.dataclass
-class IndexedMessage:
-    message: mido.Message
-    index: int
-
-
 def is_note(type_: Literal['on', 'off'], message: mido.Message) -> bool:
     """https://stackoverflow.com/a/43322203/4204843"""
     if type_ == 'on':
@@ -91,29 +85,27 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
 
 
 def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
-    abs_messages = index_abs_messages(midi)
     t = 0
     messages = []
-    for im in abs_messages:
-        m = im.message.copy()
-        m.time = im.message.time - t
+    for am in abs_messages(midi):
+        m = am.copy()
+        m.time = am.time - t
         messages.append(m)
-        t = im.message.time
+        t = am.time
     track = mido.MidiTrack(messages)
     return mido.MidiFile(type=0, tracks=[track], ticks_per_beat=midi.ticks_per_beat)
 
 
-def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
+def abs_messages(midi: Midi) -> list[mido.Message]:
     """this are messages with absolute time, note real midi messages"""
-    abs_messages = []
-    for i, note in enumerate(midi.notes):
-        abs_messages.append(IndexedMessage(message=mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100), index=i))
-        abs_messages.append(IndexedMessage(message=mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100), index=i))
-    for i, pitch in enumerate(midi.pitchbend):
-        abs_messages.append(IndexedMessage(message=mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch), index=i))
-    # Sort by time. If time is equal sort using type priority in following order: note_on, pitchwheel, note_off
-    abs_messages.sort(key=lambda m: (m.message.time, {'note_on': 0, 'pitchwheel': 1, 'note_off': 2}[m.message.type]))
-    return abs_messages
+    out = []
+    for note in midi.notes:
+        out.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100))
+        out.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100))
+    for pitch in midi.pitchbend:
+        out.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))
+    out.sort(key=lambda m: (m.time, {'note_off': 0, 'pitchwheel': 1, 'note_on': 2}[m.type]))
+    return out
 
 
 def specific_note_set_to_midi(

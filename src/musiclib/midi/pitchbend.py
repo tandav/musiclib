@@ -1,4 +1,5 @@
-import collections
+import bisect
+import operator
 import dataclasses
 import itertools
 from typing import no_type_check
@@ -8,7 +9,6 @@ import numpy as np
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
 from musiclib.midi.parse import MidiPitch
-from musiclib.midi.parse import index_abs_messages
 from musiclib.tempo import Tempo
 from musiclib.util.etc import increment_duplicates
 
@@ -72,30 +72,31 @@ def insert_pitch_pattern(
         notes=midi.notes,
         pitchbend=pitchbend,
         ticks_per_beat=midi.ticks_per_beat,
-    )
+    ) 
 
 
 def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
     T, P = zip(*[(e.time, e.pitch) for e in midi.pitchbend], strict=True)  # noqa: N806
+    T_set = set(T)
     interp_t = []
     for note in midi.notes:
-        interp_t += [note.on, note.off]
+        for t in (note.on, note.off):
+            if t in T_set:
+                continue
+            interp_t.append(t)
+            T_set.add(t)
     interp_p = np.interp(interp_t, T, P, left=0).astype(int).tolist()  # https://docs.scipy.org/doc/scipy/tutorial/interpolate/1D.html#piecewise-linear-interpolation
-    interp_pitches = sorted(midi.pitchbend + [MidiPitch(time=t, pitch=p) for t, p in zip(interp_t, interp_p, strict=True)], key=lambda p: p.time)
-    midi_tmp = Midi(notes=midi.notes, pitchbend=interp_pitches)
-    notes_pitchbends = collections.defaultdict(list)
-    playing_notes = set()
-    for im in index_abs_messages(midi_tmp):
-        if im.message.type in {'note_on', 'note_off'}:
-            note = midi.notes[im.index]
-            if im.message.type == 'note_on':
-                playing_notes.add(note)
-            elif im.message.type == 'note_off':
-                playing_notes.remove(note)
-        elif im.message.type == 'pitchwheel':
-            for note in playing_notes:
-                notes_pitchbends[note].append(midi_tmp.pitchbend[im.index])
-    return dict(notes_pitchbends)
+    interp_pitches = sorted(
+        midi.pitchbend + [MidiPitch(time=t, pitch=p) for t, p in zip(interp_t, interp_p, strict=True)],
+        key=operator.attrgetter('time'),
+    )
+    notes_pitchbends = {}
+    for note in midi.notes:
+        notes_pitchbends[note] = interp_pitches[
+            bisect.bisect_left(interp_pitches, note.on, key=operator.attrgetter('time')):
+            bisect.bisect_right(interp_pitches, note.off, key=operator.attrgetter('time'))
+        ]
+    return notes_pitchbends
 
 
 @no_type_check
