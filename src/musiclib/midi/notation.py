@@ -1,13 +1,19 @@
+import argparse
+import pathlib
 import abc
 import bisect
-import operator
 import collections
+import operator
 from typing import NamedTuple
+
 import musiclib
-from musiclib.note import SpecificNote
-from musiclib.intervalset import IntervalSet
-from musiclib.midi.parse import MidiNote
 from musiclib.midi.parse import Midi
+from musiclib.midi.parse import MidiNote
+from musiclib.midi.parse import midiobj_to_midifile
+from musiclib.note import SpecificNote
+from musiclib.midi.player import Player
+
+import mido
 
 
 class IntervalEvent(NamedTuple):
@@ -30,25 +36,25 @@ class Header(Event):
     def post_init(
         self,
         version: str,
-        root: str, 
+        root: str,
         ticks_per_beat: str = '96',
     ):
         self.version = version
         self.root = SpecificNote.from_str(root)
         self.ticks_per_beat = int(ticks_per_beat)
-                    
+
 
 class Modulation(Event):
     def post_init(self, root: str):
         self.root = SpecificNote.from_str(root)
-                        
+
 
 
 class Voice:
     def __init__(self, code: str):
         self.channel, intervals_str = code.split(maxsplit=1)
         self.interval_events = self.parse_interval_events(intervals_str)
-        
+
     def parse_interval_events(self, intervals_str: str, ticks_per_beat: int = 96):
         interval = None
         on = 0
@@ -82,11 +88,13 @@ class Bar:
         if not figured_bass:
             for voice in self.voices:
                 for interval_event in voice.interval_events:
-                    channels[voice.channel].append(MidiNote(
-                        note=root + interval_event.interval,
-                        on=interval_event.on,
-                        off=interval_event.off,
-                    ))
+                    channels[voice.channel].append(
+                        MidiNote(
+                            note=root + interval_event.interval,
+                            on=interval_event.on,
+                            off=interval_event.off,
+                        ),
+                    )
             return dict(channels)
         *voices, bass = self.voices
         for bass_interval_event in bass.interval_events:
@@ -100,23 +108,25 @@ class Bar:
                     bisect.bisect_left(voice.interval_events, bass_interval_event.on, key=operator.attrgetter('on')):
                     bisect.bisect_left(voice.interval_events, bass_interval_event.off, key=operator.attrgetter('on'))
                 ]
-                
+
                 for interval_event in above_bass_events:
-                    channels[voice.channel].append(MidiNote(
-                        note=bass_note + interval_event.interval,
-                        on=interval_event.on,
-                        off=interval_event.off,
-                    ))
+                    channels[voice.channel].append(
+                        MidiNote(
+                            note=bass_note + interval_event.interval,
+                            on=interval_event.on,
+                            off=interval_event.off,
+                        ),
+                    )
         return dict(channels)
 
 class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
-    
+
     def parse(self, code: str):
         events = code.strip().split('\n\n')
         self.events = [self.parse_event(event) for event in events]
-        
+
     def parse_event(self, code: str):
         if code.startswith('header'):
             return Header(code)
@@ -124,7 +134,7 @@ class Notation:
             return Modulation(code)
         return Bar(code)
 
-    def to_midi(
+    def _to_midi(
         self,
         root = SpecificNote('C', 4),
         t_start = 0,
@@ -142,7 +152,7 @@ class Notation:
                 root = event.root
             elif isinstance(event, Bar):
                 bar_midi = event.to_midi(root)
-                
+
                 bar_off_channels = {channel: notes[-1].off for channel, notes in bar_midi.items()}
                 if len(set(bar_off_channels.values())) != 1:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
@@ -160,3 +170,33 @@ class Notation:
         }
 
         return channels
+
+    def to_midi(
+        self,
+        root = SpecificNote('C', 4),
+        t_start = 0,
+        ticks_per_beat: int = 96,
+    ):
+        tracks = []
+        for channel, midi in self._to_midi(root, t_start, ticks_per_beat).items():
+            midifile = midiobj_to_midifile(midi)
+            track, = midifile.tracks
+            tracks.append(track)
+        return mido.MidiFile(tracks=tracks, ticks_per_beat=ticks_per_beat)
+
+
+def play_file():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filepath', type=pathlib.Path)
+    parser.add_argument('--bpm', type=float, default=120)
+    parser.add_argument('--midiport', type=str, default='IAC Driver Bus 1')
+    args = parser.parse_args()
+    code = args.filepath.read_text()
+    nt = Notation(code)
+    midi = nt.to_midi()
+    player = Player(args.midiport)
+    player.play_midi(midi, beats_per_minute=args.bpm)
+
+
+if __name__ == '__main__':
+    play_file()
