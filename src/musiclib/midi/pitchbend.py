@@ -1,7 +1,7 @@
 import bisect
-import operator
 import dataclasses
 import itertools
+import operator
 from typing import no_type_check
 
 import numpy as np
@@ -72,7 +72,7 @@ def insert_pitch_pattern(
         notes=midi.notes,
         pitchbend=pitchbend,
         ticks_per_beat=midi.ticks_per_beat,
-    ) 
+    )
 
 
 def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
