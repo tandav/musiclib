@@ -177,9 +177,9 @@ class Notation:
 
 def play_file() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument('filepath', type=pathlib.Path)
     parser.add_argument('--bpm', type=float, default=120)
     parser.add_argument('--midiport', type=str, default='IAC Driver Bus 1')
+    parser.add_argument('filepath', type=pathlib.Path)
     args = parser.parse_args()
     code = args.filepath.read_text()
     nt = Notation(code)
