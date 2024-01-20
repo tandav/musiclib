@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from typing import Literal
 
 import mido
+from mido.midifiles.tracks import _to_reltime
 
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
@@ -77,22 +78,15 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
         elif is_note('off', message):
             note = playing_notes[message.note]
             note['off'] = t
+            print(message, playing_notes, note)
             notes.append(MidiNote(**note))
             del playing_notes[message.note]
         elif message.type == 'pitchwheel':
             pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
     return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)
 
-
 def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
-    t = 0
-    messages = []
-    for am in abs_messages(midi):
-        m = am.copy()
-        m.time = am.time - t
-        messages.append(m)
-        t = am.time
-    track = mido.MidiTrack(messages)
+    track = mido.MidiTrack(_to_reltime(abs_messages(midi)))
     return mido.MidiFile(type=0, tracks=[track], ticks_per_beat=midi.ticks_per_beat)
 
 
