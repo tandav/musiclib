@@ -37,7 +37,7 @@ class Header(Event):
             raise ValueError(f'musiclib must be exact version {self.version} to parse notation')
         self.root = SpecificNote.from_str(self.kw['root'])
         self.ticks_per_beat = int(self.kw['ticks_per_beat'])
-        self.channel_map = json.loads(self.kw['channels'])
+        self.midi_channels = json.loads(self.kw['midi_channels'])
 
 
 class Modulation(Event):
@@ -125,7 +125,7 @@ class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
         self.ticks_per_beat = self.header.ticks_per_beat
-        self.channel_map = self.header.channel_map
+        self.midi_channels = self.header.midi_channels
 
     def parse(self, code: str) -> None:
         self.events: list[Event | Bar] = []
@@ -138,7 +138,7 @@ class Notation:
                 self.events.append(Bar(event_code))
 
     def _to_midi(self) -> list[Midi]:
-        channels: list[list[MidiNote]] = [[] for _ in range(len(self.channel_map))]
+        channels: list[list[MidiNote]] = [[] for _ in range(len(self.header.midi_channels))]
         root = self.header.root
         t = 0
         for event in self.events:
@@ -151,7 +151,7 @@ class Notation:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
                 bar_off = next(iter(bar_off_channels.values()))
                 for channel, notes in bar_midi.items():
-                    channel_id = self.channel_map[channel]
+                    channel_id = self.header.midi_channels[channel]
                     channels[channel_id] += [
                         MidiNote(
                             note=note.note,
