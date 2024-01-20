@@ -84,6 +84,8 @@ class Bar:
         self.voices = [Voice(voice_code) for voice_code in code.splitlines()]
 
     def to_midi(self, root: SpecificNote, figured_bass: bool = True):
+        if not isinstance(root, SpecificNote):
+            raise TypeError(f'root must be SpecificNote, got {root}')
         channels = collections.defaultdict(list)
         if not figured_bass:
             for voice in self.voices:
@@ -122,6 +124,7 @@ class Bar:
 class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
+        self.ticks_per_beat = self.events[0].ticks_per_beat
 
     def parse(self, code: str):
         events = code.strip().split('\n\n')
@@ -134,25 +137,19 @@ class Notation:
             return Modulation(code)
         return Bar(code)
 
-    def _to_midi(
-        self,
-        root = SpecificNote('C', 4),
-        t_start = 0,
-        ticks_per_beat: int = 96,
-    ):
+    def _to_midi(self):
         channels = collections.defaultdict(list)
-        t = t_start
+        root = None
+        t = 0
         for event in self.events:
             if isinstance(event, Header):
                 root = event.root
-                ticks_per_beat = event.ticks_per_beat
                 if musiclib.__version__ != event.version:
                     raise ValueError(f'musiclib must be exact version {event.version} to parse notation')
             elif isinstance(event, Modulation):
                 root = event.root
             elif isinstance(event, Bar):
                 bar_midi = event.to_midi(root)
-
                 bar_off_channels = {channel: notes[-1].off for channel, notes in bar_midi.items()}
                 if len(set(bar_off_channels.values())) != 1:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
@@ -165,24 +162,19 @@ class Notation:
                 raise ValueError(f'unknown event type: {event}')
 
         channels = {
-            k: Midi(notes=v, ticks_per_beat=ticks_per_beat)
+            k: Midi(notes=v, ticks_per_beat=self.ticks_per_beat)
             for k, v in channels.items()
         }
 
         return channels
 
-    def to_midi(
-        self,
-        root = SpecificNote('C', 4),
-        t_start = 0,
-        ticks_per_beat: int = 96,
-    ):
+    def to_midi(self):
         tracks = []
-        for channel, midi in self._to_midi(root, t_start, ticks_per_beat).items():
+        for channel, midi in self._to_midi().items():
             midifile = midiobj_to_midifile(midi)
             track, = midifile.tracks
             tracks.append(track)
-        return mido.MidiFile(tracks=tracks, ticks_per_beat=ticks_per_beat)
+        return mido.MidiFile(tracks=tracks, ticks_per_beat=self.ticks_per_beat)
 
 
 def play_file():

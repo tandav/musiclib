@@ -52,9 +52,8 @@ def test_voice(code, interval_events):
     assert notation.Voice(code).interval_events == interval_events
 
 
-@pytest.mark.parametrize('example', [0])
-def test_to_midi(example):
-    example_dir = Path(__file__).parent / f'data/notation/{example}'
+@pytest.mark.parametrize('example_dir', (Path(__file__).parent / f'data/notation').iterdir())
+def test_to_midi(example_dir):
     code = (example_dir / 'code.txt').read_text()
     with open(example_dir / 'midi.json') as f:
         midi_dict = json.load(f)

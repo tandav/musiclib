@@ -226,7 +226,7 @@ def to_dict(midi: mido.MidiFile) -> dict:  # type: ignore[type-arg]
     return {
         'type': midi.type,
         'ticks_per_beat': midi.ticks_per_beat,
-        'tracks': [[message.dict() | {'is_meta': message.is_meta} for message in track]for track in midi.tracks],
+        'tracks': [[message.dict() | {'is_meta': message.is_meta} for message in track] for track in midi.tracks],
     }
 
 
