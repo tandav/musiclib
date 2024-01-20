@@ -4,6 +4,7 @@ import abc
 import bisect
 import collections
 import operator
+from collections.abc import Iterable
 from typing import NamedTuple
 
 import musiclib
@@ -168,13 +169,28 @@ class Notation:
 
         return channels
 
-    def to_midi(self):
-        tracks = []
-        for channel, midi in self._to_midi().items():
+    @staticmethod
+    def make_channel_map(channel_names: Iterable[str]) -> dict[str, int]:
+        channel_id = 0
+        channel_map = {}
+        for name in channel_names:
+            channel_map[name] = channel_id
+            channel_id += 1
+        return channel_map
+
+    def to_midi(
+        self,
+        channel_map: dict[str, int] | None = None,
+    ):
+        channel_midi = self._to_midi()
+        if channel_map is None:
+            channel_map = self.make_channel_map(channel_midi)
+        tracks = [None] * len(channel_map)
+        for channel, midi in channel_midi.items():
             midifile = midiobj_to_midifile(midi)
             track, = midifile.tracks
-            tracks.append(track)
-        return mido.MidiFile(tracks=tracks, ticks_per_beat=self.ticks_per_beat)
+            tracks[channel_map[channel]] = track
+        return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=self.ticks_per_beat)
 
 
 def play_file():
