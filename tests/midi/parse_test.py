@@ -30,17 +30,17 @@ def test_midiobj_to_midifile(midi, mido_midifile):
     assert is_midi_equal(check, mido_midifile)
 
 
-def test_index_abs_messages(midi):
-    assert parse.index_abs_messages(midi) == [
-        parse.IndexedMessage(message=mido.Message('note_on', channel=0, note=60, velocity=100, time=0), index=0),
-        parse.IndexedMessage(message=mido.Message('note_off', channel=0, note=60, velocity=100, time=24), index=0),
-        parse.IndexedMessage(message=mido.Message('pitchwheel', channel=0, pitch=0, time=93), index=0),
-        parse.IndexedMessage(message=mido.Message('note_on', channel=0, note=64, velocity=100, time=96), index=1),
-        parse.IndexedMessage(message=mido.Message('note_on', channel=0, note=67, velocity=100, time=192), index=2),
-        parse.IndexedMessage(message=mido.Message('pitchwheel', channel=0, pitch=8191, time=197), index=1),
-        parse.IndexedMessage(message=mido.Message('note_off', channel=0, note=64, velocity=100, time=202), index=1),
-        parse.IndexedMessage(message=mido.Message('pitchwheel', channel=0, pitch=0, time=216), index=2),
-        parse.IndexedMessage(message=mido.Message('note_off', channel=0, note=67, velocity=100, time=216), index=2),
+def test_abs_messages(midi):
+    assert parse.abs_messages(midi) == [
+        mido.Message('note_on', channel=0, note=60, velocity=100, time=0),
+        mido.Message('note_off', channel=0, note=60, velocity=100, time=24),
+        mido.Message('pitchwheel', channel=0, pitch=0, time=93),
+        mido.Message('note_on', channel=0, note=64, velocity=100, time=96),
+        mido.Message('note_on', channel=0, note=67, velocity=100, time=192),
+        mido.Message('pitchwheel', channel=0, pitch=8191, time=197),
+        mido.Message('note_off', channel=0, note=64, velocity=100, time=202),
+        mido.Message('note_off', channel=0, note=67, velocity=100, time=216),
+        mido.Message('pitchwheel', channel=0, pitch=0, time=216),
     ]
 
 

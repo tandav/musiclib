@@ -121,6 +121,7 @@ ignore = [
     "FIX002",
     "FIX004",
     "B028",
+    "PTH123",
 ]
 
 [tool.ruff.per-file-ignores]

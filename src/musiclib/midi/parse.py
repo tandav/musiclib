@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from typing import Literal
 
 import mido
+from mido.midifiles.tracks import _to_reltime
 
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
@@ -19,6 +20,16 @@ class MidiNote:
     note: SpecificNote
     on: int
     off: int
+    channel: int = 0
+    velocity: int = 100
+
+    def __post_init__(self) -> None:
+        if self.off <= self.on:
+            raise ValueError('off must be > on')
+        if self.channel not in range(16):
+            raise ValueError('channel must be in 0..15')
+        if self.velocity not in range(128):
+            raise ValueError('velocity must be in 0..127')
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
@@ -53,12 +64,6 @@ class Midi:
         return max(note.off for note in self.notes)
 
 
-@dataclasses.dataclass
-class IndexedMessage:
-    message: mido.Message
-    index: int
-
-
 def is_note(type_: Literal['on', 'off'], message: mido.Message) -> bool:
     """https://stackoverflow.com/a/43322203/4204843"""
     if type_ == 'on':
@@ -91,29 +96,20 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
 
 
 def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
-    abs_messages = index_abs_messages(midi)
-    t = 0
-    messages = []
-    for im in abs_messages:
-        m = im.message.copy()
-        m.time = im.message.time - t
-        messages.append(m)
-        t = im.message.time
-    track = mido.MidiTrack(messages)
+    track = mido.MidiTrack(_to_reltime(abs_messages(midi)))
     return mido.MidiFile(type=0, tracks=[track], ticks_per_beat=midi.ticks_per_beat)
 
 
-def index_abs_messages(midi: Midi) -> list[IndexedMessage]:
+def abs_messages(midi: Midi) -> list[mido.Message]:
     """this are messages with absolute time, note real midi messages"""
-    abs_messages = []
-    for i, note in enumerate(midi.notes):
-        abs_messages.append(IndexedMessage(message=mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100), index=i))
-        abs_messages.append(IndexedMessage(message=mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100), index=i))
-    for i, pitch in enumerate(midi.pitchbend):
-        abs_messages.append(IndexedMessage(message=mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch), index=i))
-    # Sort by time. If time is equal sort using type priority in following order: note_on, pitchwheel, note_off
-    abs_messages.sort(key=lambda m: (m.message.time, {'note_on': 0, 'pitchwheel': 1, 'note_off': 2}[m.message.type]))
-    return abs_messages
+    out = []
+    for note in midi.notes:
+        out.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=note.velocity, channel=note.channel))
+        out.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=note.velocity, channel=note.channel))
+    for pitch in midi.pitchbend:
+        out.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))  # noqa: PERF401
+    out.sort(key=lambda m: (m.time, {'note_off': 0, 'pitchwheel': 1, 'note_on': 2}[m.type]))
+    return out
 
 
 def specific_note_set_to_midi(
@@ -234,7 +230,7 @@ def to_dict(midi: mido.MidiFile) -> dict:  # type: ignore[type-arg]
     return {
         'type': midi.type,
         'ticks_per_beat': midi.ticks_per_beat,
-        'tracks': [[message.dict() | {'is_meta': message.is_meta} for message in track]for track in midi.tracks],
+        'tracks': [[message.dict() | {'is_meta': message.is_meta} for message in track] for track in midi.tracks],
     }
 
 
