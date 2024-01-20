@@ -1,13 +1,14 @@
 import json
-import pytest
 from pathlib import Path
+
+import pytest
 from musiclib.midi import notation
-from musiclib.midi.notation import IntervalEvent
 from musiclib.midi import parse
+from musiclib.midi.notation import IntervalEvent
 
 
 @pytest.mark.parametrize(
-    'code, channel', [
+    ('code', 'channel'), [
         ('flute  1  2  3  4', 'flute'),
         ('bass                    9   8  -7  17   4 -12   0', 'bass'),
     ],
@@ -17,7 +18,7 @@ def test_voice_channel(code, channel):
 
 
 @pytest.mark.parametrize(
-    'code, interval_events', [
+    ('code', 'interval_events'), [
         (
             'flute  1  2  3  4',
             [
@@ -52,7 +53,7 @@ def test_voice(code, interval_events):
     assert notation.Voice(code).interval_events == interval_events
 
 
-@pytest.mark.parametrize('example_dir', (Path(__file__).parent / f'data/notation').iterdir())
+@pytest.mark.parametrize('example_dir', (Path(__file__).parent / 'data/notation').iterdir())
 def test_to_midi(example_dir):
     code = (example_dir / 'code.txt').read_text()
     with open(example_dir / 'midi.json') as f:

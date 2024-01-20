@@ -42,13 +42,13 @@ repos:
       - id: autoflake
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.11
+    rev: v0.1.14
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
     - id: flake8
       additional_dependencies: [Flake8-pyproject, flake8-functions-names]

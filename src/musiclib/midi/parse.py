@@ -88,12 +88,12 @@ def parse_midi(midi: mido.MidiFile) -> Midi:
         elif is_note('off', message):
             note = playing_notes[message.note]
             note['off'] = t
-            print(message, playing_notes, note)
             notes.append(MidiNote(**note))
             del playing_notes[message.note]
         elif message.type == 'pitchwheel':
             pitchbend.append(MidiPitch(time=t, pitch=message.pitch))
     return Midi(notes=notes, pitchbend=pitchbend, ticks_per_beat=midi.ticks_per_beat)
+
 
 def midiobj_to_midifile(midi: Midi) -> mido.MidiFile:
     track = mido.MidiTrack(_to_reltime(abs_messages(midi)))
@@ -107,7 +107,7 @@ def abs_messages(midi: Midi) -> list[mido.Message]:
         out.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=note.velocity, channel=note.channel))
         out.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=note.velocity, channel=note.channel))
     for pitch in midi.pitchbend:
-        out.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))
+        out.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))  # noqa: PERF401
     out.sort(key=lambda m: (m.time, {'note_off': 0, 'pitchwheel': 1, 'note_on': 2}[m.type]))
     return out
 

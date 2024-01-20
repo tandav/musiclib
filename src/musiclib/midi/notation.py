@@ -1,21 +1,20 @@
 import argparse
-import pathlib
-import json
-import abc
 import bisect
 import collections
+import json
 import operator
+import pathlib
 from typing import NamedTuple
+
+import mido
+from mido.midifiles.tracks import _to_reltime
 
 import musiclib
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
-from mido.midifiles.tracks import _to_reltime
 from musiclib.midi.parse import abs_messages
-from musiclib.note import SpecificNote
 from musiclib.midi.player import Player
-
-import mido
+from musiclib.note import SpecificNote
 
 
 class IntervalEvent(NamedTuple):
@@ -24,44 +23,36 @@ class IntervalEvent(NamedTuple):
     off: int
 
 
-class Event(abc.ABC):
-    def __init__(self, code: str):
-        self.type, *kw = code.splitlines()
-        kw = dict(kv.split(maxsplit=1) for kv in kw)
-        self.post_init(**kw)
-
-    def post_init(self, **kw):
-        pass
+class Event:
+    def __init__(self, code: str) -> None:
+        self.type, *_kw = code.splitlines()
+        self.kw = dict(kv.split(maxsplit=1) for kv in _kw)
 
 
 class Header(Event):
-    def post_init(
-        self,
-        version: str,
-        root: str,
-        channels: str,
-        ticks_per_beat: str = '96',
-    ):
-        if musiclib.__version__ != version:
-            raise ValueError(f'musiclib must be exact version {version} to parse notation')
-        self.version = version
-        self.root = SpecificNote.from_str(root)
-        self.ticks_per_beat = int(ticks_per_beat)
-        self.channel_map = json.loads(channels)
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.version = self.kw['version']
+        if musiclib.__version__ != self.version:
+            raise ValueError(f'musiclib must be exact version {self.version} to parse notation')
+        self.root = SpecificNote.from_str(self.kw['root'])
+        self.ticks_per_beat = int(self.kw['ticks_per_beat'])
+        self.channel_map = json.loads(self.kw['channels'])
 
 
 class Modulation(Event):
-    def post_init(self, root: str):
-        self.root = SpecificNote.from_str(root)
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.root = SpecificNote.from_str(self.kw['root'])
 
 
 class Voice:
-    def __init__(self, code: str):
+    def __init__(self, code: str) -> None:
         self.channel, intervals_str = code.split(maxsplit=1)
         self.interval_events = self.parse_interval_events(intervals_str)
 
-    def parse_interval_events(self, intervals_str: str, ticks_per_beat: int = 96):
-        interval = None
+    def parse_interval_events(self, intervals_str: str, ticks_per_beat: int = 96) -> list[IntervalEvent]:
+        interval: int | None = None
         on = 0
         off = 0
         interval_events = []
@@ -81,14 +72,17 @@ class Voice:
                     on = off
                 off += ticks_per_beat
                 interval = int(interval_str, base=12)
+        if interval is None:
+            raise ValueError('Cannot have empty voice')
         interval_events.append(IntervalEvent(interval, on, off))
         return interval_events
 
+
 class Bar:
-    def __init__(self, code: str):
+    def __init__(self, code: str) -> None:
         self.voices = [Voice(voice_code) for voice_code in code.splitlines()]
 
-    def to_midi(self, root: SpecificNote, figured_bass: bool = True):
+    def to_midi(self, root: SpecificNote, *, figured_bass: bool = True) -> dict[str, list[MidiNote]]:
         if not isinstance(root, SpecificNote):
             raise TypeError(f'root must be SpecificNote, got {root}')
         channels = collections.defaultdict(list)
@@ -126,25 +120,25 @@ class Bar:
                     )
         return dict(channels)
 
+
 class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
         self.ticks_per_beat = self.header.ticks_per_beat
         self.channel_map = self.header.channel_map
 
-    def parse(self, code: str):
-        events = code.strip().split('\n\n')
-        self.header, *self.events = [self.parse_event(event) for event in events]
+    def parse(self, code: str) -> None:
+        self.events: list[Event | Bar] = []
+        for event_code in code.strip().split('\n\n'):
+            if event_code.startswith('header'):
+                self.header = Header(event_code)
+            elif event_code.startswith('modulation'):
+                self.events.append(Modulation(event_code))
+            else:
+                self.events.append(Bar(event_code))
 
-    def parse_event(self, code: str):
-        if code.startswith('header'):
-            return Header(code)
-        if code.startswith('modulation'):
-            return Modulation(code)
-        return Bar(code)
-
-    def _to_midi(self):
-        channels = [[] for _ in range(len(self.channel_map))]
+    def _to_midi(self) -> list[Midi]:
+        channels: list[list[MidiNote]] = [[] for _ in range(len(self.channel_map))]
         root = self.header.root
         t = 0
         for event in self.events:
@@ -161,25 +155,27 @@ class Notation:
                     channels[channel_id] += [
                         MidiNote(
                             note=note.note,
-                            on=t+note.on,
-                            off=t+note.off,
+                            on=t + note.on,
+                            off=t + note.off,
                             channel=channel_id,
                         )
                         for note in notes
                     ]
                 t += bar_off
             else:
-                raise ValueError(f'unknown event type: {event}')
+                raise TypeError(f'unknown event type: {event}')
 
-        channels = [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
-        return channels
+        return [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
 
-    def to_midi(self):
-        tracks = [mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in self._to_midi()]
-        return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=self.ticks_per_beat)
+    def to_midi(self) -> mido.MidiFile:
+        return mido.MidiFile(
+            type=1,
+            ticks_per_beat=self.ticks_per_beat,
+            tracks=[mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in self._to_midi()],
+        )
 
 
-def play_file():
+def play_file() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('filepath', type=pathlib.Path)
     parser.add_argument('--bpm', type=float, default=120)

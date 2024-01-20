@@ -77,7 +77,7 @@ def insert_pitch_pattern(
 
 def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
     T, P = zip(*[(e.time, e.pitch) for e in midi.pitchbend], strict=True)  # noqa: N806
-    T_set = set(T)
+    T_set = set(T)  # noqa: N806
     interp_t = []
     for note in midi.notes:
         for t in (note.on, note.off):
