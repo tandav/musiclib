@@ -181,6 +181,7 @@ class Notation:
     def to_midi(
         self,
         channel_map: dict[str, int] | None = None,
+        merge_tracks: bool = False,
     ):
         channel_midi = self._to_midi()
         if channel_map is None:
@@ -190,7 +191,12 @@ class Notation:
             midifile = midiobj_to_midifile(midi)
             track, = midifile.tracks
             tracks[channel_map[channel]] = track
-        return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=self.ticks_per_beat)
+        
+        type_ = 1
+        if merge_tracks:
+            tracks = [mido.merge_tracks(tracks)]
+            type_ = 0
+        return mido.MidiFile(tracks=tracks, type=type_, ticks_per_beat=self.ticks_per_beat)
 
 
 def play_file():
