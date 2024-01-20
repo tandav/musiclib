@@ -1,10 +1,9 @@
 header
 version 2.2.1
-root C3
+root E3
 ticks_per_beat 96
 channels {"bass": 0, "piano": 1, "flute": 2}
 
-flute 17 14 10 20
-flute 14 10 07 17
-piano 10 -- -- 14
-bass  00 05 07 00
+flute 17 13
+piano 13 10
+bass   0  0

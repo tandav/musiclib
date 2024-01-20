@@ -1,16 +1,17 @@
 import argparse
 import pathlib
+import json
 import abc
 import bisect
 import collections
 import operator
-from collections.abc import Iterable
 from typing import NamedTuple
 
 import musiclib
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
-from musiclib.midi.parse import midiobj_to_midifile
+from mido.midifiles.tracks import _to_reltime
+from musiclib.midi.parse import abs_messages
 from musiclib.note import SpecificNote
 from musiclib.midi.player import Player
 
@@ -38,17 +39,20 @@ class Header(Event):
         self,
         version: str,
         root: str,
+        channels: str,
         ticks_per_beat: str = '96',
     ):
+        if musiclib.__version__ != version:
+            raise ValueError(f'musiclib must be exact version {version} to parse notation')
         self.version = version
         self.root = SpecificNote.from_str(root)
         self.ticks_per_beat = int(ticks_per_beat)
+        self.channel_map = json.loads(channels)
 
 
 class Modulation(Event):
     def post_init(self, root: str):
         self.root = SpecificNote.from_str(root)
-
 
 
 class Voice:
@@ -125,11 +129,12 @@ class Bar:
 class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
-        self.ticks_per_beat = self.events[0].ticks_per_beat
+        self.ticks_per_beat = self.header.ticks_per_beat
+        self.channel_map = self.header.channel_map
 
     def parse(self, code: str):
         events = code.strip().split('\n\n')
-        self.events = [self.parse_event(event) for event in events]
+        self.header, *self.events = [self.parse_event(event) for event in events]
 
     def parse_event(self, code: str):
         if code.startswith('header'):
@@ -139,15 +144,11 @@ class Notation:
         return Bar(code)
 
     def _to_midi(self):
-        channels = collections.defaultdict(list)
-        root = None
+        channels = [[] for _ in range(len(self.channel_map))]
+        root = self.header.root
         t = 0
         for event in self.events:
-            if isinstance(event, Header):
-                root = event.root
-                if musiclib.__version__ != event.version:
-                    raise ValueError(f'musiclib must be exact version {event.version} to parse notation')
-            elif isinstance(event, Modulation):
+            if isinstance(event, Modulation):
                 root = event.root
             elif isinstance(event, Bar):
                 bar_midi = event.to_midi(root)
@@ -156,47 +157,26 @@ class Notation:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
                 bar_off = next(iter(bar_off_channels.values()))
                 for channel, notes in bar_midi.items():
-                    for note in notes:
-                        channels[channel].append(MidiNote(note=note.note, on=t+note.on, off=t+note.off))
+                    channel_id = self.channel_map[channel]
+                    channels[channel_id] += [
+                        MidiNote(
+                            note=note.note,
+                            on=t+note.on,
+                            off=t+note.off,
+                            channel=channel_id,
+                        )
+                        for note in notes
+                    ]
                 t += bar_off
             else:
                 raise ValueError(f'unknown event type: {event}')
 
-        channels = {
-            k: Midi(notes=v, ticks_per_beat=self.ticks_per_beat)
-            for k, v in channels.items()
-        }
-
+        channels = [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
         return channels
 
-    @staticmethod
-    def make_channel_map(channel_names: Iterable[str]) -> dict[str, int]:
-        channel_id = 0
-        channel_map = {}
-        for name in channel_names:
-            channel_map[name] = channel_id
-            channel_id += 1
-        return channel_map
-
-    def to_midi(
-        self,
-        channel_map: dict[str, int] | None = None,
-        merge_tracks: bool = False,
-    ):
-        channel_midi = self._to_midi()
-        if channel_map is None:
-            channel_map = self.make_channel_map(channel_midi)
-        tracks = [None] * len(channel_map)
-        for channel, midi in channel_midi.items():
-            midifile = midiobj_to_midifile(midi)
-            track, = midifile.tracks
-            tracks[channel_map[channel]] = track
-        
-        type_ = 1
-        if merge_tracks:
-            tracks = [mido.merge_tracks(tracks)]
-            type_ = 0
-        return mido.MidiFile(tracks=tracks, type=type_, ticks_per_beat=self.ticks_per_beat)
+    def to_midi(self):
+        tracks = [mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in self._to_midi()]
+        return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=self.ticks_per_beat)
 
 
 def play_file():

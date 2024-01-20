@@ -20,6 +20,16 @@ class MidiNote:
     note: SpecificNote
     on: int
     off: int
+    channel: int = 0
+    velocity: int = 100
+
+    def __post_init__(self) -> None:
+        if self.off <= self.on:
+            raise ValueError('off must be > on')
+        if self.channel not in range(16):
+            raise ValueError('channel must be in 0..15')
+        if self.velocity not in range(128):
+            raise ValueError('velocity must be in 0..127')
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MidiNote):
@@ -94,8 +104,8 @@ def abs_messages(midi: Midi) -> list[mido.Message]:
     """this are messages with absolute time, note real midi messages"""
     out = []
     for note in midi.notes:
-        out.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=100))
-        out.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=100))
+        out.append(mido.Message(type='note_on', time=note.on, note=note.note.i, velocity=note.velocity, channel=note.channel))
+        out.append(mido.Message(type='note_off', time=note.off, note=note.note.i, velocity=note.velocity, channel=note.channel))
     for pitch in midi.pitchbend:
         out.append(mido.Message(type='pitchwheel', time=pitch.time, pitch=pitch.pitch))
     out.sort(key=lambda m: (m.time, {'note_off': 0, 'pitchwheel': 1, 'note_on': 2}[m.type]))
