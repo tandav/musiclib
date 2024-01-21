@@ -48,7 +48,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.bumpver]
 current_version = "v2.2.1"
-version_pattern = "vMAJOR.MINOR.PATCH"
+version_pattern = "vMAJOR.MINOR.PATCH[-TAG]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
 tag = true
@@ -60,6 +60,9 @@ tag = true
 ]
 "src/musiclib/__init__.py" = [
     "^__version__ = '{pep440_version}'",
+]
+"tests/midi/data/notation/*/*.txt" = [
+    "^musiclib_version {pep440_version}",
 ]
 
 # ==============================================================================

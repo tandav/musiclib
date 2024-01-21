@@ -32,9 +32,9 @@ class Event:
 class Header(Event):
     def __init__(self, code: str) -> None:
         super().__init__(code)
-        self.version = self.kw['version']
-        if musiclib.__version__ != self.version:
-            raise ValueError(f'musiclib must be exact version {self.version} to parse notation')
+        self.musiclib_version = self.kw['musiclib_version']
+        if musiclib.__version__ != self.musiclib_version:
+            raise ValueError(f'musiclib must be exact version {self.musiclib_version} to parse notation')
         self.root = SpecificNote.from_str(self.kw['root'])
         self.ticks_per_beat = int(self.kw['ticks_per_beat'])
         self.midi_channels = json.loads(self.kw['midi_channels'])

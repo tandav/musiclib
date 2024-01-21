@@ -16,3 +16,15 @@ profile:
 bumpver:
 	# usage: make bumpver PART=minor
 	bumpver update --no-fetch --$(PART)
+
+
+.PHONY: bumpver-dev-start
+bumpver-dev-start:
+	# usage: make bumpver-dev PART=minor
+	# don't forget to pass PART
+	bumpver update --no-fetch --tag dev --no-commit --no-tag-commit --$(PART)
+
+.PHONY: bumpver-dev-stop
+bumpver-dev-stop:
+	# PART is not passed here
+	bumpver update --no-fetch --tag final --no-commit --no-tag-commit
