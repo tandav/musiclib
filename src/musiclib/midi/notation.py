@@ -40,7 +40,7 @@ class Header(Event):
         self.midi_channels = json.loads(self.kw['midi_channels'])
 
 
-class Modulation(Event):
+class RootChange(Event):
     def __init__(self, code: str) -> None:
         super().__init__(code)
         self.root = SpecificNote.from_str(self.kw['root'])
@@ -132,8 +132,8 @@ class Notation:
         for event_code in code.strip().split('\n\n'):
             if event_code.startswith('header'):
                 self.header = Header(event_code)
-            elif event_code.startswith('modulation'):
-                self.events.append(Modulation(event_code))
+            elif event_code.startswith('root_change'):
+                self.events.append(RootChange(event_code))
             else:
                 self.events.append(Bar(event_code))
 
@@ -142,7 +142,7 @@ class Notation:
         root = self.header.root
         t = 0
         for event in self.events:
-            if isinstance(event, Modulation):
+            if isinstance(event, RootChange):
                 root = event.root
             elif isinstance(event, Bar):
                 bar_midi = event.to_midi(root)
