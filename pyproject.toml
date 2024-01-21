@@ -202,6 +202,8 @@ ignore = ['E501', 'W503', 'W504', 'FNE008']
 filterwarnings = [
     "ignore::DeprecationWarning", # TODO: remove this when tqdm will updated to python 3.12
 ]
+cache_dir = ".cache/pytest_cache"
+
 # ==============================================================================
 
 [tool.coverage.xml]
