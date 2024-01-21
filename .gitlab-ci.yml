@@ -30,9 +30,10 @@ test:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
   script:
     - pip install .[dev]
-    - pytest --cov musiclib
+    - pytest --cov musiclib --cov-report xml
     - pre-commit run --all-files
   artifacts:
+    expire_in: 1 week
     reports:
       coverage_report:
         coverage_format: cobertura
