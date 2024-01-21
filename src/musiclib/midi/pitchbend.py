@@ -86,10 +86,7 @@ def make_notes_pitchbends(midi: Midi) -> dict[MidiNote, list[MidiPitch]]:
             interp_t.append(t)
             T_set.add(t)
     interp_p = np.interp(interp_t, T, P, left=0).astype(int).tolist()  # https://docs.scipy.org/doc/scipy/tutorial/interpolate/1D.html#piecewise-linear-interpolation
-    interp_pitches = sorted(
-        midi.pitchbend + [MidiPitch(time=t, pitch=p) for t, p in zip(interp_t, interp_p, strict=True)],
-        key=operator.attrgetter('time'),
-    )
+    interp_pitches = sorted(midi.pitchbend + [MidiPitch(time=t, pitch=p) for t, p in zip(interp_t, interp_p, strict=True)])
     notes_pitchbends = {}
     for note in midi.notes:
         notes_pitchbends[note] = interp_pitches[

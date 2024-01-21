@@ -32,15 +32,15 @@ class Event:
 class Header(Event):
     def __init__(self, code: str) -> None:
         super().__init__(code)
-        self.version = self.kw['version']
-        if musiclib.__version__ != self.version:
-            raise ValueError(f'musiclib must be exact version {self.version} to parse notation')
+        self.musiclib_version = self.kw['musiclib_version']
+        if musiclib.__version__ != self.musiclib_version:
+            raise ValueError(f'musiclib must be exact version {self.musiclib_version} to parse notation')
         self.root = SpecificNote.from_str(self.kw['root'])
         self.ticks_per_beat = int(self.kw['ticks_per_beat'])
-        self.channel_map = json.loads(self.kw['channels'])
+        self.midi_channels = json.loads(self.kw['midi_channels'])
 
 
-class Modulation(Event):
+class RootChange(Event):
     def __init__(self, code: str) -> None:
         super().__init__(code)
         self.root = SpecificNote.from_str(self.kw['root'])
@@ -102,7 +102,7 @@ class Bar:
             bass_note = root + bass_interval_event.interval
             bass_on = bass_interval_event.on
             bass_off = bass_interval_event.off
-            channels[bass.channel].append(MidiNote(bass_note, bass_on, bass_off))
+            channels[bass.channel].append(MidiNote(on=bass_on, off=bass_off, note=bass_note))
 
             for voice in voices:
                 above_bass_events = voice.interval_events[
@@ -125,24 +125,24 @@ class Notation:
     def __init__(self, code: str) -> None:
         self.parse(code)
         self.ticks_per_beat = self.header.ticks_per_beat
-        self.channel_map = self.header.channel_map
+        self.midi_channels = self.header.midi_channels
 
     def parse(self, code: str) -> None:
         self.events: list[Event | Bar] = []
         for event_code in code.strip().split('\n\n'):
             if event_code.startswith('header'):
                 self.header = Header(event_code)
-            elif event_code.startswith('modulation'):
-                self.events.append(Modulation(event_code))
+            elif event_code.startswith('root_change'):
+                self.events.append(RootChange(event_code))
             else:
                 self.events.append(Bar(event_code))
 
     def _to_midi(self) -> list[Midi]:
-        channels: list[list[MidiNote]] = [[] for _ in range(len(self.channel_map))]
+        channels: list[list[MidiNote]] = [[] for _ in range(len(self.header.midi_channels))]
         root = self.header.root
         t = 0
         for event in self.events:
-            if isinstance(event, Modulation):
+            if isinstance(event, RootChange):
                 root = event.root
             elif isinstance(event, Bar):
                 bar_midi = event.to_midi(root)
@@ -151,7 +151,7 @@ class Notation:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
                 bar_off = next(iter(bar_off_channels.values()))
                 for channel, notes in bar_midi.items():
-                    channel_id = self.channel_map[channel]
+                    channel_id = self.header.midi_channels[channel]
                     channels[channel_id] += [
                         MidiNote(
                             note=note.note,

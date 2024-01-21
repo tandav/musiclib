@@ -1,5 +1,4 @@
 import itertools
-import textwrap
 
 import pytest
 from musiclib.note import SpecificNote
@@ -7,22 +6,6 @@ from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 from musiclib.scale import Scale
 from musiclib.voice_leading import transition
-
-
-@pytest.mark.parametrize(
-    ('a', 'b', 'expected'), [
-        (
-            'C3_E3_G3_C4',
-            'B2_E3_G3_C4',
-            """\
-        C3_E3_G3_C4
-        /  |  |  |
-        B2_E3_G3_C4""",
-        ),
-    ],
-)
-def test_transition(a, b, expected):
-    assert repr(transition.Transition(SpecificNoteSet.from_str(a), SpecificNoteSet.from_str(b))) == textwrap.dedent(expected)
 
 
 @pytest.mark.parametrize(

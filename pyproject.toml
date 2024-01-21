@@ -1,6 +1,6 @@
 [project]
 name = "musiclib"
-version = "2.2.1"
+version = "2.3.0dev0"
 authors = [
     {name = "Alexander Rodionov", email = "tandav@tandav.me"},
 ]
@@ -47,8 +47,8 @@ build-backend = "setuptools.build_meta"
 # ==============================================================================
 
 [tool.bumpver]
-current_version = "v2.2.1"
-version_pattern = "vMAJOR.MINOR.PATCH"
+current_version = "v2.3.0-dev"
+version_pattern = "vMAJOR.MINOR.PATCH[-TAG]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
 tag = true
@@ -60,6 +60,9 @@ tag = true
 ]
 "src/musiclib/__init__.py" = [
     "^__version__ = '{pep440_version}'",
+]
+"tests/midi/data/notation/*/*.txt" = [
+    "^musiclib_version {pep440_version}",
 ]
 
 # ==============================================================================
@@ -199,3 +202,18 @@ ignore = ['E501', 'W503', 'W504', 'FNE008']
 filterwarnings = [
     "ignore::DeprecationWarning", # TODO: remove this when tqdm will updated to python 3.12
 ]
+cache_dir = ".cache/pytest_cache"
+
+# ==============================================================================
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.paths]
+source = [
+    "musiclib",
+    "**/site-packages/musiclib",
+]
+
+[tool.coverage.report]
+fail_under = 70

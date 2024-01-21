@@ -1,6 +1,5 @@
 import collections
 import dataclasses
-import functools
 from collections.abc import Generator
 from collections.abc import Iterable
 from typing import Literal
@@ -14,12 +13,11 @@ from musiclib.rhythm import Rhythm
 from musiclib.tempo import Tempo
 
 
-@dataclasses.dataclass(frozen=True)
-@functools.total_ordering
+@dataclasses.dataclass(frozen=True, order=True)
 class MidiNote:
-    note: SpecificNote
     on: int
     off: int
+    note: SpecificNote
     channel: int = 0
     velocity: int = 100
 
@@ -31,24 +29,8 @@ class MidiNote:
         if self.velocity not in range(128):
             raise ValueError('velocity must be in 0..127')
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, MidiNote):
-            raise TypeError
-        return self.on == other.on
 
-    def __lt__(self, other: object) -> bool:
-        if not isinstance(other, MidiNote):
-            raise TypeError
-        return self.on < other.on
-
-    def __len__(self) -> int:
-        return self.off - self.on
-
-    def __hash__(self) -> int:
-        return hash((self.note, self.on, self.off))
-
-
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, order=True)
 class MidiPitch:
     time: int
     pitch: int
