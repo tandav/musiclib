@@ -25,7 +25,10 @@ test:
   script:
     - pip install .[dev]
     - pre-commit run --all-files
-    - pytest --cov musiclib --cov-report term --cov-report xml --junitxml report.xml
+    # - pytest --cov musiclib --cov-report term --cov-report xml --junitxml report.xml
+    - coverage run
+    - coverage report
+    - coverage xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always

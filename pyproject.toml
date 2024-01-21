@@ -207,6 +207,8 @@ cache_dir = ".cache/pytest_cache"
 # ==============================================================================
 
 [tool.coverage.run]
+command_line = "-m pytest --junitxml report.xml"
+source = ["musiclib"]
 branch = true
 
 [tool.coverage.paths]
