@@ -203,14 +203,3 @@ filterwarnings = [
     "ignore::DeprecationWarning", # TODO: remove this when tqdm will updated to python 3.12
 ]
 cache_dir = ".cache/pytest_cache"
-
-# ==============================================================================
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-show_missing = true
-
-[tool.coverage.xml]
-output = "coverage.xml"
