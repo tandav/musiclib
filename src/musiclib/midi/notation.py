@@ -102,7 +102,7 @@ class Bar:
             bass_note = root + bass_interval_event.interval
             bass_on = bass_interval_event.on
             bass_off = bass_interval_event.off
-            channels[bass.channel].append(MidiNote(bass_note, bass_on, bass_off))
+            channels[bass.channel].append(MidiNote(on=bass_on, off=bass_off, note=bass_note))
 
             for voice in voices:
                 above_bass_events = voice.interval_events[
