@@ -15,6 +15,7 @@ cache:
     # - .cache/mypy_cache
     # - .cache/ruff_cache
     # - .cache/pre-commit
+    # trigger ci
 
 test:
   stage: test
