@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import operator
 import warnings
 from typing import TYPE_CHECKING
 
@@ -42,8 +41,8 @@ class PianoRoll:
         self.grid_denominator = grid_denominator
         if start_stop is None:
             start_stop = (
-                min(midi.notes, key=operator.attrgetter('note')).note,
-                max(midi.notes, key=operator.attrgetter('note')).note,
+                min(n.note for n in midi.notes),
+                max(n.note for n in midi.notes),
             )
         self.sns = SpecificNoteSet.from_noterange(*start_stop)
         self.key_width = key_width
@@ -57,7 +56,7 @@ class PianoRoll:
             radius1=key_height // 2,
         )
         self.midi = midi
-        self.duration = max(self.midi.notes, key=operator.attrgetter('off')).off
+        self.duration = max(n.off for n in self.midi.notes)
         self.pitchbend_semitones = pitchbend_semitones
         self.note_font_size = note_font_size
         self.elements = self.piano.elements.copy()
