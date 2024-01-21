@@ -7,12 +7,14 @@ variables:
   RUFF_CACHE_DIR: "$CI_PROJECT_DIR/.cache/ruff_cache"
 
 cache:
+  key: $CI_PROJECT_NAME
   paths:
-    - .cache/pip
-    - .cache/pytest_cache
-    - .cache/mypy_cache
-    - .cache/ruff_cache
-    - .cache/pre-commit
+    - .cache/
+    # - .cache/pip
+    # - .cache/pytest_cache
+    # - .cache/mypy_cache
+    # - .cache/ruff_cache
+    # - .cache/pre-commit
 
 test:
   stage: test
