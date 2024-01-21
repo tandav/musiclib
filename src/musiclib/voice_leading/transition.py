@@ -1,32 +1,10 @@
 from collections import defaultdict
 
-from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet
 
 SpecificChordGraph = dict[SpecificNoteSet, frozenset[SpecificNoteSet]]
 AbstractChordGraph = dict[NoteSet, frozenset[NoteSet]]
-
-
-class Transition:
-    def __init__(self, a: SpecificNoteSet, b: SpecificNoteSet) -> None:
-        self.a = a
-        self.b = b
-
-    @staticmethod
-    def arrow(a: SpecificNote, b: SpecificNote) -> str:
-        if a < b:
-            return '︎\\'
-        if a == b:
-            return '|'
-        return '/'
-
-    def __repr__(self) -> str:
-        return '\n'.join((
-            str(self.a),
-            '  '.join(self.arrow(na, nb) for na, nb in zip(self.a, self.b, strict=True)),
-            str(self.b),
-        ))
 
 
 def chord_transitions(
