@@ -23,7 +23,6 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "coverage",
 ]
 
 [project.urls]
@@ -217,5 +216,4 @@ source = [
 ]
 
 [tool.coverage.report]
-show_missing = true
 fail_under = 70
