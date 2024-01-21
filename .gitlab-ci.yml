@@ -5,6 +5,7 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
   RUFF_CACHE_DIR: "$CI_PROJECT_DIR/.cache/ruff_cache"
+  MYPY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/mypy_cache"
 
 cache:
   key: $CI_PROJECT_NAME
