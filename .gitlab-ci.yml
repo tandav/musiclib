@@ -28,7 +28,7 @@ test:
     # - pytest --cov musiclib --cov-report xml
     # - pytest --cov musiclib --cov-report term --cov-report xml:coverage.xml
     # - pytest --cov --cov-report term --cov-report xml:coverage.xml
-    - pytest --cov=src/musiclib --cov-branch --cov-report term --cov-report xml:coverage.xml
+    - pytest --cov=musiclib --cov-branch --cov-report term --cov-report xml:coverage.xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     expire_in: 1 week
