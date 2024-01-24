@@ -13,6 +13,8 @@ dependencies = [
     "mido>=1.3.0",
     "svg.py",
     "numpy",
+    "PyYAML",
+    "pydantic>=2.5",
 ]
 
 [project.optional-dependencies]

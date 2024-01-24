@@ -1,0 +1,17 @@
+musiclib_version: __tests_placeholder__
+ticks_per_beat: 96
+midi_channels:
+  - bass
+  - piano
+  - flute
+
+events:
+  - type: RootChange
+    root: C3
+
+  - type: Bar
+    voices:
+      - flute: 17 14 10 20
+      - flute: 14 10 07 17
+      - piano: 10 -- -- 14
+      - bass : 00 05 07 00
