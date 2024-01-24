@@ -1,13 +1,12 @@
 import json
-import yaml
 from pathlib import Path
 
-import pytest
 import musiclib
+import pytest
+import yaml
 from musiclib.midi import notation
 from musiclib.midi import parse
 from musiclib.midi.notation import IntervalEvent
-
 
 
 @pytest.mark.parametrize(

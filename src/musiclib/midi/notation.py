@@ -1,18 +1,19 @@
 from __future__ import annotations
+
 import argparse
 import bisect
 import collections
-import json
-import yaml
 import operator
 import pathlib
+from typing import Literal
 from typing import NamedTuple
+from typing import TypeAlias
+
+import mido
+import yaml
+from mido.midifiles.tracks import _to_reltime
 from pydantic import BaseModel
 from pydantic import ConfigDict
-from typing import Literal
-from typing import TypeAlias
-import mido
-from mido.midifiles.tracks import _to_reltime
 
 import musiclib
 from musiclib.midi.parse import Midi
@@ -36,14 +37,14 @@ class IntervalEvent(NamedTuple):
 class ArbitraryTypes(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    
+
 class EventData(BaseModel):
     type: Literal['RootChange', 'Bar']
     model_config = ConfigDict(extra='allow')
 
 class RootChangeData(EventData):
     root: str
-    
+
 class BarData(EventData):
     voices: list[dict[str, str]]
 
@@ -52,11 +53,11 @@ class BarData(EventData):
 #         self.root = SpecificNote.from_str(self.kw['root'])
 class RootChange(ArbitraryTypes):
     root: SpecificNote
-        
+
     @classmethod
     def from_yaml_data(cls, data: RootChangeData):
         return cls(root=SpecificNote.from_str(data.root))
-        
+
 
 
 class Voice:
@@ -67,17 +68,18 @@ class Voice:
     ) -> None:
         self.channel = channel
         self.interval_events = interval_events
-        
+
     @classmethod
-    def from_intervals_str(cls, channel: str, intervals_str: str):
-        return cls(channel, cls.parse_interval_events(intervals_str))
-    
-    @staticmethod
-    def parse_interval_events(intervals_str: str, ticks_per_beat: int = 96) -> list[IntervalEvent]:
-        interval: int | None = None
-        on = 0
-        off = 0
-        interval_events = []
+    def from_intervals_str(
+        cls,
+        channel: str,
+        intervals_str: str,
+        interval: int | None = None,
+        on: int  = 0,
+        off: int = 0,
+        ticks_per_beat: int = 96,
+    ) -> list[IntervalEvent]:
+        interval_events = [] 
         for interval_str in intervals_str.split():
             if interval_str == '..':
                 if interval is None:
@@ -97,11 +99,11 @@ class Voice:
         if interval is None:
             raise ValueError('Cannot have empty voice')
         interval_events.append(IntervalEvent(interval, on, off))
-        return interval_events
-        
+        return cls(channel, interval_events)
+
 class Bar(ArbitraryTypes):
     voices: list[Voice]
-        
+
     @classmethod
     def from_yaml_data(cls, data: BarData):
         voices = []
@@ -109,7 +111,7 @@ class Bar(ArbitraryTypes):
             channel, intervals_str = next(iter(kv.items()))
             voices.append(Voice.from_intervals_str(channel, intervals_str))
         return cls(voices=voices)
-    
+
     def to_midi(self, root: SpecificNote, *, figured_bass: bool = True) -> dict[str, list[MidiNote]]:
         if not isinstance(root, SpecificNote):
             raise TypeError(f'root must be SpecificNote, got {root}')
@@ -247,14 +249,14 @@ class Notation:
         self.ticks_per_beat = ticks_per_beat
         self.midi_channels = {channel: i for i, channel in enumerate(midi_channels)}
         self.events = events
-    
+
     @classmethod
     def from_yaml_data(cls, yaml_data: str) -> Notation:
         notation_data = NotationData.model_validate(yaml_data)
         events = cls.parse_events(notation_data.events)
         return cls(
             **notation_data.model_dump(exclude=['events']),
-           events=events
+           events=events,
         )
 #         return cls(
 #             musiclib_version=notation_data.musiclib_version,
@@ -262,13 +264,13 @@ class Notation:
 #             midi_channels=notation_data.midi_channels,
 #             events=notation_data.events,
 #         )
-    
+
     @classmethod
     def from_yaml_path(cls, yaml_path: str) -> Notation:
         with open(yaml_path) as f:
             yaml_data = yaml.safe_load(f)
         return cls.from_yaml_data(yaml_data)
-            
+
     @staticmethod
     def parse_events(events: list[EventData]) -> list[Event]:
         out = []
