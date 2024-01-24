@@ -112,11 +112,13 @@ class Bar(ArbitraryTypes):
             voices.append(Voice.from_intervals_str(channel, intervals_str))
         return cls(voices=voices)
 
-    def to_midi(self, root: SpecificNote, *, figured_bass: bool = True) -> dict[str, list[MidiNote]]:
+    def to_midi(self, root: SpecificNote, *, count_from_bass: bool = True) -> dict[str, list[MidiNote]]:
+
+        # TODO: BAr.to_midi should not exist? dont do here concrete ticks, also in Vouice, Do everything in Notation.to_midi()
         if not isinstance(root, SpecificNote):
             raise TypeError(f'root must be SpecificNote, got {root}')
         channels = collections.defaultdict(list)
-        if not figured_bass:
+        if not count_from_bass:
             for voice in self.voices:
                 for interval_event in voice.interval_events:
                     channels[voice.channel].append(
@@ -155,6 +157,7 @@ class NotationData(BaseModel):
     ticks_per_beat: int
     midi_channels: list[str]
     events: list[EventData]
+    count_from_bass: bool = True,
 
 
 # class Header:
@@ -242,6 +245,7 @@ class Notation:
         ticks_per_beat: int,
         midi_channels: list[int],
         events: list[Event],
+        count_from_bass: bool = True,
     ):
         if musiclib.__version__ != musiclib_version:
             raise ValueError(f'musiclib must be exact version {musiclib_version} to parse notation')
@@ -249,6 +253,7 @@ class Notation:
         self.ticks_per_beat = ticks_per_beat
         self.midi_channels = {channel: i for i, channel in enumerate(midi_channels)}
         self.events = events
+        self.count_from_bass = count_from_bass
 
     @classmethod
     def from_yaml_data(cls, yaml_data: str) -> Notation:
@@ -287,7 +292,7 @@ class Notation:
             out.append(cls.from_yaml_data(event))
         return out
 
-    def _to_midi(self) -> list[Midi]:
+    def to_midi(self) -> mido.MidiFile:
         channels: list[list[MidiNote]] = [[] for _ in range(len(self.midi_channels))]
         root = None
         t = 0
@@ -297,7 +302,7 @@ class Notation:
             elif isinstance(event, Bar):
                 if root is None:
                     raise ValueError('Root was not set before this Bar event')
-                bar_midi = event.to_midi(root)
+                bar_midi = event.to_midi(root, count_from_bass=self.count_from_bass)
                 bar_off_channels = {channel: notes[-1].off for channel, notes in bar_midi.items()}
                 if len(set(bar_off_channels.values())) != 1:
                     raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
@@ -317,14 +322,9 @@ class Notation:
             else:
                 raise TypeError(f'unknown event type: {event}')
 
-        return [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
-
-    def to_midi(self) -> mido.MidiFile:
-        return mido.MidiFile(
-            type=1,
-            ticks_per_beat=self.ticks_per_beat,
-            tracks=[mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in self._to_midi()],
-        )
+        midi_list = [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
+        tracks = [mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in midi_list]
+        return mido.MidiFile(type=1, ticks_per_beat=self.ticks_per_beat, tracks=tracks)
 
 
 def play_file() -> None:
