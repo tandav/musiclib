@@ -87,17 +87,25 @@ class Bar:
                     if beat_note == '--' and last_message.type == 'note_off':
                         raise ValueError('Cannot have -- in the beginning of a voice or after note_off event')
 
-                    if beat_note not in {'..', '--'}:
+                    if beat_note == '..' and last_message.type == 'note_on':
+                        messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
+                        voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
+                        if channel == 'bass':
+                            bass_note = None
+                    if isinstance(beat_note, int):
                         if channel == 'bass':
                             bass_note = root_note + beat_note
                             note = bass_note
+                        elif bass_note is None:
+                            raise ValueError('bass_note must be set before other channels')
                         else:
                             note = bass_note + beat_note
 
                         if last_message.type == 'note_off':
                             messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=last_message.time))
                         elif last_message.type == 'note_on':
-                            messages[channel, voice_i].append(mido.Message(type='note_off', note=last_message.note, velocity=100, time=last_message.time))
+                            # messages[channel, voice_i].append(mido.Message(type='note_off', note=last_message.note, velocity=last_message.velocity, time=last_message.time))
+                            messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
                             messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=0))
                         voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
                     voice_last_message[channel, voice_i].time += ticks_per_beat
@@ -132,6 +140,38 @@ class NotationData(BaseModel):
 
 
 Event: TypeAlias = RootChange | Bar
+
+
+from mido.midifiles.tracks import _to_reltime
+from mido.midifiles.tracks import _to_abstime
+from mido.midifiles.tracks import MidiTrack
+from mido.midifiles.tracks import fix_end_of_track
+
+
+def merge_tracks(tracks, skip_checks=False, key=lambda msg: msg.time):
+    """Returns a MidiTrack object with all messages from all tracks.
+
+    The messages are returned in playback order with delta times
+    as if they were all in one track.
+
+    Pass skip_checks=True to skip validation of messages before merging.
+    This should ONLY be used when the messages in tracks have already
+    been validated by mido.checks.
+
+    # TODO: make MR to mido
+    """
+    messages = []
+    for track in tracks:
+        messages.extend(_to_abstime(track, skip_checks=skip_checks))
+
+    messages.sort(key=key)
+
+    return MidiTrack(
+        fix_end_of_track(
+            _to_reltime(messages, skip_checks=skip_checks),
+            skip_checks=skip_checks,
+        )
+    )
 
 
 class Notation:
@@ -200,7 +240,7 @@ class Notation:
             for (channel, voice_i), voice_messages in messages.items():
                 channel_tracks[channel].append(mido.MidiTrack(voice_messages))
             tracks_merged = [
-                [mido.MetaMessage(type='track_name', name=channel)] + mido.merge_tracks(tracks)
+                [mido.MetaMessage(type='track_name', name=channel)] + merge_tracks(tracks, key=lambda msg: (msg.time, {'note_off': 0, 'note_on': 1}.get(msg.type, 3)))
                 for channel, tracks in channel_tracks.items()
             ]
             return mido.MidiFile(tracks=tracks_merged, type=1, ticks_per_beat=ticks_per_beat)

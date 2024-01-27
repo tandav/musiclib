@@ -23,3 +23,25 @@ def test_to_midi(example_dir, merge_voices):
         midi_dict = json.load(f)
     midi = notation_.to_midi(merge_voices=merge_voices)
     assert parse.to_dict(midi) == midi_dict
+
+
+def test_bass_is_set():
+    yaml_data = yaml.safe_load(f'''
+    musiclib_version: {musiclib.__version__}
+    events:
+    - type: RootChange
+      root: C3
+
+    - type: Bar
+      voices:
+        flute:
+          - .. 14 10 20
+          - 14 10 07 17
+        piano:
+          - .. .. .. 14
+        bass:
+          - 00 .. .. ..
+    ''')
+    notation_ = notation.Notation.from_yaml_data(yaml_data)
+    with pytest.raises(ValueError, match='bass_note must be set before other channels'):
+        notation_.to_midi()
