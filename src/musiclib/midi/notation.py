@@ -61,15 +61,12 @@ class Bar:
         self,
         root_note: int,
         bass_note: int | None = None,
-        voice_time: collections.defaultdict | None = None,
         voice_last_message: collections.defaultdict | None = None,
         last_bar: bool = True,
         ticks_per_beat: int = 96,
     ):
         messages = collections.defaultdict(list)
 
-        # TODO: try merge: store voice_time info in .time attribute in last_message
-        voice_time = voice_time if voice_time is not None else collections.defaultdict(int)
         if voice_last_message is None:
             voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
 
@@ -94,17 +91,15 @@ class Bar:
                             note = bass_note + beat_note
 
                         if last_message.type == 'note_off':
-                            message = mido.Message(type='note_on', note=note, velocity=100, time=voice_time[channel, voice_i])
+                            message = mido.Message(type='note_on', note=note, velocity=100, time=last_message.time)
                             messages[channel, voice_i].append(message)
-                            voice_last_message[channel, voice_i] = message
                         elif last_message.type == 'note_on':
-                            message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=voice_time[channel, voice_i])
+                            message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=last_message.time)
                             messages[channel, voice_i].append(message)
                             message = mido.Message(type='note_on', note=note, velocity=100, time=0)
                             messages[channel, voice_i].append(message)
-                            voice_last_message[channel, voice_i] = message
-                        voice_time[channel, voice_i] = 0
-                    voice_time[channel, voice_i] += ticks_per_beat
+                        voice_last_message[channel, voice_i] = message.copy(time=0)
+                    voice_last_message[channel, voice_i].time += ticks_per_beat
         if last_bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
@@ -189,7 +184,6 @@ class Notation:
         root_note = None
         bass_note = None
 
-        voice_time = collections.defaultdict(int)
         voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
         messages = collections.defaultdict(list)
 
@@ -202,7 +196,6 @@ class Notation:
                 bar_messages = event.to_midi(
                     root_note=root_note,
                     bass_note=bass_note,
-                    voice_time=voice_time,
                     voice_last_message=voice_last_message,
                     last_bar=event_i == len(self.events) - 1,
                     ticks_per_beat=ticks_per_beat,
