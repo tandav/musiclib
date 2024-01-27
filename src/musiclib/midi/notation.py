@@ -3,37 +3,20 @@ from __future__ import annotations
 import argparse
 import bisect
 import collections
-import operator
 import pathlib
 from typing import Literal
-from typing import NamedTuple
 from typing import TypeAlias
 
 import mido
-import yaml
-from mido.midifiles.tracks import _to_reltime
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import field_validator
 
 import musiclib
-from musiclib.midi.parse import Midi
-from musiclib.midi.parse import MidiNote
-from musiclib.midi.parse import abs_messages
+
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
 
-
-# class IntervalEvent(NamedTuple):
-#     interval: int
-#     on: int
-#     off: int
-
-
-# class Event:
-#     def __init__(self, code: str) -> None:
-#         self.type, *_kw = code.splitlines()
-#         self.kw = dict(kv.split(maxsplit=1) for kv in _kw)
 
 class ArbitraryTypes(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -138,12 +121,9 @@ class Bar:
             
         # end last bar
         if last_bar:
-            print('end last bar')
-            
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
                     continue
-                
                 message = mido.Message(
                     type='note_off',
                     note=last_message.note,
@@ -151,8 +131,6 @@ class Bar:
                     channel=last_message.channel,
                     time=ticks_per_beat, # todo test on different ending (-- -- -- , .. .. .. etc) some time adjustements may be needed
                 )
-                print(channel, voice_i, message)
-                
                 messages[channel, voice_i].append(message)
 
         return messages
@@ -163,96 +141,6 @@ class RootChange(ArbitraryTypes):
     @classmethod
     def from_yaml_data(cls, data: RootChangeData):
         return cls(root=SpecificNote.from_str(data.root))
-
-# class Bar(ArbitraryTypes):
-#     voices: list[str]
- 
-#     @classmethod
-#     def from_yaml_data(cls, data: BarData):
-#         voices = []
-#         for kv in data.voices:
-#             channel, intervals_str = next(iter(kv.items()))
-#             voices.append((channel, intervals_str))
-#         return cls(voices=voices)
-
-#     @staticmethod
-#     def parse_intervals_str(
-#         intervals_str: str,
-#         interval: int | None = None,
-#         on: int  = 0,
-#         off: int = 0,
-#         ticks_per_beat: int = 96,
-#     ) -> list[IntervalEvent]:
-#         interval_events = [] 
-#         for interval_str in intervals_str.split():
-#             if interval_str == '..':
-#                 if interval is None:
-#                     on += ticks_per_beat
-#                 else:
-#                     off += ticks_per_beat
-#             elif interval_str == '--':
-#                 if interval is None:
-#                     raise ValueError('Cannot have -- in the beginning of a voice')
-#                 off += ticks_per_beat
-#             else:
-#                 if interval is not None:
-#                     interval_events.append(IntervalEvent(interval, on, off))
-#                     on = off
-#                 off += ticks_per_beat
-#                 interval = int(interval_str, base=12)
-#         if interval is None:
-#             raise ValueError('Cannot have empty voice')
-#         interval_events.append(IntervalEvent(interval, on, off))
-#         return interval_events
-
-    # def to_midi(
-    #     self,
-    #     root: SpecificNote,
-    #     channels_state: list[dict],
-    #     # t: int = 0,
-    #     *,
-    #     count_from_bass: bool = True,
-    # ) -> dict[str, list[MidiNote]]:
-
-    #     # TODO: BAr.to_midi should not exist? dont do here concrete ticks, also in Vouice, Do everything in Notation.to_midi()
-    #     # TODO: dont use MidiNote with .off. Use mido.MidiMessages
-    #     #    - what about >1 voices in 1 channel? Accumulate time per channel to compute message time attribute for each channel separately
-    #     if not isinstance(root, SpecificNote):
-    #         raise TypeError(f'root must be SpecificNote, got {root}')
-    #     channels = collections.defaultdict(list)
-    #     if not count_from_bass:
-    #         for channel, intervals_str in self.voices:
-    #             for intervals_str in self.parse_intervals_str(intervals_str):
-    #                 channels[channel].append(
-    #                     MidiNote(
-    #                         note=root + interval_event.interval,
-    #                         on=interval_event.on,
-    #                         off=interval_event.off,
-    #                     ),
-    #                 )
-    #         return dict(channels)
-    #     *voices, bass = self.voices
-    #     for bass_interval_event in bass.interval_events:
-    #         bass_note = root + bass_interval_event.interval
-    #         bass_on = bass_interval_event.on
-    #         bass_off = bass_interval_event.off
-    #         channels[bass.channel].append(MidiNote(on=bass_on, off=bass_off, note=bass_note))
-
-    #         for voice in voices:
-    #             above_bass_events = voice.interval_events[
-    #                 bisect.bisect_left(voice.interval_events, bass_interval_event.on, key=operator.attrgetter('on')):
-    #                 bisect.bisect_left(voice.interval_events, bass_interval_event.off, key=operator.attrgetter('on'))
-    #             ]
-
-    #             for interval_event in above_bass_events:
-    #                 channels[voice.channel].append(
-    #                     MidiNote(
-    #                         note=bass_note + interval_event.interval,
-    #                         on=interval_event.on,
-    #                         off=interval_event.off,
-    #                     ),
-    #                 )
-    #     return dict(channels)
 
 
 class NotationData(BaseModel):
@@ -313,6 +201,7 @@ class Notation:
     def to_midi(
         self,
         ticks_per_beat: int = 96,
+        merge_voices: bool = True,
     ) -> mido.MidiFile:
         root_note = None
         bass_note = None
@@ -320,7 +209,6 @@ class Notation:
         voice_time = collections.defaultdict(int)
         voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
         messages = collections.defaultdict(list)
-
 
         for event_i, event in enumerate(self.events):
             if isinstance(event, RootChange):
@@ -338,48 +226,20 @@ class Notation:
                 )
                 for (channel, voice_i), voice_messages in bar_messages.items():
                     messages[channel, voice_i] += voice_messages
-
+        if merge_voices:
+            channel_tracks = collections.defaultdict(list)
+            for (channel, voice_i), voice_messages in messages.items():
+                channel_tracks[channel].append(mido.MidiTrack(voice_messages))
+            tracks_merged = [
+                [mido.MetaMessage(type='track_name', name=channel)] + mido.merge_tracks(tracks)
+                for channel, tracks in channel_tracks.items()
+            ]
+            return mido.MidiFile(tracks=tracks_merged, type=1, ticks_per_beat=ticks_per_beat)
         tracks = [
             mido.MidiTrack([mido.MetaMessage(type='track_name', name=f'{channel}-{voice_i}')] + voice_messages)
             for (channel, voice_i), voice_messages in messages.items()
         ]
         return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=ticks_per_beat)
-
-    # def to_midi(self) -> mido.MidiFile:
-    #     channels: list[list[MidiNote]] = [[] for _ in range(len(self.midi_channels))]
-    #     channels_time = [[] for _ in range(len(self.midi_channels))]
-    #     bass_note = None
-    #     root = None
-    #     # t = 0
-    #     for event in self.events:
-    #         if isinstance(event, RootChange):
-    #             root = event.root
-    #         elif isinstance(event, Bar):
-    #             if root is None:
-    #                 raise ValueError('Root was not set before this Bar event')
-    #             bar_midi = event.to_midi(root, t, count_from_bass=self.count_from_bass)
-    #             bar_off_channels = {channel: notes[-1].off for channel, notes in bar_midi.items()}
-    #             if len(set(bar_off_channels.values())) != 1:
-    #                 raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
-    #             bar_off = next(iter(bar_off_channels.values()))
-    #             for channel, notes in bar_midi.items():
-    #                 channel_id = self.midi_channels[channel]
-    #                 channels[channel_id] += [
-    #                     MidiNote(
-    #                         note=note.note,
-    #                         on=t + note.on,
-    #                         off=t + note.off,
-    #                         channel=channel_id,
-    #                     )
-    #                     for note in notes
-    #                 ]
-    #             t += bar_off
-    #         else:
-    #             raise TypeError(f'unknown event type: {event}')
-
-    #     midi_list = [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
-    #     tracks = [mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in midi_list]
-    #     return mido.MidiFile(type=1, ticks_per_beat=self.ticks_per_beat, tracks=tracks)
 
 
 def play_file() -> None:
@@ -398,124 +258,3 @@ def play_file() -> None:
 if __name__ == '__main__':
     play_file()
 
-
-
-# class Voice:
-#     def __init__(
-#         self,
-#         channel: str,
-#         interval_events: list[IntervalEvent],
-#     ) -> None:
-#         self.channel = channel
-#         self.interval_events = interval_events
-
-#     @classmethod
-#     def from_intervals_str(
-#         cls,
-#         channel: str,
-#         intervals_str: str,
-#         interval: int | None = None,
-#         on: int  = 0,
-#         off: int = 0,
-#         ticks_per_beat: int = 96,
-#     ) -> list[IntervalEvent]:
-#         interval_events = [] 
-#         for interval_str in intervals_str.split():
-#             if interval_str == '..':
-#                 if interval is None:
-#                     on += ticks_per_beat
-#                 else:
-#                     off += ticks_per_beat
-#             elif interval_str == '--':
-#                 if interval is None:
-#                     raise ValueError('Cannot have -- in the beginning of a voice')
-#                 off += ticks_per_beat
-#             else:
-#                 if interval is not None:
-#                     interval_events.append(IntervalEvent(interval, on, off))
-#                     on = off
-#                 off += ticks_per_beat
-#                 interval = int(interval_str, base=12)
-#         if interval is None:
-#             raise ValueError('Cannot have empty voice')
-#         interval_events.append(IntervalEvent(interval, on, off))
-#         return cls(channel, interval_events)
-
-
-
-# class Header:
-#     def __init__(
-#         self,
-#     ) -> None:
-# #     def __init__(self, code: str) -> None:
-#         super().__init__(code)
-#         self.musiclib_version = self.kw['musiclib_version']
-#         if musiclib.__version__ != self.musiclib_version:
-#             raise ValueError(f'musiclib must be exact version {self.musiclib_version} to parse notation')
-#         self.root = SpecificNote.from_str(self.kw['root'])
-#         self.ticks_per_beat = int(self.kw['ticks_per_beat'])
-#         self.midi_channels = json.loads(self.kw['midi_channels'])
-
-
-# class RootChange(Event):
-#     def __init__(self, root: SpecificNote) -> None:
-#         self.root = SpecificNote.from_str(self.kw['root'])
-
-# class RootChange(Event):
-#     def __init__(self, code: str) -> None:
-#         super().__init__(code)
-#         self.root = SpecificNote.from_str(self.kw['root'])
-
-
-# class Voice:
-#     def __init__(self, code: str) -> None:
-#         self.channel, intervals_str = code.split(maxsplit=1)
-#         self.interval_events = self.parse_interval_events(intervals_str)
-
-#     def parse_interval_events(self, intervals_str: str, ticks_per_beat: int = 96) -> list[IntervalEvent]:
-#         interval: int | None = None
-#         on = 0
-#         off = 0
-#         interval_events = []
-#         for interval_str in intervals_str.split():
-#             if interval_str == '..':
-#                 if interval is None:
-#                     on += ticks_per_beat
-#                 else:
-#                     off += ticks_per_beat
-#             elif interval_str == '--':
-#                 if interval is None:
-#                     raise ValueError('Cannot have -- in the beginning of a voice')
-#                 off += ticks_per_beat
-#             else:
-#                 if interval is not None:
-#                     interval_events.append(IntervalEvent(interval, on, off))
-#                     on = off
-#                 off += ticks_per_beat
-#                 interval = int(interval_str, base=12)
-#         if interval is None:
-#             raise ValueError('Cannot have empty voice')
-#         interval_events.append(IntervalEvent(interval, on, off))
-#         return interval_events
-
-
-# class Bar:
-#     def __init__(self, code: str) -> None:
-#         self.voices = [Voice(voice_code) for voice_code in code.splitlines()]
-
-
-# class Notation:
-#     def __init__(self, code: str) -> None:
-#         self.parse(code)
-#         self.ticks_per_beat = self.header.ticks_per_beat
-#         self.midi_channels = self.header.midi_channels
-
-#     def parse(self, code: str) -> None:
-#         self.events: list[Event | Bar] = []
-#         for event_code in code.strip().split('\n\n'):
-#             if event_code.startswith('header'):
-#                 self.header = Header(event_code)
-#             elif event_code.startswith('root_change'):
-#                 self.events.append(RootChange(event_code))
-#             else:
-#                 self.events.append(Bar(event_code))
