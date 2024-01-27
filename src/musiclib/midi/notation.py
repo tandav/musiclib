@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import argparse
 import collections
-import pathlib
 from typing import Literal
 from typing import TypeAlias
 
@@ -12,7 +10,7 @@ from pydantic import ConfigDict
 from pydantic import field_validator
 
 import musiclib
-from musiclib.midi.player import Player
+from musiclib.midi.parse import merge_tracks
 from musiclib.note import SpecificNote
 
 
@@ -40,14 +38,14 @@ class Bar:
 
     @classmethod
     def from_yaml_data(cls, data: BarData) -> Bar:
-        channel_voices = {}
+        channel_voices: dict[str, list[list[int | str]]] = {}
         voices_n_beats = set()
         for channel, voices_str in data.voices.items():
             if channel == 'bass' and len(voices_str) != 1:
                 raise ValueError('bass must have only 1 voice')
             channel_voices[channel] = []
             for voice_str in voices_str:
-                beats = []
+                beats: list[int | str] = []
                 for beats_str in voice_str.split():
                     if beats_str in {'..', '--'}:
                         beats.append(beats_str)
@@ -60,12 +58,12 @@ class Bar:
         n_beats = next(iter(voices_n_beats))
         return cls(channel_voices, n_beats)
 
-    def to_midi(  # noqa: C901,PLR0912
+    def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
         self,
         *,
         root_note: int,
         bass_note: int | None = None,
-        voice_last_message: collections.defaultdict | None = None,
+        voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] | None = None,
         last_bar: bool = True,
         ticks_per_beat: int = 96,
     ) -> dict[tuple[str, int], list[mido.Message]]:
@@ -121,7 +119,7 @@ class RootChange(ArbitraryTypes):
     root: SpecificNote
 
     @classmethod
-    def from_yaml_data(cls, data: RootChangeData):
+    def from_yaml_data(cls, data: RootChangeData) -> RootChange:
         return cls(root=SpecificNote.from_str(data.root))
 
 
@@ -129,7 +127,6 @@ class NotationData(BaseModel):
     model_config = ConfigDict(extra='forbid')
     musiclib_version: str
     events: list[EventData]
-    count_from_bass: bool = True
 
     @field_validator('events')
     @classmethod
@@ -142,50 +139,16 @@ class NotationData(BaseModel):
 Event: TypeAlias = RootChange | Bar
 
 
-from mido.midifiles.tracks import _to_reltime
-from mido.midifiles.tracks import _to_abstime
-from mido.midifiles.tracks import MidiTrack
-from mido.midifiles.tracks import fix_end_of_track
-
-
-def merge_tracks(tracks, skip_checks=False, key=lambda msg: msg.time):
-    """Returns a MidiTrack object with all messages from all tracks.
-
-    The messages are returned in playback order with delta times
-    as if they were all in one track.
-
-    Pass skip_checks=True to skip validation of messages before merging.
-    This should ONLY be used when the messages in tracks have already
-    been validated by mido.checks.
-
-    # TODO: make MR to mido
-    """
-    messages = []
-    for track in tracks:
-        messages.extend(_to_abstime(track, skip_checks=skip_checks))
-
-    messages.sort(key=key)
-
-    return MidiTrack(
-        fix_end_of_track(
-            _to_reltime(messages, skip_checks=skip_checks),
-            skip_checks=skip_checks,
-        )
-    )
-
-
 class Notation:
     def __init__(
         self,
         musiclib_version: str,
         events: list[Event],
-        count_from_bass: bool = True,
-    ):
+    ) -> None:
         if musiclib.__version__ != musiclib_version:
             raise ValueError(f'musiclib must be exact version {musiclib_version} to parse notation')
         self.musiclib_version = musiclib_version
         self.events = events
-        self.count_from_bass = count_from_bass
 
     @classmethod
     def from_yaml_data(cls, yaml_data: str) -> Notation:
@@ -200,24 +163,25 @@ class Notation:
                 'RootChange': RootChangeData,
                 'Bar': BarData,
             }[event.type]
-            event = cls_data.model_validate(event, from_attributes=True)
+            event_data_model = cls_data.model_validate(event, from_attributes=True)
             cls = {
                 'RootChange': RootChange,
                 'Bar': Bar,
-            }[event.type]
-            out.append(cls.from_yaml_data(event))
+            }[event_data_model.type]
+            out.append(cls.from_yaml_data(event_data_model))  # type: ignore[attr-defined]
         return out
 
     def to_midi(
         self,
+        *,
         ticks_per_beat: int = 96,
         merge_voices: bool = True,
     ) -> mido.MidiFile:
         root_note = None
         bass_note = None
 
-        voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
-        messages = collections.defaultdict(list)
+        voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] = collections.defaultdict(lambda: mido.Message(type='note_off'))
+        messages: collections.defaultdict[tuple[str, int], list[mido.Message]] = collections.defaultdict(list)
 
         for event_i, event in enumerate(self.events):
             if isinstance(event, RootChange):
@@ -235,34 +199,16 @@ class Notation:
                 for (channel, voice_i), voice_messages in bar_messages.items():
                     messages[channel, voice_i] += voice_messages
         if merge_voices:
-            # return messages
             channel_tracks = collections.defaultdict(list)
-            for (channel, voice_i), voice_messages in messages.items():
+            for (channel, voice_i), voice_messages in messages.items():  # noqa: B007
                 channel_tracks[channel].append(mido.MidiTrack(voice_messages))
             tracks_merged = [
-                [mido.MetaMessage(type='track_name', name=channel)] + merge_tracks(tracks, key=lambda msg: (msg.time, {'note_off': 0, 'note_on': 1}.get(msg.type, 3)))
+                [mido.MetaMessage(type='track_name', name=channel), *merge_tracks(tracks, key=lambda msg: (msg.time, {'note_off': 0, 'note_on': 1}.get(msg.type, 3)))]
                 for channel, tracks in channel_tracks.items()
             ]
             return mido.MidiFile(tracks=tracks_merged, type=1, ticks_per_beat=ticks_per_beat)
         tracks = [
-            mido.MidiTrack([mido.MetaMessage(type='track_name', name=f'{channel}-{voice_i}')] + voice_messages)
+            mido.MidiTrack([mido.MetaMessage(type='track_name', name=f'{channel}-{voice_i}'), *voice_messages])
             for (channel, voice_i), voice_messages in messages.items()
         ]
         return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=ticks_per_beat)
-
-
-def play_file() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--bpm', type=float, default=120)
-    parser.add_argument('--midiport', type=str, default='IAC Driver Bus 1')
-    parser.add_argument('filepath', type=pathlib.Path)
-    args = parser.parse_args()
-    code = args.filepath.read_text()
-    nt = Notation(code)
-    midi = nt.to_midi()
-    player = Player(args.midiport)
-    player.play_midi(midi, beats_per_minute=args.bpm)
-
-
-if __name__ == '__main__':
-    play_file()

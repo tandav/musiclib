@@ -5,7 +5,10 @@ from collections.abc import Iterable
 from typing import Literal
 
 import mido
+from mido.midifiles.tracks import MidiTrack
+from mido.midifiles.tracks import _to_abstime
 from mido.midifiles.tracks import _to_reltime
+from mido.midifiles.tracks import fix_end_of_track
 
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet
@@ -227,4 +230,30 @@ def from_dict(midi: dict) -> mido.MidiFile:  # type: ignore[type-arg]
             )
             for track in midi['tracks']
         ],
+    )
+
+
+def merge_tracks(tracks, skip_checks=False, key=lambda msg: msg.time):  # type: ignore[no-untyped-def] # noqa: ANN001,ANN201,FBT002
+    """Returns a MidiTrack object with all messages from all tracks.
+
+    The messages are returned in playback order with delta times
+    as if they were all in one track.
+
+    Pass skip_checks=True to skip validation of messages before merging.
+    This should ONLY be used when the messages in tracks have already
+    been validated by mido.checks.
+
+    # TODO: make MR to mido
+    """
+    messages = []
+    for track in tracks:
+        messages.extend(_to_abstime(track, skip_checks=skip_checks))
+
+    messages.sort(key=key)
+
+    return MidiTrack(
+        fix_end_of_track(
+            _to_reltime(messages, skip_checks=skip_checks),
+            skip_checks=skip_checks,
+        ),
     )
