@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import bisect
 import collections
 import pathlib
 from typing import Literal
@@ -13,7 +12,6 @@ from pydantic import ConfigDict
 from pydantic import field_validator
 
 import musiclib
-
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
 
@@ -58,7 +56,7 @@ class Bar:
             raise ValueError('Voices must have same number of beats')
         n_beats = next(iter(voices_n_beats))
         return cls(channel_voices, n_beats)
-    
+
     def to_midi(
         self,
         root_note: int,
@@ -70,9 +68,8 @@ class Bar:
     ):
         messages = collections.defaultdict(list)
 
-        # todo: try merge: store voice_time info in .time attribute in last_message
+        # TODO: try merge: store voice_time info in .time attribute in last_message
         voice_time = voice_time if voice_time is not None else collections.defaultdict(int)
-        # voice_last_message = voice_last_message if voice_last_message is not None else collections.defaultdict(lambda: None)
         if voice_last_message is None:
             voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
 
@@ -83,16 +80,12 @@ class Bar:
             for channel in channels_sorted:
                 voices = self.channel_voices[channel]
                 for voice_i, voice in enumerate(voices):
-                    
                     last_message = voice_last_message[channel, voice_i]
-                    
-                    # print('*', voice_time[channel, voice_i], voice_last_message[channel, voice_i])
-                    
                     beat_note = voice[beat_i]
-                    
+
                     if beat_note == '--' and last_message.type == 'note_off':
                         raise ValueError('Cannot have -- in the beginning of a voice or after note_off event')
-                
+
                     if beat_note not in {'..', '--'}:
                         if channel == 'bass':
                             bass_note = root_note + beat_note
@@ -100,26 +93,18 @@ class Bar:
                         else:
                             note = bass_note + beat_note
 
-                        # use midi channel=0 for all tracks
                         if last_message.type == 'note_off':
                             message = mido.Message(type='note_on', note=note, velocity=100, time=voice_time[channel, voice_i])
                             messages[channel, voice_i].append(message)
                             voice_last_message[channel, voice_i] = message
-                            # print(channel, voice_i, message)
                         elif last_message.type == 'note_on':
                             message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=voice_time[channel, voice_i])
-                            # print(channel, voice_i, message)
                             messages[channel, voice_i].append(message)
                             message = mido.Message(type='note_on', note=note, velocity=100, time=0)
-                            # print(channel, voice_i, message)
                             messages[channel, voice_i].append(message)
                             voice_last_message[channel, voice_i] = message
-
                         voice_time[channel, voice_i] = 0
                     voice_time[channel, voice_i] += ticks_per_beat
-            
-            
-        # end last bar
         if last_bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
@@ -129,10 +114,9 @@ class Bar:
                     note=last_message.note,
                     velocity=last_message.velocity,
                     channel=last_message.channel,
-                    time=ticks_per_beat, # todo test on different ending (-- -- -- , .. .. .. etc) some time adjustements may be needed
+                    time=ticks_per_beat,
                 )
                 messages[channel, voice_i].append(message)
-
         return messages
 
 class RootChange(ArbitraryTypes):
@@ -144,6 +128,7 @@ class RootChange(ArbitraryTypes):
 
 
 class NotationData(BaseModel):
+    model_config = ConfigDict(extra='forbid')
     musiclib_version: str
     events: list[EventData]
     count_from_bass: bool = True
@@ -154,8 +139,6 @@ class NotationData(BaseModel):
         if v[-1].type != 'Bar':
             raise ValueError('last event must be Bar')
         return v
-
-    
 
 
 Event: TypeAlias = RootChange | Bar
@@ -257,4 +240,3 @@ def play_file() -> None:
 
 if __name__ == '__main__':
     play_file()
-

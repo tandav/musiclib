@@ -1,18 +1,14 @@
 musiclib_version: __tests_placeholder__
-ticks_per_beat: 96
-midi_channels:
-  - bass
-  - piano
-  - flute
-
 events:
   - type: RootChange
-    root: E3
+    root: C3
 
   - type: Bar
     voices:
-      - flute: 17 13
-      - piano: 13 10
-      - bass :  0  0
-
-# TODO: test -- at the end of a bar in different combinations
+      flute:
+        - 17 14 10 17
+        - 14 10 07 14
+      piano:
+        - 10 07 04 10
+      bass:
+        - 00 05 07 00

@@ -1,5 +1,4 @@
 musiclib_version: __tests_placeholder__
-
 events:
   - type: RootChange
     root: C3
