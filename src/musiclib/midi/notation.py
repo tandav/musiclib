@@ -100,48 +100,40 @@ class Bar:
             for channel in channels_sorted:
                 voices = self.channel_voices[channel]
                 for voice_i, voice in enumerate(voices):
-                    # time = beat_i * ticks_per_beat
-                    # voice_time[channel, voice_i] += time
-                    # voice_time[channel, voice_i] += ticks_per_beat
-                    voice_time[channel, voice_i] = 0 if beat_i == 0 else ticks_per_beat
                     
                     last_message = voice_last_message[channel, voice_i]
                     
-                    print('*', voice_time[channel, voice_i], voice_last_message[channel, voice_i])
+                    # print('*', voice_time[channel, voice_i], voice_last_message[channel, voice_i])
                     
                     beat_note = voice[beat_i]
                     
                     if beat_note == '--' and last_message.type == 'note_off':
                         raise ValueError('Cannot have -- in the beginning of a voice or after note_off event')
                 
-                    if beat_note in {'..', '--'}:
-                        voice_time[channel, voice_i] += ticks_per_beat
-                        continue
-                    
-                    # time = voice_time[channel, voice_i]
-                
-                    if channel == 'bass':
-                        bass_note = root_note + beat_note
-                        note = bass_note
-                    else:
-                        note = bass_note + beat_note
+                    if beat_note not in {'..', '--'}:
+                        if channel == 'bass':
+                            bass_note = root_note + beat_note
+                            note = bass_note
+                        else:
+                            note = bass_note + beat_note
 
-                    # use midi channel=0 for all tracks
-                    if last_message.type == 'note_off':
-                        # message = mido.Message(type='note_on', note=note, velocity=100, time=time)
-                        message = mido.Message(type='note_on', note=note, velocity=100, time=voice_time[channel, voice_i])
-                        messages[channel, voice_i].append(message)
-                        voice_last_message[channel, voice_i] = message
-                        print(channel, voice_i, message)
-                    elif last_message.type == 'note_on':
-                        message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=voice_time[channel, voice_i])
-                        print(channel, voice_i, message)
-                        messages[channel, voice_i].append(message)
-                        message = mido.Message(type='note_on', note=note, velocity=100, time=0)
-                        print(channel, voice_i, message)
-                        messages[channel, voice_i].append(message)
-                        voice_last_message[channel, voice_i] = message
-                    # voice_time[channel, voice_i] = 0
+                        # use midi channel=0 for all tracks
+                        if last_message.type == 'note_off':
+                            message = mido.Message(type='note_on', note=note, velocity=100, time=voice_time[channel, voice_i])
+                            messages[channel, voice_i].append(message)
+                            voice_last_message[channel, voice_i] = message
+                            # print(channel, voice_i, message)
+                        elif last_message.type == 'note_on':
+                            message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=voice_time[channel, voice_i])
+                            # print(channel, voice_i, message)
+                            messages[channel, voice_i].append(message)
+                            message = mido.Message(type='note_on', note=note, velocity=100, time=0)
+                            # print(channel, voice_i, message)
+                            messages[channel, voice_i].append(message)
+                            voice_last_message[channel, voice_i] = message
+
+                        voice_time[channel, voice_i] = 0
+                    voice_time[channel, voice_i] += ticks_per_beat
             
             
         # end last bar
