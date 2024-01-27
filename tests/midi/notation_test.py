@@ -29,7 +29,7 @@ def test_bass_is_set():
     yaml_data = yaml.safe_load(f'''
     musiclib_version: {musiclib.__version__}
     events:
-    - type: RootChange
+    - type: RootNote
       root: C3
 
     - type: Bar

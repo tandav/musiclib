@@ -23,12 +23,16 @@ class ArbitraryTypes(BaseModel):
 
 
 class EventData(BaseModel):
-    type: Literal['RootChange', 'Bar']
+    type: Literal['Bar', 'RootNote', 'RootTranspose']
     model_config = ConfigDict(extra='allow')
 
 
-class RootChangeData(EventData):
+class RootNoteData(EventData):
     root: str
+
+
+class RootTransposeData(EventData):
+    semitones: int
 
 
 class BarData(EventData):
@@ -121,12 +125,20 @@ class Bar:
         return messages
 
 
-class RootChange(ArbitraryTypes):
+class RootNote(ArbitraryTypes):
     root: SpecificNote
 
     @classmethod
-    def from_yaml_data(cls, data: RootChangeData) -> RootChange:
+    def from_yaml_data(cls, data: RootNoteData) -> RootNote:
         return cls(root=SpecificNote.from_str(data.root))
+
+
+class RootTranspose(ArbitraryTypes):
+    semitones: int
+
+    @classmethod
+    def from_yaml_data(cls, data: RootTransposeData) -> RootTranspose:
+        return cls(semitones=data.semitones)
 
 
 class NotationData(BaseModel):
@@ -142,7 +154,7 @@ class NotationData(BaseModel):
         return v
 
 
-Event: TypeAlias = RootChange | Bar
+Event: TypeAlias = Bar | RootNote | RootTranspose
 
 
 class Notation:
@@ -166,12 +178,14 @@ class Notation:
         out = []
         for event in events:
             cls_data = {
-                'RootChange': RootChangeData,
+                'RootNote': RootNoteData,
+                'RootTranspose': RootTransposeData,
                 'Bar': BarData,
             }[event.type]
             event_data_model = cls_data.model_validate(event, from_attributes=True)
             cls = {
-                'RootChange': RootChange,
+                'RootNote': RootNote,
+                'RootTranspose': RootTranspose,
                 'Bar': Bar,
             }[event_data_model.type]
             out.append(cls.from_yaml_data(event_data_model))  # type: ignore[attr-defined]
@@ -191,8 +205,12 @@ class Notation:
         messages: collections.defaultdict[tuple[str, int], list[mido.Message]] = collections.defaultdict(list)
 
         for event_i, event in enumerate(self.events):
-            if isinstance(event, RootChange):
+            if isinstance(event, RootNote):
                 root_note = event.root.i
+            elif isinstance(event, RootTranspose):
+                if root_note is None:
+                    raise ValueError('Root note was not set before this RootTranspose event')
+                root_note += event.semitones
             elif isinstance(event, Bar):
                 if root_note is None:
                     raise ValueError('Root note was not set before this Bar event')

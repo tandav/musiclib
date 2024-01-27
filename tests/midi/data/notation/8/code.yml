@@ -1,0 +1,25 @@
+musiclib_version: __tests_placeholder__
+events:
+  - type: RootNote
+    root: C3
+
+  - type: Bar
+    voices:
+      bass:
+        - 00 00
+
+  - type: RootTranspose
+    semitones: 1
+
+  - type: Bar
+    voices:
+      bass:
+        - 00 00
+
+  - type: RootTranspose
+    semitones: -3
+
+  - type: Bar
+    voices:
+      bass:
+        - 00 00

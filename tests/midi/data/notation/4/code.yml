@@ -1,7 +1,7 @@
 musiclib_version: __tests_placeholder__
 
 events:
-  - type: RootChange
+  - type: RootNote
     root: E3
 
   - type: Bar

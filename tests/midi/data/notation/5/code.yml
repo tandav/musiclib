@@ -1,6 +1,6 @@
 musiclib_version: __tests_placeholder__
 events:
-  - type: RootChange
+  - type: RootNote
     root: C3
 
   - type: Bar
