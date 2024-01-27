@@ -91,14 +91,11 @@ class Bar:
                             note = bass_note + beat_note
 
                         if last_message.type == 'note_off':
-                            message = mido.Message(type='note_on', note=note, velocity=100, time=last_message.time)
-                            messages[channel, voice_i].append(message)
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=last_message.time))
                         elif last_message.type == 'note_on':
-                            message = mido.Message(type='note_off', note=last_message.note, velocity=100, time=last_message.time)
-                            messages[channel, voice_i].append(message)
-                            message = mido.Message(type='note_on', note=note, velocity=100, time=0)
-                            messages[channel, voice_i].append(message)
-                        voice_last_message[channel, voice_i] = message.copy(time=0)
+                            messages[channel, voice_i].append(mido.Message(type='note_off', note=last_message.note, velocity=100, time=last_message.time))
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=0))
+                        voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
                     voice_last_message[channel, voice_i].time += ticks_per_beat
         if last_bar:
             for (channel, voice_i), message in voice_last_message.items():
