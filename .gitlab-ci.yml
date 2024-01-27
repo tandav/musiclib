@@ -13,25 +13,9 @@ cache:
   paths:
     - .cache/
 
-# build:
-#   stage: build
-#   image: docker:24
-#   variables:
-#     BRANCH_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-#   script:
-#     - echo $CI_REGISTRY_PASSWORD | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-#     - docker build -t $CI_REGISTRY_IMAGE .
-#     - docker tag $CI_REGISTRY_IMAGE $BRANCH_TAG
-#     - docker push $BRANCH_TAG
-#   rules:
-#     - if: $CI_PIPELINE_SOURCE == "push"
-#     - changes:
-#         - pyproject.toml
-
 test:
   stage: test
-  # needs:
-  #   - build
+  needs: []
   tags:
     - u61
     - docker
@@ -51,8 +35,7 @@ test:
 
 lint:
   stage: test
-  # needs:
-  #   - build
+  needs: []
   tags:
     - u61
     - docker
