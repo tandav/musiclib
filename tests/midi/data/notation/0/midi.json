@@ -11,7 +11,7 @@
             {"type": "note_on", "time": 0, "channel": 0, "note": 54, "velocity": 100, "is_meta": false},
             {"type": "note_off", "time": 96, "channel": 0, "note": 54, "velocity": 100, "is_meta": false},
             {"type": "note_on", "time": 0, "channel": 0, "note": 55, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 54, "velocity": 100, "is_meta": false}
+            {"type": "note_off", "time": 96, "channel": 0, "note": 55, "velocity": 100, "is_meta": false}
         ]
     ]
 }

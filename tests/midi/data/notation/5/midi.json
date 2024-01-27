@@ -14,17 +14,6 @@
             {"type": "note_off", "time": 96, "channel": 0, "note": 48, "velocity": 100, "is_meta": false}
         ],
         [
-            {"type": "track_name", "name": "flute-0", "time": 0, "is_meta": true},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 69, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 69, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 72, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 72, "velocity": 100, "is_meta": false}
-        ],
-        [
             {"type": "track_name", "name": "flute-1", "time": 0, "is_meta": true},
             {"type": "note_on", "time": 0, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
             {"type": "note_off", "time": 96, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
@@ -36,10 +25,17 @@
             {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false}
         ],
         [
+            {"type": "track_name", "name": "flute-0", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 96, "channel": 0, "note": 69, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 69, "velocity": 100, "is_meta": false},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 72, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 72, "velocity": 100, "is_meta": false}
+        ],
+        [
             {"type": "track_name", "name": "piano-0", "time": 0, "is_meta": true},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 288, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
+            {"type": "note_on", "time": 288, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
             {"type": "note_off", "time": 96, "channel": 0, "note": 64, "velocity": 100, "is_meta": false}
         ]
     ]

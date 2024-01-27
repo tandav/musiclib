@@ -9,6 +9,7 @@ from musiclib.midi import parse
 
 notation_examples = (p for p in (Path(__file__).parent / 'data/notation').iterdir() if p.is_dir())
 
+
 @pytest.mark.parametrize('merge_voices', [False, True])
 @pytest.mark.parametrize('example_dir', notation_examples)
 def test_to_midi(example_dir, merge_voices):

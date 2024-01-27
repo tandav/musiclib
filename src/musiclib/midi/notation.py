@@ -24,11 +24,14 @@ class EventData(BaseModel):
     type: Literal['RootChange', 'Bar']
     model_config = ConfigDict(extra='allow')
 
+
 class RootChangeData(EventData):
     root: str
 
+
 class BarData(EventData):
     voices: dict[str, list[str]]
+
 
 class Bar:
     def __init__(self, channel_voices: dict[str, list[list[int | str]]], n_beats: int) -> None:
@@ -36,7 +39,7 @@ class Bar:
         self.n_beats = n_beats
 
     @classmethod
-    def from_yaml_data(cls, data: BarData):
+    def from_yaml_data(cls, data: BarData) -> Bar:
         channel_voices = {}
         voices_n_beats = set()
         for channel, voices_str in data.voices.items():
@@ -57,21 +60,22 @@ class Bar:
         n_beats = next(iter(voices_n_beats))
         return cls(channel_voices, n_beats)
 
-    def to_midi(
+    def to_midi(  # noqa: C901,PLR0912
         self,
+        *,
         root_note: int,
         bass_note: int | None = None,
         voice_last_message: collections.defaultdict | None = None,
         last_bar: bool = True,
         ticks_per_beat: int = 96,
-    ):
+    ) -> dict[tuple[str, int], list[mido.Message]]:
         messages = collections.defaultdict(list)
 
         if voice_last_message is None:
             voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
 
         # sorting is necessary because bass must be first
-        channels_sorted = ['bass'] + sorted(self.channel_voices.keys() - {'bass'})
+        channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]
 
         for beat_i in range(self.n_beats):
             for channel in channels_sorted:
@@ -101,15 +105,9 @@ class Bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
                     continue
-                message = mido.Message(
-                    type='note_off',
-                    note=last_message.note,
-                    velocity=last_message.velocity,
-                    channel=last_message.channel,
-                    time=ticks_per_beat,
-                )
-                messages[channel, voice_i].append(message)
+                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': ticks_per_beat}))
         return messages
+
 
 class RootChange(ArbitraryTypes):
     root: SpecificNote
@@ -152,10 +150,7 @@ class Notation:
     @classmethod
     def from_yaml_data(cls, yaml_data: str) -> Notation:
         notation_data = NotationData.model_validate(yaml_data)
-        return cls(
-            **notation_data.model_dump(exclude=['events']),
-           events=cls.parse_events(notation_data.events),
-        )
+        return cls(**notation_data.model_dump(exclude=['events']), events=cls.parse_events(notation_data.events))
 
     @staticmethod
     def parse_events(events: list[EventData]) -> list[Event]:
@@ -200,6 +195,7 @@ class Notation:
                 for (channel, voice_i), voice_messages in bar_messages.items():
                     messages[channel, voice_i] += voice_messages
         if merge_voices:
+            # return messages
             channel_tracks = collections.defaultdict(list)
             for (channel, voice_i), voice_messages in messages.items():
                 channel_tracks[channel].append(mido.MidiTrack(voice_messages))
