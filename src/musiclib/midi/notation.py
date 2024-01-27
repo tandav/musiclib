@@ -1,16 +1,20 @@
 from __future__ import annotations
 
+import argparse
 import collections
+import pathlib
 from typing import Literal
 from typing import TypeAlias
 
 import mido
+import yaml
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import field_validator
 
 import musiclib
 from musiclib.midi.parse import merge_tracks
+from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
 
 
@@ -35,6 +39,7 @@ class Bar:
     def __init__(self, channel_voices: dict[str, list[list[int | str]]], n_beats: int) -> None:
         self.channel_voices = channel_voices
         self.n_beats = n_beats
+        self.channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]  # sorting is necessary because bass must be first
 
     @classmethod
     def from_yaml_data(cls, data: BarData) -> Bar:
@@ -66,18 +71,19 @@ class Bar:
         voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] | None = None,
         last_bar: bool = True,
         ticks_per_beat: int = 96,
+        midi_channels: dict[str, int] | None = None,
     ) -> dict[tuple[str, int], list[mido.Message]]:
         messages = collections.defaultdict(list)
 
         if voice_last_message is None:
             voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
 
-        # sorting is necessary because bass must be first
-        channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]
+        midi_channels = midi_channels if midi_channels is not None else {}
 
         for beat_i in range(self.n_beats):
-            for channel in channels_sorted:
+            for channel in self.channels_sorted:
                 voices = self.channel_voices[channel]
+                midi_channel = midi_channels.get(channel, 0)
                 for voice_i, voice in enumerate(voices):
                     last_message = voice_last_message[channel, voice_i]
                     beat_note = voice[beat_i]
@@ -100,11 +106,11 @@ class Bar:
                             note = bass_note + beat_note
 
                         if last_message.type == 'note_off':
-                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=last_message.time))
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=last_message.time))
                         elif last_message.type == 'note_on':
                             # messages[channel, voice_i].append(mido.Message(type='note_off', note=last_message.note, velocity=last_message.velocity, time=last_message.time))
                             messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
-                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, velocity=100, time=0))
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=0))
                         voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
                     voice_last_message[channel, voice_i].time += ticks_per_beat
         if last_bar:
@@ -176,6 +182,7 @@ class Notation:
         *,
         ticks_per_beat: int = 96,
         merge_voices: bool = True,
+        midi_channels: dict[str, int] | None = None,
     ) -> mido.MidiFile:
         root_note = None
         bass_note = None
@@ -195,6 +202,7 @@ class Notation:
                     voice_last_message=voice_last_message,
                     last_bar=event_i == len(self.events) - 1,
                     ticks_per_beat=ticks_per_beat,
+                    midi_channels=midi_channels,
                 )
                 for (channel, voice_i), voice_messages in bar_messages.items():
                     messages[channel, voice_i] += voice_messages
@@ -212,3 +220,28 @@ class Notation:
             for (channel, voice_i), voice_messages in messages.items()
         ]
         return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=ticks_per_beat)
+
+
+def play_file() -> None:
+    class StoreDictKeyPair(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None) -> None:  # type: ignore[no-untyped-def] # noqa: ANN001,ARG002
+            my_dict = {}
+            for kv in values.split(','):
+                k, v = kv.split('=')
+                my_dict[k] = int(v)
+            setattr(namespace, self.dest, my_dict)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--bpm', type=float, default=120)
+    parser.add_argument('--midi-port', type=str, default='IAC Driver Bus 1', help='MIDI port to send midi messages')
+    parser.add_argument('--midi-channels', action=StoreDictKeyPair, help='mapping of instruments to MIDI channels in instrument0:channel0,instrument1:channel1 format')
+    parser.add_argument('filepath', type=pathlib.Path)
+    args = parser.parse_args()
+    yaml_data = yaml.safe_load(args.filepath.read_text())
+    nt = Notation.from_yaml_data(yaml_data)
+    midi = nt.to_midi(midi_channels=args.midi_channels)
+    player = Player(args.midi_port)
+    player.play_midi(midi, beats_per_minute=args.bpm)
+
+
+if __name__ == '__main__':
+    play_file()
