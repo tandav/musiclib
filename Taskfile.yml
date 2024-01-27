@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  test:
+    desc: Run tests
+    cmds:
+      - pytest
+
+  bumpver:
+    desc: 'Bump version. Pass --<part>. Usage example: task bumpver -- --minor'
+    cmds:
+      - bumpver update --no-fetch {{.CLI_ARGS}}
+
+  bumpver-dev-start:
+    desc: 'Bump version to start new dev cycle. Pass --<part>. Usage example: task bumpver-dev-start -- --minor'
+    cmds:
+      - bumpver update --no-fetch --tag dev --no-commit --no-tag-commit {{.CLI_ARGS}}
+
+  bumpver-dev-stop:
+    desc: 'Bump version to stop dev cycle. --<part> is not passed. Usage example: task bumpver-dev-stop'
+    cmds:
+      - bumpver update --no-fetch --tag final --no-commit --no-tag-commit

@@ -21,8 +21,8 @@
             {"type": "note_off", "time": 96, "channel": 0, "note": 69, "velocity": 100, "is_meta": false},
             {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
             {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false}
+            {"type": "note_on", "time": 0, "channel": 0, "note": 72, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 72, "velocity": 100, "is_meta": false}
         ],
         [
             {"type": "track_name", "name": "flute-1", "time": 0, "is_meta": true},
@@ -32,19 +32,15 @@
             {"type": "note_off", "time": 96, "channel": 0, "note": 65, "velocity": 100, "is_meta": false},
             {"type": "note_on", "time": 0, "channel": 0, "note": 62, "velocity": 100, "is_meta": false},
             {"type": "note_off", "time": 96, "channel": 0, "note": 62, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 64, "velocity": 100, "is_meta": false}
+            {"type": "note_on", "time": 0, "channel": 0, "note": 67, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 67, "velocity": 100, "is_meta": false}
         ],
         [
             {"type": "track_name", "name": "piano-0", "time": 0, "is_meta": true},
             {"type": "note_on", "time": 0, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 59, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 59, "velocity": 100, "is_meta": false},
-            {"type": "note_on", "time": 0, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
-            {"type": "note_off", "time": 96, "channel": 0, "note": 60, "velocity": 100, "is_meta": false}
+            {"type": "note_off", "time": 288, "channel": 0, "note": 60, "velocity": 100, "is_meta": false},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 64, "velocity": 100, "is_meta": false},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 64, "velocity": 100, "is_meta": false}
         ]
     ]
 }

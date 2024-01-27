@@ -1,61 +1,47 @@
 import json
 from pathlib import Path
 
+import musiclib
 import pytest
+import yaml
 from musiclib.midi import notation
 from musiclib.midi import parse
-from musiclib.midi.notation import IntervalEvent
+
+notation_examples = (p for p in (Path(__file__).parent / 'data/notation').iterdir() if p.is_dir())
 
 
-@pytest.mark.parametrize(
-    ('code', 'channel'), [
-        ('flute  1  2  3  4', 'flute'),
-        ('bass                    9   8  -7  17   4 -12   0', 'bass'),
-    ],
-)
-def test_voice_channel(code, channel):
-    assert notation.Voice(code).channel == channel
-
-
-@pytest.mark.parametrize(
-    ('code', 'interval_events'), [
-        (
-            'flute  1  2  3  4',
-            [
-                IntervalEvent(interval=1, on=0, off=96),
-                IntervalEvent(interval=2, on=96, off=192),
-                IntervalEvent(interval=3, on=192, off=288),
-                IntervalEvent(interval=4, on=288, off=384),
-            ],
-        ),
-        (
-            'flute  15 -3 .. -10 26 17 28 -- 17 29 -15  27  -8  -5  25  23',
-            [
-                IntervalEvent(interval=17, on=0, off=96),
-                IntervalEvent(interval=-3, on=96, off=288),
-                IntervalEvent(interval=-12, on=288, off=384),
-                IntervalEvent(interval=30, on=384, off=480),
-                IntervalEvent(interval=19, on=480, off=576),
-                IntervalEvent(interval=32, on=576, off=768),
-                IntervalEvent(interval=19, on=768, off=864),
-                IntervalEvent(interval=33, on=864, off=960),
-                IntervalEvent(interval=-17, on=960, off=1056),
-                IntervalEvent(interval=31, on=1056, off=1152),
-                IntervalEvent(interval=-8, on=1152, off=1248),
-                IntervalEvent(interval=-5, on=1248, off=1344),
-                IntervalEvent(interval=29, on=1344, off=1440),
-                IntervalEvent(interval=27, on=1440, off=1536),
-            ],
-        ),
-    ],
-)
-def test_voice(code, interval_events):
-    assert notation.Voice(code).interval_events == interval_events
-
-
-@pytest.mark.parametrize('example_dir', (Path(__file__).parent / 'data/notation').iterdir())
-def test_to_midi(example_dir):
-    code = (example_dir / 'code.txt').read_text()
-    with open(example_dir / 'midi.json') as f:
+@pytest.mark.parametrize('merge_voices', [False, True])
+@pytest.mark.parametrize('example_dir', notation_examples)
+def test_to_midi(example_dir, merge_voices):
+    yaml_path = example_dir / 'code.yml'
+    with open(yaml_path) as f:
+        yaml_data = yaml.safe_load(f)
+    yaml_data['musiclib_version'] = musiclib.__version__
+    notation_ = notation.Notation.from_yaml_data(yaml_data)
+    midifile = 'midi-merge-voices.json' if merge_voices else 'midi.json'
+    with open(example_dir / midifile) as f:
         midi_dict = json.load(f)
-    assert parse.to_dict(notation.Notation(code).to_midi()) == midi_dict
+    midi = notation_.to_midi(merge_voices=merge_voices)
+    assert parse.to_dict(midi) == midi_dict
+
+
+def test_bass_is_set():
+    yaml_data = yaml.safe_load(f'''
+    musiclib_version: {musiclib.__version__}
+    events:
+    - type: RootNote
+      root: C3
+
+    - type: Bar
+      voices:
+        flute:
+          - .. 14 10 20
+          - 14 10 07 17
+        piano:
+          - .. .. .. 14
+        bass:
+          - 00 .. .. ..
+    ''')
+    notation_ = notation.Notation.from_yaml_data(yaml_data)
+    with pytest.raises(ValueError, match='bass_note must be set before other channels'):
+        notation_.to_midi()

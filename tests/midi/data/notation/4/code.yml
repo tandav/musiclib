@@ -1,0 +1,50 @@
+musiclib_version: __tests_placeholder__
+
+events:
+  - type: RootNote
+    root: E3
+
+  - type: Bar
+    voices:
+      flute:
+        - 17 13
+      piano:
+        - 13 10
+      bass:
+        -  0  0
+
+  - type: Bar
+    voices:
+      flute:
+        - -- --
+      piano:
+        - -- --
+      bass:
+        -  0  0
+
+  - type: Bar
+    voices:
+      flute:
+        -  1 --
+      piano:
+        -  2 --
+      bass:
+        -  0 --
+
+  - type: Bar
+    voices:
+      flute:
+        - -- --
+      piano:
+        - -- --
+      bass:
+        - -- --
+
+  - type: Bar
+    voices:
+      flute:
+        - 17 13
+      piano:
+        - 13 10
+      bass:
+        -  0  0

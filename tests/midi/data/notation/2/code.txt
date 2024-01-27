@@ -1,9 +1,0 @@
-header
-musiclib_version 2.3.0dev0
-root E3
-ticks_per_beat 96
-midi_channels {"bass": 0, "piano": 1, "flute": 2}
-
-flute 17 13
-piano 13 10
-bass   0  0

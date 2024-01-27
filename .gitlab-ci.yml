@@ -1,4 +1,5 @@
 stages:
+  # - build
   - test
 
 variables:
@@ -14,13 +15,13 @@ cache:
 
 test:
   stage: test
+  needs: []
   tags:
     - u61
     - docker
   image: python:3.12
   script:
     - pip install .[dev]
-    - pre-commit run --all-files
     - pytest --cov musiclib --cov-report term --cov-report xml --junitxml report.xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
@@ -31,3 +32,14 @@ test:
         coverage_format: cobertura
         path: coverage.xml
       junit: report.xml
+
+lint:
+  stage: test
+  needs: []
+  tags:
+    - u61
+    - docker
+  image: python:3.12
+  script:
+    - pip install .[dev]
+    - pre-commit run --all-files

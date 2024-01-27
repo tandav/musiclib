@@ -1,190 +1,263 @@
+from __future__ import annotations
+
 import argparse
-import bisect
 import collections
-import json
-import operator
 import pathlib
-from typing import NamedTuple
+from typing import Literal
+from typing import TypeAlias
 
 import mido
-from mido.midifiles.tracks import _to_reltime
+import yaml
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import field_validator
 
 import musiclib
-from musiclib.midi.parse import Midi
-from musiclib.midi.parse import MidiNote
-from musiclib.midi.parse import abs_messages
+from musiclib.midi.parse import merge_tracks
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
 
 
-class IntervalEvent(NamedTuple):
-    interval: int
-    on: int
-    off: int
+class ArbitraryTypes(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class Event:
-    def __init__(self, code: str) -> None:
-        self.type, *_kw = code.splitlines()
-        self.kw = dict(kv.split(maxsplit=1) for kv in _kw)
+class EventData(BaseModel):
+    type: Literal['Bar', 'RootNote', 'RootTranspose']
+    model_config = ConfigDict(extra='allow')
 
 
-class Header(Event):
-    def __init__(self, code: str) -> None:
-        super().__init__(code)
-        self.musiclib_version = self.kw['musiclib_version']
-        if musiclib.__version__ != self.musiclib_version:
-            raise ValueError(f'musiclib must be exact version {self.musiclib_version} to parse notation')
-        self.root = SpecificNote.from_str(self.kw['root'])
-        self.ticks_per_beat = int(self.kw['ticks_per_beat'])
-        self.midi_channels = json.loads(self.kw['midi_channels'])
+class RootNoteData(EventData):
+    root: str
 
 
-class RootChange(Event):
-    def __init__(self, code: str) -> None:
-        super().__init__(code)
-        self.root = SpecificNote.from_str(self.kw['root'])
+class RootTransposeData(EventData):
+    semitones: int
 
 
-class Voice:
-    def __init__(self, code: str) -> None:
-        self.channel, intervals_str = code.split(maxsplit=1)
-        self.interval_events = self.parse_interval_events(intervals_str)
-
-    def parse_interval_events(self, intervals_str: str, ticks_per_beat: int = 96) -> list[IntervalEvent]:
-        interval: int | None = None
-        on = 0
-        off = 0
-        interval_events = []
-        for interval_str in intervals_str.split():
-            if interval_str == '..':
-                if interval is None:
-                    on += ticks_per_beat
-                else:
-                    off += ticks_per_beat
-            elif interval_str == '--':
-                if interval is None:
-                    raise ValueError('Cannot have -- in the beginning of a voice')
-                off += ticks_per_beat
-            else:
-                if interval is not None:
-                    interval_events.append(IntervalEvent(interval, on, off))
-                    on = off
-                off += ticks_per_beat
-                interval = int(interval_str, base=12)
-        if interval is None:
-            raise ValueError('Cannot have empty voice')
-        interval_events.append(IntervalEvent(interval, on, off))
-        return interval_events
+class BarData(EventData):
+    voices: dict[str, list[str]]
 
 
 class Bar:
-    def __init__(self, code: str) -> None:
-        self.voices = [Voice(voice_code) for voice_code in code.splitlines()]
+    def __init__(self, channel_voices: dict[str, list[list[int | str]]], n_beats: int) -> None:
+        self.channel_voices = channel_voices
+        self.n_beats = n_beats
+        self.channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]  # sorting is necessary because bass must be first
 
-    def to_midi(self, root: SpecificNote, *, figured_bass: bool = True) -> dict[str, list[MidiNote]]:
-        if not isinstance(root, SpecificNote):
-            raise TypeError(f'root must be SpecificNote, got {root}')
-        channels = collections.defaultdict(list)
-        if not figured_bass:
-            for voice in self.voices:
-                for interval_event in voice.interval_events:
-                    channels[voice.channel].append(
-                        MidiNote(
-                            note=root + interval_event.interval,
-                            on=interval_event.on,
-                            off=interval_event.off,
-                        ),
-                    )
-            return dict(channels)
-        *voices, bass = self.voices
-        for bass_interval_event in bass.interval_events:
-            bass_note = root + bass_interval_event.interval
-            bass_on = bass_interval_event.on
-            bass_off = bass_interval_event.off
-            channels[bass.channel].append(MidiNote(on=bass_on, off=bass_off, note=bass_note))
+    @classmethod
+    def from_yaml_data(cls, data: BarData) -> Bar:
+        channel_voices: dict[str, list[list[int | str]]] = {}
+        voices_n_beats = set()
+        for channel, voices_str in data.voices.items():
+            if channel == 'bass' and len(voices_str) != 1:
+                raise ValueError('bass must have only 1 voice')
+            channel_voices[channel] = []
+            for voice_str in voices_str:
+                beats: list[int | str] = []
+                for beats_str in voice_str.split():
+                    if beats_str in {'..', '--'}:
+                        beats.append(beats_str)
+                    else:
+                        beats.append(int(beats_str, base=12))
+                voices_n_beats.add(len(beats))
+                channel_voices[channel].append(beats)
+        if len(voices_n_beats) != 1:
+            raise ValueError('Voices must have same number of beats')
+        n_beats = next(iter(voices_n_beats))
+        return cls(channel_voices, n_beats)
 
-            for voice in voices:
-                above_bass_events = voice.interval_events[
-                    bisect.bisect_left(voice.interval_events, bass_interval_event.on, key=operator.attrgetter('on')):
-                    bisect.bisect_left(voice.interval_events, bass_interval_event.off, key=operator.attrgetter('on'))
-                ]
+    def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
+        self,
+        *,
+        root_note: int,
+        bass_note: int | None = None,
+        voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] | None = None,
+        last_bar: bool = True,
+        ticks_per_beat: int = 96,
+        midi_channels: dict[str, int] | None = None,
+    ) -> dict[tuple[str, int], list[mido.Message]]:
+        messages = collections.defaultdict(list)
 
-                for interval_event in above_bass_events:
-                    channels[voice.channel].append(
-                        MidiNote(
-                            note=bass_note + interval_event.interval,
-                            on=interval_event.on,
-                            off=interval_event.off,
-                        ),
-                    )
-        return dict(channels)
+        if voice_last_message is None:
+            voice_last_message = collections.defaultdict(lambda: mido.Message(type='note_off'))
+
+        midi_channels = midi_channels if midi_channels is not None else {}
+
+        for beat_i in range(self.n_beats):
+            for channel in self.channels_sorted:
+                voices = self.channel_voices[channel]
+                midi_channel = midi_channels.get(channel, 0)
+                for voice_i, voice in enumerate(voices):
+                    last_message = voice_last_message[channel, voice_i]
+                    beat_note = voice[beat_i]
+
+                    if beat_note == '--' and last_message.type == 'note_off':
+                        raise ValueError('Cannot have -- in the beginning of a voice or after note_off event')
+
+                    if beat_note == '..' and last_message.type == 'note_on':
+                        messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
+                        voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
+                        if channel == 'bass':
+                            bass_note = None
+                    if isinstance(beat_note, int):
+                        if channel == 'bass':
+                            bass_note = root_note + beat_note
+                            note = bass_note
+                        elif bass_note is None:
+                            raise ValueError('bass_note must be set before other channels')
+                        else:
+                            note = bass_note + beat_note
+
+                        if last_message.type == 'note_off':
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=last_message.time))
+                        elif last_message.type == 'note_on':
+                            # messages[channel, voice_i].append(mido.Message(type='note_off', note=last_message.note, velocity=last_message.velocity, time=last_message.time))
+                            messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
+                            messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=0))
+                        voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
+                    voice_last_message[channel, voice_i].time += ticks_per_beat
+        if last_bar:
+            for (channel, voice_i), message in voice_last_message.items():
+                if message.type != 'note_on':
+                    continue
+                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': ticks_per_beat}))
+        return messages
+
+
+class RootNote(ArbitraryTypes):
+    root: SpecificNote
+
+    @classmethod
+    def from_yaml_data(cls, data: RootNoteData) -> RootNote:
+        return cls(root=SpecificNote.from_str(data.root))
+
+
+class RootTranspose(ArbitraryTypes):
+    semitones: int
+
+    @classmethod
+    def from_yaml_data(cls, data: RootTransposeData) -> RootTranspose:
+        return cls(semitones=data.semitones)
+
+
+class NotationData(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    musiclib_version: str
+    events: list[EventData]
+
+    @field_validator('events')
+    @classmethod
+    def last_event_must_be_bar(cls, v: list[EventData]) -> list[EventData]:
+        if v[-1].type != 'Bar':
+            raise ValueError('last event must be Bar')
+        return v
+
+
+Event: TypeAlias = Bar | RootNote | RootTranspose
 
 
 class Notation:
-    def __init__(self, code: str) -> None:
-        self.parse(code)
-        self.ticks_per_beat = self.header.ticks_per_beat
-        self.midi_channels = self.header.midi_channels
+    def __init__(
+        self,
+        musiclib_version: str,
+        events: list[Event],
+    ) -> None:
+        if musiclib.__version__ != musiclib_version:
+            raise ValueError(f'musiclib must be exact version {musiclib_version} to parse notation')
+        self.musiclib_version = musiclib_version
+        self.events = events
 
-    def parse(self, code: str) -> None:
-        self.events: list[Event | Bar] = []
-        for event_code in code.strip().split('\n\n'):
-            if event_code.startswith('header'):
-                self.header = Header(event_code)
-            elif event_code.startswith('root_change'):
-                self.events.append(RootChange(event_code))
-            else:
-                self.events.append(Bar(event_code))
+    @classmethod
+    def from_yaml_data(cls, yaml_data: str) -> Notation:
+        notation_data = NotationData.model_validate(yaml_data)
+        return cls(**notation_data.model_dump(exclude=['events']), events=cls.parse_events(notation_data.events))
 
-    def _to_midi(self) -> list[Midi]:
-        channels: list[list[MidiNote]] = [[] for _ in range(len(self.header.midi_channels))]
-        root = self.header.root
-        t = 0
-        for event in self.events:
-            if isinstance(event, RootChange):
-                root = event.root
+    @staticmethod
+    def parse_events(events: list[EventData]) -> list[Event]:
+        out = []
+        for event in events:
+            cls_data = {
+                'RootNote': RootNoteData,
+                'RootTranspose': RootTransposeData,
+                'Bar': BarData,
+            }[event.type]
+            event_data_model = cls_data.model_validate(event, from_attributes=True)
+            cls = {
+                'RootNote': RootNote,
+                'RootTranspose': RootTranspose,
+                'Bar': Bar,
+            }[event_data_model.type]
+            out.append(cls.from_yaml_data(event_data_model))  # type: ignore[attr-defined]
+        return out
+
+    def to_midi(
+        self,
+        *,
+        ticks_per_beat: int = 96,
+        merge_voices: bool = True,
+        midi_channels: dict[str, int] | None = None,
+    ) -> mido.MidiFile:
+        root_note = None
+        bass_note = None
+
+        voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] = collections.defaultdict(lambda: mido.Message(type='note_off'))
+        messages: collections.defaultdict[tuple[str, int], list[mido.Message]] = collections.defaultdict(list)
+
+        for event_i, event in enumerate(self.events):
+            if isinstance(event, RootNote):
+                root_note = event.root.i
+            elif isinstance(event, RootTranspose):
+                if root_note is None:
+                    raise ValueError('Root note was not set before this RootTranspose event')
+                root_note += event.semitones
             elif isinstance(event, Bar):
-                bar_midi = event.to_midi(root)
-                bar_off_channels = {channel: notes[-1].off for channel, notes in bar_midi.items()}
-                if len(set(bar_off_channels.values())) != 1:
-                    raise ValueError(f'all channels in the bar must have equal length, got {bar_off_channels}')
-                bar_off = next(iter(bar_off_channels.values()))
-                for channel, notes in bar_midi.items():
-                    channel_id = self.header.midi_channels[channel]
-                    channels[channel_id] += [
-                        MidiNote(
-                            note=note.note,
-                            on=t + note.on,
-                            off=t + note.off,
-                            channel=channel_id,
-                        )
-                        for note in notes
-                    ]
-                t += bar_off
-            else:
-                raise TypeError(f'unknown event type: {event}')
-
-        return [Midi(notes=v, ticks_per_beat=self.ticks_per_beat) for v in channels]
-
-    def to_midi(self) -> mido.MidiFile:
-        return mido.MidiFile(
-            type=1,
-            ticks_per_beat=self.ticks_per_beat,
-            tracks=[mido.MidiTrack(_to_reltime(abs_messages(midi))) for midi in self._to_midi()],
-        )
+                if root_note is None:
+                    raise ValueError('Root note was not set before this Bar event')
+                bar_messages = event.to_midi(
+                    root_note=root_note,
+                    bass_note=bass_note,
+                    voice_last_message=voice_last_message,
+                    last_bar=event_i == len(self.events) - 1,
+                    ticks_per_beat=ticks_per_beat,
+                    midi_channels=midi_channels,
+                )
+                for (channel, voice_i), voice_messages in bar_messages.items():
+                    messages[channel, voice_i] += voice_messages
+        if merge_voices:
+            channel_tracks = collections.defaultdict(list)
+            for (channel, voice_i), voice_messages in messages.items():  # noqa: B007
+                channel_tracks[channel].append(mido.MidiTrack(voice_messages))
+            tracks_merged = [
+                [mido.MetaMessage(type='track_name', name=channel), *merge_tracks(tracks, key=lambda msg: (msg.time, {'note_off': 0, 'note_on': 1}.get(msg.type, 3)))]
+                for channel, tracks in channel_tracks.items()
+            ]
+            return mido.MidiFile(tracks=tracks_merged, type=1, ticks_per_beat=ticks_per_beat)
+        tracks = [
+            mido.MidiTrack([mido.MetaMessage(type='track_name', name=f'{channel}-{voice_i}'), *voice_messages])
+            for (channel, voice_i), voice_messages in messages.items()
+        ]
+        return mido.MidiFile(tracks=tracks, type=1, ticks_per_beat=ticks_per_beat)
 
 
 def play_file() -> None:
+    class StoreDictKeyPair(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None) -> None:  # type: ignore[no-untyped-def] # noqa: ANN001,ARG002
+            my_dict = {}
+            for kv in values.split(','):
+                k, v = kv.split('=')
+                my_dict[k] = int(v)
+            setattr(namespace, self.dest, my_dict)
     parser = argparse.ArgumentParser()
     parser.add_argument('--bpm', type=float, default=120)
-    parser.add_argument('--midiport', type=str, default='IAC Driver Bus 1')
+    parser.add_argument('--midi-port', type=str, default='IAC Driver Bus 1', help='MIDI port to send midi messages')
+    parser.add_argument('--midi-channels', action=StoreDictKeyPair, help='mapping of instruments to MIDI channels in instrument0:channel0,instrument1:channel1 format')
     parser.add_argument('filepath', type=pathlib.Path)
     args = parser.parse_args()
-    code = args.filepath.read_text()
-    nt = Notation(code)
-    midi = nt.to_midi()
-    player = Player(args.midiport)
+    yaml_data = yaml.safe_load(args.filepath.read_text())
+    nt = Notation.from_yaml_data(yaml_data)
+    midi = nt.to_midi(midi_channels=args.midi_channels)
+    player = Player(args.midi_port)
     player.play_midi(midi, beats_per_minute=args.bpm)
 
 

@@ -64,7 +64,10 @@ repos:
     rev: v1.8.0
     hooks:
     - id: mypy
-      additional_dependencies: [svg.py, numpy]
+      additional_dependencies:
+        - svg.py
+        - numpy
+        - types-PyYAML
 
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.327

@@ -1,0 +1,14 @@
+musiclib_version: __tests_placeholder__
+events:
+  - type: RootNote
+    root: C3
+
+  - type: Bar
+    voices:
+      flute:
+        - .. 14 10 20
+        - 14 10 07 17
+      piano:
+        - .. .. .. 14
+      bass:
+        - 00 05 07 00
