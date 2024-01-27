@@ -1,0 +1,10 @@
+musiclib_version: __tests_placeholder__
+
+events:
+  - type: RootChange
+    root: E3
+
+  - type: Bar
+    voices:
+      bass:
+        - 0 1 2 3

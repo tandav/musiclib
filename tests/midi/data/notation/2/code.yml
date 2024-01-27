@@ -14,3 +14,5 @@ events:
       - flute: 17 13
       - piano: 13 10
       - bass :  0  0
+
+# TODO: test -- at the end of a bar in different combinations

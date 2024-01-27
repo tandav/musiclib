@@ -2,14 +2,14 @@ musiclib_version: __tests_placeholder__
 
 events:
   - type: RootChange
-    root: C3
+    root: E3
 
   - type: Bar
     voices:
       flute:
-        - 17 14 10 17
-        - 14 10 07 14
+        - 17 13
+        - 12 11
       piano:
-        - 10 07 04 10
+        - 13 10
       bass:
-        - 00 05 07 00
+        -  0  0
