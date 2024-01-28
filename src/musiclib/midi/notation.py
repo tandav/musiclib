@@ -218,7 +218,7 @@ class Notation:
             out.append(cls.from_yaml_data(event_data_model))  # type: ignore[attr-defined]
         return out
 
-    def to_midi(  # noqa: C901
+    def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
         self,
         *,
         ticks_per_beat: int = 96,
@@ -254,6 +254,8 @@ class Notation:
                     ticks_per_beat=ticks_per_beat,
                     midi_channels=midi_channels,
                 )
+                if ('bass', 0) in bar_messages:
+                    bass_note = bar_messages['bass', 0][-1].note
                 if skip:
                     continue
                 for (channel, voice_i), voice_messages in bar_messages.items():
