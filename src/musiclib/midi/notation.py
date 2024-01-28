@@ -23,7 +23,7 @@ class ArbitraryTypes(BaseModel):
 
 
 class EventData(BaseModel):
-    type: Literal['Bar', 'RootNote', 'RootTranspose']
+    type: Literal['Bar', 'RootNote', 'RootTranspose', 'SkipStart', 'SkipStop']
     model_config = ConfigDict(extra='allow')
 
 
@@ -37,12 +37,19 @@ class RootTransposeData(EventData):
 
 class BarData(EventData):
     voices: dict[str, list[str]]
+    beat_multiplier: float = 1
 
 
 class Bar:
-    def __init__(self, channel_voices: dict[str, list[list[int | str]]], n_beats: int) -> None:
+    def __init__(
+        self,
+        channel_voices: dict[str, list[list[int | str]]],
+        n_beats: int,
+        beat_multiplier: float,
+    ) -> None:
         self.channel_voices = channel_voices
         self.n_beats = n_beats
+        self.beat_multiplier = beat_multiplier
         self.channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]  # sorting is necessary because bass must be first
 
     @classmethod
@@ -65,7 +72,7 @@ class Bar:
         if len(voices_n_beats) != 1:
             raise ValueError('Voices must have same number of beats')
         n_beats = next(iter(voices_n_beats))
-        return cls(channel_voices, n_beats)
+        return cls(channel_voices, n_beats, data.beat_multiplier)
 
     def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
         self,
@@ -116,12 +123,12 @@ class Bar:
                             messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
                             messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=0))
                         voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
-                    voice_last_message[channel, voice_i].time += ticks_per_beat
+                    voice_last_message[channel, voice_i].time += int(ticks_per_beat * self.beat_multiplier)
         if last_bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
                     continue
-                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': ticks_per_beat}))
+                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': message.time}))
         return messages
 
 
@@ -141,6 +148,14 @@ class RootTranspose(ArbitraryTypes):
         return cls(semitones=data.semitones)
 
 
+class SkipStart:
+    pass
+
+
+class SkipStop:
+    pass
+
+
 class NotationData(BaseModel):
     model_config = ConfigDict(extra='forbid')
     musiclib_version: str
@@ -154,7 +169,13 @@ class NotationData(BaseModel):
         return v
 
 
-Event: TypeAlias = Bar | RootNote | RootTranspose
+Event: TypeAlias = (
+    Bar
+    | RootNote
+    | RootTranspose
+    | SkipStart
+    | SkipStop
+)
 
 
 class Notation:
@@ -175,8 +196,14 @@ class Notation:
 
     @staticmethod
     def parse_events(events: list[EventData]) -> list[Event]:
-        out = []
+        out: list[Event] = []
         for event in events:
+            if event.type == 'SkipStart':
+                out.append(SkipStart())
+                continue
+            if event.type == 'SkipStop':
+                out.append(SkipStop())
+                continue
             cls_data = {
                 'RootNote': RootNoteData,
                 'RootTranspose': RootTransposeData,
@@ -191,7 +218,7 @@ class Notation:
             out.append(cls.from_yaml_data(event_data_model))  # type: ignore[attr-defined]
         return out
 
-    def to_midi(
+    def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
         self,
         *,
         ticks_per_beat: int = 96,
@@ -200,6 +227,7 @@ class Notation:
     ) -> mido.MidiFile:
         root_note = None
         bass_note = None
+        skip = False
 
         voice_last_message: collections.defaultdict[tuple[str, int], mido.Message] = collections.defaultdict(lambda: mido.Message(type='note_off'))
         messages: collections.defaultdict[tuple[str, int], list[mido.Message]] = collections.defaultdict(list)
@@ -211,6 +239,10 @@ class Notation:
                 if root_note is None:
                     raise ValueError('Root note was not set before this RootTranspose event')
                 root_note += event.semitones
+            elif isinstance(event, SkipStart):
+                skip = True
+            elif isinstance(event, SkipStop):
+                skip = False
             elif isinstance(event, Bar):
                 if root_note is None:
                     raise ValueError('Root note was not set before this Bar event')
@@ -222,6 +254,10 @@ class Notation:
                     ticks_per_beat=ticks_per_beat,
                     midi_channels=midi_channels,
                 )
+                if ('bass', 0) in bar_messages:
+                    bass_note = bar_messages['bass', 0][-1].note
+                if skip:
+                    continue
                 for (channel, voice_i), voice_messages in bar_messages.items():
                     messages[channel, voice_i] += voice_messages
         if merge_voices:

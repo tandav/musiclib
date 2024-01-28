@@ -19,12 +19,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bumpver",
-    "hypothesis",
-    "pre-commit",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
+    "bumpver==2023.1129",
+    "hypothesis==6.97.1",
+    "pre-commit==3.6.0",
+    "pytest==7.4.4",
+    "pytest-asyncio==0.23.3",
+    "pytest-cov==4.1.0", # https://github.com/pytest-dev/pytest/issues/11868#issuecomment-1913516238
 ]
 
 rtmidi = [

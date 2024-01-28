@@ -1,0 +1,37 @@
+{
+    "type": 1,
+    "ticks_per_beat": 96,
+    "tracks": [
+        [
+            {"type": "track_name", "name": "bass-0", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 192, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_off", "time": 192, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 53, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 55, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 48, "channel": 0, "note": 48, "velocity": 100}
+        ]
+    ]
+}

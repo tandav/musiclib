@@ -1,0 +1,30 @@
+{
+    "type": 1,
+    "ticks_per_beat": 96,
+    "tracks": [
+        [
+            {"type": "track_name", "name": "bass-0", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 384, "channel": 0, "note": 48, "velocity": 100}
+        ],
+        [
+            {"type": "track_name", "name": "left-0", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 60, "velocity": 100},
+            {"type": "note_off", "time": 384, "channel": 0, "note": 60, "velocity": 100}
+        ],
+        [
+            {"type": "track_name", "name": "left-1", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 48, "velocity": 100},
+            {"type": "note_off", "time": 384, "channel": 0, "note": 48, "velocity": 100}
+        ],
+        [
+            {"type": "track_name", "name": "right-1", "time": 0, "is_meta": true},
+            {"type": "note_on", "time": 96, "channel": 0, "note": 72, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 72, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 76, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 76, "velocity": 100},
+            {"type": "note_on", "time": 0, "channel": 0, "note": 79, "velocity": 100},
+            {"type": "note_off", "time": 96, "channel": 0, "note": 79, "velocity": 100}
+        ]
+    ]
+}

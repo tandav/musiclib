@@ -1,0 +1,15 @@
+musiclib_version: 2.3.0dev0
+events:
+  - type: RootNote
+    root: C3
+
+  - type: Bar
+    voices:
+      right:
+        - .. .. .. ..
+        - .. 20 24 27
+      left:
+        - 10 -- -- --
+        - 00 -- -- --
+      bass:
+        - 00 -- -- --

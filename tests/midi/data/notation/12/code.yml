@@ -1,0 +1,20 @@
+musiclib_version: 2.3.0dev0
+events:
+  - type: RootNote
+    root: C3
+
+  - type: Bar
+    voices:
+      flute:
+        - .. 20
+        - 00 --
+      bass:
+        - 00 --
+
+  - type: Bar
+    voices:
+      flute:
+        - 29 20
+        - -- --
+      bass:
+        - -- --
