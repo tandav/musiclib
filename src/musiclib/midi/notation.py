@@ -37,12 +37,19 @@ class RootTransposeData(EventData):
 
 class BarData(EventData):
     voices: dict[str, list[str]]
+    beat_multiplier: float = 1
 
 
 class Bar:
-    def __init__(self, channel_voices: dict[str, list[list[int | str]]], n_beats: int) -> None:
+    def __init__(
+        self,
+        channel_voices: dict[str, list[list[int | str]]],
+        n_beats: int,
+        beat_multiplier: float,
+    ) -> None:
         self.channel_voices = channel_voices
         self.n_beats = n_beats
+        self.beat_multiplier = beat_multiplier
         self.channels_sorted = ['bass', *sorted(self.channel_voices.keys() - {'bass'})]  # sorting is necessary because bass must be first
 
     @classmethod
@@ -65,7 +72,7 @@ class Bar:
         if len(voices_n_beats) != 1:
             raise ValueError('Voices must have same number of beats')
         n_beats = next(iter(voices_n_beats))
-        return cls(channel_voices, n_beats)
+        return cls(channel_voices, n_beats, data.beat_multiplier)
 
     def to_midi(  # noqa: C901,PLR0912 pylint: disable=too-many-branches
         self,
@@ -116,12 +123,12 @@ class Bar:
                             messages[channel, voice_i].append(mido.Message(**last_message.dict() | {'type': 'note_off'}))
                             messages[channel, voice_i].append(mido.Message(type='note_on', note=note, channel=midi_channel, velocity=100, time=0))
                         voice_last_message[channel, voice_i] = messages[channel, voice_i][-1].copy(time=0)
-                    voice_last_message[channel, voice_i].time += ticks_per_beat
+                    voice_last_message[channel, voice_i].time += int(ticks_per_beat * self.beat_multiplier)
         if last_bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
                     continue
-                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': ticks_per_beat}))
+                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': int(ticks_per_beat * self.beat_multiplier)}))
         return messages
 
 
