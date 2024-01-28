@@ -128,7 +128,7 @@ class Bar:
             for (channel, voice_i), message in voice_last_message.items():
                 if message.type != 'note_on':
                     continue
-                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': int(ticks_per_beat * self.beat_multiplier)}))
+                messages[channel, voice_i].append(mido.Message(**message.dict() | {'type': 'note_off', 'time': message.time}))
         return messages
 
 
