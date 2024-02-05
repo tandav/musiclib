@@ -20,7 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bumpver==2023.1129",
-    "hypothesis==6.97.1",
+    "hypothesis==6.98.1",
     "pre-commit==3.6.0",
     "pytest==7.4.4",
     "pytest-asyncio==0.23.3",
