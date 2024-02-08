@@ -13,13 +13,7 @@ _is_black = {note: bool(int(x)) for note, x in zip(config.chromatic_notes, '0101
 
 @functools.total_ordering
 class Note(Cached):
-    """
-    abstract note, no octave/key
-    kinda music theoretic pitch-class
-    """
-
     def __init__(self, name: str) -> None:
-        """param name: one of CdDeEFfGaAbB"""
         self.name = name
         self.i = _note_i[name]
         self.is_black = _is_black[name]
@@ -79,12 +73,6 @@ class Note(Cached):
         ...
 
     def __sub__(self, other: Note | AbstractInterval | int) -> AbstractInterval | Note:
-        """
-        kinda constraint (maybe it will be changed later):
-            if you're computing distance between abstract notes - then self considered above other
-            G - C == 7 # C0 G0
-            C - G == 5 # G0 C1
-        """
         if isinstance(other, Note):
             if other.i <= self.i:
                 return AbstractInterval(self.i - other.i)
@@ -146,7 +134,6 @@ class SpecificNote(Cached):
     def __sub__(self, other: int) -> SpecificNote:
         ...
 
-    # @functools.cache
     def __sub__(self, other: SpecificNote | int) -> int | SpecificNote:
         if isinstance(other, SpecificNote):  # distance between notes
             return self.i - other.i
@@ -155,7 +142,6 @@ class SpecificNote(Cached):
         raise TypeError(f'SpecificNote.__sub__ supports only SpecificNote | int, got {type(other)}')
 
     def __add__(self, other: int) -> SpecificNote:
-        """C + 7 = G"""
         return SpecificNote.from_i(self.i + other)
 
     def __getnewargs__(self) -> tuple[Note, int]:
