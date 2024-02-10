@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pickle
 from typing import TYPE_CHECKING
-from typing import TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any
+    from typing import Self
 
     import svg
 import numpy as np
@@ -16,8 +16,6 @@ from musiclib.interval import AbstractInterval
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
 from musiclib.util.etc import setdefault_path
-
-Self = TypeVar('Self', bound='IntervalSet')
 
 
 class IntervalSet(Cached, ReprSVGMixin):

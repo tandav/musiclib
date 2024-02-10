@@ -6,7 +6,7 @@ import random
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import TypeVar
+from typing import Self
 from typing import overload
 
 from musiclib import config
@@ -21,9 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     import svg
-
-
-Self = TypeVar('Self', bound='NoteSet')
 
 
 class NoteSet(Cached, ReprSVGMixin):

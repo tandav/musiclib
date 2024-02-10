@@ -4,7 +4,7 @@ import functools
 import pickle
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import TypeVar
+from typing import Self
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -19,8 +19,6 @@ from musiclib.svg.card import PlanePiano
 from musiclib.svg.reprsvg import ReprSVGMixin
 from musiclib.util.cache import Cached
 from musiclib.util.etc import setdefault_path
-
-Self = TypeVar('Self', bound='Scale')
 
 
 class Scale(Cached, ReprSVGMixin):

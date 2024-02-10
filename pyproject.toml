@@ -6,7 +6,7 @@ authors = [
 ]
 description = "set of tools to work with scales, modes, modulations, chord progressions, voice leading, rhythm and more"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "colortool>=0.5.3",
     "opseq>=0.1.2",

@@ -1,11 +1,9 @@
 import functools
-from typing import TypeVar
+from typing import Self
 
 import numpy as np
 
 from musiclib.util.cache import Cached
-
-Self = TypeVar('Self', bound='AbstractInterval')
 
 
 @functools.total_ordering
