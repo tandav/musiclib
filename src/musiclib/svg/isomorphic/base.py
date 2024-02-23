@@ -211,9 +211,10 @@ class IsomorphicKeyboard(abc.ABC):
 
     def add_key(self, row: float, col: float) -> None:
         interval = self.row_col_to_interval(row, col)
+        abstract_interval = AbstractInterval(interval)
         x = self.col_to_x(col)
         y = self.row_to_y(row)
-        color = self.interval_colors.get(interval, self.interval_colors.get(AbstractInterval(interval), self.default_key_color))
+        color = self.interval_colors.get(interval, self.interval_colors.get(abstract_interval, self.default_key_color))
         points = self.key_points(x, y)
         if self.round_points:
             points = [round(p, 1) for p in points]
@@ -226,13 +227,15 @@ class IsomorphicKeyboard(abc.ABC):
         }
         id_ = f'row-{row}-col-{col}-{self.id_suffix}'
         self.defs.elements.append(svg.ClipPath(id=id_, elements=[svg.Polygon(**polygon_kw)]))  # type: ignore[union-attr]
-        stroke = self.interval_strokes.get(interval, self.interval_strokes.get(AbstractInterval(interval), None))
+        stroke = self.interval_strokes.get(interval, self.interval_strokes.get(abstract_interval, None))
         if stroke is not None:
             polygon_kw['stroke'] = stroke['stroke'].css_hex
             polygon_kw['stroke_width'] = stroke.get('stroke_width', 1) * 2
             polygon_kw['clip_path'] = f'url(#{id_})'
         polygon = svg.Polygon(**polygon_kw)
         polygon.interval = interval  # type: ignore[attr-defined]
+        polygon.abstract_interval = abstract_interval.interval  # type: ignore[attr-defined]
+        polygon.abstract_interval_base12 = abstract_interval  # type: ignore[attr-defined]
         self.elements.append(polygon)
 
         if self.n_parts is not None:
@@ -257,6 +260,8 @@ class IsomorphicKeyboard(abc.ABC):
             fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
         )
         polygon.interval = interval  # type: ignore[attr-defined]
+        polygon.abstract_interval = abstract_interval.interval  # type: ignore[attr-defined]
+        polygon.abstract_interval_base12 = abstract_interval  # type: ignore[attr-defined]
         self.elements.append(polygon)
 
     @abc.abstractmethod
