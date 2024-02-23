@@ -25,9 +25,9 @@ class IsomorphicKeyboard(abc.ABC):
         *,
         interval_colors: dict[AbstractInterval | int, Color] | None = None,
         interval_strokes: dict[AbstractInterval | int, Color] | None = None,
-        interval_radial_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_horizontal_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_vertical_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_radial_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
+        interval_horizontal_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
+        interval_vertical_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
         n_parts: int | None = None,
         interval_text: TEXT_CALLABLE | None = middle_text_kw_abstract_interval,
         interval_subtext: TEXT_CALLABLE | None = None,
@@ -76,9 +76,9 @@ class IsomorphicKeyboard(abc.ABC):
 
     def validate_parts_colors(
         self,
-        interval_radial_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_horizontal_parts_colors: dict[int, dict[int, Color]] | None = None,
-        interval_vertical_parts_colors: dict[int, dict[int, Color]] | None = None,
+        interval_radial_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
+        interval_horizontal_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
+        interval_vertical_parts_colors: dict[AbstractInterval | int, dict[int, Color]] | None = None,
         n_parts: int | None = None,
     ) -> None:
         if not are_mutually_exclusive(
@@ -163,7 +163,7 @@ class IsomorphicKeyboard(abc.ABC):
         if self.n_parts is None:
             raise ValueError('n_parts must be provided if any of interval_radial_parts_colors, interval_horizontal_parts_colors, interval_vertical_parts_colors is provided')
         if self.interval_radial_parts_colors is not None:
-            for part, color in self.interval_radial_parts_colors.get(interval, {}).items():
+            for part, color in self.interval_radial_parts_colors.get(interval, self.interval_radial_parts_colors.get(AbstractInterval(interval), {})).items():
                 if part >= self.n_parts:
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 p0 = vertex(x, y, self.radius, self.n_parts, part)
@@ -182,7 +182,7 @@ class IsomorphicKeyboard(abc.ABC):
                 )
 
         if self.interval_horizontal_parts_colors is not None:
-            for part, color in self.interval_horizontal_parts_colors.get(interval, {}).items():
+            for part, color in self.interval_horizontal_parts_colors.get(interval, self.interval_horizontal_parts_colors.get(AbstractInterval(interval), {})).items():
                 if part >= self.n_parts:
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 self.elements.append(
@@ -194,7 +194,7 @@ class IsomorphicKeyboard(abc.ABC):
                 )
 
         if self.interval_vertical_parts_colors is not None:
-            for part, color in self.interval_vertical_parts_colors.get(interval, {}).items():
+            for part, color in self.interval_vertical_parts_colors.get(interval, self.interval_vertical_parts_colors.get(AbstractInterval(interval), {})).items():
                 if part >= self.n_parts:
                     raise ValueError(f'part={part} must be less than n_parts={self.n_parts}')
                 self.elements.append(
