@@ -19,4 +19,5 @@ tasks:
   bumpver-dev-stop:
     desc: 'Bump version to stop dev cycle. --<part> is not passed. Usage example: task bumpver-dev-stop'
     cmds:
-      - bumpver update --no-fetch --tag final --no-commit --no-tag-commit
+      # - bumpver update --no-fetch --tag final --no-commit --no-tag-commit
+      - bumpver update --no-fetch --tag final
