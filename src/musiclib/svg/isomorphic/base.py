@@ -257,7 +257,7 @@ class IsomorphicKeyboard(abc.ABC):
         polygon = svg.Polygon(
             class_=['polygon-transparent'],
             points=points,  # type: ignore[arg-type]
-            fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgba,
+            fill=Color.from_rgba_int((0, 0, 0, 0)).css_rgb,
         )
         polygon.interval = interval  # type: ignore[attr-defined]
         polygon.abstract_interval = abstract_interval.interval  # type: ignore[attr-defined]
