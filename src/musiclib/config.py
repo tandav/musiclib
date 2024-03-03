@@ -16,6 +16,7 @@ circle_of_fifths_clockwise = 'CGDAEBfdaebF'
 
 name_to_intervals_kind_grouped = {
     'chromatic': named_intervals_rotations({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 'chromatic'),
+    'emtykind': {'empty': set()},
     'natural': {
         'major': {0, 2, 4, 5, 7, 9, 11},
         'dorian': {0, 2, 3, 5, 7, 9, 10},
