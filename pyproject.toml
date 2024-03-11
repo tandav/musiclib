@@ -20,7 +20,7 @@ dev = [
     "bumpver==2023.1129",
     "hypothesis==6.98.8",
     "pre-commit==3.6.2",
-    "pytest==8.0.1",
+    "pytest==8.1.1",
     "pytest-asyncio==0.23.5",
     "pytest-cov==4.1.0", # https://github.com/pytest-dev/pytest/issues/11868#issuecomment-1913516238
 ]
