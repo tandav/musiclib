@@ -37,9 +37,9 @@ class Note(Cached):
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
-            return self.i <= _note_i[other]
+            return self.i < _note_i[other]
         if isinstance(other, Note):
-            return self.i <= other.i
+            return self.i < other.i
         raise TypeError
 
     def __hash__(self) -> int:

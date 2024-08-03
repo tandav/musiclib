@@ -60,6 +60,13 @@ def test_ordering(op, a, b):
     assert op(a, b)
 
 
+def test_ordering_lt():
+    assert not Note('C') < Note('C')
+    assert not Note('C') > Note('C')
+    assert Note('C') <= Note('C')
+    assert Note('C') >= Note('C')
+
+
 def test_note_sub():
     assert Note('C') - Note('C') == AbstractInterval(0)
     assert Note('G') - Note('C') == AbstractInterval(7)
