@@ -82,6 +82,11 @@ def test_from_name(root, name, expected):
     assert Scale.from_name(root, name) == expected
 
 
+def test_empty_validation():
+    with pytest.raises(ValueError):
+        Scale.from_name(Note('C'), 'empty')
+
+
 @pytest.mark.parametrize(
     ('scale', 'note_to_interval'), [
         (Scale.from_str('CDE/C'), {Note('C'): AbstractInterval(0), Note('D'): AbstractInterval(2), Note('E'): AbstractInterval(4)}),
