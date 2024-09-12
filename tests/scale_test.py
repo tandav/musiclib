@@ -1,6 +1,7 @@
 import operator
 
 import pytest
+
 from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.intervalset import IntervalSet

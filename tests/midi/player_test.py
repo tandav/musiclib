@@ -1,4 +1,5 @@
 import pytest
+
 from musiclib.midi.player import Player
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet

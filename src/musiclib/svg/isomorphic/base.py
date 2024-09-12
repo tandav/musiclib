@@ -236,6 +236,8 @@ class IsomorphicKeyboard(abc.ABC):
         polygon.interval = interval  # type: ignore[attr-defined]
         polygon.abstract_interval = abstract_interval.interval  # type: ignore[attr-defined]
         polygon.abstract_interval_base12 = abstract_interval  # type: ignore[attr-defined]
+        polygon.row = row  # type: ignore[attr-defined]
+        polygon.col = col  # type: ignore[attr-defined]
         self.elements.append(polygon)
 
         if self.n_parts is not None:
@@ -262,6 +264,8 @@ class IsomorphicKeyboard(abc.ABC):
         polygon.interval = interval  # type: ignore[attr-defined]
         polygon.abstract_interval = abstract_interval.interval  # type: ignore[attr-defined]
         polygon.abstract_interval_base12 = abstract_interval  # type: ignore[attr-defined]
+        polygon.row = row  # type: ignore[attr-defined]
+        polygon.col = col  # type: ignore[attr-defined]
         self.elements.append(polygon)
 
     @abc.abstractmethod

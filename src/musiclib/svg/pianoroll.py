@@ -50,7 +50,7 @@ class PianoRoll:
         self.piano = IsoPiano(
             n_cols=len(self.sns),
             interval_colors=dict.fromkeys(self.sns.intervals, config.WHITE_PALE),
-            interval_strokes=dict.fromkeys(self.sns.intervals, {'stroke': config.BLACK_PALE, 'stroke_width': 0.5}),
+            interval_strokes={i: {'stroke': config.BLACK_PALE, 'stroke_width': 0.5} for i in self.sns.intervals},
             interval_text=FromIntervalDict({i: str(n) for i, n in zip(self.sns.intervals, self.sns.notes_ascending, strict=True)}),
             radius=key_width // 2,
             radius1=key_height // 2,

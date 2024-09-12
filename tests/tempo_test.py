@@ -1,6 +1,7 @@
 import typing as tp
 
 import pytest
+
 from musiclib.tempo import Tempo
 
 

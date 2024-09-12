@@ -1,4 +1,5 @@
 import pytest
+
 from musiclib.midi import pitchbend
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote

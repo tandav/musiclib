@@ -1,5 +1,6 @@
 import mido
 import pytest
+
 from musiclib.midi import parse
 from musiclib.note import SpecificNote
 from musiclib.noteset import SpecificNoteSet

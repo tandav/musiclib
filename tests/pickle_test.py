@@ -1,6 +1,7 @@
 import pickle
 
 import pytest
+
 from musiclib.interval import AbstractInterval
 from musiclib.intervalset import IntervalSet
 from musiclib.note import Note
