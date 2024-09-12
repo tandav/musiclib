@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 
 import pytest
+
 from musiclib.noteset import SpecificNoteSet
 from musiclib.progression import Progression
 

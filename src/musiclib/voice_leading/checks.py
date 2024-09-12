@@ -101,11 +101,11 @@ def is_make_major_scale_leading_tone_resolving_semitone_up(
     return tonic - leading_tone == 1
 
 
-def is_large_spacing_intervals(c: tuple[int], max_interval: int = 12, /) -> bool:
+def is_large_spacing_intervals(c: tuple[int, ...], max_interval: int = 12, /) -> bool:
     return any(b - a > max_interval for a, b in itertools.pairwise(c))
 
 
-def is_small_spacing_intervals(c: tuple[int], min_interval: int = 3, /) -> bool:
+def is_small_spacing_intervals(c: tuple[int, ...], min_interval: int = 3, /) -> bool:
     return any(b - a < min_interval for a, b in itertools.pairwise(c))
 
 

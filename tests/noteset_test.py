@@ -2,6 +2,7 @@ import itertools
 from collections.abc import Sequence
 
 import pytest
+
 from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.note import Note

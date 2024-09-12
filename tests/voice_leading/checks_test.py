@@ -1,4 +1,5 @@
 import pytest
+
 from musiclib.noteset import SpecificNoteSet
 from musiclib.voice_leading import checks
 

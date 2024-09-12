@@ -67,7 +67,7 @@ class Progression(Cached, Sequence[SpecificNoteSet]):
         origin = self[0][0]  # pylint: disable=unsubscriptable-object
         key = tuple(frozenset(note - origin for note in chord.notes) for chord in self)
         if origin_name:
-            return origin.abstract.i, key
+            return origin.abstract.i, key  # pylint: disable=no-member
         return key
 
     def __add__(self, other: int) -> Progression:

@@ -1,6 +1,7 @@
 import itertools
 
 import pytest
+
 from musiclib.note import SpecificNote
 from musiclib.noteset import NoteSet
 from musiclib.noteset import SpecificNoteSet

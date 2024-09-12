@@ -3,6 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 from colortool import Color
+
 from musiclib import config
 from musiclib.note import Note
 from musiclib.note import SpecificNote

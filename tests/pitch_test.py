@@ -1,4 +1,5 @@
 import pytest
+
 from musiclib.note import SpecificNote
 from musiclib.pitch import Pitch
 

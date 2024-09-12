@@ -1,4 +1,5 @@
 import pytest
+
 from musiclib.interval import AbstractInterval
 
 

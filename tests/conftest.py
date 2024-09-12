@@ -1,5 +1,6 @@
 import mido
 import pytest
+
 from musiclib.midi.parse import Midi
 from musiclib.midi.parse import MidiNote
 from musiclib.midi.parse import MidiPitch

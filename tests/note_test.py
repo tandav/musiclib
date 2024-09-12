@@ -3,6 +3,7 @@ import operator
 import hypothesis.strategies as st
 import pytest
 from hypothesis import given
+
 from musiclib.interval import AbstractInterval
 from musiclib.note import Note
 from musiclib.note import SpecificNote
