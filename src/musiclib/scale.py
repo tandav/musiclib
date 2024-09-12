@@ -41,6 +41,8 @@ class Scale(Cached, ReprSVGMixin):
 
     @classmethod
     def from_name(cls: type[Self], root: str | Note, name: str) -> Self:
+        if name == 'empty':
+            raise ValueError("name 'empty' is not allowed for Scale, because Scale should have at least 1 note (root note)")
         if isinstance(root, str):
             root = Note(root)
         elif not isinstance(root, Note):

@@ -149,7 +149,7 @@ def rhythm_to_midi(  # noqa: C901
         nonlocal t
         for is_play in rhythm.notes:
             if is_play:
-                notes = [note__.i] if noteset is None else [note.i for note in noteset.notes]
+                notes = [note__.i] if noteset is None else [note.i for note in noteset.notes]  # pylint: disable=possibly-used-before-assignment
                 for i, note in enumerate(notes):
                     track.append(mido.Message('note_on', note=note, velocity=100, time=t if i == 0 else 0))
                 for i, note in enumerate(notes):

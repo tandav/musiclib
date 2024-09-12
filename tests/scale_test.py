@@ -1,6 +1,7 @@
 import operator
 
 import pytest
+
 from musiclib import config
 from musiclib.interval import AbstractInterval
 from musiclib.intervalset import IntervalSet
@@ -80,6 +81,11 @@ def test_from_str_validation(string):
 )
 def test_from_name(root, name, expected):
     assert Scale.from_name(root, name) == expected
+
+
+def test_empty_validation():
+    with pytest.raises(ValueError):
+        Scale.from_name(Note('C'), 'empty')
 
 
 @pytest.mark.parametrize(

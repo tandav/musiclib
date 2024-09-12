@@ -1,6 +1,7 @@
 from collections import deque
 
 import pytest
+
 from musiclib.rhythm import Rhythm
 
 
