@@ -36,7 +36,7 @@ class Rhythm(Cached):
     @functools.cached_property
     def has_contiguous_ones(self) -> bool:
         return (
-            self.notes[0] == 1 and self.notes[-1] == 1
+            (self.notes[0] == 1 and self.notes[-1] == 1)
             or any(len(list(g)) > 1 for k, g in itertools.groupby(self.notes, key=bool) if k)
         )
 

@@ -1,5 +1,4 @@
 stages:
-  # - build
   - test
 
 variables:
@@ -7,6 +6,7 @@ variables:
   PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
   RUFF_CACHE_DIR: "$CI_PROJECT_DIR/.cache/ruff_cache"
   MYPY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/mypy_cache"
+  PIP_INDEX_URL: https://pypi.tandav.me/index/
 
 cache:
   key: $CI_PROJECT_NAME
@@ -17,9 +17,8 @@ test:
   stage: test
   needs: []
   tags:
-    - u61
     - docker
-  image: python:3.12
+  image: python:3.13@sha256:d57ec66c94b9497b9f3c66f6cdddc1e4e0bad4c584397e0b57a721baef0e6fdc
   script:
     - pip install .[dev]
     - pytest --cov musiclib --cov-report term --cov-report xml --junitxml report.xml
@@ -37,9 +36,8 @@ lint:
   stage: test
   needs: []
   tags:
-    - u61
     - docker
-  image: python:3.12
+  image: python:3.13@sha256:d57ec66c94b9497b9f3c66f6cdddc1e4e0bad4c584397e0b57a721baef0e6fdc
   script:
     - pip install .[dev]
     - pre-commit run --all-files

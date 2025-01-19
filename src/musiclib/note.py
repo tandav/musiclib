@@ -95,7 +95,7 @@ class SpecificNote(Cached):
         self.abstract = abstract
         self.is_black = abstract.is_black
         self.octave = octave
-        self.i: int = (octave + 1) * 12 + self.abstract.i  # this is also midi_code
+        self.i: int = (octave + 1) * 12 + self.abstract.i  # this is also midi number
         self._key = self.abstract, self.octave
 
     @classmethod
