@@ -19,6 +19,7 @@ class PitchPattern:
     pitch_st: list[float]
 
 
+@no_type_check
 def interpolate_pattern(pattern: PitchPattern, n_interp_points: int) -> PitchPattern:
     if n_interp_points <= len(pattern.time_bars):
         raise ValueError(f'n_interp_points should be > len(pattern.time_bars), got {n_interp_points=} and {len(pattern.time_bars)=}')
